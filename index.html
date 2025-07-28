@@ -3,123 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Проверка подписки</title>
+  <title>Подписка</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #060039;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #060039;
       color: #d9d9d9;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      margin: 0;
-    }
-    #container {
       text-align: center;
-      padding: 2rem;
-      max-width: 400px;
-      width: 100%;
     }
-    button, a {
-      display: block;
-      width: 100%;
-      margin-top: 1rem;
-      padding: 0.75rem;
-      background: #251897;
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      background-color: #251897;
       color: #d9d9d9;
-      text-decoration: none;
       border: none;
-      border-radius: 8px;
-      font-weight: bold;
+      padding: 12px 24px;
+      font-size: 16px;
       cursor: pointer;
+      border-radius: 8px;
+      margin: 10px;
     }
-    button:hover, a:hover {
-      background: #3326b5;
-    }
-    #error {
-      color: #ff7777;
-      margin-top: 1rem;
+
+    .btn:hover {
+      background-color: #3020b0;
     }
   </style>
 </head>
 <body>
-  <div id="container">
-    <p id="text">Загрузка...</p>
-    <a id="subscribeBtn" href="https://t.me/Nicknaymes2bot" target="_blank"></a>
-    <button id="checkBtn" style="display: none;"></button>
-    <p id="error"></p>
-  </div>
+  <h1 id="title">Загрузка...</h1>
+  <a class="btn" id="subBtn" href="https://t.me/Nicknaymes2bot" target="_blank">Подписаться</a>
+  <button class="btn" id="checkBtn" style="display:none;">Проверить</button>
 
   <script>
     const botToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
-    const channel = '@Nicknaymes2bot';
+    const channelUsername = 'Nicknaymes2bot';
     const redirectUrl = 'https://t.me/NickNaymesBot/create';
 
-    const lang = navigator.language.startsWith('ru') ? 'ru' : 'en';
+    // Элементы UI
+    const title = document.getElementById('title');
+    const subBtn = document.getElementById('subBtn');
+    const checkBtn = document.getElementById('checkBtn');
 
+    // Язык
+    const lang = navigator.language.startsWith('ru') ? 'ru' : 'en';
     const texts = {
       ru: {
-        subscribe: 'Подписаться',
-        check: 'Проверить',
-        checking: 'Проверка подписки...',
-        notSubscribed: 'Чтобы пользоваться этим мини-приложением, надо подписаться на канал',
-        error: 'Ошибка при проверке. Убедитесь, что пользователь начал чат с ботом.'
+        title: 'Чтобы пользоваться этим мини-приложением, подпишитесь на канал',
+        button: 'Проверить',
+        not_subscribed: 'Вы не подписаны на канал',
+        loading: 'Проверяем подписку...',
       },
       en: {
-        subscribe: 'Subscribe',
-        check: 'Check',
-        checking: 'Checking subscription...',
-        notSubscribed: 'To use this mini-app, you must subscribe to the channel',
-        error: 'Error while checking. Make sure the user has started a chat with the bot.'
+        title: 'To use this mini app, subscribe to the channel',
+        button: 'Check',
+        not_subscribed: 'You are not subscribed to the channel',
+        loading: 'Checking subscription...',
       }
     };
 
-    const textEl = document.getElementById('text');
-    const subscribeBtn = document.getElementById('subscribeBtn');
-    const checkBtn = document.getElementById('checkBtn');
-    const errorEl = document.getElementById('error');
+    // Получаем ID из URL
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('startapp');
 
-    const queryParams = new URLSearchParams(window.location.search);
-    const targetUserId = queryParams.get('startapp');
+    checkBtn.style.display = 'inline-block';
+    checkBtn.textContent = texts[lang].button;
+    title.textContent = userId ? texts[lang].loading : texts[lang].title;
 
-    subscribeBtn.textContent = texts[lang].subscribe;
-    checkBtn.textContent = texts[lang].check;
-
-    if (!targetUserId) {
-      // Нет ID → просто показываем просьбу подписаться
-      textEl.textContent = texts[lang].notSubscribed;
-      subscribeBtn.style.display = 'block';
+    if (!userId) {
+      // Нет ID — просто редирект при нажатии
+      checkBtn.addEventListener('click', () => {
+        window.location.href = redirectUrl;
+      });
     } else {
-      // Есть ID → сразу пробуем проверить подписку
-      checkBtn.style.display = 'block';
-      checkBtn.addEventListener('click', () => checkSub(targetUserId));
-      checkSub(targetUserId); // сразу
+      // Есть ID — проверка подписки
+      checkBtn.addEventListener('click', () => checkSub(userId));
+      checkSub(userId);
     }
 
-    async function checkSub(userId) {
-      try {
-        textEl.textContent = texts[lang].checking;
-        errorEl.textContent = '';
-        const res = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channel}&user_id=${userId}`);
-        const data = await res.json();
+    function checkSub(userId) {
+      title.textContent = texts[lang].loading;
 
-        if (!data.ok || !data.result) {
-          textEl.textContent = texts[lang].notSubscribed;
-          errorEl.textContent = texts[lang].error;
-          return;
-        }
-
-        const status = data.result.status;
-        if (['member', 'administrator', 'creator'].includes(status)) {
-          window.location.href = redirectUrl;
-        } else {
-          textEl.textContent = texts[lang].notSubscribed;
-        }
-      } catch (e) {
-        textEl.textContent = texts[lang].notSubscribed;
-        errorEl.textContent = texts[lang].error;
-      }
+      fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=@${channelUsername}&user_id=${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          const status = data?.result?.status;
+          if (['member', 'administrator', 'creator'].includes(status)) {
+            window.location.href = redirectUrl;
+          } else {
+            title.textContent = texts[lang].not_subscribed;
+          }
+        })
+        .catch(() => {
+          title.textContent = texts[lang].not_subscribed;
+        });
     }
   </script>
 </body>
