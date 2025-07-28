@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Подписка на канал</title>
+  <title>Подписка на каналл</title>
   <style>
     body {
       background-color: #060039;
@@ -49,8 +49,7 @@
       }
     };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('startapp');
+    const startParam = window.Telegram.WebApp.initDataUnsafe?.start_param;
 
     const messageEl = document.getElementById('message');
     const buttonsEl = document.getElementById('buttons');
@@ -68,8 +67,8 @@
       const checkBtn = document.createElement('button');
       checkBtn.textContent = text[userLang].check;
       checkBtn.onclick = () => {
-        if (withRedirect && userId) {
-          checkSubscription(userId);
+        if (withRedirect && startParam) {
+          checkSubscription(startParam);
         } else {
           window.location.href = redirectUrl;
         }
@@ -93,8 +92,8 @@
       }
     }
 
-    if (userId) {
-      checkSubscription(userId);
+    if (startParam) {
+      checkSubscription(startParam);
     } else {
       showSubscribeScreen(false);
     }
