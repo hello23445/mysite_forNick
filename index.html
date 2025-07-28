@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Подписка на канал</title>
+  <title>Фейковая проверка подписки</title>
   <style>
     body {
       background-color: #060039;
@@ -24,29 +24,13 @@
     h1 {
       margin-bottom: 30px;
     }
-    #log {
-      background: #1a1a5a;
-      color: #ccc;
-      max-height: 150px;
-      overflow-y: auto;
-      padding: 10px;
-      margin-top: 30px;
-      border-radius: 8px;
-      font-family: monospace;
-      text-align: left;
-      white-space: pre-line;
-    }
   </style>
 </head>
 <body>
   <h1 id="message">Загрузка...</h1>
   <div id="buttons"></div>
-  <h1 id="h1">ef</h1>
-
-  <div id="log"></div>
 
   <script>
-    const botToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
     const channelUsername = 'Nicknaymes2bot';
     const redirectUrl = 'https://t.me/NickNaymesBot/create';
 
@@ -57,28 +41,19 @@
         check: 'Проверить',
         subscribe: 'Подписаться',
         loading: 'Загрузка...',
-        errorCheck: 'Ошибка при проверке подписки',
       },
       en: {
         mustSub: 'To use this mini app, you must subscribe to the channel',
         check: 'Check',
         subscribe: 'Subscribe',
         loading: 'Loading...',
-        errorCheck: 'Error checking subscription',
       }
     };
 
     const messageEl = document.getElementById('message');
     const buttonsEl = document.getElementById('buttons');
-    const logEl = document.getElementById('log');
 
-    function log(text) {
-      const time = new Date().toLocaleTimeString();
-      logEl.textContent += `[${time}] ${text}\n`;
-      logEl.scrollTop = logEl.scrollHeight;
-    }
-
-    function showSubscribeScreen(withRedirect = false) {
+    function showSubscribeScreen() {
       messageEl.textContent = text[userLang].mustSub;
       buttonsEl.innerHTML = '';
 
@@ -90,65 +65,35 @@
       const checkBtn = document.createElement('button');
       checkBtn.textContent = text[userLang].check;
       checkBtn.onclick = () => {
-        if (withRedirect && startParam) {
-          checkSubscription(startParam);
-        } else {
-          window.location.href = redirectUrl;
-        }
+        // Запоминаем, что пользователь нажал Проверить
+        localStorage.setItem('checkedSubscription', 'true');
+        window.location.href = redirectUrl;
       };
       buttonsEl.appendChild(checkBtn);
     }
 
-    async function checkSubscription(id) {
-      messageEl.textContent = text[userLang].loading;
-      log(`Начинаем проверку подписки пользователя с ID: ${id}`);
+    function fakeCheckSubscription(startapp) {
+      if (startapp) {
+        // Если параметр есть — считаем подписанным, сразу редирект
+        window.location.href = redirectUrl;
+        return;
+      }
 
-      try {
-        const response = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=@${channelUsername}&user_id=${id}`);
-        const data = await response.json();
+      const checkedBefore = localStorage.getItem('checkedSubscription') === 'true';
 
-        if (!data.ok) {
-          log(`Ошибка API Telegram: ${data.description || 'нет описания'}`);
-          messageEl.textContent = text[userLang].errorCheck;
-          return showSubscribeScreen(true);
-        }
-
-        const status = data.result?.status;
-        log(`Статус подписки: ${status}`);
-
-        if (['member', 'administrator', 'creator'].includes(status)) {
-          log('Пользователь подписан. Перенаправляем...');
-          window.location.href = redirectUrl;
-        } else {
-          log('Пользователь не подписан. Показываем экран подписки.');
-          showSubscribeScreen(true);
-        }
-      } catch (e) {
-        log('Ошибка при запросе к Telegram API: ' + e.message);
-        messageEl.textContent = text[userLang].errorCheck;
-        showSubscribeScreen(true);
+      if (checkedBefore) {
+        // Если пользователь уже нажимал Проверить ранее — сразу редирект
+        window.location.href = redirectUrl;
+      } else {
+        // Иначе показываем экран подписки
+        showSubscribeScreen();
       }
     }
 
-    // Получаем параметр start_param из Telegram Mini App
-    const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+    const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
 
-    if (startParam) {
-      log(`Параметр start_param найден: ${startParam}`);
-      checkSubscription(startParam);
-    } else {
-      log('Параметр start_param отсутствует. Показываем экран подписки без проверки.');
-      messageEl.textContent = text[userLang].mustSub;
-      showSubscribeScreen(false);
-    }
-    function getParamFromUrl(name) {
-        const params = new URLSearchParams(window.location.search);
-        return params.get(name);
-    }
-
-    const startAppId = getParamFromUrl('startapp');
-    document.querySelector('#h1').textContent = 'startapp из URL:' + startAppId;
-
+    messageEl.textContent = text[userLang].loading;
+    fakeCheckSubscription(urlStartApp);
   </script>
 </body>
 </html>
