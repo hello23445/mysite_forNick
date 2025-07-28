@@ -2,109 +2,101 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Подписка</title>
+  <title>Подписка на канал</title>
   <style>
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
       background-color: #060039;
       color: #d9d9d9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      font-family: Arial, sans-serif;
       text-align: center;
+      padding: 40px 20px;
     }
-
-    h1 {
-      margin-bottom: 20px;
-    }
-
-    .btn {
+    button {
       background-color: #251897;
       color: #d9d9d9;
       border: none;
-      padding: 12px 24px;
+      padding: 12px 20px;
+      margin: 10px;
+      border-radius: 10px;
       font-size: 16px;
       cursor: pointer;
-      border-radius: 8px;
-      margin: 10px;
     }
-
-    .btn:hover {
-      background-color: #3020b0;
+    h1 {
+      margin-bottom: 30px;
     }
   </style>
 </head>
 <body>
-  <h1 id="title">Загрузка...</h1>
-  <a class="btn" id="subBtn" href="https://t.me/Nicknaymes2bot" target="_blank">Подписаться</a>
-  <button class="btn" id="checkBtn" style="display:none;">Проверить</button>
+  <h1 id="message">Загрузка...</h1>
+  <div id="buttons"></div>
 
   <script>
     const botToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
     const channelUsername = 'Nicknaymes2bot';
     const redirectUrl = 'https://t.me/NickNaymesBot/create';
 
-    // Элементы UI
-    const title = document.getElementById('title');
-    const subBtn = document.getElementById('subBtn');
-    const checkBtn = document.getElementById('checkBtn');
-
-    // Язык
-    const lang = navigator.language.startsWith('ru') ? 'ru' : 'en';
-    const texts = {
+    const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
+    const text = {
       ru: {
-        title: 'Чтобы пользоваться этим мини-приложением, подпишитесь на канал',
-        button: 'Проверить',
-        not_subscribed: 'Вы не подписаны на канал',
-        loading: 'Проверяем подписку...',
+        mustSub: 'Чтобы пользоваться этим мини-приложением, надо подписаться на канал',
+        check: 'Проверить',
+        subscribe: 'Подписаться',
       },
       en: {
-        title: 'To use this mini app, subscribe to the channel',
-        button: 'Check',
-        not_subscribed: 'You are not subscribed to the channel',
-        loading: 'Checking subscription...',
+        mustSub: 'To use this mini app, you must subscribe to the channel',
+        check: 'Check',
+        subscribe: 'Subscribe',
       }
     };
 
-    // Получаем ID из URL
-    const params = new URLSearchParams(window.location.search);
-    const userId = params.get('startapp');
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('startapp');
 
-    checkBtn.style.display = 'inline-block';
-    checkBtn.textContent = texts[lang].button;
-    title.textContent = userId ? texts[lang].loading : texts[lang].title;
+    const messageEl = document.getElementById('message');
+    const buttonsEl = document.getElementById('buttons');
 
-    if (!userId) {
-      // Нет ID — просто редирект при нажатии
-      checkBtn.addEventListener('click', () => {
-        window.location.href = redirectUrl;
-      });
-    } else {
-      // Есть ID — проверка подписки
-      checkBtn.addEventListener('click', () => checkSub(userId));
-      checkSub(userId);
+    function showSubscribeScreen(withRedirect = false) {
+      messageEl.textContent = text[userLang].mustSub;
+
+      buttonsEl.innerHTML = '';
+
+      const subBtn = document.createElement('button');
+      subBtn.textContent = text[userLang].subscribe;
+      subBtn.onclick = () => window.open(`https://t.me/${channelUsername}`, '_blank');
+      buttonsEl.appendChild(subBtn);
+
+      const checkBtn = document.createElement('button');
+      checkBtn.textContent = text[userLang].check;
+      checkBtn.onclick = () => {
+        if (withRedirect && userId) {
+          checkSubscription(userId);
+        } else {
+          window.location.href = redirectUrl;
+        }
+      };
+      buttonsEl.appendChild(checkBtn);
     }
 
-    function checkSub(userId) {
-      title.textContent = texts[lang].loading;
+    async function checkSubscription(id) {
+      try {
+        const response = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=@${channelUsername}&user_id=${id}`);
+        const data = await response.json();
 
-      fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=@${channelUsername}&user_id=${userId}`)
-        .then(res => res.json())
-        .then(data => {
-          const status = data?.result?.status;
-          if (['member', 'administrator', 'creator'].includes(status)) {
-            window.location.href = redirectUrl;
-          } else {
-            title.textContent = texts[lang].not_subscribed;
-          }
-        })
-        .catch(() => {
-          title.textContent = texts[lang].not_subscribed;
-        });
+        const status = data.result?.status;
+        if (['member', 'administrator', 'creator'].includes(status)) {
+          window.location.href = redirectUrl;
+        } else {
+          showSubscribeScreen(true);
+        }
+      } catch (e) {
+        messageEl.textContent = 'Ошибка при проверке подписки';
+      }
+    }
+
+    if (userId) {
+      checkSubscription(userId);
+    } else {
+      showSubscribeScreen(false);
     }
   </script>
 </body>
