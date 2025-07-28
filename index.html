@@ -5,18 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Проверка подписки</title>
   <style>
-    body { font-family: sans-serif; background: #f3f4f6; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    #content { background: #fff; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
-    button, a { display: block; width: 100%; padding: 0.75rem; margin-top: 1rem; border: none; border-radius: 0.25rem; font-weight: bold; text-decoration: none; }
-    #subscribeButton { background: #3b82f6; color: white; }
-    #checkButton { background: #10b981; color: white; }
-    #errorMessage { color: #ef4444; margin-top: 1rem; display: none; }
+    body {
+      font-family: sans-serif;
+      background: #060039;
+      color: #d9d9d9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #content {
+      background: #0d0054;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    button, a {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 1rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+      background-color: #251897;
+      color: #d9d9d9;
+      transition: background 0.3s;
+    }
+    button:hover, a:hover {
+      background-color: #3326b5;
+    }
+    #errorMessage {
+      color: #ff7777;
+      margin-top: 1rem;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div id="content">
     <p id="message"></p>
-    <a id="subscribeButton" href="https://t.me/Nicknaymes2bot"></a>
+    <a id="subscribeButton" href="https://t.me/Nicknaymes2bot" target="_blank"></a>
     <button id="checkButton"></button>
     <p id="errorMessage"></p>
   </div>
@@ -24,88 +59,80 @@
   <script>
     const texts = {
       ru: {
-        notSubscribed: "Чтобы пользоваться этим мини-приложением, подпишитесь на канал",
+        notSubscribed: "Чтобы пользоваться этим мини-приложением, надо подписаться на канал",
         subscribe: "Подписаться",
-        check: "Проверить подписку",
-        loading: "Проверка подписки...",
-        error: "Ошибка при проверке. Начните чат с ботом и попробуйте снова."
+        check: "Проверить",
+        checking: "Проверка подписки...",
+        error: "Ошибка. Убедитесь, что вы начали чат с ботом и повторите попытку."
       },
       en: {
         notSubscribed: "To use this mini-app, you must subscribe to the channel",
         subscribe: "Subscribe",
-        check: "Check subscription",
-        loading: "Checking subscription...",
-        error: "Error checking. Please start chat with bot and try again."
+        check: "Check",
+        checking: "Checking subscription...",
+        error: "Error. Make sure you started a chat with the bot and try again."
       }
     };
 
-    const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
-    const lang = texts[userLang];
+    const lang = navigator.language.startsWith('ru') ? texts.ru : texts.en;
 
-    const messageElement = document.getElementById('message');
-    const subscribeButton = document.getElementById('subscribeButton');
-    const checkButton = document.getElementById('checkButton');
-    const errorMessageElement = document.getElementById('errorMessage');
+    const messageEl = document.getElementById('message');
+    const subscribeBtn = document.getElementById('subscribeButton');
+    const checkBtn = document.getElementById('checkButton');
+    const errorMsg = document.getElementById('errorMessage');
 
-    const botToken = 'ВАШ_ТОКЕН_БОТА'; // ← ЗАМЕНИ на свой токен
-    const channelId = '@NickNaymesChannel'; // ← или '-100xxxxxxxxxx' (если приватный)
+    const botToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
+    const channelId = '@Nicknaymes2bot';
+    const redirectUrl = 'https://t.me/NickNaymesBot/create';
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('startapp');
-    console.log('[userId]:', userId);
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('startapp');
 
     async function checkSubscription(userId) {
       try {
-        messageElement.textContent = lang.loading;
-        errorMessageElement.style.display = 'none';
+        messageEl.textContent = lang.checking;
+        errorMsg.style.display = 'none';
 
         const res = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channelId}&user_id=${userId}`);
         const data = await res.json();
-        console.log('[API response]:', data);
 
-        if (!data.ok) {
-          if (data.description.includes('user not found')) {
-            errorMessageElement.textContent = lang.error;
-          } else {
-            errorMessageElement.textContent = data.description;
-          }
-          errorMessageElement.style.display = 'block';
-          messageElement.textContent = lang.notSubscribed;
+        if (!data.ok || !data.result) {
+          errorMsg.textContent = lang.error;
+          errorMsg.style.display = 'block';
+          messageEl.textContent = lang.notSubscribed;
           return;
         }
 
         const status = data.result.status;
         if (['member', 'administrator', 'creator'].includes(status)) {
-          window.location.href = 'https://t.me/NickNaymesBot/create';
+          window.location.href = redirectUrl;
         } else {
-          messageElement.textContent = lang.notSubscribed;
+          messageEl.textContent = lang.notSubscribed;
         }
       } catch (err) {
-        console.error('Fetch error:', err);
-        messageElement.textContent = lang.notSubscribed;
-        errorMessageElement.textContent = lang.error;
-        errorMessageElement.style.display = 'block';
+        console.error('Ошибка запроса:', err);
+        messageEl.textContent = lang.notSubscribed;
+        errorMsg.textContent = lang.error;
+        errorMsg.style.display = 'block';
       }
     }
 
-    checkButton.addEventListener('click', () => {
+    checkBtn.addEventListener('click', () => {
       if (userId) {
         checkSubscription(userId);
       } else {
-        window.location.href = 'https://t.me/NickNaymesBot/create';
+        window.location.href = redirectUrl;
       }
     });
 
-    // Первичная отрисовка
+    subscribeBtn.textContent = lang.subscribe;
+    checkBtn.textContent = lang.check;
+
     if (userId) {
-      messageElement.textContent = lang.loading;
       checkSubscription(userId);
     } else {
-      messageElement.textContent = lang.notSubscribed;
+      messageEl.textContent = lang.notSubscribed;
     }
-
-    subscribeButton.textContent = lang.subscribe;
-    checkButton.textContent = lang.check;
   </script>
 </body>
 </html>
