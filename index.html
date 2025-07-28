@@ -1,150 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Проверка подписки Telegram</title>
-    <style>
-        /* Минимальные стили Tailwind CSS для текущей раскладки */
-        .bg-gray-100 { background-color: #f3f4f6; }
-        .flex { display: flex; }
-        .items-center { align-items: center; }
-        .justify-center { justify-content: center; }
-        .h-screen { height: 100vh; }
-        .bg-white { background-color: #ffffff; }
-        .p-6 { padding: 1.5rem; }
-        .rounded-lg { border-radius: 0.5rem; }
-        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        .max-w-md { max-width: 28rem; }
-        .w-full { width: 100%; }
-        .text-center { text-align: center; }
-        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .flex-col { flex-direction: column; }
-        .space-y-4 > * + * { margin-top: 1rem; }
-        .bg-blue-500 { background-color: #3b82f6; }
-        .text-white { color: #ffffff; }
-        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-        .px-4 { padding-left: 1rem; padding-right: 1rem; }
-        .rounded { border-radius: 0.25rem; }
-        .hover\:bg-blue-600:hover { background-color: #2563eb; }
-        .bg-green-500 { background-color: #10b981; }
-        .hover\:bg-green-600:hover { background-color: #059669; }
-        .text-red-500 { color: #ef4444; }
-        .mt-4 { margin-top: 1rem; }
-        .hidden { display: none; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Проверка подписки</title>
+  <style>
+    body { font-family: sans-serif; background: #f3f4f6; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    #content { background: #fff; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
+    button, a { display: block; width: 100%; padding: 0.75rem; margin-top: 1rem; border: none; border-radius: 0.25rem; font-weight: bold; text-decoration: none; }
+    #subscribeButton { background: #3b82f6; color: white; }
+    #checkButton { background: #10b981; color: white; }
+    #errorMessage { color: #ef4444; margin-top: 1rem; display: none; }
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
-    <div id="content" class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
-        <p id="message" class="text-lg mb-4"></p>
-        <div class="flex flex-col space-y-4">
-            <a id="subscribeButton" href="https://t.me/Nicknaymes2bot" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"></a>
-            <button id="checkButton" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"></button>
-        </div>
-        <p id="errorMessage" class="text-red-500 mt-4 hidden"></p>
-    </div>
+<body>
+  <div id="content">
+    <p id="message"></p>
+    <a id="subscribeButton" href="https://t.me/Nicknaymes2bot"></a>
+    <button id="checkButton"></button>
+    <p id="errorMessage"></p>
+  </div>
 
-    <script>
-        // Тексты на двух языках
-        const texts = {
-            ru: {
-                notSubscribed: "Чтобы пользоваться этим мини-приложением, надо подписаться на канал",
-                subscribe: "Подписаться",
-                check: "Проверить",
-                loading: "Проверка подписки...",
-                error: "Ошибка при проверке подписки. Попробуйте снова."
-            },
-            en: {
-                notSubscribed: "To use this mini-app, you must subscribe to the channel",
-                subscribe: "Subscribe",
-                check: "Check",
-                loading: "Checking subscription...",
-                error: "Error checking subscription. Please try again."
-            }
-        };
+  <script>
+    const texts = {
+      ru: {
+        notSubscribed: "Чтобы пользоваться этим мини-приложением, подпишитесь на канал",
+        subscribe: "Подписаться",
+        check: "Проверить подписку",
+        loading: "Проверка подписки...",
+        error: "Ошибка при проверке. Начните чат с ботом и попробуйте снова."
+      },
+      en: {
+        notSubscribed: "To use this mini-app, you must subscribe to the channel",
+        subscribe: "Subscribe",
+        check: "Check subscription",
+        loading: "Checking subscription...",
+        error: "Error checking. Please start chat with bot and try again."
+      }
+    };
 
-        // Определение языка пользователя (по умолчанию русский, иначе английский)
-        const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
-        const lang = texts[userLang];
+    const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
+    const lang = texts[userLang];
 
-        // Элементы DOM
-        const messageElement = document.getElementById('message');
-        const subscribeButton = document.getElementById('subscribeButton');
-        const checkButton = document.getElementById('checkButton');
-        const errorMessageElement = document.getElementById('errorMessage');
+    const messageElement = document.getElementById('message');
+    const subscribeButton = document.getElementById('subscribeButton');
+    const checkButton = document.getElementById('checkButton');
+    const errorMessageElement = document.getElementById('errorMessage');
 
-        // Конфигурация бота и канала
-        const botToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
-        const channelId = '-1001917846321';
+    const botToken = 'ВАШ_ТОКЕН_БОТА'; // ← ЗАМЕНИ на свой токен
+    const channelId = '@NickNaymesChannel'; // ← или '-100xxxxxxxxxx' (если приватный)
 
-        // Извлечение параметра startapp из URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('startapp');
-        console.log('Извлечённый userId:', userId); // Отладка: логирование userId
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('startapp');
+    console.log('[userId]:', userId);
 
-        // Функция проверки статуса подписки
-        async function checkSubscription(userId) {
-            try {
-                console.log('Проверка подписки для пользователя:', userId); // Отладка
-                if (!userId || isNaN(userId)) {
-                    console.error('Некорректный userId:', userId);
-                    messageElement.textContent = lang.notSubscribed;
-                    subscribeButton.textContent = lang.subscribe;
-                    checkButton.textContent = lang.check;
-                    errorMessageElement.textContent = lang.error;
-                    errorMessageElement.classList.remove('hidden');
-                    return;
-                }
+    async function checkSubscription(userId) {
+      try {
+        messageElement.textContent = lang.loading;
+        errorMessageElement.style.display = 'none';
 
-                const response = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channelId}&user_id=${userId}`);
-                const data = await response.json();
-                console.log('Ответ API:', data); // Отладка: логирование ответа API
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channelId}&user_id=${userId}`);
+        const data = await res.json();
+        console.log('[API response]:', data);
 
-                if (data.ok && (data.result.status === 'member' || data.result.status === 'creator' || data.result.status === 'administrator')) {
-                    console.log('Пользователь подписан, перенаправление...'); // Отладка
-                    window.location.href = 'https://t.me/NickNaymesBot/create';
-                } else {
-                    console.log('Пользователь не подписан'); // Отладка
-                    messageElement.textContent = lang.notSubscribed;
-                    subscribeButton.textContent = lang.subscribe;
-                    checkButton.textContent = lang.check;
-                    errorMessageElement.classList.add('hidden');
-                }
-            } catch (error) {
-                console.error('Ошибка при проверке подписки:', error); // Отладка
-                messageElement.textContent = lang.notSubscribed;
-                subscribeButton.textContent = lang.subscribe;
-                checkButton.textContent = lang.check;
-                errorMessageElement.textContent = lang.error;
-                errorMessageElement.classList.remove('hidden');
-            }
+        if (!data.ok) {
+          if (data.description.includes('user not found')) {
+            errorMessageElement.textContent = lang.error;
+          } else {
+            errorMessageElement.textContent = data.description;
+          }
+          errorMessageElement.style.display = 'block';
+          messageElement.textContent = lang.notSubscribed;
+          return;
         }
 
-        // Обработка клика по кнопке "Проверить"
-        checkButton.addEventListener('click', () => {
-            console.log('Клик по кнопке Проверить, userId:', userId); // Отладка
-            if (userId) {
-                messageElement.textContent = lang.loading;
-                errorMessageElement.classList.add('hidden');
-                checkSubscription(userId); // Всегда проверяем подписку, если есть userId
-            } else {
-                console.log('Отсутствует userId, перенаправление...'); // Отладка
-                window.location.href = 'https://t.me/NickNaymesBot/create';
-            }
-        });
-
-        // Начальная настройка
-        if (userId) {
-            messageElement.textContent = lang.loading;
-            checkSubscription(userId);
+        const status = data.result.status;
+        if (['member', 'administrator', 'creator'].includes(status)) {
+          window.location.href = 'https://t.me/NickNaymesBot/create';
         } else {
-            console.log('Отсутствует параметр startapp, показываем экран подписки'); // Отладка
-            messageElement.textContent = lang.notSubscribed;
-            subscribeButton.textContent = lang.subscribe;
-            checkButton.textContent = lang.check;
-            errorMessageElement.classList.add('hidden');
+          messageElement.textContent = lang.notSubscribed;
         }
-    </script>
+      } catch (err) {
+        console.error('Fetch error:', err);
+        messageElement.textContent = lang.notSubscribed;
+        errorMessageElement.textContent = lang.error;
+        errorMessageElement.style.display = 'block';
+      }
+    }
+
+    checkButton.addEventListener('click', () => {
+      if (userId) {
+        checkSubscription(userId);
+      } else {
+        window.location.href = 'https://t.me/NickNaymesBot/create';
+      }
+    });
+
+    // Первичная отрисовка
+    if (userId) {
+      messageElement.textContent = lang.loading;
+      checkSubscription(userId);
+    } else {
+      messageElement.textContent = lang.notSubscribed;
+    }
+
+    subscribeButton.textContent = lang.subscribe;
+    checkButton.textContent = lang.check;
+  </script>
 </body>
 </html>
