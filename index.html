@@ -41,6 +41,7 @@
 <body>
   <h1 id="message">Загрузка...</h1>
   <div id="buttons"></div>
+  <h1 id="h1">ef</h1>
 
   <div id="log"></div>
 
@@ -140,6 +141,14 @@
       messageEl.textContent = text[userLang].mustSub;
       showSubscribeScreen(false);
     }
+    function getParamFromUrl(name) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    const startAppId = getParamFromUrl('startapp');
+    document.querySelector('#h1').textContent = 'startapp из URL:' + startAppId;
+
   </script>
 </body>
 </html>
