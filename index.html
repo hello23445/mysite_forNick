@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Subscription Check</title>
+    <title>Проверка подписки Telegram</title>
     <style>
-        /* Minimal Tailwind CSS styles for the layout */
+        /* Минимальные стили Tailwind CSS для текущей раскладки */
         .bg-gray-100 { background-color: #f3f4f6; }
         .flex { display: flex; }
         .items-center { align-items: center; }
@@ -46,7 +46,7 @@
     </div>
 
     <script>
-        // Language texts
+        // Тексты на двух языках
         const texts = {
             ru: {
                 notSubscribed: "Чтобы пользоваться этим мини-приложением, надо подписаться на канал",
@@ -64,45 +64,55 @@
             }
         };
 
-        // Detect user language (default to Russian, fallback to English)
+        // Определение языка пользователя (по умолчанию русский, иначе английский)
         const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
         const lang = texts[userLang];
 
-        // DOM elements
+        // Элементы DOM
         const messageElement = document.getElementById('message');
         const subscribeButton = document.getElementById('subscribeButton');
         const checkButton = document.getElementById('checkButton');
         const errorMessageElement = document.getElementById('errorMessage');
 
-        // Bot and channel configuration
+        // Конфигурация бота и канала
         const botToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
         const channelId = '-1001917846321';
 
-        // Extract startapp parameter from URL
+        // Извлечение параметра startapp из URL
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('startapp');
-        console.log('Extracted userId:', userId); // Debug: Log userId
+        console.log('Извлечённый userId:', userId); // Отладка: логирование userId
 
-        // Function to check subscription status
+        // Функция проверки статуса подписки
         async function checkSubscription(userId) {
             try {
-                console.log('Checking subscription for user:', userId); // Debug
+                console.log('Проверка подписки для пользователя:', userId); // Отладка
+                if (!userId || isNaN(userId)) {
+                    console.error('Некорректный userId:', userId);
+                    messageElement.textContent = lang.notSubscribed;
+                    subscribeButton.textContent = lang.subscribe;
+                    checkButton.textContent = lang.check;
+                    errorMessageElement.textContent = lang.error;
+                    errorMessageElement.classList.remove('hidden');
+                    return;
+                }
+
                 const response = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channelId}&user_id=${userId}`);
                 const data = await response.json();
-                console.log('API response:', data); // Debug: Log API response
+                console.log('Ответ API:', data); // Отладка: логирование ответа API
 
                 if (data.ok && (data.result.status === 'member' || data.result.status === 'creator' || data.result.status === 'administrator')) {
-                    console.log('User is subscribed, redirecting...'); // Debug
+                    console.log('Пользователь подписан, перенаправление...'); // Отладка
                     window.location.href = 'https://t.me/NickNaymesBot/create';
                 } else {
-                    console.log('User is not subscribed'); // Debug
+                    console.log('Пользователь не подписан'); // Отладка
                     messageElement.textContent = lang.notSubscribed;
                     subscribeButton.textContent = lang.subscribe;
                     checkButton.textContent = lang.check;
                     errorMessageElement.classList.add('hidden');
                 }
             } catch (error) {
-                console.error('Error checking subscription:', error); // Debug
+                console.error('Ошибка при проверке подписки:', error); // Отладка
                 messageElement.textContent = lang.notSubscribed;
                 subscribeButton.textContent = lang.subscribe;
                 checkButton.textContent = lang.check;
@@ -111,28 +121,25 @@
             }
         }
 
-        // Handle button click
+        // Обработка клика по кнопке "Проверить"
         checkButton.addEventListener('click', () => {
+            console.log('Клик по кнопке Проверить, userId:', userId); // Отладка
             if (userId) {
                 messageElement.textContent = lang.loading;
                 errorMessageElement.classList.add('hidden');
-                checkSubscription(userId); // Always check subscription when userId exists
+                checkSubscription(userId); // Всегда проверяем подписку, если есть userId
             } else {
-                console.log('No userId, redirecting directly'); // Debug
-                messageElement.textContent = lang.notSubscribed;
-                subscribeButton.textContent = lang.subscribe;
-                checkButton.textContent = lang.check;
-                errorMessageElement.classList.add('hidden');
+                console.log('Отсутствует userId, перенаправление...'); // Отладка
                 window.location.href = 'https://t.me/NickNaymesBot/create';
             }
         });
 
-        // Initial setup
+        // Начальная настройка
         if (userId) {
             messageElement.textContent = lang.loading;
             checkSubscription(userId);
         } else {
-            console.log('No startapp parameter, showing subscription prompt'); // Debug
+            console.log('Отсутствует параметр startapp, показываем экран подписки'); // Отладка
             messageElement.textContent = lang.notSubscribed;
             subscribeButton.textContent = lang.subscribe;
             checkButton.textContent = lang.check;
