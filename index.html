@@ -4,7 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Subscription Check</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal Tailwind CSS styles for the layout */
+        .bg-gray-100 { background-color: #f3f4f6; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .h-screen { height: 100vh; }
+        .bg-white { background-color: #ffffff; }
+        .p-6 { padding: 1.5rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .max-w-md { max-width: 28rem; }
+        .w-full { width: 100%; }
+        .text-center { text-align: center; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .flex-col { flex-direction: column; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .bg-blue-500 { background-color: #3b82f6; }
+        .text-white { color: #ffffff; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .rounded { border-radius: 0.25rem; }
+        .hover\:bg-blue-600:hover { background-color: #2563eb; }
+        .bg-green-500 { background-color: #10b981; }
+        .hover\:bg-green-600:hover { background-color: #059669; }
+        .text-red-500 { color: #ef4444; }
+        .mt-4 { margin-top: 1rem; }
+        .hidden { display: none; }
+    </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center h-screen">
     <div id="content" class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
@@ -22,7 +51,7 @@
             ru: {
                 notSubscribed: "Чтобы пользоваться этим мини-приложением, надо подписаться на канал",
                 subscribe: "Подписаться",
-                check: "Проверить 2",
+                check: "Проверить",
                 loading: "Проверка подписки...",
                 error: "Ошибка при проверке подписки. Попробуйте снова."
             },
