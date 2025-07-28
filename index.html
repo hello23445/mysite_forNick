@@ -22,7 +22,7 @@
             ru: {
                 notSubscribed: "Чтобы пользоваться этим мини-приложением, надо подписаться на канал",
                 subscribe: "Подписаться",
-                check: "Проверить",
+                check: "Проверить 2",
                 loading: "Проверка подписки...",
                 error: "Ошибка при проверке подписки. Попробуйте снова."
             },
@@ -87,9 +87,13 @@
             if (userId) {
                 messageElement.textContent = lang.loading;
                 errorMessageElement.classList.add('hidden');
-                checkSubscription(userId);
+                checkSubscription(userId); // Always check subscription when userId exists
             } else {
                 console.log('No userId, redirecting directly'); // Debug
+                messageElement.textContent = lang.notSubscribed;
+                subscribeButton.textContent = lang.subscribe;
+                checkButton.textContent = lang.check;
+                errorMessageElement.classList.add('hidden');
                 window.location.href = 'https://t.me/NickNaymesBot/create';
             }
         });
