@@ -15,91 +15,98 @@
       height: 100vh;
       margin: 0;
     }
-    #content {
-      background: #0d0054;
-      padding: 2rem;
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    #container {
       text-align: center;
-      width: 100%;
+      padding: 2rem;
       max-width: 400px;
+      width: 100%;
     }
     button, a {
       display: block;
       width: 100%;
-      padding: 0.75rem;
       margin-top: 1rem;
-      border: none;
-      border-radius: 0.25rem;
-      font-weight: bold;
-      text-decoration: none;
-      cursor: pointer;
-      background-color: #251897;
+      padding: 0.75rem;
+      background: #251897;
       color: #d9d9d9;
-      transition: background 0.3s;
+      text-decoration: none;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
     }
     button:hover, a:hover {
-      background-color: #3326b5;
+      background: #3326b5;
     }
-    #errorMessage {
+    #error {
       color: #ff7777;
       margin-top: 1rem;
-      display: none;
     }
   </style>
 </head>
 <body>
-  <div id="content">
-    <p id="message"></p>
-    <a id="subscribeButton" href="https://t.me/Nicknaymes2bot" target="_blank"></a>
-    <button id="checkButton"></button>
-    <p id="errorMessage"></p>
+  <div id="container">
+    <p id="text">Загрузка...</p>
+    <a id="subscribeBtn" href="https://t.me/Nicknaymes2bot" target="_blank"></a>
+    <button id="checkBtn" style="display: none;"></button>
+    <p id="error"></p>
   </div>
 
   <script>
+    const botToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
+    const channel = '@Nicknaymes2bot';
+    const redirectUrl = 'https://t.me/NickNaymesBot/create';
+
+    const lang = navigator.language.startsWith('ru') ? 'ru' : 'en';
+
     const texts = {
       ru: {
-        notSubscribed: "Чтобы пользоваться этим мини-приложением, надо подписаться на канал",
-        subscribe: "Подписаться",
-        check: "Проверить",
-        checking: "Проверка подписки...",
-        error: "Ошибка. Убедитесь, что вы начали чат с ботом и повторите попытку."
+        subscribe: 'Подписаться',
+        check: 'Проверить',
+        checking: 'Проверка подписки...',
+        notSubscribed: 'Чтобы пользоваться этим мини-приложением, надо подписаться на канал',
+        error: 'Ошибка при проверке. Убедитесь, что пользователь начал чат с ботом.'
       },
       en: {
-        notSubscribed: "To use this mini-app, you must subscribe to the channel",
-        subscribe: "Subscribe",
-        check: "Check",
-        checking: "Checking subscription...",
-        error: "Error. Make sure you started a chat with the bot and try again."
+        subscribe: 'Subscribe',
+        check: 'Check',
+        checking: 'Checking subscription...',
+        notSubscribed: 'To use this mini-app, you must subscribe to the channel',
+        error: 'Error while checking. Make sure the user has started a chat with the bot.'
       }
     };
 
-    const lang = navigator.language.startsWith('ru') ? texts.ru : texts.en;
+    const textEl = document.getElementById('text');
+    const subscribeBtn = document.getElementById('subscribeBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const errorEl = document.getElementById('error');
 
-    const messageEl = document.getElementById('message');
-    const subscribeBtn = document.getElementById('subscribeButton');
-    const checkBtn = document.getElementById('checkButton');
-    const errorMsg = document.getElementById('errorMessage');
+    const queryParams = new URLSearchParams(window.location.search);
+    const targetUserId = queryParams.get('startapp');
 
-    const botToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
-    const channelId = '@Nicknaymes2bot';
-    const redirectUrl = 'https://t.me/NickNaymesBot/create';
+    subscribeBtn.textContent = texts[lang].subscribe;
+    checkBtn.textContent = texts[lang].check;
 
-    const params = new URLSearchParams(window.location.search);
-    const userId = params.get('startapp');
+    if (!targetUserId) {
+      // Нет ID → просто показываем просьбу подписаться
+      textEl.textContent = texts[lang].notSubscribed;
+      subscribeBtn.style.display = 'block';
+    } else {
+      // Есть ID → сразу пробуем проверить подписку
+      checkBtn.style.display = 'block';
+      checkBtn.addEventListener('click', () => checkSub(targetUserId));
+      checkSub(targetUserId); // сразу
+    }
 
-    async function checkSubscription(userId) {
+    async function checkSub(userId) {
       try {
-        messageEl.textContent = lang.checking;
-        errorMsg.style.display = 'none';
-
-        const res = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channelId}&user_id=${userId}`);
+        textEl.textContent = texts[lang].checking;
+        errorEl.textContent = '';
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channel}&user_id=${userId}`);
         const data = await res.json();
 
         if (!data.ok || !data.result) {
-          errorMsg.textContent = lang.error;
-          errorMsg.style.display = 'block';
-          messageEl.textContent = lang.notSubscribed;
+          textEl.textContent = texts[lang].notSubscribed;
+          errorEl.textContent = texts[lang].error;
           return;
         }
 
@@ -107,31 +114,12 @@
         if (['member', 'administrator', 'creator'].includes(status)) {
           window.location.href = redirectUrl;
         } else {
-          messageEl.textContent = lang.notSubscribed;
+          textEl.textContent = texts[lang].notSubscribed;
         }
-      } catch (err) {
-        console.error('Ошибка запроса:', err);
-        messageEl.textContent = lang.notSubscribed;
-        errorMsg.textContent = lang.error;
-        errorMsg.style.display = 'block';
+      } catch (e) {
+        textEl.textContent = texts[lang].notSubscribed;
+        errorEl.textContent = texts[lang].error;
       }
-    }
-
-    checkBtn.addEventListener('click', () => {
-      if (userId) {
-        checkSubscription(userId);
-      } else {
-        window.location.href = redirectUrl;
-      }
-    });
-
-    subscribeBtn.textContent = lang.subscribe;
-    checkBtn.textContent = lang.check;
-
-    if (userId) {
-      checkSubscription(userId);
-    } else {
-      messageEl.textContent = lang.notSubscribed;
     }
   </script>
 </body>
