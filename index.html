@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Subscription Check</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div id="content" class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
+        <p id="message" class="text-lg mb-4"></p>
+        <div class="flex flex-col space-y-4">
+            <a id="subscribeButton" href="https://t.me/Nicknaymes2bot" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"></a>
+            <button id="checkButton" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"></button>
+        </div>
+    </div>
+
+    <script>
+        // Language texts
+        const texts = {
+            ru: {
+                notSubscribed: "Чтобы пользоваться этим мини-приложением, надо подписаться на канал @Nicknaymes2bot",
+                subscribe: "Подписаться",
+                check: "Проверить",
+                loading: "Проверка подписки..."
+            },
+            en: {
+                notSubscribed: "To use this mini-app, you must subscribe to the @Nicknaymes2bot channel",
+                subscribe: "Subscribe",
+                check: "Check",
+                loading: "Checking subscription..."
+            }
+        };
+
+        // Detect user language (default to Russian, fallback to English)
+        const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
+        const lang = texts[userLang];
+
+        // DOM elements
+        const messageElement = document.getElementById('message');
+        const subscribeButton = document.getElementById('subscribeButton');
+        const checkButton = document.getElementById('checkButton');
+
+        // Bot and channel configuration
+        const botToken = 'YOUR_BOT_TOKEN'; // Replace with your bot token
+        const channelId = 'CHANNEL_ID'; // Replace with @Nicknaymes2bot channel ID (e.g., -1002234567899)
+
+        // Extract startapp parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('startapp');
+
+        // Function to check subscription status
+        async function checkSubscription(userId) {
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channelId}&user_id=${userId}`);
+                const data = await response.json();
+                if (data.ok && (data.result.status === 'member' || data.result.status === 'creator' || data.result.status === 'administrator')) {
+                    window.location.href = 'https://t.me/NickNaymesBot/create';
+                } else {
+                    messageElement.textContent = lang.notSubscribed;
+                    subscribeButton.textContent = lang.subscribe;
+                    checkButton.textContent = lang.check;
+                }
+            } catch (error) {
+                console.error('Error checking subscription:', error);
+                messageElement.textContent = lang.notSubscribed;
+                subscribeButton.textContent = lang.subscribe;
+                checkButton.textContent = lang.check;
+            }
+        }
+
+        // Handle button click
+        checkButton.addEventListener('click', () => {
+            if (userId) {
+                messageElement.textContent = lang.loading;
+                checkSubscription(userId);
+            } else {
+                window.location.href = 'https://t.me/NickNaymesBot/create';
+            }
+        });
+
+        // Initial setup
+        if (userId) {
+            messageElement.textContent = lang.loading;
+            checkSubscription(userId);
+        } else {
+            messageElement.textContent = lang.notSubscribed;
+            subscribeButton.textContent = lang.subscribe;
+            checkButton.textContent = lang.check;
+        }
+    </script>
+</body>
+</html>
