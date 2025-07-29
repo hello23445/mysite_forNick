@@ -47,6 +47,12 @@
   </div>
 
   <script>
+    // Инициализация Telegram WebApp API (если доступен)
+    if (window.Telegram && Telegram.WebApp) {
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+    }
+
     const channelUsername = 'Nicknaymes2bot';
     const redirectUrl = 'https://t.me/NickNaymesBot/create';
 
@@ -99,7 +105,8 @@
 
       const checkedBefore = localStorage.getItem('checkedSubscription') === 'true';
 
-      const randomFail = Math.random() < 0.1; // 10% шанс
+      // 2% шанс фейловой проверки
+      const randomFail = Math.random() < 0.02;
 
       if (checkedBefore && !randomFail) {
         window.location.href = redirectUrl;
