@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Проверка подписки</title>
+  <title>Фейковая проверка подписки</title>
   <style>
     html, body {
       margin: 0;
@@ -58,10 +58,10 @@
     .copy-btn {
       background-color: #4a3fb7; /* Видный фон для кнопки */
       border: 1px solid #6b5cd6; /* Граница для выделения */
-      color: #d9d9d9; /* Цвет иконки */
+      color: #d9d9d9; /* Цвет текста */
       cursor: pointer;
-      font-size: 24px;
-      padding: 5px;
+      font-size: 16px; /* Уменьшен размер текста для компактности */
+      padding: 5px 10px; /* Добавлен горизонтальный отступ */
       min-width: 30px;
       min-height: 30px;
       display: flex;
@@ -85,8 +85,7 @@
     }
   </style>
 
-  <!-- FontAwesome CDN для иконок -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <!-- FontAwesome CDN больше не нужен, так как иконки удалены -->
 </head>
 <body>
   <div class="centered">
@@ -134,10 +133,10 @@
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
           alert('Токен скопирован в буфер обмена!');
-          // Изменяем иконку на галочку после успешного копирования
+          // Изменяем текст кнопки на "Скопировано! || Copied!" после успешного копирования
           const copyBtn = document.querySelector('.copy-btn');
           if (copyBtn) {
-            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            copyBtn.textContent = 'Скопировано! || Copied!';
           }
         }, () => {
           alert('Не удалось скопировать токен.');
@@ -155,7 +154,7 @@
           alert('Токен скопирован в буфер обмена!');
           const copyBtn = document.querySelector('.copy-btn');
           if (copyBtn) {
-            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            copyBtn.textContent = 'Скопировано! || Copied!';
           }
         } catch {
           alert('Не удалось скопировать токен.');
@@ -178,7 +177,7 @@
 
       const copyBtn = document.createElement('button');
       copyBtn.className = 'copy-btn';
-      copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+      copyBtn.textContent = 'Скопировать || Copy';
       copyBtn.title = 'Скопировать токен';
       copyBtn.onclick = () => copyToClipboard(userToken);
       tokenContainer.appendChild(copyBtn);
