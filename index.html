@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Фейковая проверка подписки</title>
+  <title>Проверка подписки</title>
   <style>
     html, body {
       margin: 0;
@@ -56,9 +56,9 @@
     }
 
     .copy-btn {
-      background-color: transparent;
-      border: none;
-      color: #d9d9d9; /* Цвет иконки по умолчанию */
+      background-color: #4a3fb7; /* Видный фон для кнопки */
+      border: 1px solid #6b5cd6; /* Граница для выделения */
+      color: #d9d9d9; /* Цвет иконки */
       cursor: pointer;
       font-size: 24px;
       padding: 5px;
@@ -67,10 +67,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      border-radius: 6px; /* Скругление углов */
     }
 
     .copy-btn:hover {
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: #5d4ec8; /* Более тёмный оттенок при наведении */
     }
 
     .support-text {
@@ -84,7 +85,7 @@
     }
   </style>
 
-  <!-- FontAwesome CDN для иконки копирования -->
+  <!-- FontAwesome CDN для иконок -->
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -133,6 +134,11 @@
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
           alert('Токен скопирован в буфер обмена!');
+          // Изменяем иконку на галочку после успешного копирования
+          const copyBtn = document.querySelector('.copy-btn');
+          if (copyBtn) {
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+          }
         }, () => {
           alert('Не удалось скопировать токен.');
         });
@@ -140,13 +146,17 @@
         // fallback для небезопасных контекстов
         const textArea = document.createElement('textarea');
         textArea.value = text;
-        textArea.style.position = 'fixed'; // чтобы не прокручивало
+        textArea.style.position = 'fixed';
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
         try {
           document.execCommand('copy');
           alert('Токен скопирован в буфер обмена!');
+          const copyBtn = document.querySelector('.copy-btn');
+          if (copyBtn) {
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+          }
         } catch {
           alert('Не удалось скопировать токен.');
         }
