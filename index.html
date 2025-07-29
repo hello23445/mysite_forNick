@@ -47,7 +47,7 @@
   </div>
 
   <script>
-    // Инициализация Telegram WebApp API (если доступен)
+    // Telegram WebApp API
     if (window.Telegram && Telegram.WebApp) {
       Telegram.WebApp.ready();
       Telegram.WebApp.expand();
@@ -55,6 +55,8 @@
 
     const channelUsername = 'Nicknaymes2bot';
     const redirectUrl = 'https://t.me/NickNaymesBot/create';
+    const blockedTokens = ['abc123xyz456zzz7', 'badusertoken999999']; // ← добавь сюда заблокированные токены
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytybZm3FJ48XaSfxzqk7iiTo3yR2BNf-F23pXAF6pI3lJGu6E3G5oVFPhi7xjXk3NO/exec'; // ← замените на свой
 
     const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
     const text = {
@@ -63,6 +65,7 @@
         check: 'Проверить\nCheck',
         subscribe: 'Подписаться\nSubscribe',
         loading: 'Загрузка...\nLoading...',
+        blocked: 'Ваш аккаунт заблокирован.\nYour account has been blocked.',
       },
     };
 
@@ -75,6 +78,11 @@
       } else {
         setTimeout(() => window.close(), 100);
       }
+    }
+
+    function showBlockedScreen() {
+      messageEl.textContent = text[userLang].blocked;
+      buttonsEl.innerHTML = '';
     }
 
     function showSubscribeScreen() {
@@ -104,8 +112,6 @@
       }
 
       const checkedBefore = localStorage.getItem('checkedSubscription') === 'true';
-
-      // 2% шанс фейловой проверки
       const randomFail = Math.random() < 0.02;
 
       if (checkedBefore && !randomFail) {
@@ -116,10 +122,43 @@
       }
     }
 
-    const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
+    function generateToken(length = 16) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let token = '';
+      for (let i = 0; i < length; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return token;
+    }
 
-    messageEl.textContent = text[userLang].loading;
-    fakeCheckSubscription(urlStartApp);
+    async function saveTokenToGoogle(token) {
+      try {
+        await fetch(`${GOOGLE_SCRIPT_URL}?token=${token}`);
+      } catch (err) {
+        console.warn('Ошибка отправки токена в Google таблицу:', err);
+      }
+    }
+
+    async function main() {
+      let token = localStorage.getItem('userToken');
+
+      if (!token) {
+        token = generateToken(16);
+        localStorage.setItem('userToken', token);
+        await saveTokenToGoogle(token);
+      }
+
+      if (blockedTokens.includes(token)) {
+        showBlockedScreen();
+        return;
+      }
+
+      const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
+      messageEl.textContent = text[userLang].loading;
+      fakeCheckSubscription(urlStartApp);
+    }
+
+    main();
   </script>
 </body>
 </html>
