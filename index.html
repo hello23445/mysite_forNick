@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Фейковая проверка подписки</title>
+  <title>Проверка подписки</title>
   <style>
     html, body {
       margin: 0;
@@ -102,12 +102,12 @@
     const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
     const text = {
       ru: {
-        mustSub: 'Чтобы пользоваться этим мини-приложением, надо подписаться на канал\nTo use this mini app, you must subscribe to the channel',
-        check: 'Проверить\nCheck',
-        subscribe: 'Подписаться\nSubscribe',
-        loading: 'Загрузка...\nLoading...',
-        blocked: 'Ваш аккаунт заблокирован.',
-        support: 'Служба поддержки: @',
+        mustSub: 'Чтобы пользоваться этим мини-приложением, надо подписаться на канал\n || To use this mini app, you must subscribe to the channel',
+        check: 'Проверить\n || Check',
+        subscribe: 'Подписаться\n || Subscribe',
+        loading: 'Загрузка...\n|| Loading...',
+        blocked: 'Ваш аккаунт заблокирован. || Your account is blocked.',
+        support: 'Служба поддержки || Support service: @',
         supportBot: 'Clickerstart_bot'
       },
     };
