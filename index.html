@@ -56,14 +56,21 @@
     }
 
     .copy-btn {
-      background: none;
-      border: none;
+      background-color: rgba(255, 255, 255, 0.1); /* немного светлый фон */
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
       color: #d9d9d9;
       cursor: pointer;
-      font-size: 28px;
+      font-size: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 6px 10px;
+      transition: background-color 0.2s;
+    }
+
+    .copy-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
     }
 
     .support-text {
