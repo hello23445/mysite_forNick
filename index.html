@@ -43,35 +43,36 @@
     .token-container {
       margin-top: 20px;
       display: flex;
+      flex-direction: row; /* Changed to row for inline layout */
       align-items: center;
       justify-content: center;
       gap: 10px;
       background: #251897;
-      padding: 12px 20px;
+      padding: 8px 12px;
       border-radius: 12px;
       user-select: all;
-      font-size: 22px;
-      max-width: 350px;
+      font-size: 16px;
+      max-width: 400px; /* Increased to accommodate token and button in one line */
       word-break: break-all;
     }
 
     .copy-btn {
-      background-color: #4a3fb7; /* Видный фон для кнопки */
-      border: 1px solid #6b5cd6; /* Граница для выделения */
-      color: #d9d9d9; /* Цвет текста */
+      background-color: #251897;
+      border: none;
+      color: #d9d9d9;
       cursor: pointer;
-      font-size: 16px; /* Уменьшен размер текста для компактности */
-      padding: 5px 10px; /* Добавлен горизонтальный отступ */
-      min-width: 30px;
-      min-height: 30px;
+      font-size: 18px;
+      padding: 8px 16px;
+      margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 6px; /* Скругление углов */
+      border-radius: 12px;
+      user-select: none;
     }
 
     .copy-btn:hover {
-      background-color: #5d4ec8; /* Более тёмный оттенок при наведении */
+      background-color: #5d4ec8;
     }
 
     .support-text {
@@ -132,8 +133,7 @@
     function copyToClipboard(text) {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
-          alert('Токен скопирован в буфер обмена!');
-          // Изменяем текст кнопки на "Скопировано! || Copied!" после успешного копирования
+          alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
           const copyBtn = document.querySelector('.copy-btn');
           if (copyBtn) {
             copyBtn.textContent = 'Скопировано! || Copied!';
@@ -142,7 +142,6 @@
           alert('Не удалось скопировать токен.');
         });
       } else {
-        // fallback для небезопасных контекстов
         const textArea = document.createElement('textarea');
         textArea.value = text;
         textArea.style.position = 'fixed';
@@ -163,11 +162,7 @@
       }
     }
 
-    function showBlockedScreen() {
-      messageEl.textContent = text[userLang].blocked;
-      buttonsEl.innerHTML = '';
-
-      // Контейнер с токеном и кнопкой копирования
+    function createTokenContainer() {
       const tokenContainer = document.createElement('div');
       tokenContainer.className = 'token-container';
 
@@ -182,13 +177,21 @@
       copyBtn.onclick = () => copyToClipboard(userToken);
       tokenContainer.appendChild(copyBtn);
 
-      buttonsEl.appendChild(tokenContainer);
+      return tokenContainer;
+    }
 
-      // Сообщение поддержки с ссылкой на бота
+    function createSupportText() {
       const supportDiv = document.createElement('div');
       supportDiv.className = 'support-text';
       supportDiv.innerHTML = `${text[userLang].support}<a href="https://t.me/Clickerstart_bot" target="_blank" rel="noopener noreferrer">Clickerstart_bot</a>`;
-      buttonsEl.appendChild(supportDiv);
+      return supportDiv;
+    }
+
+    function showBlockedScreen() {
+      messageEl.textContent = text[userLang].blocked;
+      buttonsEl.innerHTML = '';
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
     }
 
     function showSubscribeScreen() {
@@ -208,6 +211,9 @@
         closeApp();
       };
       buttonsEl.appendChild(checkBtn);
+
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
     }
 
     function fakeCheckSubscription(startapp) {
