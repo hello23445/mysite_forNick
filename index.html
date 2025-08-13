@@ -97,12 +97,12 @@
       Telegram.WebApp.ready();
       Telegram.WebApp.expand();
     }
-    const texpereriv = '';
+
+    const texpereriv = 'Уже';
     const channelUsername = 'Nicknaymes2bot';
     const redirectUrl = 'https://t.me/NickNaymesBot/create';
     const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss'];
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytybZm3FJ48XaSfxzqk7iiTo3yR2BNf-F23pXAF6pI3lJGu6E3G5oVFPhi7xjXk3NO/exec';
-    const MAINTENANCE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxvLBoveiSvt4vFL95L3sCK6svzWn3JdvtEE-1BW7-4fPzjesT9oAP8jbCW-0fBTdB1/exec';
 
     const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
     const text = {
@@ -122,7 +122,6 @@
     const messageEl = document.getElementById('message');
     const buttonsEl = document.getElementById('buttons');
     let userToken = null;
-    let $texpereriv = '';
 
     function closeApp() {
       if (window.Telegram && Telegram.WebApp) {
@@ -217,7 +216,7 @@
       checkBtn.onclick = () => {
         localStorage.setItem('checkedSubscription', 'true');
         window.location.href = redirectUrl;
-        closeApp(); 
+        closeApp();
       };
       buttonsEl.appendChild(checkBtn);
 
@@ -260,32 +259,6 @@
       }
     }
 
-    async function checkMaintenanceStatus() {
-      try {
-        const response = await fetch(MAINTENANCE_SHEET_URL);
-        const data = await response.json();
-        
-        if (texpereriv === 'скоро' || texpereriv === 'Скоро') {
-          alert(text[userLang].soon);
-        } else if (texpereriv === 'уже' || texpereriv === 'Уже') {
-          alert(text[userLang].maintenance);
-          showMaintenanceScreen();
-          return;
-        }
-        
-        // Если не "скоро" и не "уже", продолжаем выполнение
-        const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
-        messageEl.textContent = text[userLang].loading;
-        fakeCheckSubscription(urlStartApp);
-      } catch (err) {
-        console.warn('Ошибка проверки статуса техобслуживания:', err);
-        // В случае ошибки продолжаем выполнение
-        const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
-        messageEl.textContent = text[userLang].loading;
-        fakeCheckSubscription(urlStartApp);
-      }
-    }
-
     async function main() {
       userToken = localStorage.getItem('userToken');
 
@@ -303,7 +276,17 @@
         return;
       }
 
-      await checkMaintenanceStatus();
+      if (texpereriv.toLowerCase() === 'скоро') {
+        alert(text[userLang].soon);
+      } else if (texpereriv.toLowerCase() === 'уже') {
+        alert(text[userLang].maintenance);
+        showMaintenanceScreen();
+        return;
+      }
+
+      const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
+      messageEl.textContent = text[userLang].loading;
+      fakeCheckSubscription(urlStartApp);
     }
 
     main();
