@@ -97,13 +97,12 @@
       Telegram.WebApp.ready();
       Telegram.WebApp.expand();
     }
-
+    const texpereriv = 'Уже';
     const channelUsername = 'Nicknaymes2bot';
     const redirectUrl = 'https://t.me/NickNaymesBot/create';
     const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss'];
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytybZm3FJ48XaSfxzqk7iiTo3yR2BNf-F23pXAF6pI3lJGu6E3G5oVFPhi7xjXk3NO/exec';
-    const MAINTENANCE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxvLBoveiSvt4vFL95L3sCK6svzWn3JdvtEE-1BW7-4fPzjesT9oAP8jbCW-0fBTdB1/exec'; // Replace with your Google Apps Script URL
-    const SPREADSHEET_ID = '1qCXQfT53OWsnZ14EUfCMA6AmJRc75Dk613YhIhuZIYI'; //Для тех обслуживания
+    const MAINTENANCE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxvLBoveiSvt4vFL95L3sCK6svzWn3JdvtEE-1BW7-4fPzjesT9oAP8jbCW-0fBTdB1/exec';
 
     const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
     const text = {
@@ -115,13 +114,15 @@
         blocked: 'Ваш аккаунт заблокирован. || Your account is blocked.',
         support: 'Служба поддержки || Support service: @',
         supportBot: 'Clickerstart_bot',
-        maintenance: 'Введется техническое обслуживание!\nTechnical maintenance'
+        maintenance: 'Ведется техническое обслуживание!\nTechnical maintenance',
+        soon: 'Скоро мы начнем техническое обслуживание\nTechnical maintenance will start soon.'
       },
     };
 
     const messageEl = document.getElementById('message');
     const buttonsEl = document.getElementById('buttons');
     let userToken = null;
+    let $texpereriv = '';
 
     function closeApp() {
       if (window.Telegram && Telegram.WebApp) {
@@ -261,23 +262,29 @@
 
     async function checkMaintenanceStatus() {
       try {
-        const response = await fetch(`${MAINTENANCE_SHEET_URL}?spreadsheetId=${SPREADSHEET_ID}&range=Лист1!D2`);
+        const response = await fetch(MAINTENANCE_SHEET_URL);
         const data = await response.json();
-        const cellValue = data.values && data.values[0] && data.values[0][0] ? data.values[0][0].toLowerCase() : '';
         
-        if (cellValue === 'скоро') {
-          alert('Скоро мы начнем техническое обслуживание\nTechnical maintenance will start soon.');
-          return 'soon';
-        } else if (cellValue === 'уже') {
-          return 'ongoing';
+        if (texpereriv === 'скоро' || texpereriv === 'Скоро') {
+          alert(text[userLang].soon);
+        } else if (texpereriv === 'уже' || texpereriv === 'Уже') {
+          alert(text[userLang].maintenance);
+          showMaintenanceScreen();
+          return;
         }
-        return 'none';
+        
+        // Если не "скоро" и не "уже", продолжаем выполнение
+        const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
+        messageEl.textContent = text[userLang].loading;
+        fakeCheckSubscription(urlStartApp);
       } catch (err) {
         console.warn('Ошибка проверки статуса техобслуживания:', err);
-        return 'none';
+        // В случае ошибки продолжаем выполнение
+        const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
+        messageEl.textContent = text[userLang].loading;
+        fakeCheckSubscription(urlStartApp);
       }
     }
-
 
     async function main() {
       userToken = localStorage.getItem('userToken');
@@ -296,19 +303,7 @@
         return;
       }
 
-      const maintenanceStatus = await checkMaintenanceStatus();
-      if (maintenanceStatus === 'ongoing') {
-        showMaintenanceScreen();
-        return;
-      }
-
-      const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
-      messageEl.textContent = text[userLang].loading;
-      if (maintenanceStatus === 'soon') {
-        fakeCheckSubscription(urlStartApp);
-      } else {
-        fakeCheckSubscription(urlStartApp);
-      }
+      await checkMaintenanceStatus();
     }
 
     main();
