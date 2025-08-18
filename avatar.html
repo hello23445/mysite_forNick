@@ -340,12 +340,6 @@
 
     <div class="tools" id="toolsPanel">
       <button id="hideToolsButton"><b>УБРАТЬ МЕНЮ ИНСТРУМЕНТОВ</b></button>
-          <button 
-        onclick="window.location.href = 'main.html'" 
-        style="padding: 10px 20px; font-size: 16px;"
-    >
-        ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ
-        </button>
 
       <label for="bgColor"><b>Цвет фона:</b></label>
       <input type="color" id="bgColor" value="#800080" />
@@ -537,12 +531,10 @@
     hideToolsButton.addEventListener('click', () => {
       toolsPanel.style.display = 'none';
       openToolsButton.style.display = 'block';
-      document.getElementById('backToMainMenuButton').style.display = 'block';
     });
     openToolsButton.addEventListener('click', () => {
       toolsPanel.style.display = 'block';
       openToolsButton.style.display = 'none';
-        document.getElementById('backToMainMenuButton').style.display = 'none';
     });
 
     /* ========= 7. Функция отрисовки аватарки ========= */
