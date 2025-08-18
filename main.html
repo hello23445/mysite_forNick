@@ -128,6 +128,7 @@
         <span style="width:24px;"></span> <!-- пустое место справа -->
     </div>
     <div>
+        <button id="tok" style="background-color: #060039; color: white;">Your token</button><br>
         <select id="langSelect"></select>
     </div>
     <div class="settings-buttons" id="settingsButtons"></div>
@@ -276,6 +277,25 @@
     } else if (m === 'Скоро' || m === 'скоро') {
         alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
     }
+    if (localStorage.getItem('lang') === 'ru') {
+        document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
+    } else {
+        document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
+    }
+    document.getElementById('tok').onclick = function() {
+        const userToken = localStorage.getItem('userToken');
+        const textArea = document.createElement("textarea");
+        textArea.value = userToken;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+        } catch (err) {
+          alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+        }
+        document.body.removeChild(textArea);
+    };
 </script>
 </body>
 </html>
