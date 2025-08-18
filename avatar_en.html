@@ -292,12 +292,6 @@
   </style>
 </head>
 <body>
-    <button 
-    onclick="window.location.href = 'main.html'" 
-    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
->
-    BACK TO MAIN MENU
-</button>
 
   <!-- Portrait orientation warning -->
   <div id="orientation-warning">
@@ -332,6 +326,13 @@
 
   <div class="container">
     <button id="openToolsButton"><b>OPEN TOOLS MENU</b></button>
+        <button 
+    onclick="window.location.href = 'main.html'" 
+    style="padding: 10px; font-size: 16px; display: none; width: 25%; height: 5vh; margin-top: 5%;"
+    id="backToMainMenuButton"
+    >
+    BACK TO MAIN MENU
+    </button>
 
     <div class="preview" id="previewArea">
       <canvas id="avatarCanvas" width="300" height="300"></canvas>
@@ -343,7 +344,12 @@
 
     <div class="tools" id="toolsPanel">
       <button id="hideToolsButton"><b>HIDE TOOLS MENU</b></button>
-
+        <button 
+        onclick="window.location.href = 'main.html'" 
+        style="padding: 10px 20px; font-size: 16px;"
+    >
+        BACK TO MAIN MENU
+        </button>
       <label for="bgColor"><b>Background color:</b></label>
       <input type="color" id="bgColor" value="#800080" />
 
@@ -533,10 +539,12 @@
     hideToolsButton.addEventListener('click', () => {
       toolsPanel.style.display = 'none';
       openToolsButton.style.display = 'block';
+      document.getElementById('backToMainMenuButton').style.display = 'block';
     });
     openToolsButton.addEventListener('click', () => {
       toolsPanel.style.display = 'block';
       openToolsButton.style.display = 'none';
+        document.getElementById('backToMainMenuButton').style.display = 'none';
     });
 
     /* ========= 7. Draw avatar ========= */
