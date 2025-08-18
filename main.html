@@ -277,11 +277,13 @@
     } else if (m === 'Скоро' || m === 'скоро') {
         alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
     }
-    if (localStorage.getItem('lang') === 'ru') {
-        document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
-    } else {
-        document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
-    }
+    document.getElementById('langSelect').addEventListener('change', function(event) {
+        if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
+            document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
+        } else {
+            document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
+        }
+    });
     document.getElementById('tok').onclick = function() {
         const userToken = localStorage.getItem('userToken');
         const textArea = document.createElement("textarea");
@@ -289,13 +291,18 @@
         document.body.appendChild(textArea);
         textArea.select();
         try {
-          document.execCommand('copy');
-          alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+            document.execCommand('copy');
+            alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
         } catch (err) {
-          alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+            alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
         }
         document.body.removeChild(textArea);
     };
+    if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
+        document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
+    } else {
+        document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
+    }
 </script>
 </body>
 </html>
