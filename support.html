@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Чат поддержки ИИ</title>
+  <style>
+    /* Сброс стандартных отступов и установка box-sizing */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      margin: 0;
+      padding-top: 20px; /* отступ сверху */
+      display: flex;
+      justify-content: center; /* по горизонтали по центру */
+      align-items: flex-start; /* выравнивание по верху */
+      min-height: 100vh;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh; /* ограничение по высоте, чтобы не выходило за пределы экрана */
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chat-header {
+      background-color: #5563DE;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      background-color: #f4f4f4;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      display: flex;
+      max-width: 70%;
+      word-wrap: break-word;
+      padding: 12px 18px;
+      border-radius: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background-color: #dcf8c6;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background-color: #ffffff;
+    }
+
+    /* Системное сообщение (блок оценки) */
+    .message.rating {
+      align-self: center;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    .rating p {
+      margin: 0;
+      font-weight: bold;
+    }
+
+    .stars {
+      display: flex;
+      gap: 5px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .stars .star {
+      user-select: none;
+    }
+
+    .rating button {
+      background-color: #5563DE;
+      color: #fff;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin: 0 5px;
+    }
+
+    .rating button:hover {
+      background-color: #3b45a0;
+    }
+
+    /* Стили для неактивных элементов */
+    .disabled {
+      opacity: 0.5;
+      background-color: #ccc !important;
+      pointer-events: none;
+      cursor: default;
+      color: #888 !important;
+    }
+
+    /* Сообщения об ошибках (заголовки вместо alert) */
+    .error-message {
+      color: red;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    /* Стили для модального окна */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .modal p {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .modal input {
+      width: 90%;
+      padding: 6px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .modal button {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      background-color: #5563DE;
+      color: #fff;
+      cursor: pointer;
+      margin-right: 5px;
+      transition: background-color 0.2s;
+    }
+    .modal button:hover {
+      background-color: #3b45a0;
+    }
+    .modal button.cancel {
+      background-color: #ccc;
+      color: #333;
+    }
+    .modal button.cancel:hover {
+      background-color: #b3b3b3;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+    .chat-input button {
+      background: linear-gradient(135deg, #5563DE, #74ABE2);
+      border: none;
+      color: #fff;
+      padding: 0 25px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border-radius: 0 10px 10px 0;
+    }
+    .chat-input button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Стили индикатора печати (маленькие кружочки) */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .typing-indicator .dot {
+      width: 6px;
+      height: 6px;
+      margin: 0 3px;
+      background-color: #5563DE;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: blink 1.4s infinite;
+    }
+    .typing-indicator .dot:nth-child(1) {
+      animation-delay: 0s;
+    }
+    .typing-indicator .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-indicator .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes blink {
+      0%, 80%, 100% {
+        opacity: 0.5;
+        transform: translateY(0);
+      }
+      40% {
+        opacity: 1;
+        transform: translateY(-5px);
+      }
+    }
+
+    /* Медиа-запросы для адаптивности */
+    @media (max-width: 600px) {
+      .chat-container {
+        margin: 10px;
+        border-radius: 8px;
+      }
+      .chat-header {
+        font-size: 20px;
+        padding: 15px;
+      }
+      .chat-input input {
+        padding: 10px;
+        font-size: 14px;
+      }
+      .chat-input button {
+        padding: 0 20px;
+        font-size: 14px;
+      }
+      .stars {
+        font-size: 20px;
+      }
+      .modal {
+        width: 90%;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .chat-container {
+        border-radius: 0;
+      }
+      .chat-header {
+        font-size: 18px;
+        padding: 10px;
+      }
+      .chat-input input {
+        font-size: 14px;
+        padding: 8px;
+      }
+      .chat-input button {
+        font-size: 14px;
+        padding: 0 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+    <button 
+    onclick="window.location.href = 'main.html'" 
+    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
+>
+    ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ
+    </button>
+
+  <div class="chat-container">
+    <div class="chat-header">Служба поддержки</div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input">
+      <input type="text" id="message" placeholder="Введите сообщение..." autocomplete="off" />
+      <button id="send-btn">Отправить</button>
+    </div>
+  </div>
+
+  <script>
+    // Массив вопросов и ответов
+    const adminQna = [
+      { 
+        question: "Проблема с ботом", 
+        keywords: ['ошибка', 'произошла техническая', 'сожалеем', 'Сожалеем, произошла техническая ошибка.'], 
+        answer: 'В данном случае, вам необходимо обратиться к администраторам, через бота обратной связи @Clickerstart_bot .<br>Так-как только они могут помочь вам и исправить эту ошибку.'
+      },
+      { 
+        question: "Что делать?", 
+        keywords: ['работа', 'приостановлено', 'извините, '], 
+        answer: 'Проводится технический перерыв. <br>Если бот не заработает через несколько дней, пожалуйста, свяжитесь с нашим ботом @Clickerstart_bot.' 
+      },
+      { 
+        question: "Помощь", 
+        keywords: ['помощь', 'помогите', 'поддержка', 'помоги'], 
+        answer: 'Чем могу помочь?<br>Если нужно поговорить с администратором, напишите "Админ"'
+      },
+      { 
+        question: "Понятно", 
+        keywords: ['понял', 'понятно', 'ясно'], 
+        answer: "Я рад, что смог вам объяснить :)" 
+      },
+      { 
+        question: "связь", 
+        keywords: ['не понимаю', 'админ'], 
+        answer: 'Пожалуйста, свяжитесь с нашим ботом для обратной связи: @Clickerstart_bot.' 
+      },
+      { 
+        question: "Поддержка", 
+        keywords: ['поддержка'], 
+        answer: 'Мы всегда готовы помочь! Задайте ваш вопрос.' 
+      },
+      { 
+        question: "Приветствие", 
+        keywords: ['привет', 'здравствуйте', 'ку'], 
+        answer: 'Здравствуйте! Чем могу помочь? <br>(Наш Telegram бот для обратной связи: @Clickerstart_bot)' 
+      },
+      { 
+        question: "Хорошо", 
+        keywords: ['хорошо', 'ладно', 'окей'], 
+        answer: '🙂' 
+      },
+      { 
+        question: "Благодарность", 
+        keywords: ['спасибо', 'благодарю', 'спс'], 
+        answer: "Пожалуйста 😄" 
+      },
+      { 
+        question: "Бот не отвечает", 
+        keywords: ['игнорирует', 'не отвечает', 'не работает', 'игнор'], 
+        answer: `Если бот не отвечает на ваши сообщения, попробуйте следующие шаги:<br><br>1. Перезапустите Telegram, Wi-Fi или ваше устройство.<br>Иногда проблема может оказаться в вашем Telegram, WI-FI или вашем устройстве<br><br>2. Подождите немного.<br>Иногда система бывает перегруженной.<br><br>3. Выключите устройство на пару минут.<br>Иногда отключение устройства тоже может помочь.<br><br>4. Очистите кэш Telegram<br>Кэш вашего Telegram советуем очистить в настройках вашего Telegram в разделе "Данные и память".<br><br>Если ничего из этого вам не помогло, отправьте мне "Помогите"` 
+      },
+      { 
+        question: "Что ты умеешь?", 
+        keywords: ['умеешь?', 'что ты умеешь?', 'чо можешь', 'делать'], 
+        answer: `Я умею только отвечать на ваши вопросы про наших ресурсов(ботов и мини-приложений) и помогать в некоторых случаях.` 
+      }
+    ];
+
+    const defaultMessage = "К сожалению, я не смог найти ответ на ваш вопрос.<br>Пожалуйста, уточните ваш вопрос или свяжитесь с нашим ботом для обратной связи: @Clickerstart_bot.";
+
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('send-btn');
+    const chatMessages = document.getElementById('chat-messages');
+
+    // Константы для Telegram
+    const telegramToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
+    const telegramChatId = '6434781065';
+
+    let userMessageCount = 0;
+    let ratingDisplayed = false;
+    let selectedStars = 0;
+    let ratingDisabled = false;  // блокировка системного сообщения
+    let ratingSent = false;      // флаг отправленной оценки
+    let systemTypingActive = false; // флаг, что система печатает
+
+    // Ссылки на элементы системного сообщения
+    let ratingDiv = null;
+    let reasonBtn = null;
+
+    // Функция для отображения сообщения об ошибке (заголовок вместо alert)
+    function showError(message) {
+      const errorHeading = document.createElement('h3');
+      errorHeading.classList.add('error-message');
+      errorHeading.textContent = message;
+      chatMessages.appendChild(errorHeading);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      setTimeout(() => {
+        errorHeading.remove();
+      }, 3000);
+    }
+
+    function appendMessage(sender, text) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', sender);
+      messageDiv.innerHTML = text;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function getAnswer(inputText) {
+      const lowerText = inputText.toLowerCase();
+      for (const { keywords, answer } of adminQna) {
+        if (keywords.some(keyword => lowerText.includes(keyword))) {
+          return answer;
+        }
+      }
+      return defaultMessage;
+    }
+
+    function containsForbiddenWords(text) {
+    // Приводим весь текст к нижнему регистру
+    const lowerText = text.toLowerCase();
+    // Список запрещённых слов (все в нижнем регистре)
+    const forbiddenWords = [
+      'блядь', 'сука', 'хуй', 'пиздец', 'ебать', 'нахуй', 'говно', 'дерьмо', 'пизда', 'идиот', 'тупой',
+      'мразь', 'ублюдок', 'пидор', 'пидорас', 'сволочь', 'гандон', 'пиздюк', 'долбоеб',
+      'ебанутый', 'мудак', 'конченый', 'хер', 'жопа', 'тварь', 'лох', 'гей', 'лесбиянка', 'тупой', 'еблан', 'ебан', 'ебанашка'
+    ];
+    
+    // Если хотя бы одно из запрещённых слов содержится в строке, возвращаем true
+    return forbiddenWords.some(word => lowerText.includes(word));
+  }
+
+
+    function processMessage() {
+      // Если система ещё печатает, отправка не производится
+      if (systemTypingActive) return;
+      const text = messageInput.value.trim();
+      if (!text) return;
+      
+      // Если сообщение содержит маты или оскорбления
+      if (containsForbiddenWords(text)) {
+        messageInput.value = ''; // очищаем поле ввода
+        updateSendButtonVisibility();
+        appendMessage('ai', 'Давайте не будем материться.');
+        return; // прекращаем дальнейшую обработку
+      }
+      
+      appendMessage('user', text);
+      messageInput.value = '';
+      updateSendButtonVisibility();
+      userMessageCount++;
+      setTimeout(() => {
+        const answer = getAnswer(text);
+        appendMessage('ai', answer);
+        if (userMessageCount === 3 && !ratingDisplayed) {
+          showRatingMessage();
+          ratingDisplayed = true;
+        }
+      }, 500);
+    }
+
+    sendBtn.addEventListener('click', processMessage);
+    messageInput.addEventListener('keypress', e => {
+      // Если нажата клавиша Enter и система не печатает
+      if (e.key === 'Enter' && !systemTypingActive) {
+        processMessage();
+      }
+    });
+
+    // Функция обновления видимости кнопки "Отправить"
+    // Кнопка появляется, только если поле ввода не пустое и система не печатает
+    function updateSendButtonVisibility() {
+      if (messageInput.value.trim() !== '' && !systemTypingActive) {
+        sendBtn.style.display = "inline-block";
+      } else {
+        sendBtn.style.display = "none";
+      }
+    }
+
+    messageInput.addEventListener("input", updateSendButtonVisibility);
+
+    // Функция для отображения анимированного индикатора печати (прыгающие кружочки)
+    function showTypingIndicator() {
+      const indicator = document.createElement('div');
+      indicator.classList.add('message', 'ai');
+      indicator.innerHTML = '<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+      chatMessages.appendChild(indicator);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return indicator;
+    }
+
+    // При загрузке страницы устанавливаем флаг, отключаем кнопку "Отправить",
+    // показываем индикатор печати, затем через 3 секунды удаляем индикатор, выводим приветствие и обновляем видимость кнопки
+    window.onload = () => {
+      systemTypingActive = true;
+      updateSendButtonVisibility();
+      const indicator = showTypingIndicator();
+      setTimeout(() => {
+        systemTypingActive = false;
+        indicator.remove();
+        appendMessage('ai', 'Здравствуйте, чем я могу вам помочь?<br><br>Чтобы поговорить с администратором, отправьте мне "Админ"');
+        updateSendButtonVisibility();
+      }, 3000);
+    };
+
+    // Создание блока оценки
+    function showRatingMessage() {
+      ratingDiv = document.createElement('div');
+      ratingDiv.classList.add('message', 'rating');
+
+      const ratingText = document.createElement('p');
+      ratingText.textContent = 'Оцените нашу поддержку от 1 до 5 звезд:';
+
+      const starsDiv = document.createElement('div');
+      starsDiv.classList.add('stars');
+      for (let i = 1; i <= 5; i++) {
+        const starSpan = document.createElement('span');
+        starSpan.classList.add('star');
+        starSpan.dataset.value = i;
+        starSpan.textContent = '☆';
+        starSpan.addEventListener('click', () => {
+          if (ratingDisabled) return;
+          selectedStars = i;
+          updateStarsDisplay(starsDiv);
+        });
+        starsDiv.appendChild(starSpan);
+      }
+
+      const sendRatingBtn = document.createElement('button');
+      sendRatingBtn.textContent = 'Отправить';
+      sendRatingBtn.addEventListener('click', sendRating);
+
+      reasonBtn = document.createElement('button');
+      reasonBtn.textContent = 'Причина';
+      reasonBtn.style.display = 'none';
+      reasonBtn.addEventListener('click', openImprovementWindow);
+
+      const buttonsDiv = document.createElement('div');
+      buttonsDiv.appendChild(sendRatingBtn);
+      buttonsDiv.appendChild(reasonBtn);
+
+      ratingDiv.appendChild(ratingText);
+      ratingDiv.appendChild(starsDiv);
+      ratingDiv.appendChild(buttonsDiv);
+
+      chatMessages.appendChild(ratingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Обновление отображения звёзд
+    function updateStarsDisplay(starsDiv) {
+      const starSpans = starsDiv.querySelectorAll('.star');
+      starSpans.forEach(star => {
+        const starValue = Number(star.dataset.value);
+        star.textContent = starValue <= selectedStars ? '★' : '☆';
+      });
+    }
+
+    // Отправка оценки в Telegram и блокировка остальных элементов системного сообщения
+    function sendRating() {
+      if (ratingDisabled) return;
+      if (selectedStars === 0) {
+        showError('Пожалуйста, выберите количество звезд для оценки.');
+        return;
+      }
+      const ratingMsg = `Кто-то оценил нашу поддержку на ${selectedStars} ${selectedStars === 1 ? 'звезду' : 'звезды'}!`;
+      const url = `https://api.telegram.org/bot${telegramToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(ratingMsg)}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            ratingSent = true;
+            if (selectedStars <= 3) {
+              appendMessage('ai', 'Приносим извинения за возникшие проблемы. Мы постараемся улучшиться!');
+              disableRatingMessage({ allowReason: true });
+              reasonBtn.style.display = 'inline-block';
+            } else {
+              appendMessage('ai', 'Спасибо!');
+              disableRatingMessage({ allowReason: false });
+            }
+          } else {
+            showError('Ошибка при отправке оценки в Telegram.');
+          }
+        })
+        .catch(error => {
+          console.error('Ошибка:', error);
+          showError('Ошибка при отправке оценки.');
+        });
+    }
+
+    // Блокировка элементов системного сообщения.
+    // Если allowReason==true, блокируются все элементы, кроме кнопки "Причина" и текста.
+    function disableRatingMessage({ allowReason }) {
+      ratingDisabled = true;
+      if (ratingDiv) {
+        const buttons = ratingDiv.querySelectorAll('button');
+        buttons.forEach(btn => {
+          if (allowReason && btn === reasonBtn) {
+            // не блокируем кнопку "Причина"
+          } else {
+            btn.disabled = true;
+            btn.classList.add('disabled');
+          }
+        });
+        const stars = ratingDiv.querySelectorAll('.star');
+        stars.forEach(star => {
+          star.style.pointerEvents = 'none';
+          star.style.color = '#888';
+        });
+        const ratingText = ratingDiv.querySelector('p');
+        if (ratingText) {
+          ratingText.classList.add('disabled');
+        }
+      }
+    }
+
+    // Открытие модального окна для ввода причины
+    function openImprovementWindow() {
+      if (!ratingDisabled) return;
+      if (document.querySelector('.modal-overlay')) return;
+
+      const overlay = document.createElement('div');
+      overlay.classList.add('modal-overlay');
+
+      const modal = document.createElement('div');
+      modal.classList.add('modal');
+
+      const promptText = document.createElement('p');
+      promptText.textContent = 'Почему вы дали такую оценку?';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Ваши предложения';
+
+      const sendImpBtn = document.createElement('button');
+      sendImpBtn.textContent = 'Отправить';
+      sendImpBtn.disabled = true;
+      sendImpBtn.classList.add('disabled');
+      input.addEventListener('input', () => {
+        if (input.value.trim() === '') {
+          sendImpBtn.disabled = true;
+          sendImpBtn.classList.add('disabled');
+        } else {
+          sendImpBtn.disabled = false;
+          sendImpBtn.classList.remove('disabled');
+        }
+      });
+      sendImpBtn.addEventListener('click', () => {
+        const suggestion = input.value.trim();
+        if (!suggestion) {
+          showError('Пожалуйста, введите ваши предложения.');
+          return;
+        }
+        const impText = `Кто-то предложил улучшения: ${suggestion}`;
+        const impUrl = `https://api.telegram.org/bot${telegramToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(impText)}`;
+        fetch(impUrl)
+          .then(response => response.json())
+          .then(data => {
+            if (data.ok) {
+              overlay.remove();
+              reasonBtn.disabled = true;
+              reasonBtn.classList.add('disabled');
+            } else {
+              showError('Ошибка при отправке предложения.');
+            }
+          })
+          .catch(error => {
+            console.error('Ошибка:', error);
+            showError('Ошибка при отправке предложения.');
+          });
+      });
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = 'Отмена';
+      cancelBtn.classList.add('cancel');
+      cancelBtn.addEventListener('click', () => {
+        overlay.remove();
+      });
+
+      modal.appendChild(promptText);
+      modal.appendChild(input);
+      modal.appendChild(sendImpBtn);
+      modal.appendChild(cancelBtn);
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+    }
+  </script>
+</body>
+</html>

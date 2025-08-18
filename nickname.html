@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор никнеймов</title>
+    <style>
+        :root {
+            --bg-color: #060039;
+            --text-color: #d9d9d9;
+            --btn-color: #251897;
+            --btn-hover: #3a259e;
+            --card-bg: #0e004f;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+        h1 { text-align: center; margin-bottom: 20px; font-size: 2rem; }
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        #nickname-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid #3a259e;
+            border-radius: 8px;
+            background: #1a005f;
+            color: var(--text-color);
+        }
+        .btn {
+            padding: 12px 20px;
+            background: var(--btn-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+            max-width: 150px;
+            width: 100%;
+            text-align: center;
+        }
+        .btn:hover { background: var(--btn-hover); }
+        #to-decorate.hidden { display: none; }
+        .examples, .decorated-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .examples span {
+            background: #1a005f;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .examples span:hover { background: #3a259e; }
+        .decorated-list button {
+            background: #ffffff;
+            color: var(--bg-color);
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+            border: 1px solid #3a259e;
+            word-break: break-all;
+            white-space: normal;
+            max-width: 100%;
+        }
+        .decorated-list button:hover { background: #f0f0f0; }
+        #final-nickname {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 12px;
+            background: #1a005f;
+            border-radius: 8px;
+            word-break: break-all;
+        }
+        #message {
+            text-align: center;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            #nickname-input {
+                min-width: 100%;
+            }
+            .btn {
+                max-width: 100%;
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+            .decorated-list button {
+                font-size: 0.9rem;
+                padding: 6px;
+            }
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button 
+    onclick="window.location.href = 'main.html'" 
+    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
+>
+    ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ
+    </button>
+
+    <div class="container">
+        <h1 id="h99">Введите ваш никнейм или выберите из списка</h1>
+        <div class="input-group">
+            <input type="text" id="nickname-input" placeholder="Введите здесь" maxlength="18">
+            <button id="randomize" class="btn">Случайный</button>
+            <button id="to-decorate" class="btn hidden">Украсить →</button>
+        </div>
+        <div class="examples" id="example-list"></div>
+        <div id="decorations" style="display:none; margin-top:30px;">
+            <h2>Выберите украшение</h2>
+            <div class="decorated-list" id="decorated-list"></div>
+        </div>
+        <div id="final-section" style="display:none;">
+            <h2>Ваш никнейм готов</h2>
+            <div id="final-nickname"></div>
+            <div class="input-group" style="justify-content:center;">
+                <button id="copy-final" class="btn">Скопировать</button>
+                <button id="send-final" class="btn">Поделиться</button>
+            </div>
+            <div id="message"></div>
+        </div>
+    </div>
+    <script>
+        const APP_URL = 'https://script.google.com/macros/s/AKfycbzxxdiQbEBql6LIuK0PgYdV0DIbhvHwPFKbRWg8trSyzmeGVYdbHQXkq3rgyqFBuc19/exec';
+        
+        const presets = [
+            ['SuperStar','ShadowKing','IcePhoenix','DarkKnight','ElectricDragon','MythicHero','AquaDragon','CyberGhost','MysticQueen','NightShade',
+             'SolarFlare','LavaBeast','ZenithMage','NovaKnight','EchoHunter','TerraRider','SpectralNinja','BlazeWizard','StormSeer','VoidPrincess',
+             'CrimsonLord','FrostArcher','ThunderBringer','ArcaneBeast','NebulaQueen','IronClad','SilverShade','GoldenRogue','StarLord','MysticWarrior',
+             'GoldenTiger','NightWolf','CyberNinja','SteelSerpent','FlameSage','ThunderAce','FrostBlade','SolarKnight','GalaxyRider','PhantomDancer',
+             'ShadowStalker','EmberQueen','WaveBreaker','CrypticMage','SparkGunner','RuneMaster','AuroraWitch','ObsidianKing','VelvetRaven','QuantumBlade',
+             'EchoKnight','VortexMage','SeraphicArcher','TitanBreaker','FireStorm','ViperQueen','LightningBolt','FrostGiant','WindChaser','BlazePhoenix',
+             'IceReaper','StormSeeker','VortexRider','WolfShade','NightSpecter','AetherMage','ChromaHunter','OblivionLord','DuskBlade','EclipseRider',
+             'PhantomFury','RiftWalker','CelestialSage','HallowedGuard','NightmareWeaver','IronFist','DreamWalker','CrystalSentry','ChaosBringer','StormBreaker',
+             'StarViper', 'MoonReaver', 'CrimsonSpecter', 'VoidStalker', 'AstralWarden', 'NeonSorcerer', 'TwilightRogue', 'GlacierKnight', 'EmberDrift', 'SkyReaper',
+            'ShadowPulse', 'DawnSentry', 'BlazeVanguard', 'FrostWraith', 'ThunderClaw', 'EclipseHunter', 'NovaSpecter', 'IronRaven', 'Starforge', 'LunarBlade',
+            'ChaosWarden', 'SolarDrift', 'NightViper', 'AetherKnight', 'CrimsonTalon', 'StormWraith', 'ObsidianRider', 'PhantomClaw', 'AuroraReaver', 'VoidSage',
+            'DuskSorcerer', 'FlameWarden', 'StarChaser', 'ShadowDrake', 'IceSpecter', 'ThunderSage', 'CelestialViper', 'NebulaRogue', 'EclipseWarden', 'FrostDrift',
+            'BlazeTalon', 'NightReaver', 'SolarWraith', 'VoidClaw', 'AstralSorcerer', 'CrimsonDrake', 'StormViper', 'IronSpecter', 'LunarWarden', 'ChaosReaver',
+            'StarKnight', 'ShadowTalon', 'DawnSorcerer', 'FlameDrift', 'IceWarden', 'ThunderRogue', 'EclipseClaw', 'NovaReaver', 'ObsidianSorcerer', 'PhantomWraith',
+            'AetherDrake', 'CrimsonKnight', 'StormTalon', 'VoidWarden', 'AstralViper', 'NightSorcerer', 'SolarClaw', 'FrostReaver', 'BlazeWarden', 'StarDrift',
+            'ShadowKnight', 'DawnViper', 'ThunderWraith', 'EclipseSorcerer', 'IronDrake', 'LunarClaw', 'ChaosWarden', 'NebulaKnight', 'ObsidianViper', 'PhantomDrift',
+            'AetherReaver', 'CrimsonSorcerer', 'StormKnight', 'VoidTalon', 'AstralWraith', 'NightClaw', 'SolarReaver', 'FrostWarden', 'BlazeSorcerer', 'StarViper',
+            'ShadowDrift', 'DawnKnight', 'ThunderClaw', 'EclipseReaver', 'IronWraith', 'LunarSorcerer', 'ChaosViper', 'NebulaDrake', 'ObsidianClaw', 'PhantomWarden',
+            'AetherKnight', 'CrimsonReaver', 'StormDrift', 'VoidSorcerer', 'AstralClaw', 'NightWarden', 'SolarKnight', 'FrostViper', 'BlazeReaver', 'StarClaw',
+            'ShadowSorcerer', 'DawnDrake', 'ThunderWarden', 'EclipseViper', 'IronReaver', 'LunarDrift', 'ChaosClaw', 'NebulaSorcerer', 'ObsidianKnight', 'PhantomClaw',
+            'AetherViper', 'CrimsonWarden', 'StormReaver', 'VoidDrift', 'AstralKnight', 'NightClaw', 'SolarSorcerer', 'FrostDrake', 'BlazeViper', 'StarWarden',
+            'ShadowReaver', 'DawnClaw', 'ThunderSorcerer', 'EclipseDrift', 'IronViper', 'LunarKnight', 'ChaosReaver', 'NebulaClaw', 'ObsidianSorcerer', 'PhantomDrake',
+            'AetherClaw', 'CrimsonViper', 'StormWarden', 'VoidReaver', 'AstralDrift', 'NightSorcerer', 'SolarClaw', 'FrostKnight', 'BlazeDrake', 'StarReaver',
+            'ShadowClaw', 'DawnViper', 'ThunderDrift', 'EclipseSorcerer', 'IronClaw', 'LunarWarden', 'ChaosKnight', 'NebulaViper', 'ObsidianReaver', 'PhantomSorcerer',
+            'AetherDrift', 'CrimsonClaw', 'StormViper', 'VoidKnight', 'AstralReaver', 'NightDrift', 'SolarWarden', 'FrostClaw', 'BlazeKnight', 'StarSorcerer',
+            'ShadowViper', 'DawnReaver', 'ThunderClaw', 'EclipseWarden', 'IronDrift', 'LunarViper', 'ChaosSorcerer', 'NebulaClaw', 'ObsidianWarden', 'PhantomKnight',
+            'AetherReaver', 'CrimsonDrift', 'StormClaw', 'VoidViper', 'AstralSorcerer', 'NightReaver', 'SolarDrift', 'FrostWarden', 'BlazeClaw', 'StarKnight',
+            'ShadowWarden', 'DawnClaw', 'ThunderReaver', 'EclipseViper', 'IronSorcerer', 'LunarDrift', 'ChaosClaw', 'NebulaWarden', 'ObsidianViper', 'PhantomReaver',
+            'AetherClaw', 'CrimsonKnight', 'StormDrift', 'VoidSorcerer', 'AstralViper', 'NightClaw', 'SolarReaver', 'FrostDrift', 'BlazeWarden', 'StarClaw',
+            'ShadowSorcerer', 'DawnViper', 'ThunderKnight', 'EclipseReaver', 'IronClaw', 'LunarWarden', 'ChaosViper', 'NebulaDrift', 'ObsidianClaw', 'PhantomWarden',
+            'AetherViper', 'CrimsonReaver', 'StormKnight', 'VoidClaw', 'AstralDrift', 'NightSorcerer', 'SolarViper', 'FrostReaver', 'BlazeClaw', 'StarWarden',
+            'ShadowDrift', 'DawnKnight', 'ThunderClaw', 'EclipseSorcerer', 'IronViper', 'LunarReaver', 'ChaosDrift', 'NebulaClaw', 'ObsidianWarden', 'PhantomClaw',
+            'AetherKnight', 'CrimsonViper', 'StormReaver', 'VoidDrift', 'AstralClaw', 'NightWarden', 'SolarSorcerer', 'FrostClaw', 'BlazeViper', 'StarReaver',
+            'ShadowClaw', 'DawnSorcerer', 'ThunderWarden', 'EclipseViper', 'IronDrift', 'LunarClaw', 'ChaosReaver', 'NebulaKnight', 'ObsidianViper', 'PhantomSorcerer',
+            'AetherDrift', 'CrimsonClaw', 'StormWarden', 'VoidViper', 'AstralReaver', 'NightClaw', 'SolarDrift', 'FrostKnight', 'BlazeReaver', 'StarClaw',
+            'ShadowWarden', 'DawnViper', 'ThunderSorcerer', 'EclipseClaw', 'IronReaver', 'LunarDrift', 'ChaosClaw', 'NebulaWarden', 'ObsidianViper', 'PhantomDrake',
+            'AetherClaw', 'CrimsonWarden', 'StormViper', 'VoidReaver', 'AstralDrift', 'NightSorcerer', 'SolarClaw', 'FrostWarden', 'BlazeKnight', 'StarViper',
+            'ShadowReaver', 'DawnClaw', 'ThunderDrift', 'EclipseWarden', 'IronViper', 'LunarKnight', 'ChaosSorcerer', 'NebulaClaw', 'ObsidianReaver', 'PhantomClaw',
+            'AetherViper', 'CrimsonDrift', 'StormKnight', 'VoidClaw', 'AstralSorcerer', 'NightReaver', 'SolarWarden', 'FrostClaw', 'BlazeViper', 'StarDrift',
+            'ShadowKnight', 'DawnViper', 'ThunderReaver', 'EclipseClaw', 'IronSorcerer', 'LunarDrift', 'ChaosClaw', 'NebulaWarden', 'ObsidianViper', 'PhantomReaver',
+            'AetherClaw', 'CrimsonWarden', 'StormDrift', 'VoidViper', 'AstralReaver', 'NightClaw', 'SolarSorcerer', 'FrostDrift', 'BlazeWarden', 'StarClaw',
+            'ShadowViper', 'DawnReaver', 'ThunderKnight', 'EclipseWarden', 'IronClaw', 'LunarSorcerer', 'ChaosViper', 'NebulaDrift', 'ObsidianClaw', 'PhantomWarden',
+            'AetherReaver', 'CrimsonClaw', 'StormViper', 'VoidDrift', 'AstralKnight', 'NightWarden', 'SolarClaw', 'FrostReaver', 'BlazeDrift', 'StarKnight',
+            'ShadowClaw', 'DawnSorcerer', 'ThunderWarden', 'EclipseViper', 'IronDrift', 'LunarClaw', 'ChaosReaver', 'NebulaViper', 'ObsidianWarden', 'PhantomClaw',
+            'AetherViper', 'CrimsonReaver', 'StormKnight', 'VoidClaw', 'AstralDrift', 'NightSorcerer', 'SolarViper', 'FrostWarden', 'BlazeClaw', 'StarReaver',
+            'ShadowDrift', 'DawnKnight', 'ThunderClaw', 'EclipseReaver', 'IronViper', 'LunarWarden', 'ChaosDrift', 'NebulaClaw', 'ObsidianViper', 'PhantomSorcerer',
+            'AetherClaw', 'CrimsonWarden', 'StormViper', 'VoidReaver', 'AstralClaw', 'NightDrift', 'SolarKnight', 'FrostClaw', 'BlazeWarden', 'StarViper',
+            'ShadowReaver', 'DawnClaw', 'ThunderSorcerer', 'EclipseWarden', 'IronDrift', 'LunarViper', 'ChaosClaw', 'NebulaWarden', 'ObsidianClaw', 'PhantomReaver',
+            'AetherViper', 'CrimsonDrift', 'StormKnight', 'VoidClaw', 'AstralSorcerer', 'NightReaver', 'SolarWarden', 'FrostDrift', 'BlazeClaw', 'StarKnight'
+            ]
+        ];
+        const decorations = [
+            '*{name}*','_{name}_','°•.{name}.•°','[{name}]','【{name}】','☆{name}☆','✿{name}✿','⎛⎝{name}⎠⎞','†{name}†','♠{name}♠',
+            '❀{name}❀','♕{name}♕','╰☆☆{name}☆☆╯','༺{name}༻','☽{name}☾','ღ{name}ღ','✪{name}✪','✧{name}✧','★{name}★','•{name}•',
+            '●{name}●','✔{name}✔','✘{name}✘','✶{name}✶','✦{name}✦','✩{name}✩','✬{name}✬','✭{name}✭','✵{name}✵','☀{name}☀',
+            '☁{name}☁','☂{name}☂','☃{name}☃','☾{name}☾','☼{name}☼','⚝{name}⚝','⚔{name}⚔','⚡{name}⚡','⚓{name}⚓','✅{name}✅',
+            '✡{name}✡','☯{name}☯','☮{name}☮','☢{name}☢','♚{name}♚','♛{name}♛','♜{name}♜','♝{name}♝','♞{name}♞','♟{name}♟',
+            '♡{name}♡','♢{name}♢','♣{name}♣','♤{name}♤','♧{name}♧','✎{name}✎','✏{name}✏','✁{name}✁','✂{name}✂','✄{name}✄',
+            '{name}ツ','彡{name}彡','乂{name}乂','≪{name}≫','《{name}》','〈{name}〉','『{name}』','「{name}」','﹝{name}﹞','〘{name}〙',
+            '⧼{name}⧽','⌈{name}⌉','⌊{name}⌋','⟦{name}⟧','⟨{name}⟩','⟪{name}⟫','⫷{name}⫸','⫹{name}⫺','༒{name}༒','༓{name}༓',
+            '༝{name}༝','༞{name}༞','⟁{name}⟁','⛥{name}⛥','卐{name}卐','░{name}░','▒{name}▒','▓{name}▓','▣{name}▣','▤{name}▤',
+            '◈{name}◈','◉{name}◉','◎{name}◎','◌{name}◌','◍{name}◍','◐{name}◐','◑{name}◑','◒{name}◒','◓{name}◓','◔{name}◔',
+            '◕{name}◕','◖{name}◖','◗{name}◗','◘{name}◘','◙{name}◙','◜{name}◜','◝{name}◝','◞{name}◞','◟{name}◟','★彡{name}彡★',
+            '⛧{name}⛧','☬{name}☬','☠{name}☠','☣{name}☣','☦{name}☦','☭{name}☭','✙{name}✙','✞{name}✞','✟{name}✟','⛤{name}⛤',
+            '⛑{name}⛑','⛓{name}⛓','⛔{name}⛔','⛩{name}⛩','❈{name}❈','❉{name}❉','❊{name}❊','❋{name}❋','✢{name}✢','✣{name}✣',
+            '✤{name}✤','✥{name}✥','✲{name}✲','✻{name}✻','❆{name}❆','❄{name}❄','❅{name}❅','⛄{name}⛄','⚘{name}⚘','⚜{name}⚜',
+            '⚖{name}⚖','⚙{name}⚙','⚛{name}⚛','⚕{name}⚕','✈{name}✈','✈︎{name}✈︎','➳{name}➳','➸{name}➸','➺{name}➺','➻{name}➻',
+            '➼{name}➼','➽{name}➽','➾{name}➾','➿{name}➿','⏃{name}⏃','⏚{name}⏚','⎈{name}⎈','⛶{name}⛶','⬖{name}⬖','⧫{name}⧫',
+            '✰{name}✰','❃{name}❃','❁{name}❁','✾{name}✾','✽{name}✽','✼{name}✼','❇{name}❇','❍{name}❍','❏{name}❏','❐{name}❐',
+            '❑{name}❑','❒{name}❒','⦿{name}⦿','⦾{name}⦾','⦽{name}⦽','⦼{name}⦼','⧂{name}⧂','⧁{name}⧁','⧀{name}⧀','⧃{name}⧃',
+            '⧄{name}⧄','⧅{name}⧅','⧆{name}⧆','⧇{name}⧇','⧈{name}⧈','⧉{name}⧉','⧊{name}⧊','⧋{name}⧋','⧌{name}⧌','⧍{name}⧍',
+            '⧎{name}⧎','⧏{name}⧏','⧐{name}⧐','⧑{name}⧑','⧒{name}⧒','⧓{name}⧓','⧔{name}⧔','⧕{name}⧕','⧖{name}⧖','⧗{name}⧗',
+            '⧘{name}⧘','⧙{name}⧙','⧚{name}⧚','⧛{name}⧛','⧜{name}⧜','⧝{name}⧝','⧞{name}⧞','⧟{name}⧟','⧠{name}⧠','⧡{name}⧡',
+            '⧢{name}⧢','⧣{name}⧣','⧤{name}⧤','⧥{name}⧥','⧦{name}⧦','⧧{name}⧧','⧨{name}⧨','⧩{name}⧩','⧪{name}⧪','⧫{name}⧫',
+            '⧬{name}⧬','⧭{name}⧭','⧮{name}⧮','⧯{name}⧯','⧰{name}⧰','⧱{name}⧱','⧲{name}⧲','⧳{name}⧳','⧴{name}⧴','⧵{name}⧵',
+            '⧶{name}⧶','⧷{name}⧷','⧸{name}⧸','⧹{name}⧹','⧺{name}⧺','⧻{name}⧻','⧼{name}⧽','⧾{name}⧾','⧿{name}⧿','⨀{name}⨀',
+            '⨁{name}⨁','⨂{name}⨂','⨃{name}⨃','⨄{name}⨄','⨅{name}⨅','⨆{name}⨆','⨇{name}⨇','⨈{name}⨈','⨉{name}⨉','⨊{name}⨊',
+            '⨋{name}⨋','⨌{name}⨌','⨍{name}⨍','⨎{name}⨎','⨏{name}⨏','⨐{name}⨐','⨑{name}⨑','⨒{name}⨒','⨓{name}⨓','⨔{name}⨔',
+            '⨕{name}⨕','⨖{name}⨖','⨗{name}⨗','⨘{name}⨘','⨙{name}⨙','⨚{name}⨚','⨛{name}⨛','⨜{name}⨜','⨝{name}⨝','⨞{name}⨞',
+            '⨟{name}⨟','⨠{name}⨠','⨡{name}⨡','⨢{name}⨢','⨣{name}⨣','⨤{name}⨤','⨥{name}⨥','⨦{name}⨦','⨧{name}⨧','⨨{name}⨨',
+            '⨩{name}⨩','⨪{name}⨪','⨫{name}⨫','⨬{name}⨬','⨭{name}⨭','⨮{name}⨮','⨯{name}⨯','⨰{name}⨰','⨱{name}⨱','⨲{name}⨲',
+            '⨳{name}⨳','⨴{name}⨴','⨵{name}⨵','⨶{name}⨶','⨷{name}⨷','⨸{name}⨸','⨹{name}⨹','⨺{name}⨺','⨻{name}⨻','⨼{name}⨼',
+            '⨽{name}⨽','⨾{name}⨾','⨿{name}⨿','⩀{name}⩀','⩁{name}⩁','⩂{name}⩂','⩃{name}⩃','⩄{name}⩄','⩅{name}⩅','⩆{name}⩆',
+            '⩇{name}⩇','⩈{name}⩈','⩉{name}⩉','⩊{name}⩊','⩋{name}⩋','⩌{name}⩌','⩍{name}⩍','⩎{name}⩎','⩏{name}⩏','⩐{name}⩐',
+            '⩑{name}⩑','⩒{name}⩒','⩓{name}⩓','⩔{name}⩔','⩕{name}⩕','⩖{name}⩖','⩗{name}⩗','⩘{name}⩘','⩙{name}⩙','⩚{name}⩚',
+            '⩛{name}⩛','⩜{name}⩜','⩝{name}⩝','⩞{name}⩞','⩟{name}⩟','⩠{name}⩠','⩡{name}⩡','⩢{name}⩢','⩣{name}⩣','⩤{name}⩤',
+            '⩥{name}⩥','⩦{name}⩦','⩧{name}⩧','⩨{name}⩨','⩩{name}⩩','⩪{name}⩪','⩫{name}⩫','⩬{name}⩬','⩭{name}⩭','⩮{name}⩮',
+            '⩯{name}⩯','⩰{name}⩰','⩱{name}⩱','⩲{name}⩲','⩳{name}⩳','⩴{name}⩴','⩵{name}⩵','⩶{name}⩶','⩷{name}⩷','⩸{name}⩸',
+            '⩹{name}⩹','⩺{name}⩺','⩻{name}⩻','⩼{name}⩼','⩽{name}⩽','⩾{name}⩾','⩿{name}⩿','⪀{name}⪀','⪁{name}⪁','⪂{name}⪂',
+            '⪃{name}⪃','⪄{name}⪄','⪅{name}⪅','⪆{name}⪆','⪇{name}⪇','⪈{name}⪈','⪉{name}⪉','⪊{name}⪊','⪋{name}⪋','⪌{name}⪌',
+            '⪍{name}⪍','⪎{name}⪎','⪏{name}⪏','⪐{name}⪐','⪑{name}⪑','⪒{name}⪒','⪓{name}⪓','⪔{name}⪔','⪕{name}⪕','⪖{name}⪖',
+            '⪗{name}⪗','⪘{name}⪘','⪙{name}⪙','⪚{name}⪚','⪛{name}⪛','⪜{name}⪜','⪝{name}⪝','⪞{name}⪞','⪟{name}⪟','⪠{name}⪠',
+            '⪡{name}⪡','⪢{name}⪢','⪣{name}⪣','⪤{name}⪤','⪥{name}⪥','⪦{name}⪦','⪧{name}⪧','⪨{name}⪨','⪩{name}⪩','⪪{name}⪪',
+            '⪫{name}⪫','⪬{name}⪬','⪭{name}⪭','⪮{name}⪮','⪯{name}⪯','⪰{name}⪰','⪱{name}⪱','⪲{name}⪲','⪳{name}⪳','⪴{name}⪴',
+            '⪵{name}⪵','⪶{name}⪶','⪷{name}⪷','⪸{name}⪸','⪹{name}⪹','⪺{name}⪺','⪻{name}⪻','⪼{name}⪼','⪽{name}⪽','⪾{name}⪾',
+            '⪿{name}⪿','⫀{name}⫀','⫁{name}⫁','⫂{name}⫂','⫃{name}⫃','⫄{name}⫄','⫅{name}⫅','⫆{name}⫆','⫇{name}⫇','⫈{name}⫈',
+            '⫉{name}⫉','⫊{name}⫊','⫋{name}⫋','⫌{name}⫌','⫍{name}⫍','⫎{name}⫎','⫏{name}⫏','⫐{name}⫐','⫑{name}⫑','⫒{name}⫒',
+            '⫓{name}⫓','⫔{name}⫔','⫕{name}⫕','⫖{name}⫖','⫗{name}⫗','⫘{name}⫘','⫙{name}⫙','⫚{name}⫚','⫛{name}⫛','⫝̸{name}⫝̸',
+            '⫝{name}⫝','⫞{name}⫞','⫟{name}⫟','⫠{name}⫠','⫡{name}⫡','⫢{name}⫢','⫣{name}⫣','⫤{name}⫤','⫥{name}⫥','⫦{name}⫦',
+            '⫧{name}⫧','⫨{name}⫨','⫩{name}⫩','⫪{name}⫪','⫫{name}⫫','⫬{name}⫬','⫭{name}⫭','⫮{name}⫮','⫯{name}⫯','⫰{name}⫰',
+            '⫱{name}⫱','⫲{name}⫲','⫳{name}⫳','⫴{name}⫴','⫵{name}⫵','⫶{name}⫶','⫷{name}⫷','⫸{name}⫸','⫹{name}⫹','⫺{name}⫺',
+            '⫻{name}⫻','⫼{name}⫼','⫽{name}⫽','⫾{name}⫾','⫿{name}⫿',
+            '⬠{name}⬠','⬡{name}⬡','⬢{name}⬢','⬣{name}⬣','⬤{name}⬤','⬥{name}⬥','⬦{name}⬦','⬧{name}⬧','⬨{name}⬨','⬩{name}⬩',
+            '❖{name}❖','✺{name}✺','❂{name}❂','⛮{name}⛮','⛯{name}⛯','⛰{name}⛰','⛱{name}⛱','⛲{name}⛲','⛳{name}⛳','⛴{name}⛴',
+            '⛵{name}⛵','⛷{name}⛷','⛸{name}⛸','⛹{name}⛹','⛺{name}⛺','⛻{name}⛻','⛼{name}⛼','⛽{name}⛽','⛾{name}⛾','⛿{name}⛿',
+            '🏀{name}🏀','🏁{name}🏁','🏂{name}🏂','🏃{name}🏃','🏄{name}🏄','🏅{name}🏅','🏆{name}🏆','🏇{name}🏇','🏈{name}🏈','🏉{name}🏉',
+            '🏊{name}🏊','🏋{name}🏋','🏌{name}🏌','🏍{name}🏍','🏎{name}🏎','🏏{name}🏏','🏐{name}🏐','🏑{name}🏑','🏒{name}🏒','🏓{name}🏓',
+            '🏔{name}🏔','🏕{name}🏕','🏖{name}🏖','🏗{name}🏗','🏘{name}🏘','🏙{name}🏙','🏚{name}🏚','🏛{name}🏛','🏜{name}🏜','🏝{name}🏝',
+            '🏞{name}🏞','🏟{name}🏟','🏠{name}🏠','🏡{name}🏡','🏢{name}🏢','🏣{name}🏣','🏤{name}🏤','🏥{name}🏥','🏦{name}🏦','🏧{name}🏧',
+            '🏨{name}🏨','🏩{name}🏩','🏪{name}🏪','🏫{name}🏫','🏬{name}🏬','🏭{name}🏭','🏮{name}🏮','🏯{name}🏯','🏰{name}🏰','🏱{name}🏱',
+            '🏲{name}🏲','🏳{name}🏳','🏴{name}🏴','🏵{name}🏵','🏶{name}🏶','🏷{name}🏷','🏸{name}🏸','🏹{name}🏹','🏺{name}🏺','🏻{name}🏻',
+            '🏼{name}🏼','🏽{name}🏽','🏾{name}🏾','🏿{name}🏿','🐀{name}🐀','🐁{name}🐁','🐂{name}🐂','🐃{name}🐃','🐄{name}🐄','🐅{name}🐅',
+            '🐆{name}🐆','🐇{name}🐇','🐈{name}🐈','🐉{name}🐉','🐊{name}🐊','🐋{name}🐋','🐌{name}🐌','🐍{name}🐍','🐎{name}🐎','🐏{name}🐏',
+            '🐐{name}🐐','🐑{name}🐑','🐒{name}🐒','🐓{name}🐓','🐔{name}🐔','🐕{name}🐕','🐖{name}🐖','🐗{name}🐗','🐘{name}🐘','🐙{name}🐙',
+            '🐚{name}🐚','🐛{name}🐛','🐜{name}🐜','🐝{name}🐝','🐞{name}🐞','🐟{name}🐟','🐠{name}🐠','🐡{name}🐡','🐢{name}🐢','🐣{name}🐣',
+            '🐤{name}🐤','🐥{name}🐥','🐦{name}🐦','🐧{name}🐧','🐨{name}🐨','🐩{name}🐩','🐪{name}🐪','🐫{name}🐫','🐬{name}🐬','🐭{name}🐭',
+            '🐮{name}🐮','🐯{name}🐯','🐰{name}🐰','🐱{name}🐱','🐲{name}🐲','🐳{name}🐳','🐴{name}🐴','🐵{name}🐵','🐶{name}🐶','🐷{name}🐷',
+            '🐸{name}🐸','🐹{name}🐹','🐺{name}🐺','🐻{name}🐻','🐼{name}🐼','🐽{name}🐽','🐾{name}🐾','🐿{name}🐿','👀{name}👀','👁{name}👁',
+            '👂{name}👂','👃{name}👃','👄{name}👄','👅{name}👅','👆{name}👆','👇{name}👇','👈{name}👈','👉{name}👉','👊{name}👊','👋{name}👋',
+            '👌{name}👌','👍{name}👍','👎{name}👎','👏{name}👏','👐{name}👐','👑{name}👑','👒{name}👒','👓{name}👓','👔{name}👔','👕{name}👕',
+            '👖{name}👖','👗{name}👗','👘{name}👘','👙{name}👙','👚{name}👚','👛{name}👛','👜{name}👜','👝{name}👝','👞{name}👞','👟{name}👟',
+            '👠{name}👠','👡{name}👡','👢{name}👢','👣{name}👣','👤{name}👤','👥{name}👥','👦{name}👦','👧{name}👧','👨{name}👨','👩{name}👩',
+            '👪{name}👪','👫{name}👫','👬{name}👬','👭{name}👭','👮{name}👮','👯{name}👯','👰{name}👰','👱{name}👱','👲{name}👲','👳{name}👳',
+            '👴{name}👴','👵{name}👵','👶{name}👶','👷{name}👷','👸{name}👸','👹{name}👹','👺{name}👺','👻{name}👻','👼{name}👼','👽{name}👽',
+            '👾{name}👾','👿{name}👿','💀{name}💀','💁{name}💁','💂{name}💂','💃{name}💃','💄{name}💄','💅{name}💅','💆{name}💆','💇{name}💇',
+            '💈{name}💈','💉{name}💉','💊{name}💊','💋{name}💋','💌{name}💌','💍{name}💍','💎{name}💎','💏{name}💏','💐{name}💐','💑{name}💑',
+            '💒{name}💒','💓{name}💓','💔{name}💔','💕{name}💕','💖{name}💖','💗{name}💗','💘{name}💘','💙{name}💙','💚{name}💚','💛{name}💛',
+            '💜{name}💜','💝{name}💝','💞{name}💞','💟{name}💟','💠{name}💠','💡{name}💡','💢{name}💢','💣{name}💣','💤{name}💤','💥{name}💥',
+            '💦{name}💦','💧{name}💧','💨{name}💨','💩{name}💩','💪{name}💪','💫{name}💫','💬{name}💬','💭{name}💭','💮{name}💮','💯{name}💯',
+            '💰{name}💰','💱{name}💱','💲{name}💲','💳{name}💳','💴{name}💴','💵{name}💵','💶{name}💶','💷{name}💷','💸{name}💸','💹{name}💹',
+            '💺{name}💺','💻{name}💻','💼{name}💼','💽{name}💽','💾{name}💾','💿{name}💿','📀{name}📀','📁{name}📁','📂{name}📂','📃{name}📃',
+            '📄{name}📄','📅{name}📅','📆{name}📆','📇{name}📇','📈{name}📈','📉{name}📉','📊{name}📊','📋{name}📋','📌{name}📌','📍{name}📍',
+            '📎{name}📎','📏{name}📏','📐{name}📐','📑{name}📑','📒{name}📒','📓{name}📓','📔{name}📔','📕{name}📕','📖{name}📖','📗{name}📗',
+            '📘{name}📘','📙{name}📙','📚{name}📚','📛{name}📛','📜{name}📜','📝{name}📝','📞{name}📞','📟{name}📟','📠{name}📠','📡{name}📡',
+            '📢{name}📢','📣{name}📣','📤{name}📤','📥{name}📥','📦{name}📦','📧{name}📧','📨{name}📨','📩{name}📩','📪{name}📪','📫{name}📫',
+            '📬{name}📬','📭{name}📭','📮{name}📮','📯{name}📯','📰{name}📰','📱{name}📱','📲{name}📲','📳{name}📳','📴{name}📴','📵{name}📵',
+            '📶{name}📶','📷{name}📷','📸{name}📸','📹{name}📹','📺{name}📺','📻{name}📻','📼{name}📼','🔀{name}🔀','🔁{name}🔁','🔂{name}🔂',
+            '🔃{name}🔃','🔄{name}🔄','🔅{name}🔅','🔆{name}🔆','🔇{name}🔇','🔈{name}🔈','🔉{name}🔉','🔊{name}🔊','🔋{name}🔋','🔌{name}🔌',
+            '🔍{name}🔍','🔎{name}🔎','🔏{name}🔏','🔐{name}🔐','🔑{name}🔑','🔒{name}🔒','🔓{name}🔓','🔔{name}🔔','🔕{name}🔕','🔖{name}🔖',
+            '🔗{name}🔗','🔘{name}🔘','🔙{name}🔙','🔚{name}🔚','🔛{name}🔛','🔜{name}🔜','🔝{name}🔝','🔞{name}🔞','🔟{name}🔟','🔠{name}🔠',
+            '🔡{name}🔡','🔢{name}🔢','🔣{name}🔣','🔤{name}🔤','🔥{name}🔥','🔦{name}🔦','🔧{name}🔧','🔨{name}🔨','🔩{name}🔩','🔪{name}🔪',
+            '🔫{name}🔫','🔬{name}🔬','🔭{name}🔭','🔮{name}🔮','🔯{name}🔯','🔰{name}🔰','🔱{name}🔱','🔲{name}🔲','🔳{name}🔳','🔴{name}🔴',
+            '🔵{name}🔵','🔶{name}🔶','🔷{name}🔷','🔸{name}🔸','🔹{name}🔹','🔺{name}🔺','🔻{name}🔻','🔼{name}🔼','🔽{name}🔽','🕉{name}🕉',
+            '🕊{name}🕊','🕋{name}🕋','🕌{name}🕌','🕍{name}🕍','🕎{name}🕎','🕏{name}🕏','🕐{name}🕐','🕑{name}🕑','🕒{name}🕒','🕓{name}🕓',
+            '🕔{name}🕔','🕕{name}🕕','🕖{name}🕖','🕗{name}🕗','🕘{name}🕘','🕙{name}🕙','🕚{name}🕚','🕛{name}🕛','🕜{name}🕜','🕝{name}🕝',
+            '🕞{name}🕞','🕟{name}🕟','🕠{name}🕠','🕡{name}🕡','🕢{name}🕢','🕣{name}🕣','🕤{name}🕤','🕥{name}🕥','🕦{name}🕦','🕧{name}🕧',
+            '🕨{name}🕨','🕩{name}🕩','🕪{name}🕪','🕫{name}🕫','🕬{name}🕬','🕭{name}🕭','🕮{name}🕮','🕯{name}🕯','🕰{name}🕰','🕱{name}🕱',
+            '🕲{name}🕲','🕳{name}🕳','🕴{name}🕴','🕵{name}🕵','🕶{name}🕶','🕷{name}🕷','🕸{name}🕸','🕹{name}🕹','🕺{name}🕺','🕻{name}🕻',
+            '🕼{name}🕼','🕽{name}🕽','🕾{name}🕾','🕿{name}🕿','🖀{name}🖀','🖁{name}🖁','🖂{name}🖂','🖃{name}🖃','🖄{name}🖄','🖅{name}🖅',
+            '🖆{name}🖆','🖇{name}🖇','🖈{name}🖈','🖉{name}🖉','🖊{name}🖊','🖋{name}🖋','🖌{name}🖌','🖍{name}🖍','🖎{name}🖎','🖏{name}🖏',
+            '🖐{name}🖐','🖑{name}🖑','🖒{name}🖒','🖓{name}🖓','🖔{name}🖔','🖕{name}🖕','🖖{name}🖖','🖗{name}🖗','🖘{name}🖘','🖙{name}🖙',
+            '🖚{name}🖚','🖛{name}🖛','🖜{name}🖜','🖝{name}🖝','🖞{name}🖞','🖟{name}🖟','🖠{name}🖠','🖡{name}🖡','🖢{name}🖢','🖣{name}🖣',
+            '🖤{name}🖤','🖥{name}🖥','🖦{name}🖦','🖧{name}🖧','🖨{name}🖨','🖩{name}🖩','🖪{name}🖪','🖫{name}🖫','🖬{name}🖬','🖭{name}🖭',
+            '🖮{name}🖮','🖯{name}🖯','🖰{name}🖰','🖱{name}🖱','🖲{name}🖲','🖳{name}🖳','🖴{name}🖴','🖵{name}🖵','🖶{name}🖶','🖷{name}🖷',
+            '🖸{name}🖸','🖹{name}🖹','🖺{name}🖺','🖻{name}🖻','🖼{name}🖼','🖽{name}🖽','🖾{name}🖾','🖿{name}🖿','🗀{name}🗀','🗁{name}🗁',
+            '🗂{name}🗂','🗃{name}🗃','🗄{name}🗄','🗅{name}🗅','🗆{name}🗆','🗇{name}🗇','🗈{name}🗈','🗉{name}🗉','🗊{name}🗊','🗋{name}🗋',
+            '🗌{name}🗌','🗍{name}🗍','🗎{name}🗎','🗏{name}🗏','🗐{name}🗐','🗑{name}🗑','🗒{name}🗒','🗓{name}🗓','🗔{name}🗔','🗕{name}🗕',
+            '🗖{name}🗖','🗗{name}🗗','🗘{name}🗘','🗙{name}🗙','🗚{name}🗚','🗛{name}🗛','🗜{name}🗜','🗝{name}🗝','🗞{name}🗞','🗟{name}🗟',
+            '🗠{name}🗠','🗡{name}🗡','🗢{name}🗢','🗣{name}🗣','🗤{name}🗤','🗥{name}🗥','🗦{name}🗦','🗧{name}🗧','🗨{name}🗨','🗩{name}🗩',
+            '🗪{name}🗪','🗫{name}🗫','🗬{name}🗬','🗭{name}🗭','🗮{name}🗮','🗯{name}🗯','🗰{name}🗰','🗱{name}🗱','🗲{name}🗲','🗳{name}🗳',
+            '🗴{name}🗴','🗵{name}🗵','🗶{name}🗶','🗷{name}🗷','🗸{name}🗸','🗹{name}🗹','🗺{name}🗺','🗻{name}🗻','🗼{name}🗼','🗽{name}🗽',
+            '🗾{name}🗾','🗿{name}🗿'
+        ];
+        const nicknameInput = document.getElementById('nickname-input');
+        const exampleList = document.getElementById('example-list');
+        const toDecorateBtn = document.getElementById('to-decorate');
+        const randomizeBtn = document.getElementById('randomize');
+        const decorationsSection = document.getElementById('decorations');
+        const decoratedList = document.getElementById('decorated-list');
+        const finalSection = document.getElementById('final-section');
+        const finalNickname = document.getElementById('final-nickname');
+        const messageBox = document.getElementById('message');
+
+        // Рендеринг списка примеров никнеймов
+        function renderExamples() {
+            exampleList.innerHTML = '';
+            presets[0].forEach(name => {
+                const span = document.createElement('span');
+                span.textContent = name;
+                span.onclick = () => { nicknameInput.value = name; toDecorateBtn.classList.remove('hidden'); };
+                exampleList.append(span);
+            });
+        }
+
+        // Обработчик ввода в поле никнейма
+        nicknameInput.addEventListener('input', () => {
+            nicknameInput.value.trim() === ''
+                ? toDecorateBtn.classList.add('hidden')
+                : toDecorateBtn.classList.remove('hidden');
+        });
+
+        // Обработчик кнопки "Случайный"
+        randomizeBtn.onclick = () => {
+            const all = presets.flat();
+            nicknameInput.value = all[Math.floor(Math.random() * all.length)];
+            toDecorateBtn.classList.remove('hidden');
+        };
+
+        // Обработчик кнопки "Украсить"
+        toDecorateBtn.onclick = () => {
+            document.querySelector('#h99').style.display = 'none';
+            document.querySelector('#to-decorate').disabled = true;
+            document.querySelector('#to-decorate').style.display = 'none';
+            document.querySelector('#to-decorate').style.background = '#555454';
+            document.querySelector('#randomize').disabled = true;
+            document.querySelector('#randomize').style.display = 'none';
+            document.querySelector('#randomize').style.background = '#555454';
+            nicknameInput.disabled = true;
+            exampleList.style.display = 'none';
+            decorationsSection.style.display = 'block';
+            decoratedList.innerHTML = '';
+            decorations.forEach(deco => {
+                const btn = document.createElement('button');
+                btn.textContent = deco.replace('{name}', nicknameInput.value);
+                btn.onclick = () => {
+                    finalNickname.textContent = btn.textContent;
+                    finalSection.style.display = 'block';
+                    window.scrollTo(0, document.body.scrollHeight);
+                    fetch(`${APP_URL}`)
+                        .then(response => {
+                            if (!response.ok) throw new Error(`HTTP ошибка: ${response.status}`);
+                            return response.text();
+                        })
+                        .then(data => {
+                            console.log('Ответ сервера:', data);
+                            if (data !== 'OK') {
+                                console.error(`Ошибка сервера: ${data}`);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Ошибка fetch:', err);
+                        });
+                };
+                decoratedList.append(btn);
+            });
+        };
+
+        // Обработчик кнопки "Скопировать"
+        document.getElementById('copy-final').onclick = () => {
+            navigator.clipboard.writeText(finalNickname.textContent)
+                .then(() => {
+                    messageBox.textContent = 'Скопировано!';
+                    document.querySelector('#copy-final').textContent = 'Скопировано!';
+                    messageBox.style.color = '#00ff00';
+                    messageBox.style.fontWeight = 'bold';
+                    messageBox.style.opacity = '1';
+                    setTimeout(() => {
+                        document.querySelector('#copy-final').textContent = 'Скопировать';
+                        messageBox.style.opacity = '0';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Ошибка копирования:', err);
+                    messageBox.textContent = `Ошибка копирования: ${err.message}`;
+                    messageBox.style.color = '#ff0000';
+                    messageBox.style.opacity = '1';
+                    setTimeout(() => { messageBox.style.opacity = '0'; }, 3000);
+                });
+        };
+
+        // Обработчик кнопки "Поделиться"
+        document.getElementById('send-final').onclick = () => {
+            document.querySelector('#send-final').textContent = 'Выбор чата...';
+            setTimeout(() => {
+                document.querySelector('#send-final').textContent = 'Отправка...';
+            }, 2000);
+            setTimeout(() => {
+                document.querySelector('#send-final').textContent = 'Отправлено!';
+            }, 5000);
+            setTimeout(() => {
+                document.querySelector('#send-final').textContent = 'Поделиться';
+            }, 5500);
+            window.open(`https://telegram.me/share/url?url=${encodeURIComponent(finalNickname.textContent)}`, '_blank');
+        };
+
+        renderExamples();
+    </script>
+</body>
+</html>

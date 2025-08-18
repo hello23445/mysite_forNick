@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #060039;
+            color: #d9d9d9;
+            margin: 0;
+            padding: 0;
+        }
+        #maintenance {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: red;
+            padding: 10px;
+        }
+        .top-bar {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+        }
+        #mainTopBar {
+            justify-content: flex-end;
+        }
+        #settingsTopBar {
+            justify-content: space-between;
+        }
+        #settingsTopBar .title {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .top-bar button {
+            background: none;
+            border: none;
+            color: #d9d9d9;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .main {
+            text-align: center;
+            margin-top: 30px;
+            padding: 0 10px;
+        }
+        .buttons-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1%;
+            margin-top: 20px;
+            justify-items: center;
+        }
+        .buttons-container button, .settings-buttons button {
+            padding: 8px;
+            background-color: #251897;
+            color: #d9d9d9;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            box-sizing: border-box;
+            margin-bottom: 1%;
+            box-shadow: 0 2px 4px black;
+        }
+        .settings-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1%;
+            margin-top: 20px;
+            justify-items: center;
+        }
+        #settingsMenu {
+            display: none;
+            padding: 20px 10px;
+        }
+        #langSelect {
+            width: 150px;
+            margin-top: 15px;
+            background-color: #251897;
+            color: #d9d9d9;
+            border-radius: 8px;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+        }
+        @media (max-width: 480px) {
+            .buttons-container {
+                grid-template-columns: 1fr;
+            }
+            .buttons-container button, .settings-buttons button {
+                width: 100%;
+            }
+            #langSelect {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Техническое обслуживание -->
+<div id="maintenance">
+    <h2 data-translate="maintenance" id="maintenanceM"></h2>
+</div>
+
+<!-- Главное меню -->
+<div class="top-bar" id="mainTopBar">
+    <button id="settingsBtn" style="background-color: rgb(9, 9, 117);"><i class="fa-solid fa-gear"></i></button>
+</div>
+
+<div class="main" id="mainMenu">
+    <h2 data-translate="main" id="mainM"></h2>
+    <div class="buttons-container" id="featureButtons"></div>
+</div>
+
+<!-- Меню настроек -->
+<div id="settingsMenu">
+    <div class="top-bar" id="settingsTopBar">
+        <button id="backBtn"><i class="fa-solid fa-arrow-left"></i></button>
+        <span class="title" data-translate="settingsTitle" id="settingsTitle"></span>
+        <span style="width:24px;"></span> <!-- пустое место справа -->
+    </div>
+    <div>
+        <select id="langSelect"></select>
+    </div>
+    <div class="settings-buttons" id="settingsButtons"></div>
+</div>
+
+<script>
+    const filesRu = {
+        nickname: 'nickname.html',
+        description: 'description.html',
+        profile: 'avatar.html',
+        lego: 'lego.html',
+        font: 'font.html',
+        sites: 'https://sites.google.com/',
+        ascii: 'ascii.html',
+        qr: 'qr.html',
+        music: 'music.html',
+        colors: 'colors.html',
+        ai: 'ai.html',
+        support: 'support.html',
+        connection: 'connection.html'
+    };
+
+    const filesEn = {
+        nickname: 'nickname_en.html',
+        description: 'description_en.html',
+        profile: 'avatar_en.html',
+        lego: 'lego_en.html',
+        font: 'font_en.html',
+        sites: 'https://sites.google.com/',
+        ascii: 'ascii_en.html',
+        qr: 'qr_en.html',
+        music: 'music_en.html',
+        colors: 'colors_en.html',
+        ai: 'ai_en.html',
+        support: 'support_en.html',
+        connection: 'connection_en.html'
+    };
+
+    let lang = localStorage.getItem('lang') || 'en';
+
+    let translations = {
+        ru: {
+            main: "Что будем создавать?",
+            maintenance: "Проводится техническое обслуживание.",
+            settingsTitle: "Настройки",
+            featureButtons: [
+                "Никнейм","Описание","Аватарка","Лего","Шрифт","Сайт",
+                "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
+            ],
+            settingsButtons: ["Поддержка","Проверка соединения"],
+            langOptions: ["Русский","English"]
+        },
+        en: {
+            main: "What do you want to create?",
+            maintenance: "Maintenance in progress.",
+            settingsTitle: "Settings",
+            featureButtons: [
+                "Nickname","Description","Profile","Lego","Font","Sites",
+                "ASCII-art","QR-code","Music","Colors","AI-Generator"
+            ],
+            settingsButtons: ["Support","Connection check"],
+            langOptions: ["Русский","English"]
+        }
+    };
+
+    function applyTranslations() {
+        const files = lang === 'ru' ? filesRu : filesEn;
+
+        // Apply translations
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            const key = el.getAttribute('data-translate');
+            if (translations[lang][key]) {
+                el.textContent = translations[lang][key];
+            }
+        });
+
+        // Feature buttons
+        const featureContainer = document.getElementById('featureButtons');
+        featureContainer.innerHTML = '';
+        const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai'];
+        translations[lang].featureButtons.forEach((text, i) => {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            btn.onclick = () => {
+                const url = files[featureKeys[i]];
+                window.location.href = url;
+            };
+            featureContainer.appendChild(btn);
+        });
+
+        // Settings buttons
+        const settingsContainer = document.getElementById('settingsButtons');
+        settingsContainer.innerHTML = '';
+        const settingsKeys = ['support','connection'];
+        translations[lang].settingsButtons.forEach((text, i) => {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            btn.onclick = () => {
+                const url = files[settingsKeys[i]];
+                window.location.href = url;
+            };
+            settingsContainer.appendChild(btn);
+        });
+
+        // Language select
+        const langSelect = document.getElementById('langSelect');
+        langSelect.innerHTML = '';
+        translations[lang].langOptions.forEach((text, i) => {
+            const option = document.createElement('option');
+            option.value = i === 0 ? 'ru' : 'en';
+            option.textContent = text;
+            option.selected = (option.value === lang);
+            langSelect.appendChild(option);
+        });
+    }
+
+    // Initial load
+    applyTranslations();
+
+    // Events
+    document.getElementById('settingsBtn').onclick = () => {
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('mainTopBar').style.display = 'none';
+        document.getElementById('settingsMenu').style.display = 'block';
+    };
+
+    document.getElementById('backBtn').onclick = () => {
+        document.getElementById('settingsMenu').style.display = 'none';
+        document.getElementById('mainMenu').style.display = 'block';
+        document.getElementById('mainTopBar').style.display = 'flex';
+    };
+
+    document.getElementById('langSelect').onchange = function() {
+        lang = this.value;
+        localStorage.setItem('lang', lang);
+        applyTranslations();
+    };
+
+    // Maintenance check
+    const m = localStorage.getItem('m');
+    if (m === 'Уже' || m === 'уже') {
+        document.querySelectorAll("div").forEach(el => el.style.display = "none");
+        alert(lang === 'ru' ? 'Идет техническое обслуживание' : 'Maintenance in progress');
+        document.getElementById('maintenance').style.display = 'block';
+        document.getElementById('maintenanceM').textContent = translations[lang].maintenance;
+    } else if (m === 'Скоро' || m === 'скоро') {
+        alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
+    }
+</script>
+</body>
+</html>
