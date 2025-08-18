@@ -99,9 +99,9 @@
     }
 
     const texpereriv = '';
-    localStorage.setItem('m', texpereriv) || 'false'; // Устанавливаем статус технического обслуживания для теста
+    localStorage.setItem('m', texpereriv || 'false'); // Устанавливаем статус технического обслуживания для теста
     const channelUsername = 'Nicknaymes2bot';
-    const redirectUrl = 'main.html';
+    const redirectUrl = 'site_after_test.html';
     const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss'];
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytybZm3FJ48XaSfxzqk7iiTo3yR2BNf-F23pXAF6pI3lJGu6E3G5oVFPhi7xjXk3NO/exec';
 
@@ -123,14 +123,6 @@
     const messageEl = document.getElementById('message');
     const buttonsEl = document.getElementById('buttons');
     let userToken = null;
-
-    function closeApp() {
-      if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.close();
-      } else {
-        setTimeout(() => window.close(), 100);
-      }
-    }
 
     function copyToClipboard(text) {
       if (navigator.clipboard && window.isSecureContext) {
@@ -228,7 +220,7 @@
     function fakeCheckSubscription(startapp) {
       if (startapp) {
         window.location.href = redirectUrl;
-        closeApp();
+
         return;
       }
 
@@ -237,7 +229,7 @@
 
       if (checkedBefore && !randomFail) {
         window.location.href = redirectUrl;
-        closeApp();
+
       } else {
         showSubscribeScreen();
       }
@@ -294,4 +286,3 @@
   </script>
 </body>
 </html>
-
