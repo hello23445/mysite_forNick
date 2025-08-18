@@ -214,7 +214,12 @@
             btn.textContent = text;
             btn.onclick = () => {
                 const url = files[featureKeys[i]];
-                window.location.href = url;
+                if (url === 'https://sites.google.com/') {
+                    window.open(url, '_blank');
+                }
+                else {
+                    window.location.href = url;
+                }
             };
             featureContainer.appendChild(btn);
         });
