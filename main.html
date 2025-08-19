@@ -186,7 +186,7 @@
         if (user_last_name) localStorage.setItem('userLastName', user.last_name);
         if (username) localStorage.setItem('userUsername', user.username);
     } else {
-        console.error('Пользователь не найден!');
+        alert('Пользователь не найден!');
     }
 
 
@@ -368,9 +368,13 @@
     } else {
         document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
     }
-    if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
+    if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru' && localStorage.getItem('userID') && localStorage.getItem('userID') !== 'null') {
         document.getElementById('userID').textContent = 'Ваш ID: ' + localStorage.getItem('userID') + ' (Нажмите для копирования)';
-    } else {
+    }
+    else if (localStorage.getItem('userID') === 'null' || localStorage.getItem('userID') === null || localStorage.getItem('userID') === 'false' || localStorage.getItem('userID') === false) {
+        document.getElementById('userID').style.display = 'none';
+    } 
+    else {
         document.getElementById('userID').textContent = 'Your ID: ' + localStorage.getItem('userID') + ' (Click to copy)';
     }
 </script>
