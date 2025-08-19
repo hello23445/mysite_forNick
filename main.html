@@ -49,7 +49,6 @@
             margin-top: 30px;
             padding: 0 10px;
         }
-        lanzarote
         .buttons-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -369,17 +368,17 @@
             alert('Ошибка: Telegram WebApp не инициализирован.');
             return;
         }
-        alert('Telegram WebApp найден.');
+        alert('Telegram WebApp найден. Версия: ' + (tg.version || 'не указана'));
 
         const initData = tg.initDataUnsafe;
         if (!initData) {
             alert('Ошибка: initDataUnsafe не доступен.');
             return;
         }
-        alert('initDataUnsafe доступен.');
+        alert('initDataUnsafe доступен. Содержимое: ' + JSON.stringify(initData));
 
         if (!initData.user) {
-            alert('Ошибка: объект user отсутствует в initDataUnsafe.');
+            alert('Ошибка: объект user отсутствует в initDataUnsafe. Полное содержимое initDataUnsafe: ' + JSON.stringify(initData));
             return;
         }
         alert('Объект user найден: ' + JSON.stringify(initData.user));
@@ -396,8 +395,8 @@
         }
     }
 
-    // Вызываем функцию проверки с задержкой для обеспечения загрузки Telegram WebApp
-    setTimeout(checkUserId, 1000);
+    // Вызываем функцию проверки с увеличенной задержкой для обеспечения загрузки Telegram WebApp
+    setTimeout(checkUserId, 2000);
 </script>
 </body>
 </html>
