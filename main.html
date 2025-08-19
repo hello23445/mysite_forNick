@@ -311,7 +311,7 @@
                 document.getElementById('userID').style.display = 'block';
             } else {
                 console.error('No user data in initDataUnsafe:', tg.initDataUnsafe);
-                alert(lang === 'ru' ? 'Пользователь не найден! Проверьте консоль.' : 'User not found! Check console.');
+                alert(localStorage.getItem('lang') === 'ru' ? 'Пользователь не найден!' : 'User not found!');
                 document.getElementById('userID').style.display = 'none';
             }
         } catch (error) {
