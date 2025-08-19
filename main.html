@@ -379,6 +379,7 @@
 
         if (!initData.user) {
             alert('Ошибка: объект user отсутствует в initDataUnsafe. Полное содержимое initDataUnsafe: ' + JSON.stringify(initData));
+            alert('Проверка tg.initData: ' + (tg.initData || 'не доступен'));
             return;
         }
         alert('Объект user найден: ' + JSON.stringify(initData.user));
@@ -395,7 +396,7 @@
         }
     }
 
-    // Вызываем функцию проверки с увеличенной задержкой для обеспечения загрузки Telegram WebApp
+    // Вызываем функцию проверки с увеличенной задержкой
     setTimeout(checkUserId, 2000);
 </script>
 </body>
