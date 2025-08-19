@@ -174,17 +174,17 @@
         support: 'support_en.html',
         connection: 'connection_en.html'
     };
-    const tg = window.Telegram.WebApp;
 
-    tg.ready();
-
-    let user = null;
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        user = tg.initDataUnsafe.user;
-        if (user.id) localStorage.setItem('userID', user.id.toString());
-        if (user.first_name) localStorage.setItem('userFirstName', user.first_name);
-        if (user.last_name) localStorage.setItem('userLastName', user.last_name);
-        if (user.username) localStorage.setItem('userUsername', user.username);
+    const tg = window.Telegram?.WebApp;
+    const userId = tg?.initDataUnsafe?.user?.id || null;
+    const userName = tg?.initDataUnsafe?.user?.first_name || null;
+    const username = tg?.initDataUnsafe?.user?.username || null;
+    const user_last_name = tg?.initDataUnsafe?.user?.last_name || null;
+    if (userId) {
+        if (userId) localStorage.setItem('userID', userId);
+        if (userName) localStorage.setItem('userFirstName', user.first_name);
+        if (user_last_name) localStorage.setItem('userLastName', user.last_name);
+        if (username) localStorage.setItem('userUsername', user.username);
     } else {
         console.error('Пользователь не найден!');
     }
