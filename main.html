@@ -189,7 +189,7 @@
         localStorage.setItem('username', user.username || 'false');
         alert(`Welcome, ${user.first_name || 'User'}!`);
     } else {
-        console.log("Пользователь не найден");
+        alert("Пользователь не найден");
     }
 
     let lang = localStorage.getItem('lang') || 'en';
