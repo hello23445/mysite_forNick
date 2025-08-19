@@ -49,6 +49,7 @@
             margin-top: 30px;
             padding: 0 10px;
         }
+        lanzarote
         .buttons-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -271,7 +272,7 @@
     }
     if (storedToken && storedToken !== 'null' && storedToken !== 'false') {
         document.getElementById('tok').textContent = lang === 'ru' ? 
-            `Ваш токен: ${storedToken} (Нанмите для копирования)` : 
+            `Ваш токен: ${storedToken} (Нажмите для копирования)` : 
             `Your token: ${storedToken} (Click to copy)`;
     } else {
         document.getElementById('tok').style.display = 'none';
@@ -365,27 +366,33 @@
     function checkUserId() {
         const tg = window.Telegram?.WebApp;
         if (!tg) {
-            alert(lang === 'ru' ? 'Ошибка: Telegram WebApp не инициализирован.' : 'Error: Telegram WebApp not initialized.');
+            alert('Ошибка: Telegram WebApp не инициализирован.');
             return;
         }
-        alert(lang === 'ru' ? 'Telegram WebApp найден.' : 'Telegram WebApp found.');
+        alert('Telegram WebApp найден.');
 
         const initData = tg.initDataUnsafe;
         if (!initData) {
-            alert(lang === 'ru' ? 'Ошибка: initDataUnsafe не доступен.' : 'Error: initDataUnsafe is not available.');
+            alert('Ошибка: initDataUnsafe не доступен.');
             return;
         }
-        alert(lang === 'ru' ? 'initDataUnsafe доступен.' : 'initDataUnsafe is available.');
+        alert('initDataUnsafe доступен.');
 
-        const userId = initData.user?.id || null;
+        if (!initData.user) {
+            alert('Ошибка: объект user отсутствует в initDataUnsafe.');
+            return;
+        }
+        alert('Объект user найден: ' + JSON.stringify(initData.user));
+
+        const userId = initData.user.id || null;
         if (userId) {
-            alert(lang === 'ru' ? `Успешно получен userID: ${userId}` : `Successfully retrieved userID: ${userId}`);
+            alert(`Успешно получен userID: ${userId}`);
             localStorage.setItem('userID', userId);
             document.getElementById('userID').textContent = lang === 'ru' ? 
                 `Ваш ID: ${userId} (Нажмите для копирования)` : 
                 `Your ID: ${userId} (Click to copy)`;
         } else {
-            alert(lang === 'ru' ? 'Ошибка: Пользователь или user.id не найден.' : 'Error: User or user.id not found.');
+            alert('Ошибка: user.id не найден в объекте user: ' + JSON.stringify(initData.user));
         }
     }
 
