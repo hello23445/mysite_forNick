@@ -99,6 +99,7 @@
             }
             #langSelect {
                 width: 100%;
+                padding: 8px;
             }
         }
     </style>
@@ -129,12 +130,19 @@
     </div>
     <div>
         <button id="tok" style="background-color: #060039; color: white; padding: 8px;">Your token</button><br>
+        <button id="userID" style="background-color: #060039; color: white; padding: 8px;">Your user ID</button><br>
         <select id="langSelect" style="padding: 15px; width: 50%;"></select>
     </div>
     <div class="settings-buttons" id="settingsButtons"></div>
+    
 </div>
-
-<script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script type="module">
+// Инструкция по добавлению кнопок
+// 1. Добавьте новый ключ в массив featureKeys
+// 2. Добавьте соответствующий текст в translations[lang].featureButtons
+// 3. Убедитесь, что файлы в объектах filesRu и filesEn соответствуют ключам
+// 4. Убедитесь, что файлы существуют и доступны по указанным путям
     const filesRu = {
         nickname: 'nickname.html',
         description: 'description.html',
@@ -166,7 +174,23 @@
         support: 'support_en.html',
         connection: 'connection_en.html'
     };
+    const tg = window.Telegram.WebApp;
 
+    // Данные пользователя
+    const user = tg.initDataUnsafe.user;
+
+    if (user) {
+        console.log("ID пользователя:", user.id);
+        console.log("Имя:", user.first_name);
+        console.log("Фамилия:", user.last_name);
+        console.log("Username:", user.username);
+        localStorage.setItem('userID', user.id || 'false')
+        localStorage.setItem('userName', user.first_name || 'false')
+        localStorage.setItem('userLastName', user.last_name || 'false')
+        localStorage.setItem('username', user.username || 'false')
+    } else {
+        console.log("Пользователь не найден");
+    }
     let lang = localStorage.getItem('lang') || 'en';
 
     let translations = {
@@ -272,7 +296,28 @@
         applyTranslations();
     };
 
-    // Maintenance check
+    fetch('./index.html')
+        .then(response => response.text())
+        .then(html => {
+            // Создаем временный элемент для парсинга
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            // Предполагаем, что texpereriv экспортируется как window.texpereriv
+            if (window.texpereriv) {
+                // texpereriv уже определен глобально
+            } else {
+                // Ищем <script> с texpereriv внутри test.html
+                const scripts = tempDiv.querySelectorAll('script');
+                scripts.forEach(script => {
+                    try {
+                        eval(script.textContent);
+                    } catch (e) {}
+                });
+            }
+            // Теперь window.texpereriv доступен
+            // Можно использовать texpereriv здесь
+            // Например: console.log(window.texpereriv);
+        });
     const m = localStorage.getItem('m');
     if (m === 'Уже' || m === 'уже') {
         document.querySelectorAll("div").forEach(el => el.style.display = "none");
@@ -285,8 +330,10 @@
     document.getElementById('langSelect').addEventListener('change', function(event) {
         if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
             document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
+            document.getElementById('userID').textContent = 'Ваш ID: ' + localStorage.getItem('userID') + ' (Нажмите для копирования)';
         } else {
             document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
+            document.getElementById('userID').textContent = 'Your user ID: ' + localStorage.getItem('userID') + ' (Click to copy)';
         }
     });
     document.getElementById('tok').onclick = function() {
@@ -303,10 +350,29 @@
         }
         document.body.removeChild(textArea);
     };
+    document.getElementById('userID').onclick = function() {
+        const userToken = localStorage.getItem('userID');
+        const textArea = document.createElement("textarea");
+        textArea.value = userToken;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            alert(lang === 'ru' ? 'ID скопирован' : 'Your ID copied!');
+        } catch (err) {
+            alert(lang === 'ru' ? 'Не удалось скопировать ID.' : 'Failed to copy ID.');
+        }
+        document.body.removeChild(textArea);
+    };
     if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
         document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
     } else {
         document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
+    }
+    if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
+        document.getElementById('userID').textContent = 'Ваш ID: ' + localStorage.getItem('userID') + ' (Нажмите для копирования)';
+    } else {
+        document.getElementById('userID').textContent = 'Your ID: ' + localStorage.getItem('userID') + ' (Click to copy)';
     }
 </script>
 </body>
