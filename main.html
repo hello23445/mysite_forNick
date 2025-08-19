@@ -175,8 +175,6 @@
         connection: 'connection_en.html'
     };
     const tg = window.Telegram.WebApp;
-
-    // Данные пользователя
     const user = tg.initDataUnsafe.user;
 
     if (user) {
@@ -184,13 +182,16 @@
         console.log("Имя:", user.first_name);
         console.log("Фамилия:", user.last_name);
         console.log("Username:", user.username);
-        localStorage.setItem('userID', user.id || 'false')
-        localStorage.setItem('userName', user.first_name || 'false')
-        localStorage.setItem('userLastName', user.last_name || 'false')
-        localStorage.setItem('username', user.username || 'false')
+
+        localStorage.setItem('userID', user.id?.toString() || 'false');
+        localStorage.setItem('firstName', user.first_name || 'false');
+        localStorage.setItem('lastName', user.last_name || 'false');
+        localStorage.setItem('username', user.username || 'false');
+        alert(`Welcome, ${user.first_name || 'User'}!`);
     } else {
         console.log("Пользователь не найден");
     }
+
     let lang = localStorage.getItem('lang') || 'en';
 
     let translations = {
