@@ -271,7 +271,7 @@
     }
     if (storedToken && storedToken !== 'null' && storedToken !== 'false') {
         document.getElementById('tok').textContent = lang === 'ru' ? 
-            `Ваш токен: ${storedToken} (Нажмите для копирования)` : 
+            `Ваш токен: ${storedToken} (Нанмите для копирования)` : 
             `Your token: ${storedToken} (Click to copy)`;
     } else {
         document.getElementById('tok').style.display = 'none';
@@ -361,20 +361,36 @@
     } else if (m === 'Скоро' || m === 'скоро') {
         alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
     }
+
     function checkUserId() {
         const tg = window.Telegram?.WebApp;
-        const userId = tg?.initDataUnsafe?.user?.id || null;
-        
+        if (!tg) {
+            alert(lang === 'ru' ? 'Ошибка: Telegram WebApp не инициализирован.' : 'Error: Telegram WebApp not initialized.');
+            return;
+        }
+        alert(lang === 'ru' ? 'Telegram WebApp найден.' : 'Telegram WebApp found.');
+
+        const initData = tg.initDataUnsafe;
+        if (!initData) {
+            alert(lang === 'ru' ? 'Ошибка: initDataUnsafe не доступен.' : 'Error: initDataUnsafe is not available.');
+            return;
+        }
+        alert(lang === 'ru' ? 'initDataUnsafe доступен.' : 'initDataUnsafe is available.');
+
+        const userId = initData.user?.id || null;
         if (userId) {
+            alert(lang === 'ru' ? `Успешно получен userID: ${userId}` : `Successfully retrieved userID: ${userId}`);
             localStorage.setItem('userID', userId);
             document.getElementById('userID').textContent = lang === 'ru' ? 
                 `Ваш ID: ${userId} (Нажмите для копирования)` : 
                 `Your ID: ${userId} (Click to copy)`;
         } else {
-            alert('Не удалось найти ID');
+            alert(lang === 'ru' ? 'Ошибка: Пользователь или user.id не найден.' : 'Error: User or user.id not found.');
         }
     }
-    checkUserId();
+
+    // Вызываем функцию проверки с задержкой для обеспечения загрузки Telegram WebApp
+    setTimeout(checkUserId, 1000);
 </script>
 </body>
 </html>
