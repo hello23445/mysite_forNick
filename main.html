@@ -105,7 +105,6 @@
     </style>
 </head>
 <body>
-
 <!-- Техническое обслуживание -->
 <div id="maintenance">
     <h2 data-translate="maintenance" id="maintenanceM"></h2>
@@ -134,15 +133,15 @@
         <select id="langSelect" style="padding: 15px; width: 50%;"></select>
     </div>
     <div class="settings-buttons" id="settingsButtons"></div>
-    
 </div>
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script type="module">
-// Инструкция по добавлению кнопок
-// 1. Добавьте новый ключ в массив featureKeys
-// 2. Добавьте соответствующий текст в translations[lang].featureButtons
-// 3. Убедитесь, что файлы в объектах filesRu и filesEn соответствуют ключам
-// 4. Убедитесь, что файлы существуют и доступны по указанным путям
+    // Инструкция по добавлению кнопок
+    // 1. Добавьте новый ключ в массив featureKeys
+    // 2. Добавьте соответствующий текст в translations[lang].featureButtons
+    // 3. Убедитесь, что файлы в объектах filesRu и filesEn соответствуют ключам
+    // 4. Убедитесь, что файлы существуют и доступны по указанным путям
     const filesRu = {
         nickname: 'nickname.html',
         description: 'description.html',
@@ -175,21 +174,6 @@
         connection: 'connection_en.html'
     };
 
-    const tg = window.Telegram?.WebApp;
-    const userId = tg?.initDataUnsafe?.user?.id || null;
-    const userName = tg?.initDataUnsafe?.user?.first_name || null;
-    const username = tg?.initDataUnsafe?.user?.username || null;
-    const user_last_name = tg?.initDataUnsafe?.user?.last_name || null;
-    if (userId) {
-        if (userId) localStorage.setItem('userID', userId);
-        if (userName) localStorage.setItem('userFirstName', user.first_name);
-        if (user_last_name) localStorage.setItem('userLastName', user.last_name);
-        if (username) localStorage.setItem('userUsername', user.username);
-    } else {
-        alert('Пользователь не найден!');
-    }
-
-
     let lang = localStorage.getItem('lang') || 'en';
 
     let translations = {
@@ -198,22 +182,22 @@
             maintenance: "Проводится техническое обслуживание.",
             settingsTitle: "Настройки",
             featureButtons: [
-                "Никнейм","Описание","Аватарка","Лего","Шрифт","Сайт",
-                "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
+                "Никнейм", "Описание", "Аватарка", "Лего", "Шрифт", "Сайт",
+                "Символ-арт", "QR-код", "Музыка", "Цвета", "ИИ-Генератор"
             ],
-            settingsButtons: ["Поддержка","Проверка соединения"],
-            langOptions: ["Русский","English"]
+            settingsButtons: ["Поддержка", "Проверка соединения"],
+            langOptions: ["Русский", "English"]
         },
         en: {
             main: "What do you want to create?",
             maintenance: "Maintenance in progress.",
             settingsTitle: "Settings",
             featureButtons: [
-                "Nickname","Description","Profile","Lego","Font","Sites",
-                "ASCII-art","QR-code","Music","Colors","AI-Generator"
+                "Nickname", "Description", "Profile", "Lego", "Font", "Sites",
+                "ASCII-art", "QR-code", "Music", "Colors", "AI-Generator"
             ],
-            settingsButtons: ["Support","Connection check"],
-            langOptions: ["Русский","English"]
+            settingsButtons: ["Support", "Connection check"],
+            langOptions: ["Русский", "English"]
         }
     };
 
@@ -231,7 +215,7 @@
         // Feature buttons
         const featureContainer = document.getElementById('featureButtons');
         featureContainer.innerHTML = '';
-        const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai'];
+        const featureKeys = ['nickname', 'description', 'profile', 'lego', 'font', 'sites', 'ascii', 'qr', 'music', 'colors', 'ai'];
         translations[lang].featureButtons.forEach((text, i) => {
             const btn = document.createElement('button');
             btn.textContent = text;
@@ -239,8 +223,7 @@
                 const url = files[featureKeys[i]];
                 if (url === 'https://sites.google.com/') {
                     window.open(url, '_blank');
-                }
-                else {
+                } else {
                     window.location.href = url;
                 }
             };
@@ -250,7 +233,7 @@
         // Settings buttons
         const settingsContainer = document.getElementById('settingsButtons');
         settingsContainer.innerHTML = '';
-        const settingsKeys = ['support','connection'];
+        const settingsKeys = ['support', 'connection'];
         translations[lang].settingsButtons.forEach((text, i) => {
             const btn = document.createElement('button');
             btn.textContent = text;
@@ -273,10 +256,96 @@
         });
     }
 
-    // Initial load
-    applyTranslations();
+    // Ожидание инициализации Telegram Web App
+    function initTelegram() {
+        return new Promise((resolve, reject) => {
+            if (window.Telegram?.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready(); // Сообщаем Telegram, что приложение готово
+                console.log('Telegram WebApp initialized:', tg);
+                console.log('initDataUnsafe:', tg.initDataUnsafe);
+                resolve(tg);
+            } else {
+                // Ждём загрузки скрипта
+                const interval = setInterval(() => {
+                    if (window.Telegram?.WebApp) {
+                        clearInterval(interval);
+                        const tg = window.Telegram.WebApp;
+                        tg.ready();
+                        console.log('Telegram WebApp initialized after delay:', tg);
+                        console.log('initDataUnsafe:', tg.initDataUnsafe);
+                        resolve(tg);
+                    }
+                }, 100);
+                // Тайм-аут через 5 секунд
+                setTimeout(() => {
+                    clearInterval(interval);
+                    reject(new Error('Telegram WebApp not available'));
+                }, 5000);
+            }
+        });
+    }
 
-    // Events
+    // Инициализация приложения
+    async function initializeApp() {
+        try {
+            const tg = await initTelegram();
+            const userId = tg.initDataUnsafe?.user?.id || null;
+            const userName = tg.initDataUnsafe?.user?.first_name || null;
+            const username = tg.initDataUnsafe?.user?.username || null;
+            const userLastName = tg.initDataUnsafe?.user?.last_name || null;
+
+            console.log('User ID:', userId);
+            console.log('User Data:', { userId, userName, username, userLastName });
+
+            if (userId) {
+                localStorage.setItem('userID', userId);
+                if (userName) localStorage.setItem('userFirstName', userName);
+                if (userLastName) localStorage.setItem('userLastName', userLastName);
+                if (username) localStorage.setItem('userUsername', username);
+
+                // Обновляем текст кнопки userID
+                document.getElementById('userID').textContent = lang === 'ru' ? 
+                    `Ваш ID: ${userId} (Нажмите для копирования)` : 
+                    `Your ID: ${userId} (Click to copy)`;
+                document.getElementById('userID').style.display = 'block';
+            } else {
+                console.error('No user data in initDataUnsafe:', tg.initDataUnsafe);
+                alert(lang === 'ru' ? 'Пользователь не найден! Проверьте консоль.' : 'User not found! Check console.');
+                document.getElementById('userID').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Failed to initialize Telegram WebApp:', error);
+            alert(lang === 'ru' ? 'Ошибка инициализации Telegram. Запустите через Telegram!' : 'Telegram initialization error. Launch via Telegram!');
+            document.getElementById('userID').style.display = 'none';
+        }
+
+        // Применяем переводы после получения данных
+        applyTranslations();
+
+        // Обновляем текст токена и ID при смене языка
+        const storedUserId = localStorage.getItem('userID');
+        const storedToken = localStorage.getItem('userToken');
+        if (storedUserId && storedUserId !== 'null' && storedUserId !== 'false') {
+            document.getElementById('userID').textContent = lang === 'ru' ? 
+                `Ваш ID: ${storedUserId} (Нажмите для копирования)` : 
+                `Your ID: ${storedUserId} (Click to copy)`;
+        } else {
+            document.getElementById('userID').style.display = 'none';
+        }
+        if (storedToken && storedToken !== 'null' && storedToken !== 'false') {
+            document.getElementById('tok').textContent = lang === 'ru' ? 
+                `Ваш токен: ${storedToken} (Нажмите для копирования)` : 
+                `Your token: ${storedToken} (Click to copy)`;
+        } else {
+            document.getElementById('tok').style.display = 'none';
+        }
+    }
+
+    // Запускаем инициализацию
+    initializeApp();
+
+    // События
     document.getElementById('settingsBtn').onclick = () => {
         document.getElementById('mainMenu').style.display = 'none';
         document.getElementById('mainTopBar').style.display = 'none';
@@ -293,30 +362,64 @@
         lang = this.value;
         localStorage.setItem('lang', lang);
         applyTranslations();
+        // Обновляем текст токена и ID при смене языка
+        const storedUserId = localStorage.getItem('userID');
+        const storedToken = localStorage.getItem('userToken');
+        if (storedUserId && storedUserId !== 'null' && storedUserId !== 'false') {
+            document.getElementById('userID').textContent = lang === 'ru' ? 
+                `Ваш ID: ${storedUserId} (Нажмите для копирования)` : 
+                `Your ID: ${storedUserId} (Click to copy)`;
+            document.getElementById('userID').style.display = 'block';
+        } else {
+            document.getElementById('userID').style.display = 'none';
+        }
+        if (storedToken && storedToken !== 'null' && storedToken !== 'false') {
+            document.getElementById('tok').textContent = lang === 'ru' ? 
+                `Ваш токен: ${storedToken} (Нажмите для копирования)` : 
+                `Your token: ${storedToken} (Click to copy)`;
+            document.getElementById('tok').style.display = 'block';
+        } else {
+            document.getElementById('tok').style.display = 'none';
+        }
     };
 
-    fetch('./index.html')
-        .then(response => response.text())
-        .then(html => {
-            // Создаем временный элемент для парсинга
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            // Предполагаем, что texpereriv экспортируется как window.texpereriv
-            if (window.texpereriv) {
-                // texpereriv уже определен глобально
-            } else {
-                // Ищем <script> с texpereriv внутри test.html
-                const scripts = tempDiv.querySelectorAll('script');
-                scripts.forEach(script => {
-                    try {
-                        eval(script.textContent);
-                    } catch (e) {}
-                });
+    // Обработчик клика для копирования токена
+    document.getElementById('tok').onclick = function() {
+        const userToken = localStorage.getItem('userToken');
+        if (userToken && userToken !== 'null' && userToken !== 'false') {
+            const textArea = document.createElement("textarea");
+            textArea.value = userToken;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+            } catch (err) {
+                alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
             }
-            // Теперь window.texpereriv доступен
-            // Можно использовать texpereriv здесь
-            // Например: console.log(window.texpereriv);
-        });
+            document.body.removeChild(textArea);
+        }
+    };
+
+    // Обработчик клика для копирования ID
+    document.getElementById('userID').onclick = function() {
+        const userId = localStorage.getItem('userID');
+        if (userId && userId !== 'null' && userId !== 'false') {
+            const textArea = document.createElement("textarea");
+            textArea.value = userId;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert(lang === 'ru' ? 'ID скопирован!' : 'ID copied!');
+            } catch (err) {
+                alert(lang === 'ru' ? 'Не удалось скопировать ID.' : 'Failed to copy ID.');
+            }
+            document.body.removeChild(textArea);
+        }
+    };
+
+    // Обработка технического обслуживания
     const m = localStorage.getItem('m');
     if (m === 'Уже' || m === 'уже') {
         document.querySelectorAll("div").forEach(el => el.style.display = "none");
@@ -325,57 +428,6 @@
         document.getElementById('maintenanceM').textContent = translations[lang].maintenance;
     } else if (m === 'Скоро' || m === 'скоро') {
         alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
-    }
-    document.getElementById('langSelect').addEventListener('change', function(event) {
-        if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
-            document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
-            document.getElementById('userID').textContent = 'Ваш ID: ' + localStorage.getItem('userID') + ' (Нажмите для копирования)';
-        } else {
-            document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
-            document.getElementById('userID').textContent = 'Your user ID: ' + localStorage.getItem('userID') + ' (Click to copy)';
-        }
-    });
-    document.getElementById('tok').onclick = function() {
-        const userToken = localStorage.getItem('userToken');
-        const textArea = document.createElement("textarea");
-        textArea.value = userToken;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
-        } catch (err) {
-            alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
-        }
-        document.body.removeChild(textArea);
-    };
-    document.getElementById('userID').onclick = function() {
-        const userToken = localStorage.getItem('userID');
-        const textArea = document.createElement("textarea");
-        textArea.value = userToken;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            alert(lang === 'ru' ? 'ID скопирован' : 'Your ID copied!');
-        } catch (err) {
-            alert(lang === 'ru' ? 'Не удалось скопировать ID.' : 'Failed to copy ID.');
-        }
-        document.body.removeChild(textArea);
-    };
-    if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
-        document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
-    } else {
-        document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
-    }
-    if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru' && localStorage.getItem('userID') && localStorage.getItem('userID') !== 'null') {
-        document.getElementById('userID').textContent = 'Ваш ID: ' + localStorage.getItem('userID') + ' (Нажмите для копирования)';
-    }
-    else if (localStorage.getItem('userID') === 'null' || localStorage.getItem('userID') === null || localStorage.getItem('userID') === 'false' || localStorage.getItem('userID') === false) {
-        document.getElementById('userID').style.display = 'none';
-    } 
-    else {
-        document.getElementById('userID').textContent = 'Your ID: ' + localStorage.getItem('userID') + ' (Click to copy)';
     }
 </script>
 </body>
