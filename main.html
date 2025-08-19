@@ -256,122 +256,25 @@
         });
     }
 
-    // Ожидание инициализации Telegram Web App
-    function initTelegram() {
-        return new Promise((resolve, reject) => {
-            if (window.Telegram?.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.ready(); // Сообщаем Telegram, что приложение готово
-                console.log('Telegram WebApp initialized:', tg);
-                console.log('initDataUnsafe:', tg.initDataUnsafe);
-                resolve(tg);
-            } else {
-                // Ждём загрузки скрипта
-                const interval = setInterval(() => {
-                    if (window.Telegram?.WebApp) {
-                        clearInterval(interval);
-                        const tg = window.Telegram.WebApp;
-                        tg.ready();
-                        console.log('Telegram WebApp initialized after delay:', tg);
-                        console.log('initDataUnsafe:', tg.initDataUnsafe);
-                        resolve(tg);
-                    }
-                }, 100);
-                // Тайм-аут через 5 секунд
-                setTimeout(() => {
-                    clearInterval(interval);
-                    reject(new Error('Telegram WebApp not available'));
-                }, 5000);
-            }
-        });
-    }
+    // Применяем переводы
+    applyTranslations();
 
-    // Инициализация приложения
-    async function initializeApp() {
-        try {
-            const tg = await initTelegram();
-            const userId = tg.initDataUnsafe?.user?.id || null;
-            const userName = tg.initDataUnsafe?.user?.first_name || null;
-            const username = tg.initDataUnsafe?.user?.username || null;
-            const userLastName = tg.initDataUnsafe?.user?.last_name || null;
-
-            console.log('User ID:', userId);
-            console.log('User Data:', { userId, userName, username, userLastName });
-
-            if (userId) {
-                localStorage.setItem('userID', userId);
-                if (userName) localStorage.setItem('userFirstName', userName);
-                if (userLastName) localStorage.setItem('userLastName', userLastName);
-                if (username) localStorage.setItem('userUsername', username);
-
-                // Обновляем текст кнопки userID
-                document.getElementById('userID').textContent = lang === 'ru' ? 
-                    `Ваш ID: ${userId} (Нажмите для копирования)` : 
-                    `Your ID: ${userId} (Click to copy)`;
-                document.getElementById('userID').style.display = 'block';
-            } else {
-                console.error('No user data in initDataUnsafe:', tg.initDataUnsafe);
-                alert(localStorage.getItem('lang') === 'ru' ? 'Пользователь не найден!' : 'User not found!');
-                document.getElementById('userID').style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Failed to initialize Telegram WebApp:', error);
-            alert(lang === 'ru' ? 'Ошибка инициализации Telegram. Запустите через Telegram!' : 'Telegram initialization error. Launch via Telegram!');
-            document.getElementById('userID').style.display = 'none';
-        }
-
-        // Применяем переводы после получения данных
-        applyTranslations();
-
-        // Обновляем текст токена и ID при смене языка
-        const storedUserId = localStorage.getItem('userID');
-        const storedToken = localStorage.getItem('userToken');
-        if (storedUserId && storedUserId !== 'null' && storedUserId !== 'false') {
-            document.getElementById('userID').textContent = lang === 'ru' ? 
-                `Ваш ID: ${storedUserId} (Нажмите для копирования)` : 
-                `Your ID: ${storedUserId} (Click to copy)`;
-        } else {
-            document.getElementById('userID').style.display = 'none';
-        }
-        if (storedToken && storedToken !== 'null' && storedToken !== 'false') {
-            document.getElementById('tok').textContent = lang === 'ru' ? 
-                `Ваш токен: ${storedToken} (Нажмите для копирования)` : 
-                `Your token: ${storedToken} (Click to copy)`;
-        } else {
-            document.getElementById('tok').style.display = 'none';
-        }
-    }
-
-    // Запускаем инициализацию
-    initializeApp();
-    // Telegram WebApp Initialization
-    window.Telegram.WebApp.ready();
-    const user = window.Telegram.WebApp.initDataUnsafe?.user;
-
-    if (user) {
-        const userId = user.id;
-        const firstName = user.first_name;
-        const lastName = user.last_name;
-        const username = user.username;
-        const languageCode = user.language_code;
-
-        console.log("User ID:", userId);
-        console.log("First Name:", firstName);
-        console.log("Last Name:", lastName);
-        console.log("Username:", username);
-        console.log("Language Code:", languageCode);
-
-        localStorage.setItem('userID', userId);
-        if (firstName) localStorage.setItem('userFirstName', firstName);
-        if (lastName) localStorage.setItem('userLastName', lastName);
-        if (username) localStorage.setItem('userUsername', username);
-
-        document.getElementById('userID').textContent = lang === 'ru' ?
-            `Ваш ID: ${userId} (Нажмите для копирования)` :
-            `Your ID: ${userId} (Click to copy)`;
-        document.getElementById('userID').style.display = 'block';
+    // Обновляем текст токена и ID при смене языка
+    const storedUserId = localStorage.getItem('userID');
+    const storedToken = localStorage.getItem('userToken');
+    if (storedUserId && storedUserId !== 'null' && storedUserId !== 'false') {
+        document.getElementById('userID').textContent = lang === 'ru' ? 
+            `Ваш ID: ${storedUserId} (Нажмите для копирования)` : 
+            `Your ID: ${storedUserId} (Click to copy)`;
     } else {
-        alert("User data is not available.");
+        document.getElementById('userID').style.display = 'none';
+    }
+    if (storedToken && storedToken !== 'null' && storedToken !== 'false') {
+        document.getElementById('tok').textContent = lang === 'ru' ? 
+            `Ваш токен: ${storedToken} (Нажмите для копирования)` : 
+            `Your token: ${storedToken} (Click to copy)`;
+    } else {
+        document.getElementById('tok').style.display = 'none';
     }
 
     // События
@@ -458,6 +361,20 @@
     } else if (m === 'Скоро' || m === 'скоро') {
         alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
     }
+    function checkUserId() {
+        const tg = window.Telegram?.WebApp;
+        const userId = tg?.initDataUnsafe?.user?.id || null;
+        
+        if (userId) {
+            localStorage.setItem('userID', userId);
+            document.getElementById('userID').textContent = lang === 'ru' ? 
+                `Ваш ID: ${userId} (Нажмите для копирования)` : 
+                `Your ID: ${userId} (Click to copy)`;
+        } else {
+            alert('Не удалось найти ID');
+        }
+    }
+    checkUserId();
 </script>
 </body>
 </html>
