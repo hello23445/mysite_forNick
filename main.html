@@ -1,313 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Menu</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <style>
+        :root {
+            --bg: #060039;
+            --bg-soft: #0b0660;
+            --card: #0d0870;
+            --text: #d9d9d9;
+            --muted: #a7a7c7;
+            --accent: #5f57ff;
+            --accent-2: #8f87ff;
+            --btn: #251897;
+            --shadow: rgba(0,0,0,.35);
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #060039;
-            color: #d9d9d9;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+            background: radial-gradient(1200px 800px at 80% -10%, #100a7a 0%, var(--bg) 60%);
+            color: var(--text);
             margin: 0;
             padding: 0;
         }
-        #maintenance {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-            color: red;
-            padding: 10px;
-        }
         .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
             display: flex;
             align-items: center;
-            padding: 10px 20px;
+            padding: 10px 16px;
+            background: linear-gradient(180deg, rgba(0,0,0,.35), transparent);
+            backdrop-filter: blur(6px);
         }
-        #mainTopBar {
-            justify-content: flex-end;
+        #mainTopBar { justify-content: flex-end; }
+        #settingsTopBar { justify-content: space-between; gap: 8px; }
+        #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
+        .icon-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #090975; border: 1px solid rgba(255,255,255,.08);
+            color: var(--text); font-size: 18px; width: 40px; height: 40px; border-radius: 12px;
+            cursor: pointer; transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+            box-shadow: 0 6px 18px var(--shadow);
         }
-        #settingsTopBar {
-            justify-content: space-between;
-        }
-        #settingsTopBar .title {
-            flex: 1;
-            text-align: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .top-bar button {
-            background: none;
-            border: none;
-            color: #d9d9d9;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        .main {
-            text-align: center;
-            margin-top: 30px;
-            padding: 0 10px;
-        }
+        .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
+
+        .main { text-align: center; margin: 24px auto 0; padding: 0 14px; max-width: 860px; }
+        h2 { margin: 12px 0 10px; font-weight: 800; }
+
         .buttons-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1%;
-            margin-top: 20px;
-            justify-items: center;
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; justify-items: stretch;
         }
-        .buttons-container button, .settings-buttons button {
-            padding: 8px;
-            background-color: #251897;
-            color: #d9d9d9;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 14px;
-            box-sizing: border-box;
-            margin-bottom: 1%;
-            box-shadow: 0 2px 4px black;
+        .settings-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 16px; }
+
+        .btn {
+            --pad: 12px;
+            padding: var(--pad);
+            background: linear-gradient(180deg, var(--btn), #1b1280);
+            color: var(--text); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; cursor: pointer; width: 100%; font-size: 14px; font-weight: 600;
+            box-shadow: 0 6px 18px var(--shadow);
+            transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
         }
-        .settings-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 1%;
-            margin-top: 20px;
-            justify-items: center;
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px var(--shadow); }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .btn .fa-solid, .btn .fa-regular { margin-right: 8px; }
+
+        /* Modern settings card */
+        #settingsMenu { display: none; padding: 20px 14px 32px; }
+        .settings-wrap { max-width: 880px; margin: 0 auto; }
+        .card {
+            background: linear-gradient(180deg, var(--card), #0b0862);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 18px; padding: 16px; box-shadow: 0 16px 40px var(--shadow);
         }
-        #settingsMenu {
-            display: none;
-            padding: 20px 10px;
-        }
-        #langSelect {
-            width: 150px;
-            margin-top: 15px;
-            background-color: #251897;
-            color: #d9d9d9;
-            border-radius: 8px;
-            border: none;
-            padding: 8px;
-            cursor: pointer;
-        }
-        @media (max-width: 480px) {
-            .buttons-container {
-                grid-template-columns: 1fr;
-            }
-            .buttons-container button, .settings-buttons button {
-                width: 100%;
-            }
-            #langSelect {
-                width: 100%;
-            }
+        .row { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .card h3 { margin: 8px 4px 12px; font-size: 16px; color: var(--muted); font-weight: 700; letter-spacing: .3px; }
+
+        .field { display: flex; align-items: center; gap: 10px; }
+        select#langSelect { flex: 1; min-width: 160px; padding: 12px; background: var(--bg-soft); color: var(--text); border-radius: 12px; border: 1px solid rgba(255,255,255,.08); }
+
+        #tok { margin-top: 8px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); }
+
+        #maintenance { display: none; text-align: center; margin-top: 20px; color: #ff6b6b; padding: 12px; }
+
+        @media (max-width: 560px) {
+            .buttons-container { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-
-<!-- Техническое обслуживание -->
-<div id="maintenance">
-    <h2 data-translate="maintenance" id="maintenanceM"></h2>
-</div>
-
-<!-- Главное меню -->
-<div class="top-bar" id="mainTopBar">
-    <button id="settingsBtn" style="background-color: rgb(9, 9, 117);"><i class="fa-solid fa-gear"></i></button>
-</div>
-
-<div class="main" id="mainMenu">
-    <h2 data-translate="main" id="mainM"></h2>
-    <div class="buttons-container" id="featureButtons"></div>
-</div>
-
-<!-- Меню настроек -->
-<div id="settingsMenu">
-    <div class="top-bar" id="settingsTopBar">
-        <button id="backBtn"><i class="fa-solid fa-arrow-left"></i></button>
-        <span class="title" data-translate="settingsTitle" id="settingsTitle"></span>
-        <span style="width:24px;"></span> <!-- пустое место справа -->
+    <!-- Техническое обслуживание -->
+    <div id="maintenance">
+        <h2 data-translate="maintenance" id="maintenanceM"></h2>
     </div>
-    <div>
-        <button id="tok" style="background-color: #060039; color: white; padding: 8px;">Your token</button><br>
-        <select id="langSelect" style="padding: 15px; width: 50%;"></select>
+
+    <!-- Главное меню -->
+    <div class="top-bar" id="mainTopBar">
+        <button class="icon-btn" id="settingsBtn" title="Settings"><i class="fa-solid fa-gear"></i></button>
     </div>
-    <div class="settings-buttons" id="settingsButtons"></div>
-</div>
 
-<script>
-    const filesRu = {
-        nickname: 'nickname.html',
-        description: 'description.html',
-        profile: 'avatar.html',
-        lego: 'lego.html',
-        font: 'font.html',
-        sites: 'https://sites.google.com/',
-        ascii: 'ascii.html',
-        qr: 'qr.html',
-        music: 'music.html',
-        colors: 'colors.html',
-        ai: 'ai.html',
-        support: 'support.html',
-        connection: 'connection.html'
-    };
+    <div class="main" id="mainMenu">
+        <h2 data-translate="main" id="mainM"></h2>
+        <div class="buttons-container" id="featureButtons"></div>
+    </div>
 
-    const filesEn = {
-        nickname: 'nickname_en.html',
-        description: 'description_en.html',
-        profile: 'avatar_en.html',
-        lego: 'lego_en.html',
-        font: 'font_en.html',
-        sites: 'https://sites.google.com/',
-        ascii: 'ascii_en.html',
-        qr: 'qr_en.html',
-        music: 'music_en.html',
-        colors: 'colors_en.html',
-        ai: 'ai_en.html',
-        support: 'support_en.html',
-        connection: 'connection_en.html'
-    };
+    <!-- Меню настроек -->
+    <div id="settingsMenu">
+        <div class="top-bar" id="settingsTopBar">
+            <button class="icon-btn" id="backBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="settingsTitle" id="settingsTitle"></span>
+            <span style="width:40px; height:40px;"></span> <!-- баланс правой части -->
+        </div>
 
-    let lang = localStorage.getItem('lang') || 'en';
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card">
+                    <h3 data-translate="langSectionTitle">Язык / Language</h3>
+                    <div class="field">
+                        <select id="langSelect"></select>
+                        <button class="btn" id="tok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 data-translate="supportSectionTitle">Поддержка</h3>
+                    <div class="settings-buttons" id="settingsButtons"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    let translations = {
-        ru: {
-            main: "Что будем создавать?",
-            maintenance: "Проводится техническое обслуживание.",
-            settingsTitle: "Настройки",
-            featureButtons: [
-                "Никнейм","Описание","Аватарка","Лего","Шрифт","Сайт",
-                "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
-            ],
-            settingsButtons: ["Поддержка","Проверка соединения"],
-            langOptions: ["Русский","English"]
-        },
-        en: {
-            main: "What do you want to create?",
-            maintenance: "Maintenance in progress.",
-            settingsTitle: "Settings",
-            featureButtons: [
-                "Nickname","Description","Profile","Lego","Font","Sites",
-                "ASCII-art","QR-code","Music","Colors","AI-Generator"
-            ],
-            settingsButtons: ["Support","Connection check"],
-            langOptions: ["Русский","English"]
-        }
-    };
+    <script>
+        /*
+        ===================== ПАМЯТКА/ИНСТРУКЦИЯ =====================
+        1) КАК ДОБАВИТЬ КНОПКУ В ГЛАВНОЕ МЕНЮ:
+           a) В объекте filesRu/filesEn добавьте путь для новой фичи, например:
+              filesRu.mytool = 'mytool.html';   filesEn.mytool = 'mytool_en.html';
+           b) В translations[ru|en].featureButtons добавьте подпись кнопки (в конец списка).
+           c) В массив featureKeys ниже добавьте ключ 'mytool' на ту же позицию, что и подпись.
+           d) Кнопка появится автоматически; если это внешний сайт, укажите полный URL — он откроется в новой вкладке.
 
-    function applyTranslations() {
-        const files = lang === 'ru' ? filesRu : filesEn;
+        2) КАК ДОБАВИТЬ КНОПКУ В НАСТРОЙКИ:
+           Вариант А — переход на внутреннюю страницу:
+             - Добавьте путь в filesRu/filesEn, например: filesRu.help = 'help.html'; filesEn.help = 'help_en.html';
+             - Добавьте текст в translations[lang].settingsButtons и ключ в settingsKeys (ниже).
+           Вариант Б — внешняя ссылка (например, форму жалобы или поддержку):
+             - Укажите ссылку в объекте LINKS ниже (complaintRU, supportRU/EN).
+             - Кнопки создаются динамически в функции applyTranslations() в блоке "EXTRA".
+             - Для кнопки, показываемой только на русском ("Написать жалобу"), ничего менять в EN не нужно.
+        ==============================================================
+        */
 
-        // Apply translations
-        document.querySelectorAll('[data-translate]').forEach(el => {
-            const key = el.getAttribute('data-translate');
-            if (translations[lang][key]) {
-                el.textContent = translations[lang][key];
+        // ===== Ссылки, которые вы укажете =====
+        const LINKS = {
+            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",              // TODO: сюда вставьте ссылку на форму жалобы (только RU)
+            supportRU:   "https://t.me/Clickerstart_bot",              // TODO: ссылка на поддержку (RU)
+            supportEN:   "https://t.me/Clickerstart_bot"               // TODO: ссылка на поддержку (EN)
+        };
+
+        // ===== Карта файлов =====
+        const filesRu = {
+            nickname: 'nickname.html',
+            description: 'description.html',
+            profile: 'avatar.html',
+            lego: 'lego.html',
+            font: 'font.html',
+            sites: 'https://sites.google.com/',
+            ascii: 'ascii.html',
+            qr: 'qr.html',
+            music: 'music.html',
+            colors: 'colors.html',
+            ai: 'ai.html',
+            support: 'support.html',
+            connection: 'connection.html'
+        };
+
+        const filesEn = {
+            nickname: 'nickname_en.html',
+            description: 'description_en.html',
+            profile: 'avatar_en.html',
+            lego: 'lego_en.html',
+            font: 'font_en.html',
+            sites: 'https://sites.google.com/',
+            ascii: 'ascii_en.html',
+            qr: 'qr_en.html',
+            music: 'music_en.html',
+            colors: 'colors_en.html',
+            ai: 'ai_en.html',
+            support: 'support_en.html',
+            connection: 'connection_en.html'
+        };
+
+        // ===== Язык =====
+        let lang = localStorage.getItem('lang') || 'en';
+
+        // ===== Переводы =====
+        let translations = {
+            ru: {
+                main: "Что будем создавать?",
+                maintenance: "Проводится техническое обслуживание.",
+                settingsTitle: "Настройки",
+                langSectionTitle: "Настройки языка и токена",
+                supportSectionTitle: "Поддержка и связь",
+                featureButtons: [
+                    "Никнейм","Описание","Аватарка","Лего","Шрифт","Сайт",
+                    "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
+                ],
+                settingsButtons: ["Поддержка","Проверка соединения"],
+                langOptions: ["Русский","English"],
+                writeComplaint: "Написать жалобу",
+                writeSupport: "Написать в службу поддержки"
+            },
+            en: {
+                main: "What do you want to create?",
+                maintenance: "Maintenance in progress.",
+                settingsTitle: "Settings",
+                langSectionTitle: "Language & token",
+                supportSectionTitle: "Support",
+                featureButtons: [
+                    "Nickname","Description","Profile","Lego","Font","Sites",
+                    "ASCII-art","QR-code","Music","Colors","AI-Generator"
+                ],
+                settingsButtons: ["Support","Connection check"],
+                langOptions: ["Русский","English"],
+                writeComplaint: "", // специально пусто — эта кнопка только для RU
+                writeSupport: "Contact Support"
             }
-        });
+        };
 
-        // Feature buttons
-        const featureContainer = document.getElementById('featureButtons');
-        featureContainer.innerHTML = '';
-        const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai'];
-        translations[lang].featureButtons.forEach((text, i) => {
+        function createButton({ text, icon, onClick, href, newTab=false, disabled=false, id }) {
             const btn = document.createElement('button');
-            btn.textContent = text;
-            btn.onclick = () => {
+            btn.className = 'btn';
+            if (id) btn.id = id;
+            if (icon) {
+                const i = document.createElement('i');
+                i.className = icon;
+                btn.appendChild(i);
+            }
+            const span = document.createElement('span');
+            span.textContent = text;
+            btn.appendChild(span);
+
+            if (href) {
+                btn.onclick = () => { newTab ? window.open(href, '_blank') : window.location.href = href; };
+            } else if (onClick) {
+                btn.onclick = onClick;
+            }
+            if (disabled) {
+                btn.disabled = true;
+                btn.title = 'Укажите ссылку в объекте LINKS';
+            }
+            return btn;
+        }
+
+        function applyTranslations() {
+            const files = lang === 'ru' ? filesRu : filesEn;
+
+            // Apply text translations
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[lang][key] !== undefined) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            // ===== Главные кнопки (фичи) =====
+            const featureContainer = document.getElementById('featureButtons');
+            featureContainer.innerHTML = '';
+            const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai'];
+            translations[lang].featureButtons.forEach((text, i) => {
                 const url = files[featureKeys[i]];
-                if (url === 'https://sites.google.com/') {
-                    window.open(url, '_blank');
-                }
-                else {
-                    window.location.href = url;
-                }
-            };
-            featureContainer.appendChild(btn);
-        });
+                const isExternal = /^https?:\/\//i.test(url);
+                const btn = createButton({ text, icon: 'fa-solid fa-shapes', href: url, newTab: isExternal });
+                featureContainer.appendChild(btn);
+            });
 
-        // Settings buttons
-        const settingsContainer = document.getElementById('settingsButtons');
-        settingsContainer.innerHTML = '';
-        const settingsKeys = ['support','connection'];
-        translations[lang].settingsButtons.forEach((text, i) => {
-            const btn = document.createElement('button');
-            btn.textContent = text;
-            btn.onclick = () => {
+            // ===== Кнопки настроек (базовые) =====
+            const settingsContainer = document.getElementById('settingsButtons');
+            settingsContainer.innerHTML = '';
+            const settingsKeys = ['support','connection'];
+            const settingsIcons = ['fa-solid fa-circle-info','fa-solid fa-wifi'];
+            translations[lang].settingsButtons.forEach((text, i) => {
                 const url = files[settingsKeys[i]];
-                window.location.href = url;
-            };
-            settingsContainer.appendChild(btn);
-        });
+                const btn = createButton({ text, icon: settingsIcons[i], href: url });
+                settingsContainer.appendChild(btn);
+            });
 
-        // Language select
-        const langSelect = document.getElementById('langSelect');
-        langSelect.innerHTML = '';
-        translations[lang].langOptions.forEach((text, i) => {
-            const option = document.createElement('option');
-            option.value = i === 0 ? 'ru' : 'en';
-            option.textContent = text;
-            option.selected = (option.value === lang);
-            langSelect.appendChild(option);
-        });
-    }
+            // ===== EXTRA: внешние ссылки =====
+            // RU только: "Написать жалобу"
+            if (lang === 'ru') {
+                const hasLink = !!LINKS.complaintRU && /^https?:\/\//i.test(LINKS.complaintRU);
+                const complaintBtn = createButton({
+                    text: translations.ru.writeComplaint,
+                    icon: 'fa-solid fa-pen-to-square',
+                    href: hasLink ? LINKS.complaintRU : undefined,
+                    newTab: true,
+                    disabled: !hasLink
+                });
+                settingsContainer.appendChild(complaintBtn);
+            }
 
-    // Initial load
-    applyTranslations();
+            // RU/EN: "Написать в службу поддержки" / "Contact Support"
+            const supportLink = lang === 'ru' ? LINKS.supportRU : LINKS.supportEN;
+            const supportOk = !!supportLink && /^https?:\/\//i.test(supportLink);
+            const writeSupportBtn = createButton({
+                text: translations[lang].writeSupport,
+                icon: 'fa-solid fa-headset',
+                href: supportOk ? supportLink : undefined,
+                newTab: true,
+                disabled: !supportOk
+            });
+            settingsContainer.appendChild(writeSupportBtn);
 
-    // Events
-    document.getElementById('settingsBtn').onclick = () => {
-        document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('mainTopBar').style.display = 'none';
-        document.getElementById('settingsMenu').style.display = 'block';
-    };
+            // ===== Выпадающий список языков =====
+            const langSelect = document.getElementById('langSelect');
+            langSelect.innerHTML = '';
+            translations[lang].langOptions.forEach((text, i) => {
+                const option = document.createElement('option');
+                option.value = i === 0 ? 'ru' : 'en';
+                option.textContent = text;
+                option.selected = (option.value === lang);
+                langSelect.appendChild(option);
+            });
 
-    document.getElementById('backBtn').onclick = () => {
-        document.getElementById('settingsMenu').style.display = 'none';
-        document.getElementById('mainMenu').style.display = 'block';
-        document.getElementById('mainTopBar').style.display = 'flex';
-    };
+            // Обновить подпись токена
+            updateTokenLabel();
+        }
 
-    document.getElementById('langSelect').onchange = function() {
-        lang = this.value;
-        localStorage.setItem('lang', lang);
+        function updateTokenLabel() {
+            const userToken = localStorage.getItem('userToken') || '';
+            const tokBtn = document.getElementById('tok');
+            if (lang === 'ru') {
+                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>Ваш токен: ' + userToken + ' (Нажмите для копирования)</span>';
+            } else {
+                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>Your token: ' + userToken + ' (Click to copy)</span>';
+            }
+        }
+
+        // ===== Initial load =====
         applyTranslations();
-    };
 
-    // Maintenance check
-    const m = localStorage.getItem('m');
-    if (m === 'Уже' || m === 'уже') {
-        document.querySelectorAll("div").forEach(el => el.style.display = "none");
-        alert(lang === 'ru' ? 'Идет техническое обслуживание' : 'Maintenance in progress');
-        document.getElementById('maintenance').style.display = 'block';
-        document.getElementById('maintenanceM').textContent = translations[lang].maintenance;
-    } else if (m === 'Скоро' || m === 'скоро') {
-        alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
-    }
-    document.getElementById('langSelect').addEventListener('change', function(event) {
-        if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
-            document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
-        } else {
-            document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
+        // ===== Events =====
+        document.getElementById('settingsBtn').onclick = () => {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('mainTopBar').style.display = 'none';
+            document.getElementById('settingsMenu').style.display = 'block';
+        };
+
+        document.getElementById('backBtn').onclick = () => {
+            document.getElementById('settingsMenu').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('mainTopBar').style.display = 'flex';
+        };
+
+        document.getElementById('langSelect').onchange = function() {
+            lang = this.value;
+            localStorage.setItem('lang', lang);
+            applyTranslations();
+        };
+
+        document.getElementById('tok').onclick = function() {
+            const userToken = localStorage.getItem('userToken') || '';
+            const textArea = document.createElement('textarea');
+            textArea.value = userToken;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+            } catch (err) {
+                alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+            }
+            document.body.removeChild(textArea);
+        };
+
+        // ===== Maintenance check =====
+        const m = localStorage.getItem('m');
+        if (m === 'Уже' || m === 'уже') {
+            document.querySelectorAll('div').forEach(el => el.style.display = 'none');
+            alert(lang === 'ru' ? 'Идет техническое обслуживание' : 'Maintenance in progress');
+            document.getElementById('maintenance').style.display = 'block';
+            document.getElementById('maintenanceM').textContent = translations[lang].maintenance;
+        } else if (m === 'Скоро' || m === 'скоро') {
+            alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
         }
-    });
-    document.getElementById('tok').onclick = function() {
-        const userToken = localStorage.getItem('userToken');
-        const textArea = document.createElement("textarea");
-        textArea.value = userToken;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
-        } catch (err) {
-            alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
-        }
-        document.body.removeChild(textArea);
-    };
-    if (localStorage.getItem('lang') === 'ru' || document.getElementById('langSelect').value === 'ru') {
-        document.getElementById('tok').textContent = 'Ваш токен: '+ localStorage.getItem('userToken') + ' (Нажмите для копирования)';
-    } else {
-        document.getElementById('tok').textContent = 'Your token: ' + localStorage.getItem('userToken') +' (Click to copy)';
-    }
-</script>
+    </script>
 </body>
 </html>
