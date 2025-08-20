@@ -90,7 +90,7 @@
             .buttons-container { grid-template-columns: 1fr; }
             /* На мобильных: токен под селектом языка */
             .field { flex-direction: column; align-items: stretch; }
-            #langSelect { order: 1; width: 100%; }
+            #langSelect { order: 1; width: 100%; min-width: 100%; padding: 14px; font-size: 16px;}
             #tok { order: 2; width: 100%; }
         }
     </style>
@@ -159,9 +159,9 @@
 
         // ===== Ссылки, которые вы укажете =====
         const LINKS = {
-            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",              // TODO: сюда вставьте ссылку на форму жалобы (только RU)
-            supportRU:   "https://t.me/Clickerstart_bot",              // TODO: ссылка на поддержку (RU)
-            supportEN:   "https://t.me/Clickerstart_bot"               // TODO: ссылка на поддержку (EN)
+            complaintRU: "",              // TODO: сюда вставьте ссылку на форму жалобы (только RU)
+            supportRU:   "",              // TODO: ссылка на поддержку (RU)
+            supportEN:   ""               // TODO: ссылка на поддержку (EN)
         };
 
         // ===== Карта файлов =====
@@ -199,6 +199,7 @@
 
         // ===== Язык =====
         let lang = localStorage.getItem('lang') || 'en';
+        let isTokenVisible = false; // Флаг для отслеживания видимости токена
 
         // ===== Переводы =====
         let translations = {
@@ -329,17 +330,23 @@
                 langSelect.appendChild(option);
             });
 
-            // Обновить подпись токена
+            // Сброс флага видимости токена и обновление подписи
+            isTokenVisible = false;
             updateTokenLabel();
         }
 
         function updateTokenLabel() {
             const userToken = localStorage.getItem('userToken') || '';
             const tokBtn = document.getElementById('tok');
-            if (lang === 'ru') {
-                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>Ваш токен: ' + userToken + ' (Нажмите для копирования)</span>';
+            const maskedToken = userToken ? '*'.repeat(userToken.length) : '';
+            if (isTokenVisible) {
+                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                    (lang === 'ru' ? 'Ваш токен: ' + userToken + ' (Нажмите для копирования)' : 
+                    'Your token: ' + userToken + ' (Click to copy)') + '</span>';
             } else {
-                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>Your token: ' + userToken + ' (Click to copy)</span>';
+                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                    (lang === 'ru' ? 'Ваш токен: ' + maskedToken + ' (Нажмите для показа)' : 
+                    'Your token: ' + maskedToken + ' (Click to show)') + '</span>';
             }
         }
 
@@ -351,6 +358,8 @@
             document.getElementById('mainMenu').style.display = 'none';
             document.getElementById('mainTopBar').style.display = 'none';
             document.getElementById('settingsMenu').style.display = 'block';
+            isTokenVisible = false; // Скрываем токен при входе в настройки
+            updateTokenLabel();
         };
 
         document.getElementById('backBtn').onclick = () => {
@@ -362,22 +371,30 @@
         document.getElementById('langSelect').onchange = function() {
             lang = this.value;
             localStorage.setItem('lang', lang);
+            isTokenVisible = false; // Сбрасываем видимость при смене языка
             applyTranslations();
         };
 
         document.getElementById('tok').onclick = function() {
             const userToken = localStorage.getItem('userToken') || '';
-            const textArea = document.createElement('textarea');
-            textArea.value = userToken;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
-            } catch (err) {
-                alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+            if (!isTokenVisible) {
+                isTokenVisible = true;
+                updateTokenLabel();
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = userToken;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+                } catch (err) {
+                    alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+                }
+                document.body.removeChild(textArea);
+                isTokenVisible = false; // Скрываем токен после копирования
+                updateTokenLabel();
             }
-            document.body.removeChild(textArea);
         };
 
         // ===== Maintenance check =====
