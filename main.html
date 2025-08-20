@@ -88,6 +88,10 @@
 
         @media (max-width: 560px) {
             .buttons-container { grid-template-columns: 1fr; }
+            /* На мобильных: токен под селектом языка */
+            .field { flex-direction: column; align-items: stretch; }
+            #langSelect { order: 1; width: 100%; }
+            #tok { order: 2; width: 100%; }
         }
     </style>
 </head>
