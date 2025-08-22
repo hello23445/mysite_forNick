@@ -1,51 +1,111 @@
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>
-  const tg = Telegram.WebApp;
-  tg.ready();
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TG WebApp Debug (alerts)</title>
+</head>
+<body>
+  <!-- Подключаем telegram sdk -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  // 1) Берём «подписанные» данные от Telegram
-  const initData = tg.initData;            // строка
-  const user     = tg.initDataUnsafe.user; // объект
-
-  if (!user) {
-    alert("Открой мини-приложение внутри Telegram.");
-  }
-
-  // 2) Отправляем на сервер для проверки подписи
-  async function auth() {
-    const res = await fetch("/auth/telegram", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ initData }) // ВАЖНО: отправляем СТРОКУ initData целиком
-    });
-    const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || "Auth failed");
-    return data.user; // сервер вернёт проверенного юзера
-  }
-
-  // 3) Пример сохранения пользовательских настроек
-  async function saveSettings(prefs) {
-    const res = await fetch("/profile/save", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ prefs, initData }) // снова прикладываем initData
-    });
-    const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || "Save failed");
-    return data;
-  }
-
-  // Пример использования:
-  (async () => {
-    try {
-      const u = await auth();
-      console.log("Авторизован как", u.id, u.username);
-
-      await saveSettings({ theme:"dark", lang:user?.language_code || "en" });
-      alert("Настройки сохранены в базе и будут доступны на всех устройствах.");
-    } catch (e) {
-      console.error(e);
-      alert(e.message);
+  <!-- Отладочный скрипт: ВСЕ console.* заменены на alert() -->
+  <script>
+  (function(){
+    function show(msg){
+      try { alert(msg); } catch(e) {}
     }
+
+    // Проверка наличия Telegram.WebApp
+    const hasTg = !!(window.Telegram && Telegram.WebApp);
+    show('[TG DEBUG] Telegram.WebApp present: ' + (hasTg ? 'YES' : 'NO'));
+    if(!hasTg){
+      show('[TG DEBUG] Если NO: вы не в Telegram Web App или скрипт блокируется (CSP/AdBlock). Откройте через Web App кнопку бота и убедитесь, что https и Telegram не открывает внешний браузер.');
+      return;
+    }
+
+    const tg = Telegram.WebApp;
+    try {
+      tg.ready();
+      show('[TG DEBUG] tg.ready() вызван успешно');
+    } catch(e){
+      show('[TG DEBUG] tg.ready() вызвал ошибку: ' + (e && e.message ? e.message : String(e)));
+    }
+
+    // Вывод ключевых свойств
+    const initData = tg.initData || '';
+    const initDataUnsafe = tg.initDataUnsafe || {};
+    show('[TG DEBUG] tg.initData length: ' + initData.length);
+    show('[TG DEBUG] tg.initDataUnsafe.user present: ' + (initDataUnsafe.user ? 'YES' : 'NO'));
+
+    // Парсинг initData
+    function parseInit(s){
+      if(!s) return null;
+      return s.split('&').reduce(function(acc,p){
+        var parts = p.split('=');
+        var k = parts[0] || '';
+        var v = parts.slice(1).join('=') || '';
+        try { acc[decodeURIComponent(k)] = decodeURIComponent(v); } catch(e) { acc[k] = v; }
+        return acc;
+      }, {});
+    }
+    const parsed = parseInit(initData);
+    show('[TG DEBUG] parsed.initData keys: ' + (parsed ? Object.keys(parsed).join(', ') : '---'));
+
+    if(parsed && parsed.hash) show('[TG DEBUG] hash present: YES');
+    else show('[TG DEBUG] hash present: NO (Telegram не прислал подпись)');
+
+    if(parsed && parsed.user){
+      try {
+        var userJson = JSON.stringify(JSON.parse(parsed.user));
+        show('[TG DEBUG] user param in initData: YES -> ' + userJson);
+      } catch(e){
+        show('[TG DEBUG] user param in initData: YES but invalid JSON');
+      }
+    } else {
+      show('[TG DEBUG] user param in initData: NO');
+    }
+
+    show('--- ОКРУЖЕНИЕ ---');
+    show('[TG DEBUG] location.href: ' + location.href);
+    show('[TG DEBUG] document.referrer: ' + document.referrer);
+    show('[TG DEBUG] protocol (https?): ' + (location.protocol === 'https:' ? 'YES' : 'NO'));
+    show('[TG DEBUG] navigator.userAgent: ' + navigator.userAgent);
+
+    // Хинты / эвристики
+    var ua = navigator.userAgent.toLowerCase();
+    var likelyExternal = !ua.includes('telegram') && (ua.includes('chrome') || ua.includes('firefox') || ua.includes('safari'));
+    if(likelyExternal){
+      show('[HINT] Похоже, страница открыта в ВНЕШНЕМ браузере, а не во встроенном WebView Telegram. На Android часто открывает Chrome по ссылке -> открой через Web App кнопку бота, не нажимай "Open in browser".');
+    }
+
+    if(!initData){
+      show('[HINT] initData пуст. Это означает, что Telegram не передал подписанную строку. Убедитесь, что вы открываете через web_app кнопку бота (inline keyboard с web_app).');
+    }
+
+    if(parsed && !parsed.hash){
+      show('[HINT] В initData отсутствует hash — бот, возможно, открыл URL как обычную ссылку, а не Web App. Проверьте, как формируете кнопку на стороне бота (см. пример ниже).');
+    }
+
+    // Проверка загрузки telegram-web-app.js среди скриптов
+    try {
+      var scripts = Array.prototype.map.call(document.scripts||[], function(s){return s.src||'';}).filter(Boolean);
+      var foundTg = scripts.some(function(s){ return s.indexOf('telegram-web-app.js') !== -1; });
+      if(!foundTg){
+        show('[HINT] telegram-web-app.js не найден среди <script> тегов. Проверьте подключение и CSP.');
+      } else {
+        show('[TG DEBUG] telegram-web-app.js загружен корректно');
+      }
+    } catch(e){
+      show('[TG DEBUG] Ошибка при проверке скриптов: ' + (e && e.message ? e.message : String(e)));
+    }
+
+    // Пример правильного reply_markup для кнопки web_app (показываем, чтобы ты мог проверить бота)
+    show('[EXAMPLE] Пример правильной inline keyboard для открытия Web App (на стороне бота):\n{"reply_markup":{"inline_keyboard":[[{"text":"Open","web_app":{"url":"https://your-site.example.com"}}]]}}');
+
+    // Конец
+    show('[TG DEBUG] Диагностика завершена. Если хочешь — пришли мне результаты (что было YES/NO и первые строки user JSON), и я скажу точную правку.');
   })();
-</script>
+  </script>
+</body>
+</html>
