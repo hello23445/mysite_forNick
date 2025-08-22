@@ -154,14 +154,14 @@
              - Укажите ссылку в объекте LINKS ниже (complaintRU, supportRU/EN).
              - Кнопки создаются динамически в функции applyTranslations() в блоке "EXTRA".
              - Для кнопки, показываемой только на русском ("Написать жалобу"), ничего менять в EN не нужно.
-        ==============================================================
+        ============================================================== 
         */
 
         // ===== Ссылки, которые вы укажете =====
         const LINKS = {
-            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",              // TODO: сюда вставьте ссылку на форму жалобы (только RU)
-            supportRU:   "https://t.me/Clickerstart_bot",              // TODO: ссылка на поддержку (RU)
-            supportEN:   "https://t.me/Clickerstart_bot"               // TODO: ссылка на поддержку (EN)
+            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",
+            supportRU:   "https://t.me/Clickerstart_bot",
+            supportEN:   "https://t.me/Clickerstart_bot"
         };
 
         // ===== Карта файлов =====
@@ -194,7 +194,9 @@
             colors: 'colors_en.html',
             ai: 'ai_en.html',
             support: 'support_en.html',
-            connection: 'connection_en.html'
+            connection: 'connection_en.html',
+            // <-- добавил путь на test.html
+            test: 'tester.html'
         };
 
         // ===== Язык =====
@@ -318,6 +320,17 @@
                 disabled: !supportOk
             });
             settingsContainer.appendChild(writeSupportBtn);
+
+            // ===== НОВО: кнопка Test только для английской версии =====
+            if (lang === 'en') {
+                const testUrl = files.test || 'test.html';
+                const testBtn = createButton({
+                    text: 'Test',
+                    href: testUrl,
+                    newTab: false
+                });
+                settingsContainer.appendChild(testBtn);
+            }
 
             // ===== Выпадающий список языков =====
             const langSelect = document.getElementById('langSelect');
