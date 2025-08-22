@@ -127,7 +127,6 @@
                         <select id="langSelect"></select>
                         <button class="btn" id="tok"><i class="fa-solid fa-key"></i><span>Token</span></button>
                     </div>
-                    <h4 id="id" style="white-space: pre;">Your ID:</h4>
                 </div>
                 <div class="card">
                     <h3 data-translate="supportSectionTitle">Поддержка</h3>
@@ -208,7 +207,7 @@
                 main: "Что будем создавать?",
                 maintenance: "Проводится техническое обслуживание.",
                 settingsTitle: "Настройки",
-                langSectionTitle: "Настройки языка и токена, а также ваша информация",
+                langSectionTitle: "Настройки языка и токена",
                 supportSectionTitle: "Поддержка и связь",
                 featureButtons: [
                     "Никнейм","Описание","Аватарка","Лего","Шрифт","Сайт",
@@ -223,7 +222,7 @@
                 main: "What do you want to create?",
                 maintenance: "Maintenance in progress.",
                 settingsTitle: "Settings",
-                langSectionTitle: "Language & token & User Info",
+                langSectionTitle: "Language & token",
                 supportSectionTitle: "Support",
                 featureButtons: [
                     "Nickname","Description","Profile","Lego","Font","Sites",
@@ -373,25 +372,6 @@
             lang = this.value;
             localStorage.setItem('lang', lang);
             isTokenVisible = false; // Сбрасываем видимость при смене языка
-            if (localStorage.getItem('lang') === 'ru') {
-                document.getElementById('id').textContent =
-                    'Ваш ID: ' + localStorage.getItem('user_id') + '\n' +
-                    'Имя: ' + localStorage.getItem('user_first_name') + '\n' +
-                    'Фамилия: ' + localStorage.getItem('user_last_name') + '\n' +
-                    'Username: ' + localStorage.getItem('user_username') + '\n' +
-                    'Язык: ' + localStorage.getItem('user_language_code');
-            } else {
-                document.getElementById('id').textContent =
-                    'Your ID: ' + localStorage.getItem('user_id') + '\n' +
-                    'First Name: ' + localStorage.getItem('user_first_name') + '\n' +
-                    'Last Name: ' + localStorage.getItem('user_last_name') + '\n' +
-                    'Username: ' + localStorage.getItem('user_username') + '\n' +
-                    'Language: ' + localStorage.getItem('user_language_code');
-            }
-
-
-
-
             applyTranslations();
         };
 
@@ -427,28 +407,6 @@
         } else if (m === 'Скоро' || m === 'скоро') {
             alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
         }
-
-        function checkLanguage(){
-        if (localStorage.getItem('lang') === 'ru') {
-            document.getElementById('id').textContent =
-                'Ваш ID: ' + localStorage.getItem('user_id') + '\n' +
-                'Имя: ' + localStorage.getItem('user_first_name') + '\n' +
-                'Фамилия: ' + localStorage.getItem('user_last_name') + '\n' +
-                'Username: ' + localStorage.getItem('user_username') + '\n' +
-                'Язык: ' + localStorage.getItem('user_language_code');
-        } else {
-            document.getElementById('id').textContent =
-                'Your ID: ' + localStorage.getItem('user_id') + '\n' +
-                'First Name: ' + localStorage.getItem('user_first_name') + '\n' +
-                'Last Name: ' + localStorage.getItem('user_last_name') + '\n' +
-                'Username: ' + localStorage.getItem('user_username') + '\n' +
-                'Language: ' + localStorage.getItem('user_language_code');
-        }
-
-
-
-        }
-        checkLanguage();
     </script>
 </body>
 </html>
