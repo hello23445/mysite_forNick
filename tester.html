@@ -1,0 +1,51 @@
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  const tg = Telegram.WebApp;
+  tg.ready();
+
+  // 1) Берём «подписанные» данные от Telegram
+  const initData = tg.initData;            // строка
+  const user     = tg.initDataUnsafe.user; // объект
+
+  if (!user) {
+    alert("Открой мини-приложение внутри Telegram.");
+  }
+
+  // 2) Отправляем на сервер для проверки подписи
+  async function auth() {
+    const res = await fetch("/auth/telegram", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ initData }) // ВАЖНО: отправляем СТРОКУ initData целиком
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || "Auth failed");
+    return data.user; // сервер вернёт проверенного юзера
+  }
+
+  // 3) Пример сохранения пользовательских настроек
+  async function saveSettings(prefs) {
+    const res = await fetch("/profile/save", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ prefs, initData }) // снова прикладываем initData
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || "Save failed");
+    return data;
+  }
+
+  // Пример использования:
+  (async () => {
+    try {
+      const u = await auth();
+      console.log("Авторизован как", u.id, u.username);
+
+      await saveSettings({ theme:"dark", lang:user?.language_code || "en" });
+      alert("Настройки сохранены в базе и будут доступны на всех устройствах.");
+    } catch (e) {
+      console.error(e);
+      alert(e.message);
+    }
+  })();
+</script>
