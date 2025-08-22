@@ -127,6 +127,7 @@
                         <select id="langSelect"></select>
                         <button class="btn" id="tok"><i class="fa-solid fa-key"></i><span>Token</span></button>
                     </div>
+                    <h4 id="id" style="white-space: pre;">Your ID:</h4>
                 </div>
                 <div class="card">
                     <h3 data-translate="supportSectionTitle">Поддержка</h3>
@@ -154,14 +155,14 @@
              - Укажите ссылку в объекте LINKS ниже (complaintRU, supportRU/EN).
              - Кнопки создаются динамически в функции applyTranslations() в блоке "EXTRA".
              - Для кнопки, показываемой только на русском ("Написать жалобу"), ничего менять в EN не нужно.
-        ============================================================== 
+        ==============================================================
         */
 
         // ===== Ссылки, которые вы укажете =====
         const LINKS = {
-            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",
-            supportRU:   "https://t.me/Clickerstart_bot",
-            supportEN:   "https://t.me/Clickerstart_bot"
+            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",              // TODO: сюда вставьте ссылку на форму жалобы (только RU)
+            supportRU:   "https://t.me/Clickerstart_bot",              // TODO: ссылка на поддержку (RU)
+            supportEN:   "https://t.me/Clickerstart_bot"               // TODO: ссылка на поддержку (EN)
         };
 
         // ===== Карта файлов =====
@@ -194,9 +195,7 @@
             colors: 'colors_en.html',
             ai: 'ai_en.html',
             support: 'support_en.html',
-            connection: 'connection_en.html',
-            // <-- добавил путь на test.html
-            test: 'tester.html'
+            connection: 'connection_en.html'
         };
 
         // ===== Язык =====
@@ -224,7 +223,7 @@
                 main: "What do you want to create?",
                 maintenance: "Maintenance in progress.",
                 settingsTitle: "Settings",
-                langSectionTitle: "Language & token",
+                langSectionTitle: "Language & token & User Info",
                 supportSectionTitle: "Support",
                 featureButtons: [
                     "Nickname","Description","Profile","Lego","Font","Sites",
@@ -321,17 +320,6 @@
             });
             settingsContainer.appendChild(writeSupportBtn);
 
-            // ===== НОВО: кнопка Test только для английской версии =====
-            if (lang === 'en') {
-                const testUrl = files.test || 'test.html';
-                const testBtn = createButton({
-                    text: 'Test',
-                    href: testUrl,
-                    newTab: false
-                });
-                settingsContainer.appendChild(testBtn);
-            }
-
             // ===== Выпадающий список языков =====
             const langSelect = document.getElementById('langSelect');
             langSelect.innerHTML = '';
@@ -385,6 +373,24 @@
             lang = this.value;
             localStorage.setItem('lang', lang);
             isTokenVisible = false; // Сбрасываем видимость при смене языка
+            if (localStorage.getItem('lang') === 'ru') {
+                document.getElementById('id').textContent =
+                    'Ваш ID: ' + (localStorage.getItem('user_id') || '') + '\n' +
+                    'Имя: ' + (localStorage.getItem('user_first_name') || '') + '\n' +
+                    'Фамилия: ' + (localStorage.getItem('user_last_name') || '') + '\n' +
+                    'Username: ' + (localStorage.getItem('user_username') || '') + '\n' +
+                    'Язык: ' + (localStorage.getItem('user_language_code') || '');
+            } else {
+                document.getElementById('id').textContent =
+                    'Your ID: ' + (localStorage.getItem('user_id') || '') + '\n' +
+                    'First Name: ' + (localStorage.getItem('user_first_name') || '') + '\n' +
+                    'Last Name: ' + (localStorage.getItem('user_last_name') || '') + '\n' +
+                    'Username: ' + (localStorage.getItem('user_username') || '') + '\n' +
+                    'Language: ' + (localStorage.getItem('user_language_code') || '');
+            }
+
+
+
             applyTranslations();
         };
 
@@ -420,6 +426,27 @@
         } else if (m === 'Скоро' || m === 'скоро') {
             alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
         }
+
+        function checkLanguage(){
+            if (localStorage.getItem('lang') === 'ru') {
+                document.getElementById('id').textContent =
+                    'Ваш ID: ' + (localStorage.getItem('user_id') || '') + '\n' +
+                    'Имя: ' + (localStorage.getItem('user_first_name') || '') + '\n' +
+                    'Фамилия: ' + (localStorage.getItem('user_last_name') || '') + '\n' +
+                    'Username: ' + (localStorage.getItem('user_username') || '') + '\n' +
+                    'Язык: ' + (localStorage.getItem('user_language_code') || '');
+            } else {
+                document.getElementById('id').textContent =
+                    'Your ID: ' + (localStorage.getItem('user_id') || '') + '\n' +
+                    'First Name: ' + (localStorage.getItem('user_first_name') || '') + '\n' +
+                    'Last Name: ' + (localStorage.getItem('user_last_name') || '') + '\n' +
+                    'Username: ' + (localStorage.getItem('user_username') || '') + '\n' +
+                    'Language: ' + (localStorage.getItem('user_language_code') || '');
+            }
+
+
+        }
+        checkLanguage();
     </script>
 </body>
 </html>
