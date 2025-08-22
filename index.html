@@ -92,202 +92,196 @@
     <div id="buttons"></div>
   </div>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script type="module">
-    window.addEventListener('DOMContentLoaded', async () => {
-      if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-      }
+    if (window.Telegram && Telegram.WebApp) {
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+    }
 
-      var texpereriv = '';
-      localStorage.setItem('m', texpereriv || 'false'); // Статус технического обслуживания для теста
-      const channelUsername = 'Nicknaymes2bot';
-      const redirectUrl = 'main.html';
-      const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss'];
-      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytybZm3FJ48XaSfxzqk7iiTo3yR2BNf-F23pXAF6pI3lJGu6E3G5oVFPhi7xjXk3NO/exec';
+    var zztexpereriv = '';
+    localStorage.setItem('m', texpereriv || 'false'); // Устанавливаем статус технического обслуживания для теста
+    const channelUsername = 'Nicknaymes2bot';
+    const redirectUrl = 'main.html';
+    const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss'];
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytybZm3FJ48XaSfxzqk7iiTo3yR2BNf-F23pXAF6pI3lJGu6E3G5oVFPhi7xjXk3NO/exec';
 
-      const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
-      const text = {
-        ru: {
-          mustSub: 'Чтобы пользоваться этим мини-приложением, надо подписаться на канал\n || To use this mini app, you must subscribe to the channel',
-          check: 'Проверить\n || Check',
-          subscribe: 'Подписаться\n || Subscribe',
-          loading: 'Загрузка...\n|| Loading...',
-          blocked: 'Ваш аккаунт заблокирован. || Your account is blocked.',
-          support: 'Служба поддержки || Support service: @',
-          supportBot: 'Clickerstart_bot',
-          maintenance: 'Ведется техническое обслуживание!\nTechnical maintenance',
-          soon: 'Скоро мы начнем техническое обслуживание\nTechnical maintenance will start soon.'
-        },
-      };
+    const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
+    const text = {
+      ru: {
+        mustSub: 'Чтобы пользоваться этим мини-приложением, надо подписаться на канал\n || To use this mini app, you must subscribe to the channel',
+        check: 'Проверить\n || Check',
+        subscribe: 'Подписаться\n || Subscribe',
+        loading: 'Загрузка...\n|| Loading...',
+        blocked: 'Ваш аккаунт заблокирован. || Your account is blocked.',
+        support: 'Служба поддержки || Support service: @',
+        supportBot: 'Clickerstart_bot',
+        maintenance: 'Ведется техническое обслуживание!\nTechnical maintenance',
+        soon: 'Скоро мы начнем техническое обслуживание\nTechnical maintenance will start soon.'
+      },
+    };
 
-      const messageEl = document.getElementById('message');
-      const buttonsEl = document.getElementById('buttons');
-      let userToken = null;
+    const messageEl = document.getElementById('message');
+    const buttonsEl = document.getElementById('buttons');
+    let userToken = null;
 
-      function copyToClipboard(text) {
-        if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(text).then(() => {
-            alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
-            const copyBtn = document.querySelector('.copy-btn');
-            if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
-          }, () => alert('Не удалось скопировать токен.'));
-        } else {
-          const textArea = document.createElement('textarea');
-          textArea.value = text;
-          textArea.style.position = 'fixed';
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          try {
-            document.execCommand('copy');
-            alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
-            const copyBtn = document.querySelector('.copy-btn');
-            if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
-          } catch {
-            alert('Не удалось скопировать токен.');
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
+          const copyBtn = document.querySelector('.copy-btn');
+          if (copyBtn) {
+            copyBtn.textContent = 'Скопировано! || Copied!';
           }
-          document.body.removeChild(textArea);
-        }
-      }
-
-      function createTokenContainer() {
-        const tokenContainer = document.createElement('div');
-        tokenContainer.className = 'token-container';
-        const tokenText = document.createElement('span');
-        tokenText.textContent = userToken || 'нет токена';
-        tokenContainer.appendChild(tokenText);
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'copy-btn';
-        copyBtn.textContent = 'Скопировать || Copy';
-        copyBtn.title = 'Скопировать токен';
-        copyBtn.onclick = () => copyToClipboard(userToken);
-        tokenContainer.appendChild(copyBtn);
-        return tokenContainer;
-      }
-
-      function createSupportText() {
-        const supportDiv = document.createElement('div');
-        supportDiv.className = 'support-text';
-        supportDiv.innerHTML = `${text[userLang].support}<a href="https://t.me/Clickerstart_bot" target="_blank" rel="noopener noreferrer">Clickerstart_bot</a>`;
-        return supportDiv;
-      }
-
-      function showBlockedScreen() {
-        messageEl.textContent = text[userLang].blocked;
-        buttonsEl.innerHTML = '';
-        buttonsEl.appendChild(createTokenContainer());
-        buttonsEl.appendChild(createSupportText());
-      }
-
-      function showMaintenanceScreen() {
-        messageEl.textContent = text[userLang].maintenance;
-        buttonsEl.innerHTML = '';
-        buttonsEl.appendChild(createTokenContainer());
-        buttonsEl.appendChild(createSupportText());
-      }
-
-      function showSubscribeScreen() {
-        messageEl.textContent = text[userLang].mustSub;
-        buttonsEl.innerHTML = '';
-        const subBtn = document.createElement('button');
-        subBtn.textContent = text[userLang].subscribe;
-        subBtn.onclick = () => window.open(`https://t.me/${channelUsername}`, '_blank');
-        buttonsEl.appendChild(subBtn);
-
-        const checkBtn = document.createElement('button');
-        checkBtn.textContent = text[userLang].check;
-        checkBtn.onclick = () => {
-          localStorage.setItem('checkedSubscription', 'true');
-          window.location.href = redirectUrl;
-        };
-        buttonsEl.appendChild(checkBtn);
-
-        buttonsEl.appendChild(createTokenContainer());
-        buttonsEl.appendChild(createSupportText());
-      }
-
-      function fakeCheckSubscription(startapp) {
-        if (startapp) {
-          window.location.href = redirectUrl;
-          return;
-        }
-
-        const checkedBefore = localStorage.getItem('checkedSubscription') === 'true';
-        const randomFail = Math.random() < 0.02;
-
-        if (checkedBefore && !randomFail) {
-          window.location.href = redirectUrl;
-        } else {
-          showSubscribeScreen();
-        }
-      }
-
-      function generateToken(length = 16) {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let token = '';
-        for (let i = 0; i < length; i++) token += chars.charAt(Math.floor(Math.random() * chars.length));
-        return token;
-      }
-
-      async function saveTokenToGoogle(token) {
+        }, () => {
+          alert('Не удалось скопировать токен.');
+        });
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
         try {
-          await fetch(`${GOOGLE_SCRIPT_URL}?token=${token}`);
-        } catch (err) {
-          console.warn('Ошибка отправки токена в Google таблицу:', err);
+          document.execCommand('copy');
+          alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
+          const copyBtn = document.querySelector('.copy-btn');
+          if (copyBtn) {
+            copyBtn.textContent = 'Скопировано! || Copied!';
+          }
+        } catch {
+          alert('Не удалось скопировать токен.');
         }
+        document.body.removeChild(textArea);
+      }
+    }
+
+    function createTokenContainer() {
+      const tokenContainer = document.createElement('div');
+      tokenContainer.className = 'token-container';
+
+      const tokenText = document.createElement('span');
+      tokenText.textContent = userToken || 'нет токена';
+      tokenContainer.appendChild(tokenText);
+
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.textContent = 'Скопировать || Copy';
+      copyBtn.title = 'Скопировать токен';
+      copyBtn.onclick = () => copyToClipboard(userToken);
+      tokenContainer.appendChild(copyBtn);
+
+      return tokenContainer;
+    }
+
+    function createSupportText() {
+      const supportDiv = document.createElement('div');
+      supportDiv.className = 'support-text';
+      supportDiv.innerHTML = `${text[userLang].support}<a href="https://t.me/Clickerstart_bot" target="_blank" rel="noopener noreferrer">Clickerstart_bot</a>`;
+      return supportDiv;
+    }
+
+    function showBlockedScreen() {
+      messageEl.textContent = text[userLang].blocked;
+      buttonsEl.innerHTML = '';
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
+    }
+
+    function showMaintenanceScreen() {
+      messageEl.textContent = text[userLang].maintenance;
+      buttonsEl.innerHTML = '';
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
+    }
+
+    function showSubscribeScreen() {
+      messageEl.textContent = text[userLang].mustSub;
+      buttonsEl.innerHTML = '';
+
+      const subBtn = document.createElement('button');
+      subBtn.textContent = text[userLang].subscribe;
+      subBtn.onclick = () => window.open(`https://t.me/${channelUsername}`, '_blank');
+      buttonsEl.appendChild(subBtn);
+
+      const checkBtn = document.createElement('button');
+      checkBtn.textContent = text[userLang].check;
+      checkBtn.onclick = () => {
+        localStorage.setItem('checkedSubscription', 'true');
+        window.location.href = redirectUrl;
+      };
+      buttonsEl.appendChild(checkBtn);
+
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
+    }
+
+    function fakeCheckSubscription(startapp) {
+      if (startapp) {
+        window.location.href = redirectUrl;
+
+        return;
       }
 
-      async function main() {
-        // ==== Всегда записываем данные пользователя Telegram ====
-        let user = null;
-        if (window.Telegram && Telegram.WebApp) {
-          user = Telegram.WebApp.initDataUnsafe?.user;
-        }
+      const checkedBefore = localStorage.getItem('checkedSubscription') === 'true';
+      const randomFail = Math.random() < 0.02;
 
-        if (user) {
-          localStorage.setItem('user_id', user.id);
-          localStorage.setItem('user_first_name', user.first_name || '');
-          localStorage.setItem('user_last_name', user.last_name || '');
-          localStorage.setItem('user_username', user.username || '');
-          localStorage.setItem('user_language_code', user.language_code || '');
-          console.log('Данные пользователя обновлены в localStorage:', user);
-        } else {
-          alert('Объект user отсутствует в initDataUnsafe или Telegram WebApp не загружен');
-        }
+      if (checkedBefore && !randomFail) {
+        window.location.href = redirectUrl;
 
-        userToken = localStorage.getItem('userToken');
+      } else {
+        showSubscribeScreen();
+      }
+    }
 
-        if (!userToken) {
-          userToken = generateToken(16);
-          localStorage.setItem('userToken', userToken);
-          await saveTokenToGoogle(userToken);
-        }
+    function generateToken(length = 16) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let token = '';
+      for (let i = 0; i < length; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return token;
+    }
 
-        buttonsEl.appendChild(createTokenContainer());
-        buttonsEl.appendChild(createSupportText());
+    async function saveTokenToGoogle(token) {
+      try {
+        await fetch(`${GOOGLE_SCRIPT_URL}?token=${token}`);
+      } catch (err) {
+        console.warn('Ошибка отправки токена в Google таблицу:', err);
+      }
+    }
 
-        if (blockedTokens.includes(userToken)) {
-          showBlockedScreen();
-          return;
-        }
+    async function main() {
+      userToken = localStorage.getItem('userToken');
 
-        if (texpereriv.toLowerCase() === 'скоро') {
-          alert(text[userLang].soon);
-        } else if (texpereriv.toLowerCase() === 'уже') {
-          alert(text[userLang].maintenance);
-          showMaintenanceScreen();
-          return;
-        }
-
-        const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
-        messageEl.textContent = text[userLang].loading;
-        fakeCheckSubscription(urlStartApp);
+      if (!userToken) {
+        userToken = generateToken(16);
+        localStorage.setItem('userToken', userToken);
+        await saveTokenToGoogle(userToken);
       }
 
-      main();
-    });
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
+
+      if (blockedTokens.includes(userToken)) {
+        showBlockedScreen();
+        return;
+      }
+
+      if (texpereriv.toLowerCase() === 'скоро') {
+        alert(text[userLang].soon);
+      } else if (texpereriv.toLowerCase() === 'уже') {
+        alert(text[userLang].maintenance);
+        showMaintenanceScreen();
+        return;
+      }
+
+      const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
+      messageEl.textContent = text[userLang].loading;
+      fakeCheckSubscription(urlStartApp);
+    }
+
+    main();
   </script>
 </body>
 </html>
