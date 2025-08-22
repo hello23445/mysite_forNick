@@ -375,19 +375,20 @@
             isTokenVisible = false; // Сбрасываем видимость при смене языка
             if (localStorage.getItem('lang') === 'ru') {
                 document.getElementById('id').textContent =
-                    'Ваш ID: ' + (localStorage.getItem('user_id') || '') + '\n' +
-                    'Имя: ' + (localStorage.getItem('user_first_name') || '') + '\n' +
-                    'Фамилия: ' + (localStorage.getItem('user_last_name') || '') + '\n' +
-                    'Username: ' + (localStorage.getItem('user_username') || '') + '\n' +
-                    'Язык: ' + (localStorage.getItem('user_language_code') || '');
+                    'Ваш ID: ' + localStorage.getItem('user_id') + '\n' +
+                    'Имя: ' + localStorage.getItem('user_first_name') + '\n' +
+                    'Фамилия: ' + localStorage.getItem('user_last_name') + '\n' +
+                    'Username: ' + localStorage.getItem('user_username') + '\n' +
+                    'Язык: ' + localStorage.getItem('user_language_code');
             } else {
                 document.getElementById('id').textContent =
-                    'Your ID: ' + (localStorage.getItem('user_id') || '') + '\n' +
-                    'First Name: ' + (localStorage.getItem('user_first_name') || '') + '\n' +
-                    'Last Name: ' + (localStorage.getItem('user_last_name') || '') + '\n' +
-                    'Username: ' + (localStorage.getItem('user_username') || '') + '\n' +
-                    'Language: ' + (localStorage.getItem('user_language_code') || '');
+                    'Your ID: ' + localStorage.getItem('user_id') + '\n' +
+                    'First Name: ' + localStorage.getItem('user_first_name') + '\n' +
+                    'Last Name: ' + localStorage.getItem('user_last_name') + '\n' +
+                    'Username: ' + localStorage.getItem('user_username') + '\n' +
+                    'Language: ' + localStorage.getItem('user_language_code');
             }
+
 
 
 
@@ -428,21 +429,22 @@
         }
 
         function checkLanguage(){
-            if (localStorage.getItem('lang') === 'ru') {
-                document.getElementById('id').textContent =
-                    'Ваш ID: ' + (localStorage.getItem('user_id') || '') + '\n' +
-                    'Имя: ' + (localStorage.getItem('user_first_name') || '') + '\n' +
-                    'Фамилия: ' + (localStorage.getItem('user_last_name') || '') + '\n' +
-                    'Username: ' + (localStorage.getItem('user_username') || '') + '\n' +
-                    'Язык: ' + (localStorage.getItem('user_language_code') || '');
-            } else {
-                document.getElementById('id').textContent =
-                    'Your ID: ' + (localStorage.getItem('user_id') || '') + '\n' +
-                    'First Name: ' + (localStorage.getItem('user_first_name') || '') + '\n' +
-                    'Last Name: ' + (localStorage.getItem('user_last_name') || '') + '\n' +
-                    'Username: ' + (localStorage.getItem('user_username') || '') + '\n' +
-                    'Language: ' + (localStorage.getItem('user_language_code') || '');
-            }
+        if (localStorage.getItem('lang') === 'ru') {
+            document.getElementById('id').textContent =
+                'Ваш ID: ' + localStorage.getItem('user_id') + '\n' +
+                'Имя: ' + localStorage.getItem('user_first_name') + '\n' +
+                'Фамилия: ' + localStorage.getItem('user_last_name') + '\n' +
+                'Username: ' + localStorage.getItem('user_username') + '\n' +
+                'Язык: ' + localStorage.getItem('user_language_code');
+        } else {
+            document.getElementById('id').textContent =
+                'Your ID: ' + localStorage.getItem('user_id') + '\n' +
+                'First Name: ' + localStorage.getItem('user_first_name') + '\n' +
+                'Last Name: ' + localStorage.getItem('user_last_name') + '\n' +
+                'Username: ' + localStorage.getItem('user_username') + '\n' +
+                'Language: ' + localStorage.getItem('user_language_code');
+        }
+
 
 
         }
