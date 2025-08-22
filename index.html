@@ -92,14 +92,14 @@
     <div id="buttons"></div>
   </div>
 
-  <script>
+  <script type="module">
     if (window.Telegram && Telegram.WebApp) {
       Telegram.WebApp.ready();
       Telegram.WebApp.expand();
     }
 
-    const texpereriv = '';
-    localStorage.setItem('m', texpereriv || 'false'); // Устанавливаем статус технического обслуживания для теста
+    var zztexpereriv = '';
+    localStorage.setItem('m', texpereriv || 'false'); // Статус технического обслуживания для теста
     const channelUsername = 'Nicknaymes2bot';
     const redirectUrl = 'main.html';
     const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss'];
@@ -129,12 +129,8 @@
         navigator.clipboard.writeText(text).then(() => {
           alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
           const copyBtn = document.querySelector('.copy-btn');
-          if (copyBtn) {
-            copyBtn.textContent = 'Скопировано! || Copied!';
-          }
-        }, () => {
-          alert('Не удалось скопировать токен.');
-        });
+          if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
+        }, () => alert('Не удалось скопировать токен.'));
       } else {
         const textArea = document.createElement('textarea');
         textArea.value = text;
@@ -146,9 +142,7 @@
           document.execCommand('copy');
           alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
           const copyBtn = document.querySelector('.copy-btn');
-          if (copyBtn) {
-            copyBtn.textContent = 'Скопировано! || Copied!';
-          }
+          if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
         } catch {
           alert('Не удалось скопировать токен.');
         }
@@ -159,18 +153,15 @@
     function createTokenContainer() {
       const tokenContainer = document.createElement('div');
       tokenContainer.className = 'token-container';
-
       const tokenText = document.createElement('span');
       tokenText.textContent = userToken || 'нет токена';
       tokenContainer.appendChild(tokenText);
-
       const copyBtn = document.createElement('button');
       copyBtn.className = 'copy-btn';
       copyBtn.textContent = 'Скопировать || Copy';
       copyBtn.title = 'Скопировать токен';
       copyBtn.onclick = () => copyToClipboard(userToken);
       tokenContainer.appendChild(copyBtn);
-
       return tokenContainer;
     }
 
@@ -198,7 +189,6 @@
     function showSubscribeScreen() {
       messageEl.textContent = text[userLang].mustSub;
       buttonsEl.innerHTML = '';
-
       const subBtn = document.createElement('button');
       subBtn.textContent = text[userLang].subscribe;
       subBtn.onclick = () => window.open(`https://t.me/${channelUsername}`, '_blank');
@@ -219,7 +209,6 @@
     function fakeCheckSubscription(startapp) {
       if (startapp) {
         window.location.href = redirectUrl;
-
         return;
       }
 
@@ -228,7 +217,6 @@
 
       if (checkedBefore && !randomFail) {
         window.location.href = redirectUrl;
-
       } else {
         showSubscribeScreen();
       }
@@ -237,9 +225,7 @@
     function generateToken(length = 16) {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       let token = '';
-      for (let i = 0; i < length; i++) {
-        token += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
+      for (let i = 0; i < length; i++) token += chars.charAt(Math.floor(Math.random() * chars.length));
       return token;
     }
 
@@ -252,6 +238,21 @@
     }
 
     async function main() {
+      // ==== Получение данных пользователя Telegram ====
+      if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
+        const user = Telegram.WebApp.initDataUnsafe.user;
+        if (user) {
+          localStorage.setItem('user_id', user.id);
+          localStorage.setItem('user_first_name', user.first_name || '');
+          localStorage.setItem('user_last_name', user.last_name || '');
+          localStorage.setItem('user_username', user.username || '');
+          localStorage.setItem('user_language_code', user.language_code || '');
+          console.log('Данные пользователя сохранены в localStorage:', user);
+        } else {
+          console.warn('Объект user отсутствует в initDataUnsafe');
+        }
+      }
+
       userToken = localStorage.getItem('userToken');
 
       if (!userToken) {
