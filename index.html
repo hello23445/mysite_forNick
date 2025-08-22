@@ -1,288 +1,454 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Фейковая проверка подписки</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background-color: #060039;
-      color: #d9d9d9;
-      font-family: Arial, sans-serif;
-      font-size: 20px;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        :root {
+            --bg: #060039;
+            --bg-soft: #0b0660;
+            --card: #0d0870;
+            --text: #d9d9d9;
+            --muted: #a7a7c7;
+            --accent: #5f57ff;
+            --accent-2: #8f87ff;
+            --btn: #251897;
+            --shadow: rgba(0,0,0,.35);
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+            background: radial-gradient(1200px 800px at 80% -10%, #100a7a 0%, var(--bg) 60%);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            background: linear-gradient(180deg, rgba(0,0,0,.35), transparent);
+            backdrop-filter: blur(6px);
+        }
+        #mainTopBar { justify-content: flex-end; }
+        #settingsTopBar { justify-content: space-between; gap: 8px; }
+        #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
+        .icon-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #090975; border: 1px solid rgba(255,255,255,.08);
+            color: var(--text); font-size: 18px; width: 40px; height: 40px; border-radius: 12px;
+            cursor: pointer; transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+            box-shadow: 0 6px 18px var(--shadow);
+        }
+        .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
 
-    .centered {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      text-align: center;
-      padding: 20px;
-    }
+        .main { text-align: center; margin: 24px auto 0; padding: 0 14px; max-width: 860px; }
+        h2 { margin: 12px 0 10px; font-weight: 800; }
 
-    button {
-      background-color: #251897;
-      color: #d9d9d9;
-      border: none;
-      padding: 14px 24px;
-      margin: 12px;
-      border-radius: 12px;
-      font-size: 24px;
-      cursor: pointer;
-    }
+        .buttons-container {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; justify-items: stretch;
+        }
+        .settings-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 16px; }
 
-    h1 {
-      margin-bottom: 30px;
-      font-size: 28px;
-    }
+        .btn {
+            --pad: 12px;
+            padding: var(--pad);
+            background: linear-gradient(180deg, var(--btn), #1b1280);
+            color: var(--text); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; cursor: pointer; width: 100%; font-size: 14px; font-weight: 600;
+            box-shadow: 0 6px 18px var(--shadow);
+            transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px var(--shadow); }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .btn .fa-solid, .btn .fa-regular { margin-right: 8px; }
 
-    .token-container {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: #251897;
-      padding: 8px 12px;
-      border-radius: 12px;
-      user-select: all;
-      font-size: 16px;
-      max-width: 400px;
-      word-break: break-all;
-    }
+        /* Modern settings card */
+        #settingsMenu { display: none; padding: 20px 14px 32px; }
+        .settings-wrap { max-width: 880px; margin: 0 auto; }
+        .card {
+            background: linear-gradient(180deg, var(--card), #0b0862);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 18px; padding: 16px; box-shadow: 0 16px 40px var(--shadow);
+        }
+        .row { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .card h3 { margin: 8px 4px 12px; font-size: 16px; color: var(--muted); font-weight: 700; letter-spacing: .3px; }
 
-    .copy-btn {
-      background-color: #251897;
-      border: none;
-      color: #d9d9d9;
-      cursor: pointer;
-      font-size: 18px;
-      padding: 8px 16px;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      user-select: none;
-    }
+        .field { display: flex; align-items: center; gap: 10px; }
+        select#langSelect { flex: 1; min-width: 160px; padding: 12px; background: var(--bg-soft); color: var(--text); border-radius: 12px; border: 1px solid rgba(255,255,255,.08); }
 
-    .copy-btn:hover {
-      background-color: #5d4ec8;
-    }
+        #tok { margin-top: 8px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); }
 
-    .support-text {
-      margin-top: 25px;
-      font-size: 18px;
-    }
+        #maintenance { display: none; text-align: center; margin-top: 20px; color: #ff6b6b; padding: 12px; }
 
-    .support-text a {
-      color: #d9d9d9;
-      text-decoration: underline;
-    }
-  </style>
+        @media (max-width: 560px) {
+            .buttons-container { grid-template-columns: 1fr; }
+            /* На мобильных: токен под селектом языка */
+            .field { flex-direction: column; align-items: stretch; }
+            #langSelect { order: 1; width: 100%; min-width: 100%; padding: 14px; font-size: 16px;}
+            #tok { order: 2; width: 100%; }
+        }
+    </style>
 </head>
 <body>
-  <div class="centered">
-    <h1 id="message">Загрузка... || Loading...</h1>
-    <div id="buttons"></div>
-  </div>
+    <!-- Техническое обслуживание -->
+    <div id="maintenance">
+        <h2 data-translate="maintenance" id="maintenanceM"></h2>
+    </div>
 
-  <script type="module">
-    if (window.Telegram && Telegram.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.expand();
-    }
+    <!-- Главное меню -->
+    <div class="top-bar" id="mainTopBar">
+        <button class="icon-btn" id="settingsBtn" title="Settings"><i class="fa-solid fa-gear"></i></button>
+    </div>
 
-    var texpereriv = '';
-    localStorage.setItem('m', texpereriv || 'false'); // Статус технического обслуживания для теста
-    const channelUsername = 'Nicknaymes2bot';
-    const redirectUrl = 'main.html';
-    const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss'];
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytybZm3FJ48XaSfxzqk7iiTo3yR2BNf-F23pXAF6pI3lJGu6E3G5oVFPhi7xjXk3NO/exec';
+    <div class="main" id="mainMenu">
+        <h2 data-translate="main" id="mainM"></h2>
+        <div class="buttons-container" id="featureButtons"></div>
+    </div>
 
-    const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
-    const text = {
-      ru: {
-        mustSub: 'Чтобы пользоваться этим мини-приложением, надо подписаться на канал\n || To use this mini app, you must subscribe to the channel',
-        check: 'Проверить\n || Check',
-        subscribe: 'Подписаться\n || Subscribe',
-        loading: 'Загрузка...\n|| Loading...',
-        blocked: 'Ваш аккаунт заблокирован. || Your account is blocked.',
-        support: 'Служба поддержки || Support service: @',
-        supportBot: 'Clickerstart_bot',
-        maintenance: 'Ведется техническое обслуживание!\nTechnical maintenance',
-        soon: 'Скоро мы начнем техническое обслуживание\nTechnical maintenance will start soon.'
-      },
-    };
+    <!-- Меню настроек -->
+    <div id="settingsMenu">
+        <div class="top-bar" id="settingsTopBar">
+            <button class="icon-btn" id="backBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="settingsTitle" id="settingsTitle"></span>
+            <span style="width:40px; height:40px;"></span> <!-- баланс правой части -->
+        </div>
 
-    const messageEl = document.getElementById('message');
-    const buttonsEl = document.getElementById('buttons');
-    let userToken = null;
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card">
+                    <h3 data-translate="langSectionTitle">Язык / Language</h3>
+                    <div class="field">
+                        <select id="langSelect"></select>
+                        <button class="btn" id="tok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                    </div>
+                    <h4 id="id" style="white-space: pre;">Your ID:</h4>
+                </div>
+                <div class="card">
+                    <h3 data-translate="supportSectionTitle">Поддержка</h3>
+                    <div class="settings-buttons" id="settingsButtons"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    function copyToClipboard(text) {
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => {
-          alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
-          const copyBtn = document.querySelector('.copy-btn');
-          if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
-        }, () => alert('Не удалось скопировать токен.'));
-      } else {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
-          const copyBtn = document.querySelector('.copy-btn');
-          if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
-        } catch {
-          alert('Не удалось скопировать токен.');
+    <script>
+        /*
+        ===================== ПАМЯТКА/ИНСТРУКЦИЯ =====================
+        1) КАК ДОБАВИТЬ КНОПКУ В ГЛАВНОЕ МЕНЮ:
+           a) В объекте filesRu/filesEn добавьте путь для новой фичи, например:
+              filesRu.mytool = 'mytool.html';   filesEn.mytool = 'mytool_en.html';
+           b) В translations[ru|en].featureButtons добавьте подпись кнопки (в конец списка).
+           c) В массив featureKeys ниже добавьте ключ 'mytool' на ту же позицию, что и подпись.
+           d) Кнопка появится автоматически; если это внешний сайт, укажите полный URL — он откроется в новой вкладке.
+
+        2) КАК ДОБАВИТЬ КНОПКУ В НАСТРОЙКИ:
+           Вариант А — переход на внутреннюю страницу:
+             - Добавьте путь в filesRu/filesEn, например: filesRu.help = 'help.html'; filesEn.help = 'help_en.html';
+             - Добавьте текст в translations[lang].settingsButtons и ключ в settingsKeys (ниже).
+           Вариант Б — внешняя ссылка (например, форму жалобы или поддержку):
+             - Укажите ссылку в объекте LINKS ниже (complaintRU, supportRU/EN).
+             - Кнопки создаются динамически в функции applyTranslations() в блоке "EXTRA".
+             - Для кнопки, показываемой только на русском ("Написать жалобу"), ничего менять в EN не нужно.
+        ==============================================================
+        */
+
+        // ===== Ссылки, которые вы укажете =====
+        const LINKS = {
+            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",              // TODO: сюда вставьте ссылку на форму жалобы (только RU)
+            supportRU:   "https://t.me/Clickerstart_bot",              // TODO: ссылка на поддержку (RU)
+            supportEN:   "https://t.me/Clickerstart_bot"               // TODO: ссылка на поддержку (EN)
+        };
+
+        // ===== Карта файлов =====
+        const filesRu = {
+            nickname: 'nickname.html',
+            description: 'description.html',
+            profile: 'avatar.html',
+            lego: 'lego.html',
+            font: 'font.html',
+            sites: 'https://sites.google.com/',
+            ascii: 'ascii.html',
+            qr: 'qr.html',
+            music: 'music.html',
+            colors: 'colors.html',
+            ai: 'ai.html',
+            support: 'support.html',
+            connection: 'connection.html'
+        };
+
+        const filesEn = {
+            nickname: 'nickname_en.html',
+            description: 'description_en.html',
+            profile: 'avatar_en.html',
+            lego: 'lego_en.html',
+            font: 'font_en.html',
+            sites: 'https://sites.google.com/',
+            ascii: 'ascii_en.html',
+            qr: 'qr_en.html',
+            music: 'music_en.html',
+            colors: 'colors_en.html',
+            ai: 'ai_en.html',
+            support: 'support_en.html',
+            connection: 'connection_en.html'
+        };
+
+        // ===== Язык =====
+        let lang = localStorage.getItem('lang') || 'en';
+        let isTokenVisible = false; // Флаг для отслеживания видимости токена
+
+        // ===== Переводы =====
+        let translations = {
+            ru: {
+                main: "Что будем создавать?",
+                maintenance: "Проводится техническое обслуживание.",
+                settingsTitle: "Настройки",
+                langSectionTitle: "Настройки языка и токена",
+                supportSectionTitle: "Поддержка и связь",
+                featureButtons: [
+                    "Никнейм","Описание","Аватарка","Лего","Шрифт","Сайт",
+                    "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
+                ],
+                settingsButtons: ["Поддержка","Проверка соединения"],
+                langOptions: ["Русский","English"],
+                writeComplaint: "Написать жалобу",
+                writeSupport: "Написать в службу поддержки"
+            },
+            en: {
+                main: "What do you want to create?",
+                maintenance: "Maintenance in progress.",
+                settingsTitle: "Settings",
+                langSectionTitle: "Language & token & User Info",
+                supportSectionTitle: "Support",
+                featureButtons: [
+                    "Nickname","Description","Profile","Lego","Font","Sites",
+                    "ASCII-art","QR-code","Music","Colors","AI-Generator"
+                ],
+                settingsButtons: ["Support","Connection check"],
+                langOptions: ["Русский","English"],
+                writeComplaint: "", // специально пусто — эта кнопка только для RU
+                writeSupport: "Contact Support"
+            }
+        };
+
+        function createButton({ text, icon, onClick, href, newTab=false, disabled=false, id }) {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            if (id) btn.id = id;
+            if (icon) {
+                const i = document.createElement('i');
+                i.className = icon;
+                btn.appendChild(i);
+            }
+            const span = document.createElement('span');
+            span.textContent = text;
+            btn.appendChild(span);
+
+            if (href) {
+                btn.onclick = () => { newTab ? window.open(href, '_blank') : window.location.href = href; };
+            } else if (onClick) {
+                btn.onclick = onClick;
+            }
+            if (disabled) {
+                btn.disabled = true;
+                btn.title = 'Укажите ссылку в объекте LINKS';
+            }
+            return btn;
         }
-        document.body.removeChild(textArea);
-      }
-    }
 
-    function createTokenContainer() {
-      const tokenContainer = document.createElement('div');
-      tokenContainer.className = 'token-container';
-      const tokenText = document.createElement('span');
-      tokenText.textContent = userToken || 'нет токена';
-      tokenContainer.appendChild(tokenText);
-      const copyBtn = document.createElement('button');
-      copyBtn.className = 'copy-btn';
-      copyBtn.textContent = 'Скопировать || Copy';
-      copyBtn.title = 'Скопировать токен';
-      copyBtn.onclick = () => copyToClipboard(userToken);
-      tokenContainer.appendChild(copyBtn);
-      return tokenContainer;
-    }
+        function applyTranslations() {
+            const files = lang === 'ru' ? filesRu : filesEn;
 
-    function createSupportText() {
-      const supportDiv = document.createElement('div');
-      supportDiv.className = 'support-text';
-      supportDiv.innerHTML = `${text[userLang].support}<a href="https://t.me/Clickerstart_bot" target="_blank" rel="noopener noreferrer">Clickerstart_bot</a>`;
-      return supportDiv;
-    }
+            // Apply text translations
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[lang][key] !== undefined) {
+                    el.textContent = translations[lang][key];
+                }
+            });
 
-    function showBlockedScreen() {
-      messageEl.textContent = text[userLang].blocked;
-      buttonsEl.innerHTML = '';
-      buttonsEl.appendChild(createTokenContainer());
-      buttonsEl.appendChild(createSupportText());
-    }
+            // ===== Главные кнопки (фичи) =====
+            const featureContainer = document.getElementById('featureButtons');
+            featureContainer.innerHTML = '';
+            const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai'];
+            translations[lang].featureButtons.forEach((text, i) => {
+                const url = files[featureKeys[i]];
+                const isExternal = /^https?:\/\//i.test(url);
+                const btn = createButton({ text, icon: 'fa-solid fa-shapes', href: url, newTab: isExternal });
+                featureContainer.appendChild(btn);
+            });
 
-    function showMaintenanceScreen() {
-      messageEl.textContent = text[userLang].maintenance;
-      buttonsEl.innerHTML = '';
-      buttonsEl.appendChild(createTokenContainer());
-      buttonsEl.appendChild(createSupportText());
-    }
+            // ===== Кнопки настроек (базовые) =====
+            const settingsContainer = document.getElementById('settingsButtons');
+            settingsContainer.innerHTML = '';
+            const settingsKeys = ['support','connection'];
+            const settingsIcons = ['fa-solid fa-circle-info','fa-solid fa-wifi'];
+            translations[lang].settingsButtons.forEach((text, i) => {
+                const url = files[settingsKeys[i]];
+                const btn = createButton({ text, icon: settingsIcons[i], href: url });
+                settingsContainer.appendChild(btn);
+            });
 
-    function showSubscribeScreen() {
-      messageEl.textContent = text[userLang].mustSub;
-      buttonsEl.innerHTML = '';
-      const subBtn = document.createElement('button');
-      subBtn.textContent = text[userLang].subscribe;
-      subBtn.onclick = () => window.open(`https://t.me/${channelUsername}`, '_blank');
-      buttonsEl.appendChild(subBtn);
+            // ===== EXTRA: внешние ссылки =====
+            // RU только: "Написать жалобу"
+            if (lang === 'ru') {
+                const hasLink = !!LINKS.complaintRU && /^https?:\/\//i.test(LINKS.complaintRU);
+                const complaintBtn = createButton({
+                    text: translations.ru.writeComplaint,
+                    icon: 'fa-solid fa-pen-to-square',
+                    href: hasLink ? LINKS.complaintRU : undefined,
+                    newTab: true,
+                    disabled: !hasLink
+                });
+                settingsContainer.appendChild(complaintBtn);
+            }
 
-      const checkBtn = document.createElement('button');
-      checkBtn.textContent = text[userLang].check;
-      checkBtn.onclick = () => {
-        localStorage.setItem('checkedSubscription', 'true');
-        window.location.href = redirectUrl;
-      };
-      buttonsEl.appendChild(checkBtn);
+            // RU/EN: "Написать в службу поддержки" / "Contact Support"
+            const supportLink = lang === 'ru' ? LINKS.supportRU : LINKS.supportEN;
+            const supportOk = !!supportLink && /^https?:\/\//i.test(supportLink);
+            const writeSupportBtn = createButton({
+                text: translations[lang].writeSupport,
+                icon: 'fa-solid fa-headset',
+                href: supportOk ? supportLink : undefined,
+                newTab: true,
+                disabled: !supportOk
+            });
+            settingsContainer.appendChild(writeSupportBtn);
 
-      buttonsEl.appendChild(createTokenContainer());
-      buttonsEl.appendChild(createSupportText());
-    }
+            // ===== Выпадающий список языков =====
+            const langSelect = document.getElementById('langSelect');
+            langSelect.innerHTML = '';
+            translations[lang].langOptions.forEach((text, i) => {
+                const option = document.createElement('option');
+                option.value = i === 0 ? 'ru' : 'en';
+                option.textContent = text;
+                option.selected = (option.value === lang);
+                langSelect.appendChild(option);
+            });
 
-    function fakeCheckSubscription(startapp) {
-      if (startapp) {
-        window.location.href = redirectUrl;
-        return;
-      }
+            // Сброс флага видимости токена и обновление подписи
+            isTokenVisible = false;
+            updateTokenLabel();
+        }
 
-      const checkedBefore = localStorage.getItem('checkedSubscription') === 'true';
-      const randomFail = Math.random() < 0.02;
+        function updateTokenLabel() {
+            const userToken = localStorage.getItem('userToken') || '';
+            const tokBtn = document.getElementById('tok');
+            const maskedToken = userToken ? '*'.repeat(userToken.length) : '';
+            if (isTokenVisible) {
+                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                    (lang === 'ru' ? 'Ваш токен: ' + userToken + ' (Нажмите для копирования)' : 
+                    'Your token: ' + userToken + ' (Click to copy)') + '</span>';
+            } else {
+                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                    (lang === 'ru' ? 'Ваш токен: ' + maskedToken + ' (Нажмите для показа)' : 
+                    'Your token: ' + maskedToken + ' (Click to show)') + '</span>';
+            }
+        }
 
-      if (checkedBefore && !randomFail) {
-        window.location.href = redirectUrl;
-      } else {
-        showSubscribeScreen();
-      }
-    }
+        // ===== Initial load =====
+        applyTranslations();
 
-    function generateToken(length = 16) {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      let token = '';
-      for (let i = 0; i < length; i++) token += chars.charAt(Math.floor(Math.random() * chars.length));
-      return token;
-    }
+        // ===== Events =====
+        document.getElementById('settingsBtn').onclick = () => {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('mainTopBar').style.display = 'none';
+            document.getElementById('settingsMenu').style.display = 'block';
+            isTokenVisible = false; // Скрываем токен при входе в настройки
+            updateTokenLabel();
+        };
 
-    async function saveTokenToGoogle(token) {
-      try {
-        await fetch(`${GOOGLE_SCRIPT_URL}?token=${token}`);
-      } catch (err) {
-        console.warn('Ошибка отправки токена в Google таблицу:', err);
-      }
-    }
+        document.getElementById('backBtn').onclick = () => {
+            document.getElementById('settingsMenu').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('mainTopBar').style.display = 'flex';
+        };
 
-    async function main() {
-      // ==== Получение данных пользователя Telegram ====
-      if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
-        const user = Telegram.WebApp.initDataUnsafe.user;
-        if (user) {
-          localStorage.setItem('user_id', user.id);
-          localStorage.setItem('user_first_name', user.first_name || '');
-          localStorage.setItem('user_last_name', user.last_name || '');
-          localStorage.setItem('user_username', user.username || '');
-          localStorage.setItem('user_language_code', user.language_code || '');
-          console.log('Данные пользователя сохранены в localStorage:', user);
+        document.getElementById('langSelect').onchange = function() {
+            lang = this.value;
+            localStorage.setItem('lang', lang);
+            isTokenVisible = false; // Сбрасываем видимость при смене языка
+            if (localStorage.getItem('lang') === 'ru') {
+                document.getElementById('id').textContent =
+                    'Ваш ID: ' + localStorage.getItem('user_id') + '\n' +
+                    'Имя: ' + localStorage.getItem('user_first_name') + '\n' +
+                    'Фамилия: ' + localStorage.getItem('user_last_name') + '\n' +
+                    'Username: ' + localStorage.getItem('user_username') + '\n' +
+                    'Язык: ' + localStorage.getItem('user_language_code');
+            } else {
+                document.getElementById('id').textContent =
+                    'Your ID: ' + localStorage.getItem('user_id') + '\n' +
+                    'First Name: ' + localStorage.getItem('user_first_name') + '\n' +
+                    'Last Name: ' + localStorage.getItem('user_last_name') + '\n' +
+                    'Username: ' + localStorage.getItem('user_username') + '\n' +
+                    'Language: ' + localStorage.getItem('user_language_code');
+            }
+
+
+
+
+            applyTranslations();
+        };
+
+        document.getElementById('tok').onclick = function() {
+            const userToken = localStorage.getItem('userToken') || '';
+            if (!isTokenVisible) {
+                isTokenVisible = true;
+                updateTokenLabel();
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = userToken;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+                } catch (err) {
+                    alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+                }
+                document.body.removeChild(textArea);
+                isTokenVisible = false; // Скрываем токен после копирования
+                updateTokenLabel();
+            }
+        };
+
+        // ===== Maintenance check =====
+        const m = localStorage.getItem('m');
+        if (m === 'Уже' || m === 'уже') {
+            document.querySelectorAll('div').forEach(el => el.style.display = 'none');
+            alert(lang === 'ru' ? 'Идет техническое обслуживание' : 'Maintenance in progress');
+            document.getElementById('maintenance').style.display = 'block';
+            document.getElementById('maintenanceM').textContent = translations[lang].maintenance;
+        } else if (m === 'Скоро' || m === 'скоро') {
+            alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
+        }
+
+        function checkLanguage(){
+        if (localStorage.getItem('lang') === 'ru') {
+            document.getElementById('id').textContent =
+                'Ваш ID: ' + localStorage.getItem('user_id') + '\n' +
+                'Имя: ' + localStorage.getItem('user_first_name') + '\n' +
+                'Фамилия: ' + localStorage.getItem('user_last_name') + '\n' +
+                'Username: ' + localStorage.getItem('user_username') + '\n' +
+                'Язык: ' + localStorage.getItem('user_language_code');
         } else {
-          alert('Объект user отсутствует в initDataUnsafe');
+            document.getElementById('id').textContent =
+                'Your ID: ' + localStorage.getItem('user_id') + '\n' +
+                'First Name: ' + localStorage.getItem('user_first_name') + '\n' +
+                'Last Name: ' + localStorage.getItem('user_last_name') + '\n' +
+                'Username: ' + localStorage.getItem('user_username') + '\n' +
+                'Language: ' + localStorage.getItem('user_language_code');
         }
-      }
 
-      userToken = localStorage.getItem('userToken');
 
-      if (!userToken) {
-        userToken = generateToken(16);
-        localStorage.setItem('userToken', userToken);
-        await saveTokenToGoogle(userToken);
-      }
 
-      buttonsEl.appendChild(createTokenContainer());
-      buttonsEl.appendChild(createSupportText());
-
-      if (blockedTokens.includes(userToken)) {
-        showBlockedScreen();
-        return;
-      }
-
-      if (texpereriv.toLowerCase() === 'скоро') {
-        alert(text[userLang].soon);
-      } else if (texpereriv.toLowerCase() === 'уже') {
-        alert(text[userLang].maintenance);
-        showMaintenanceScreen();
-        return;
-      }
-
-      const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
-      messageEl.textContent = text[userLang].loading;
-      fakeCheckSubscription(urlStartApp);
-    }
-
-    main();
-  </script>
+        }
+        checkLanguage();
+    </script>
 </body>
 </html>
