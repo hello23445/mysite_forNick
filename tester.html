@@ -3,12 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TG WebApp Debug (alerts)</title>
+  <title>TG WebApp Debug</title>
+  <style>
+    body {
+      font-family: monospace, sans-serif;
+      background: #111;
+      color: #0f0;
+      padding: 10px;
+    }
+    #log {
+      white-space: pre-wrap;
+      border: 1px solid #0f0;
+      padding: 10px;
+      margin-bottom: 10px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    button {
+      background: #0f0;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    button:active {
+      background: #090;
+    }
+  </style>
 </head>
 <body>
-  <!-- Подключаем telegram sdk -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <h3>Диагностика Telegram WebApp</h3>
+  <div id="log"></div>
+  <button onclick="copyLog()">📋 Копировать диагностику</button>
 
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
   (function(){
     let log = [];
@@ -21,7 +50,7 @@
     add('[TG DEBUG] Telegram.WebApp present: ' + (hasTg ? 'YES' : 'NO'));
     if(!hasTg){
       add('Если NO: вы не в Telegram Web App или скрипт блокируется. Нужно открыть через кнопку web_app.');
-      alert(log.join("\n"));
+      render();
       return;
     }
 
@@ -96,7 +125,19 @@
 
     add('[TG DEBUG] Диагностика завершена.');
 
-    alert(log.join("\n"));
+    render();
+
+    function render(){
+      document.getElementById("log").textContent = log.join("\n");
+    }
+
+    window.copyLog = function(){
+      navigator.clipboard.writeText(log.join("\n")).then(()=>{
+        alert("Диагностика скопирована в буфер обмена!");
+      }).catch(err=>{
+        alert("Ошибка копирования: " + err);
+      });
+    }
   })();
   </script>
 </body>
