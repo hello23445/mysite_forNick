@@ -512,6 +512,12 @@
     // При клике на стрелку – заполняем селект (если ещё не заполнен) и показываем блок с опциями с анимацией "открытия вниз"
     arrowBtn.addEventListener("click", () => {
       if (fontSelect.options.length === 0) {
+        if (localStorage.getItem('created_fonts')){
+          localStorage.setItem('created_fonts', String(Number(localStorage.getItem('created_fonts')) + 1));
+        }
+        else{
+            localStorage.setItem('created_fonts', '1');
+        }
         hintText.textContent = '(Советуем выделить текст и скопировать его вручную)';
         document.querySelector('#cr1').textContent = 'Выберите шрифт';
         fonts.forEach((font, index) => {
