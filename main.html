@@ -39,6 +39,8 @@
         #mainTopBar { justify-content: flex-end; }
         #settingsTopBar { justify-content: space-between; gap: 8px; }
         #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
+        #statsTopBar { justify-content: space-between; gap: 8px; }
+        #statsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
         .icon-btn {
             display: inline-flex; align-items: center; justify-content: center;
             background: #090975; border: 1px solid rgba(255,255,255,.08);
@@ -70,6 +72,7 @@
 
         /* Modern settings card */
         #settingsMenu { display: none; padding: 20px 14px 32px; }
+        #statsMenu { display: none; padding: 20px 14px 32px; }
         .settings-wrap { max-width: 880px; margin: 0 auto; }
         .card {
             background: linear-gradient(180deg, var(--card), #0b0862);
@@ -85,14 +88,22 @@
         #tok { margin-top: 8px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); }
 
         #maintenance { display: none; text-align: center; margin-top: 20px; color: #ff6b6b; padding: 12px; }
-
+        #statSelect{
+            flex: 1; min-width: 160px; padding: 12px; background: var(--bg-soft); color: var(--text); border-radius: 12px; border: 1px solid rgba(255,255,255,.08); 
+        }
         @media (max-width: 560px) {
             .buttons-container { grid-template-columns: 1fr; }
             /* На мобильных: токен под селектом языка */
             .field { flex-direction: column; align-items: stretch; }
             #langSelect { order: 1; width: 100%; min-width: 100%; padding: 14px; font-size: 18px;}
+            #statSelect{order: 1; width: 100%; min-width: 100%; padding: 14px; font-size: 18px;}
             #tok { order: 2; width: 100%; }
+
         }
+        #stat div {
+            margin-bottom: 6px; /* небольшой отступ между строками */
+        }
+
     </style>
 </head>
 <body>
@@ -103,6 +114,7 @@
 
     <!-- Главное меню -->
     <div class="top-bar" id="mainTopBar">
+        <button class="icon-btn" id="statsBtn" title="Statistics"><i class="fa-solid fa-chart-simple"></i></button>
         <button class="icon-btn" id="settingsBtn" title="Settings"><i class="fa-solid fa-gear"></i></button>
     </div>
 
@@ -118,7 +130,6 @@
             <span class="title" data-translate="settingsTitle" id="settingsTitle"></span>
             <span style="width:40px; height:40px;"></span> <!-- баланс правой части -->
         </div>
-
         <div class="settings-wrap">
             <div class="row">
                 <div class="card">
@@ -129,8 +140,35 @@
                     </div>
                 </div>
                 <div class="card">
+                    <h3 id="stat_setting_text">Настройки статистики</h3>
+                    <select id="statSelect">
+                        <option value="yes">Собирать данные для статистики</option>
+                        <option value="no">Не собирать данные для статистики</option>
+                    </select>
+                    <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">Очистить все данные статистики</button>
+                </div>
+                <div class="card">
                     <h3 data-translate="supportSectionTitle">Поддержка</h3>
                     <div class="settings-buttons" id="settingsButtons"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Меню статистики -->
+    <div id="statsMenu">
+        <div class="top-bar" id="statsTopBar">
+            <button class="icon-btn" id="statsBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="statsTitle" id="statsTitle"></span>
+            <span style="width:40px; height:40px;"></span> <!-- баланс правой части -->
+        </div>
+
+        <div class="settings-wrap">
+            <!-- Здесь будет статистика, которую вы напишете сами -->
+            <div class="row">
+                <div class="card" style="white-space: pre-line;">
+                    <h3 id="stat" style="color: white;">Статистики нет || No statistic</h3>
+                    <!-- Placeholder for statistics content -->
                 </div>
             </div>
         </div>
@@ -207,6 +245,7 @@
                 main: "Что будем создавать?",
                 maintenance: "Проводится техническое обслуживание.",
                 settingsTitle: "Настройки",
+                statsTitle: "Ваша статистика за все время",
                 langSectionTitle: "Настройки языка и токена",
                 supportSectionTitle: "Поддержка и связь",
                 featureButtons: [
@@ -222,6 +261,7 @@
                 main: "What do you want to create?",
                 maintenance: "Maintenance in progress.",
                 settingsTitle: "Settings",
+                statsTitle: "Your all-time statistics",
                 langSectionTitle: "Language & token",
                 supportSectionTitle: "Support",
                 featureButtons: [
@@ -368,11 +408,24 @@
             document.getElementById('mainTopBar').style.display = 'flex';
         };
 
+        document.getElementById('statsBtn').onclick = () => {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('mainTopBar').style.display = 'none';
+            document.getElementById('statsMenu').style.display = 'block';
+        };
+
+        document.getElementById('statsBackBtn').onclick = () => {
+            document.getElementById('statsMenu').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('mainTopBar').style.display = 'flex';
+        };
+
         document.getElementById('langSelect').onchange = function() {
             lang = this.value;
             localStorage.setItem('lang', lang);
             isTokenVisible = false; // Сбрасываем видимость при смене языка
             applyTranslations();
+            showUserStatistics();
         };
 
         document.getElementById('tok').onclick = function() {
@@ -407,6 +460,134 @@
         } else if (m === 'Скоро' || m === 'скоро') {
             alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
         }
+
+        function showUserStatistics() {
+            if (localStorage.getItem('lang') === 'ru'){
+                warningToClear = 'Вы уверены, что хотите очистить всю свою статистику?\nЭто действие нельзя будет отменить!\nВся ваша статистика будет полностью обнулена, все значения станут равны нулю!\nОК - Подтвердить очистку\nОтмена - Отменить очистку.';
+                document.getElementById('statSelect').innerHTML = 
+                `
+                <option value="yes">Собирать данные для статистики</option>
+                <option value="no">Не собирать данные для статистики</option>
+                `
+                document.getElementById('stat_setting_text').textContent = 'Настройка статистики';
+                document.getElementById('clear').textContent = 'Очистить все данные статистики';
+                document.getElementById('stat').innerHTML =
+                `<div>Создано никнеймов: ${localStorage.getItem('created_nicknames') || 0}</div>` +
+                `<div>Создано описаний: ${localStorage.getItem('created_descriptions') || 0}</div>` +
+                `<div>Создано аватаров: ${localStorage.getItem('created_profiles') || 0}</div>` +
+                `<div>Создано лего: ${localStorage.getItem('created_lego') || 0}</div>` +
+                `<div>Создано шрифтов: ${localStorage.getItem('created_fonts') || 0}</div>` +
+                `<div>Создано символ-артов: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
+                `<div>Создано qr-кодов: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
+                `<div>Создано музыки: ${localStorage.getItem('created_musics') || 0}</div>` +
+                `<div>Скопировано кодов цвета: ${localStorage.getItem('copied_color_codes') || 0}</div>` +
+                `<div>Скопировано никнеймов: ${localStorage.getItem('copied_nicknames') || 0}</div>` +
+                `<div>Скопировано описаний: ${localStorage.getItem('copied_descriptions') || 0}</div>` +
+                `<div>Отправлено никнеймов: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
+                `<div>Отправлено описаний: ${localStorage.getItem('shared_descriptions') || 0}</div>`;
+            }
+            else{
+                warningToClear = 'Are you sure you want to clear all your statistics?\nThis action cannot be undone!\nAll your statistics will be completely reset; all values will be set to zero!\nOK - Confirm reset\nCancel - Cancel reset';
+                document.getElementById('statSelect').innerHTML = 
+                `
+                <option value="yes">Collect statistics data</option>
+                <option value="no">Do not collect statistics data</option>
+                `
+                document.getElementById('stat_setting_text').textContent = 'Setting up statistics';
+                document.getElementById('clear').textContent = 'Clear all statistics data';
+                document.getElementById('stat').innerHTML =
+                    `<div>Nicknames created: ${localStorage.getItem('created_nicknames') || 0}</div>` +
+                    `<div>Descriptions created: ${localStorage.getItem('created_descriptions') || 0}</div>` +
+                    `<div>Avatars created: ${localStorage.getItem('created_profiles') || 0}</div>` +
+                    `<div>Lego created: ${localStorage.getItem('created_lego') || 0}</div>` +
+                    `<div>Fonts created: ${localStorage.getItem('created_fonts') || 0}</div>` +
+                    `<div>ASCII arts created: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
+                    `<div>QR codes created: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
+                    `<div>Music created: ${localStorage.getItem('created_musics') || 0}</div>` +
+                    `<div>Color codes copied: ${localStorage.getItem('copied_color_codes') || 0}</div>` +
+                    `<div>Nicknames copied: ${localStorage.getItem('copied_nicknames') || 0}</div>` +
+                    `<div>Descriptions copied: ${localStorage.getItem('copied_descriptions') || 0}</div>` +
+                    `<div>Nicknames sent: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
+                    `<div>Descriptions sent: ${localStorage.getItem('shared_descriptions') || 0}</div>`;
+            }
+        }
+        function clearAllStatistic() {
+            // Определяем язык и показываем диалог подтверждения
+            let confirmed;
+            if (localStorage.getItem('lang') === 'ru') {
+                confirmed = confirm(
+                    `Вы уверены, что хотите очистить всю свою статистику?\n` +
+                    `Это действие нельзя будет отменить!\n` +
+                    `Вся ваша статистика будет полностью обнулена, все значения станут равны нулю!\n` +
+                    `ОК - Подтвердить очистку\nОтмена - Отменить очистку.`
+                );
+            } else {
+                confirmed = confirm(
+                    `Are you sure you want to clear all your statistics?\n` +
+                    `This action cannot be undone!\n` +
+                    `All your statistics will be completely reset; all values will be set to zero!\n` +
+                    `OK - Confirm reset\nCancel - Cancel reset`
+                );
+            }
+            // Если пользователь отменил — выходим
+            if (!confirmed) return;
+
+            // Массив всех ключей статистики
+            const keys = [
+                'created_nicknames',
+                'created_descriptions',
+                'created_profiles',
+                'created_lego',
+                'created_fonts',
+                'created_ascii_arts',
+                'created_qr_codes',
+                'created_musics',
+                'copied_color_codes',
+                'copied_nicknames',
+                'copied_descriptions',
+                'shared_nicknames',
+                'shared_descriptions'
+            ];
+
+            // Удаляем все ключи из localStorage
+            keys.forEach(key => localStorage.removeItem(key));
+            showUserStatistics();
+        }
+
+
+        function checkStatSelectValueToStatButtonShowing(){
+            if (localStorage.getItem('statistic_turn') === 'no'){
+                document.getElementById('statsBtn').disabled = 'true'
+                document.getElementById('statsBtn').style.background = 'gray'
+            }
+            else{
+                document.getElementById('statsBtn').disabled = false;
+                document.getElementById('statsBtn').style.background = ''
+            }
+        }
+        const statSelect = document.getElementById('statSelect');
+
+        // Восстанавливаем значение при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedValue = localStorage.getItem('statistic_turn');
+            if (savedValue) {
+                statSelect.value = savedValue;
+            }
+            saveStatValue(); // применяем сразу выбранное значение
+            checkStatSelectValueToStatButtonShowing();
+        });
+
+        // Функция сохранения выбора
+        function saveStatValue() {
+            const value = statSelect.value === 'yes' ? 'yes' : 'no';
+            localStorage.setItem('statistic_turn', value);
+            checkStatSelectValueToStatButtonShowing();
+        }
+
+        // Сохраняем при изменении
+        statSelect.addEventListener('change', saveStatValue);
+
+        showUserStatistics();
     </script>
 </body>
 </html>
