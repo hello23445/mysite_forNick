@@ -365,6 +365,12 @@
             toDecorateBtn.classList.remove('hidden');
         };
         toDecorateBtn.onclick = () => {
+            if (localStorage.getItem('created_nicknames')){
+                localStorage.setItem('created_nicknames', String(Number(localStorage.getItem('created_nicknames')) + 1));
+            }
+            else{
+                localStorage.setItem('created_nicknames', '1');
+            }
             document.querySelector('#h99').style.display = 'none';
             document.querySelector('#to-decorate').disabled = true;
             document.querySelector('#to-decorate').style.display = 'none';
@@ -404,6 +410,12 @@
         document.getElementById('copy-final').onclick = () => {
             navigator.clipboard.writeText(finalNickname.textContent)
                 .then(() => {
+                    if (localStorage.getItem('copied_nicknames')){
+                        localStorage.setItem('copied_nicknames', String(Number(localStorage.getItem('copied_nicknames')) + 1));
+                    }
+                    else{
+                        localStorage.setItem('copied_nicknames', '1');
+                    }
                     messageBox.textContent = 'Copied!';
                     document.querySelector('#copy-final').textContent = 'Copied!';
                     messageBox.style.color = '#00ff00';
@@ -434,6 +446,12 @@
                 document.querySelector('#send-final').textContent = 'Share';
             }, 5500);
             window.open(`https://telegram.me/share/url?url=${encodeURIComponent(finalNickname.textContent)}`, '_blank');
+            if (localStorage.getItem('shared_nicknames')){
+                localStorage.setItem('shared_nicknames', String(Number(localStorage.getItem('shared_nicknames')) + 1));
+            }
+            else{
+                localStorage.setItem('shared_nicknames', '1');
+            }
         };
         renderExamples();
     </script>
