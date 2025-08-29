@@ -1170,6 +1170,12 @@ next1.addEventListener('click', () => {
 document.getElementById('next2').addEventListener('click', () => {
   screen2.classList.remove('active');
   screen3.classList.add('active');
+  if (localStorage.getItem('created_descriptions')){
+    localStorage.setItem('created_descriptions', String(Number(localStorage.getItem('created_descriptions')) + 1));
+  }
+  else{
+      localStorage.setItem('created_descriptions', '1');
+  }
   updateResult();
 });
 
@@ -1214,16 +1220,22 @@ function updateResult() {
     text = `${selectedDecorationLeft ? selectedEmoji : ''} ${text} ${selectedDecorationRight ? selectedEmoji : ''}`;
   }
   result.innerHTML = `<span style="font-family: ${selectedFont}; ${getFormatStyle()}">${text}</span>`;
-  
   // Отправка запроса в Google Apps Script
   fetch('https://script.google.com/macros/s/AKfycbyrkqKD2sDdSYyFhpRUoA0j_f84qi9VT9bI0hRuTu7QCJ07aiNhaQOOLbhV4g8Ilii4/exec', { method: 'POST' })
       .then(response => response.text())
       .then(data => console.log(data))
       .catch(error => console.error('Ошибка при обновлении таблицы:', error));
+  
 }
 
 copyBtn.addEventListener('click', () => {
   navigator.clipboard.writeText(result.textContent);
+  if (localStorage.getItem('copied_descriptions')){
+    localStorage.setItem('copied_descriptions', String(Number(localStorage.getItem('copied_descriptions')) + 1));
+  }
+  else{
+    localStorage.setItem('copied_descriptions', '1');
+  }
   copyBtn.textContent = 'Скопировано!';
   copyBtn.style.background = 'lightgreen';
   setTimeout(() => {
@@ -1235,6 +1247,12 @@ copyBtn.addEventListener('click', () => {
 shareBtn.addEventListener('click', () => {
   const url = `https://t.me/share/url?url=${encodeURIComponent(result.textContent)}`;
   window.open(url, '_blank');
+  if (localStorage.getItem('shared_descriptions')){
+  localStorage.setItem('shared_descriptions', String(Number(localStorage.getItem('shared_descriptions')) + 1));
+  }
+  else{
+  localStorage.setItem('shared_descriptions', '1');
+  }
 });
 
 back2.addEventListener('click', () => {
