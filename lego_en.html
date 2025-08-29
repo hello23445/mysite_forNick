@@ -1005,6 +1005,12 @@
 </div>
   
 <script>
+    if (localStorage.getItem('created_lego')){
+        localStorage.setItem('created_lego', String(Number(localStorage.getItem('created_lego')) + 1));
+    }
+    else{
+        localStorage.setItem('created_lego', '1');
+    }
     var minifigure = document.querySelector('.minifigure');
     var faces = document.querySelector('.faces');
     var upperBody = document.querySelector('.upper-body');
