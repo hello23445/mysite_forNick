@@ -898,6 +898,12 @@
     audioUpload.addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file) {
+        if (localStorage.getItem('created_musics')){
+          localStorage.setItem('created_musics', String(Number(localStorage.getItem('created_musics')) + 1));
+        }
+        else{
+          localStorage.setItem('created_musics', '1');
+        }
         originalFileName = file.name;
         audioFile = file;
         const fileURL = URL.createObjectURL(file);
