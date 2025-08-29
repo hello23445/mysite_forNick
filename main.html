@@ -531,7 +531,9 @@
             }
             // Если пользователь отменил — выходим
             if (!confirmed) return;
-
+            if (confirmed){
+                alert('✅')
+            }
             // Массив всех ключей статистики
             const keys = [
                 'created_nicknames',
