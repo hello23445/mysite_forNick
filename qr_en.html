@@ -797,6 +797,13 @@
     }
     
     function generateQRCode() {
+
+      if (localStorage.getItem('created_qr_codes')){
+        localStorage.setItem('created_qr_codes', String(Number(localStorage.getItem('created_qr_codes')) + 1));
+      }
+      else{
+          localStorage.setItem('created_qr_codes', '1');
+      }
       clearWarning();
       clearErrorStyles();
       document.getElementById("qrcode").innerHTML = "";
