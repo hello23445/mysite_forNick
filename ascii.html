@@ -967,6 +967,12 @@ W ← + → E
 
     // Обработчик кнопки "Далее" – пытаемся сгенерировать рисунок по описанию
     nextBtn.addEventListener("click", function() {
+        if (localStorage.getItem('created_ascii_arts')){
+          localStorage.setItem('created_ascii_arts', String(Number(localStorage.getItem('created_ascii_arts')) + 1));
+        }
+        else{
+            localStorage.setItem('created_ascii_arts', '1');
+        }
       const description = descriptionInput.value.trim();
       if (!description) return;
       const art = generateArtFromDescription(description);
