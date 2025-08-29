@@ -373,6 +373,12 @@
     // On clicking the arrow – fill the select (if not already filled) and display the options block with a slide-down animation
     arrowBtn.addEventListener("click", () => {
       if (fontSelect.options.length === 0) {
+        if (localStorage.getItem('created_fonts')){
+          localStorage.setItem('created_fonts', String(Number(localStorage.getItem('created_fonts')) + 1));
+        }
+        else{
+            localStorage.setItem('created_fonts', '1');
+        }
         hintText.textContent = '(We recommend selecting the text and copying it manually)';
         document.querySelector('#cr1').textContent = 'Choose Font';
         fonts.forEach((font, index) => {
