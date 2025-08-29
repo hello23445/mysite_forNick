@@ -486,6 +486,12 @@ next1.addEventListener('click', () => {
 document.getElementById('next2').addEventListener('click', () => {
   screen2.classList.remove('active');
   screen3.classList.add('active');
+  if (localStorage.getItem('created_descriptions')){
+    localStorage.setItem('created_descriptions', String(Number(localStorage.getItem('created_descriptions')) + 1));
+  }
+  else{
+      localStorage.setItem('created_descriptions', '1');
+  }
   updateResult();
 });
 
@@ -540,6 +546,12 @@ function updateResult() {
 
 copyBtn.addEventListener('click', () => {
   navigator.clipboard.writeText(result.textContent);
+  if (localStorage.getItem('copied_descriptions')){
+    localStorage.setItem('copied_descriptions', String(Number(localStorage.getItem('copied_descriptions')) + 1));
+  }
+  else{
+    localStorage.setItem('copied_descriptions', '1');
+  }
   copyBtn.textContent = 'Copied!';
   copyBtn.style.background = 'lightgreen';
   setTimeout(() => {
@@ -551,6 +563,12 @@ copyBtn.addEventListener('click', () => {
 shareBtn.addEventListener('click', () => {
   const url = `https://t.me/share/url?url=${encodeURIComponent(result.textContent)}`;
   window.open(url, '_blank');
+  if (localStorage.getItem('shared_descriptions')){
+  localStorage.setItem('shared_descriptions', String(Number(localStorage.getItem('shared_descriptions')) + 1));
+  }
+  else{
+  localStorage.setItem('shared_descriptions', '1');
+  }
 });
 
 back2.addEventListener('click', () => {
