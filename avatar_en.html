@@ -532,6 +532,12 @@
     hideToolsButton.addEventListener('click', () => {
       toolsPanel.style.display = 'none';
       openToolsButton.style.display = 'block';
+      if (localStorage.getItem('created_profiles')){
+        localStorage.setItem('created_profiles', String(Number(localStorage.getItem('created_profiles')) + 1));
+      }
+      else{
+        localStorage.setItem('created_profiles', '1');
+      }
     });
     openToolsButton.addEventListener('click', () => {
       toolsPanel.style.display = 'block';
