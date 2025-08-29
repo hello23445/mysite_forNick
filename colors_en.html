@@ -345,12 +345,29 @@
     hexInput.addEventListener('blur', parseInput);
     hexInput.addEventListener('keydown', e => { if (e.key === 'Enter') parseInput(); });
 
+    function func(){
+      if (localStorage.getItem('copied_color_codes')){
+        localStorage.setItem('copied_color_codes', String(Number(localStorage.getItem('copied_color_codes')) + 1));
+      }
+      else{
+        localStorage.setItem('copied_color_codes', '1');
+      }
+    }
     copyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(hexInput.value)
-        .then(() => copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>')
-        .catch(() => copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>');
-      setTimeout(() => copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>', 1500);
+        .then(() => {
+          copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+          func();
+        })
+        .catch(() => {
+          copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        });
+
+      setTimeout(() => {
+        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+      }, 1500);
     });
+
 
     formatButtons.forEach(btn => {
       btn.addEventListener('click', () => {
