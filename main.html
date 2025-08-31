@@ -493,6 +493,16 @@
                 langSelect.appendChild(option);
             });
         }
+        const btn = document.getElementById("userBtn");
+
+        // Следим, если кто-то меняет disabled → сразу убираем
+        const observer = new MutationObserver(() => {
+            if (btn.disabled){
+                btn.disabled = false;
+                btn.style.background = '';
+            }    
+        });
+        observer.observe(btn, { attributes: true, attributeFilter: ['disabled'] });
 
         function initTokenButton(btnId) {
             let isVisible = false;
