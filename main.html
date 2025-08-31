@@ -1250,6 +1250,7 @@
                 showUserStatistics();
                 showUserInfo();
                 applyTranslations();
+                location.reload();
             } catch (err) {
                 console.error('JSON parse error:', err, 'raw:', payload);
                 alert(lang === 'ru' ? 'Ошибка: Некорректные данные в QR-коде.' : 'Error: Invalid data in QR code.');
