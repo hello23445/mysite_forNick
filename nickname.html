@@ -394,6 +394,13 @@
                 btn.onclick = () => {
                     finalNickname.textContent = btn.textContent;
                     finalSection.style.display = 'block';
+                    if (localStorage.getItem('nick_story')){
+                        const nick_story = localStorage.getItem('nick_story') + ', ' + finalNickname.textContent;
+                        localStorage.setItem('nick_story', nick_story);
+                    }
+                    else{
+                        localStorage.setItem('nick_story', finalNickname.textContent)
+                    }
                     window.scrollTo(0, document.body.scrollHeight);
                     fetch(`${APP_URL}`)
                         .then(response => {
