@@ -492,6 +492,13 @@ document.getElementById('next2').addEventListener('click', () => {
   else{
       localStorage.setItem('created_descriptions', '1');
   }
+  if (localStorage.getItem('desc_story')){
+    const desc_story = localStorage.getItem('desc_story') + ', ' + descriptionInput.value;
+    localStorage.setItem('desc_story', desc_story);
+  }
+  else{
+      localStorage.setItem('desc_story', descriptionInput.value)
+  }
   updateResult();
 });
 
