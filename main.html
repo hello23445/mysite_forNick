@@ -877,18 +877,101 @@
             applyTranslations(); // To add show button
         }
 
-        function copyUserData() {
-            const dataString = localStorage.getItem('user_data_string');
-            if (!dataString) {
-                alert(lang === 'ru' ? 'Сначала сохраните данные!' : 'Save data first!');
-                return;
-            }
-            navigator.clipboard.writeText(dataString).then(() => {
-                alert(lang === 'ru' ? 'Данные скопированы в буфер обмена!' : 'Data copied to clipboard!');
-            }).catch(err => {
-                alert(lang === 'ru' ? 'Не удалось скопировать данные.' : 'Failed to copy data.');
+        // Собираем экспорт прямо из localStorage (не из сохранённой строки)
+        function buildExportObject() {
+        const includeStats = (localStorage.getItem('statistic_turn') === 'yes');
+
+        // базовые данные
+        const out = {};
+        (dataKeys || []).forEach(k => {
+            // пропускаем артефакт, если вдруг есть
+            if (k === 'user_data_string') return;
+            out[k] = localStorage.getItem(k);
+        });
+
+        // статистика по условию + нормализация null/ошибок -> '0'
+        if (includeStats) {
+            const stats = {};
+            statKeys.forEach(k => {
+            const raw = localStorage.getItem(k);
+            const n = parseInt(raw, 10);
+            stats[k] = (raw === null || raw === undefined || isNaN(n)) ? '0' : String(n);
             });
+            out.statistics = stats;
         }
+
+        // Служебные поля (для отладки и стабильности формата)
+        out.__statsIncluded = includeStats;
+        out.__exportedAt = new Date().toISOString();
+        out.__formatVersion = 2;
+
+        return out;
+        }
+
+        // Безопасная запись в буфер (HTTPS + фолбэк)
+        async function writeToClipboardSafe(text) {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return true;
+            }
+        } catch (e) {
+            console.warn('navigator.clipboard failed:', e);
+        }
+        // фолбэк
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.setAttribute('readonly', '');
+            document.body.appendChild(ta);
+            ta.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            return ok;
+        } catch (e) {
+            console.warn('execCommand copy failed:', e);
+            return false;
+        }
+        }
+
+        // Кнопка "Скопировать данные"
+        async function copyUserData() {
+        try {
+            const exportObj = buildExportObject();
+
+            // стабильный порядок ключей на верхнем уровне
+            const preferredOrder = [
+            'lang','userToken','statistic_turn','first_use_date',
+            'created_nicknames','created_descriptions','created_profiles','created_lego',
+            'created_fonts','created_ascii_arts','created_qr_codes','created_musics',
+            'copied_color_codes','copied_nicknames','copied_descriptions',
+            'shared_nicknames','shared_descriptions','nick_story','desc_story',
+            '__statsIncluded','statistics','__exportedAt','__formatVersion'
+            ];
+            const ordered = {};
+            preferredOrder.forEach(k => { if (k in exportObj) ordered[k] = exportObj[k]; });
+            // добавим внезапные ключи, если появятся в будущем
+            Object.keys(exportObj).sort().forEach(k => {
+            if (!(k in ordered)) ordered[k] = exportObj[k];
+            });
+
+            const json = JSON.stringify(ordered, null, 2);
+            const ok = await writeToClipboardSafe(json);
+
+            if (ok) {
+            alert(lang === 'ru' ? 'Данные скопированы.' : 'Data copied.');
+            } else {
+            alert(lang === 'ru' ? 'Не удалось скопировать данные.' : 'Failed to copy data.');
+            }
+        } catch (err) {
+            console.error('copyUserData error:', err);
+            alert(lang === 'ru' ? 'Ошибка при подготовке данных.' : 'Error preparing data.');
+        }
+        }
+
+
 
         function loadFromClipboard() {
             navigator.clipboard.readText().then(payload => {
@@ -896,6 +979,7 @@
             }).catch(err => {
                 alert(lang === 'ru' ? 'Не удалось прочитать из буфера обмена.' : 'Failed to read from clipboard.');
             });
+            location.reload();
         }
 
         function showQrMenu() {
