@@ -465,15 +465,13 @@
             });
             userDataContainer.appendChild(loadDataBtn);
 
-            // Если данные сохранены, добавляем кнопку копирования (теперь предпоследняя)
-            if (localStorage.getItem('user_data_string')) {
-                const copyDataBtn = createButton({
-                    text: translations[lang].copyData,
-                    icon: 'fa-solid fa-copy',
-                    onClick: copyUserData
-                });
-                userDataContainer.appendChild(copyDataBtn);
-            }
+            // Добавляем кнопку копирования (теперь предпоследняя, всегда видна)
+            const copyDataBtn = createButton({
+                text: translations[lang].copyData,
+                icon: 'fa-solid fa-copy',
+                onClick: copyUserData
+            });
+            userDataContainer.appendChild(copyDataBtn);
 
             // Последняя кнопка - загрузка из буфера обмена
             const loadClipboardBtn = createButton({
