@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Menu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsqr.min.js"></script>
     <style>
         :root {
             --bg: #060039;
@@ -41,6 +43,10 @@
         #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
         #statsTopBar { justify-content: space-between; gap: 8px; }
         #statsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
+        #userTopBar { justify-content: space-between; gap: 8px; }
+        #userTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
+        #qrTopBar { justify-content: space-between; gap: 8px; }
+        #qrTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
         .icon-btn {
             display: inline-flex; align-items: center; justify-content: center;
             background: #090975; border: 1px solid rgba(255,255,255,.08);
@@ -73,6 +79,8 @@
         /* Modern settings card */
         #settingsMenu { display: none; padding: 20px 14px 32px; }
         #statsMenu { display: none; padding: 20px 14px 32px; }
+        #userMenu { display: none; padding: 20px 14px 32px; }
+        #qrMenu { display: none; padding: 20px 14px 32px; text-align: center; }
         .settings-wrap { max-width: 880px; margin: 0 auto; }
         .card {
             background: linear-gradient(180deg, var(--card), #0b0862);
@@ -114,7 +122,8 @@
 
     <!-- Главное меню -->
     <div class="top-bar" id="mainTopBar">
-        <button class="icon-btn" id="statsBtn" title="Statistics"><i class="fa-solid fa-chart-simple"></i></button>
+        <button class="icon-btn" id="userBtn" title="Profile" style="margin-right: 0.5%;"><i class="fa-solid fa-user"></i></button>
+        <button class="icon-btn" id="statsBtn" title="Statistics" style="margin-right: 0.5%;"><i class="fa-solid fa-chart-simple"></i></button>
         <button class="icon-btn" id="settingsBtn" title="Settings"><i class="fa-solid fa-gear"></i></button>
     </div>
 
@@ -148,6 +157,10 @@
                     <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">Очистить все данные статистики</button>
                 </div>
                 <div class="card">
+                    <h3 data-translate="userDataSectionTitle">Данные пользователя</h3>
+                    <div class="settings-buttons" id="userDataButtons"></div>
+                </div>
+                <div class="card">
                     <h3 data-translate="supportSectionTitle">Поддержка</h3>
                     <div class="settings-buttons" id="settingsButtons"></div>
                 </div>
@@ -174,6 +187,48 @@
         </div>
     </div>
 
+    <!-- Меню пользователя -->
+    <div id="userMenu">
+        <div class="top-bar" id="userTopBar">
+            <button class="icon-btn" id="userBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="userTitle" id="userTitle"></span>
+            <span style="width:40px; height:40px;"></span>
+        </div>
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card">
+                    <h3 data-translate="tokenSectionTitle"></h3>
+                    <button class="btn" id="userTok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                </div>
+                <div class="card" style="white-space: pre-line;">
+                    <h3 data-translate="historySectionTitle"></h3>
+                    <div id="histories"></div>
+                </div>
+                <div class="card" style="white-space: pre-line;">
+                    <h3 data-translate="usageTimeTitle"></h3>
+                    <div id="usageTimes"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Меню QR-кода -->
+    <div id="qrMenu">
+        <div class="top-bar" id="qrTopBar">
+            <button class="icon-btn" id="qrBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="qrTitle" id="qrTitle"></span>
+            <span style="width:40px; height:40px;"></span>
+        </div>
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card">
+                    <div id="qrCodeContainer" style="display: flex; justify-content: center;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script>
         /*
         ===================== ПАМЯТКА/ИНСТРУКЦИЯ =====================
@@ -237,7 +292,6 @@
 
         // ===== Язык =====
         let lang = localStorage.getItem('lang') || 'en';
-        let isTokenVisible = false; // Флаг для отслеживания видимости токена
 
         // ===== Переводы =====
         let translations = {
@@ -248,14 +302,25 @@
                 statsTitle: "Ваша статистика за все время",
                 langSectionTitle: "Настройки языка и токена",
                 supportSectionTitle: "Поддержка и связь",
+                userDataSectionTitle: "Загрузка и сохранение данных",
                 featureButtons: [
-                    "Никнейм","Описание","Аватарка","Лего","Шрифт","Сайт",
+                    "Никнейм","Описание","Аватарка","Лego","Шрифт","Сайт",
                     "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
                 ],
                 settingsButtons: ["Поддержка","Проверка соединения"],
                 langOptions: ["Русский","English"],
                 writeComplaint: "Написать жалобу",
-                writeSupport: "Написать в службу поддержки"
+                writeSupport: "Написать в службу поддержки",
+                userTitle: "Профиль",
+                historySectionTitle: "История",
+                tokenSectionTitle: "Токен",
+                usageTimeTitle: "Время использования",
+                qrTitle: "QR-код данных",
+                saveData: "Сохранить мои данные для QR-кода",
+                loadData: "Загрузить данные из QR-кода",
+                showQr: "Показать QR-код моих данных",
+                copyData: "Скопировать мои данные в буфер обмена",
+                loadClipboard: "Загрузить данные из буфера обмена"
             },
             en: {
                 main: "What do you want to create?",
@@ -264,6 +329,7 @@
                 statsTitle: "Your all-time statistics",
                 langSectionTitle: "Language & token",
                 supportSectionTitle: "Support",
+                userDataSectionTitle: "Save and load datas",
                 featureButtons: [
                     "Nickname","Description","Profile","Lego","Font","Sites",
                     "ASCII-art","QR-code","Music","Colors","AI-Generator"
@@ -271,7 +337,17 @@
                 settingsButtons: ["Support","Connection check"],
                 langOptions: ["Русский","English"],
                 writeComplaint: "", // специально пусто — эта кнопка только для RU
-                writeSupport: "Contact Support"
+                writeSupport: "Contact Support",
+                userTitle: "Profile",
+                historySectionTitle: "History",
+                tokenSectionTitle: "Token",
+                usageTimeTitle: "Usage Time",
+                qrTitle: "Data QR Code",
+                saveData: "Save my data for QR code",
+                loadData: "Load data from QR code",
+                showQr: "Show QR code of my data",
+                copyData: "Copy my datas to clipboard",
+                loadClipboard: "Load datas from clipboard"
             }
         };
 
@@ -359,6 +435,53 @@
             });
             settingsContainer.appendChild(writeSupportBtn);
 
+            // ===== Кнопки данных пользователя =====
+            const userDataContainer = document.getElementById('userDataButtons');
+            userDataContainer.innerHTML = '';
+
+            // Сначала добавляем кнопку сохранения (всегда первая)
+            const saveDataBtn = createButton({
+                text: translations[lang].saveData,
+                icon: 'fa-solid fa-save',
+                onClick: saveUserData
+            });
+            userDataContainer.appendChild(saveDataBtn);
+
+            // Если данные сохранены, добавляем кнопку показа QR (вторая)
+            if (localStorage.getItem('user_data_string')) {
+                const showQrBtn = createButton({
+                    text: translations[lang].showQr,
+                    icon: 'fa-solid fa-qrcode',
+                    onClick: showQrMenu
+                });
+                userDataContainer.appendChild(showQrBtn);
+            }
+
+            // Добавляем кнопку загрузки из QR (теперь третья или четвёртая, в зависимости от наличия данных)
+            const loadDataBtn = createButton({
+                text: translations[lang].loadData,
+                icon: 'fa-solid fa-upload',
+                onClick: loadUserData
+            });
+            userDataContainer.appendChild(loadDataBtn);
+
+            // Если данные сохранены, добавляем кнопку копирования (теперь предпоследняя)
+            if (localStorage.getItem('user_data_string')) {
+                const copyDataBtn = createButton({
+                    text: translations[lang].copyData,
+                    icon: 'fa-solid fa-copy',
+                    onClick: copyUserData
+                });
+                userDataContainer.appendChild(copyDataBtn);
+            }
+
+            // Последняя кнопка - загрузка из буфера обмена
+            const loadClipboardBtn = createButton({
+                text: translations[lang].loadClipboard,
+                icon: 'fa-solid fa-paste',
+                onClick: loadFromClipboard
+            });
+            userDataContainer.appendChild(loadClipboardBtn);
             // ===== Выпадающий список языков =====
             const langSelect = document.getElementById('langSelect');
             langSelect.innerHTML = '';
@@ -369,37 +492,59 @@
                 option.selected = (option.value === lang);
                 langSelect.appendChild(option);
             });
-
-            // Сброс флага видимости токена и обновление подписи
-            isTokenVisible = false;
-            updateTokenLabel();
         }
 
-        function updateTokenLabel() {
-            const userToken = localStorage.getItem('userToken') || '';
-            const tokBtn = document.getElementById('tok');
-            const maskedToken = userToken ? '*'.repeat(userToken.length) : '';
-            if (isTokenVisible) {
-                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
-                    (lang === 'ru' ? 'Ваш токен: ' + userToken + ' (Нажмите для копирования)' : 
-                    'Your token: ' + userToken + ' (Click to copy)') + '</span>';
-            } else {
-                tokBtn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
-                    (lang === 'ru' ? 'Ваш токен: ' + maskedToken + ' (Нажмите для показа)' : 
-                    'Your token: ' + maskedToken + ' (Click to show)') + '</span>';
-            }
+        function initTokenButton(btnId) {
+            let isVisible = false;
+            const updateLabel = () => {
+                const userToken = localStorage.getItem('userToken') || '';
+                const maskedToken = userToken ? '*'.repeat(userToken.length) : '';
+                const btn = document.getElementById(btnId);
+                if (isVisible) {
+                    btn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                        (lang === 'ru' ? 'Ваш токен: ' + userToken + ' (Нажмите для копирования)' : 
+                        'Your token: ' + userToken + ' (Click to copy)') + '</span>';
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                        (lang === 'ru' ? 'Ваш токен: ' + maskedToken + ' (Нажмите для показа)' : 
+                        'Your token: ' + maskedToken + ' (Click to show)') + '</span>';
+                }
+            };
+            updateLabel();
+            document.getElementById(btnId).onclick = () => {
+                const userToken = localStorage.getItem('userToken') || '';
+                if (!isVisible) {
+                    isVisible = true;
+                    updateLabel();
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = userToken;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+                    } catch (err) {
+                        alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+                    }
+                    document.body.removeChild(textArea);
+                    isVisible = false;
+                    updateLabel();
+                }
+            };
         }
 
         // ===== Initial load =====
         applyTranslations();
+        initTokenButton('tok');
+        initTokenButton('userTok');
 
         // ===== Events =====
         document.getElementById('settingsBtn').onclick = () => {
             document.getElementById('mainMenu').style.display = 'none';
             document.getElementById('mainTopBar').style.display = 'none';
             document.getElementById('settingsMenu').style.display = 'block';
-            isTokenVisible = false; // Скрываем токен при входе в настройки
-            updateTokenLabel();
+            applyTranslations(); // Update buttons in case
         };
 
         document.getElementById('backBtn').onclick = () => {
@@ -412,6 +557,7 @@
             document.getElementById('mainMenu').style.display = 'none';
             document.getElementById('mainTopBar').style.display = 'none';
             document.getElementById('statsMenu').style.display = 'block';
+            showUserStatistics();
         };
 
         document.getElementById('statsBackBtn').onclick = () => {
@@ -420,34 +566,32 @@
             document.getElementById('mainTopBar').style.display = 'flex';
         };
 
+        document.getElementById('userBtn').onclick = () => {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('mainTopBar').style.display = 'none';
+            document.getElementById('userMenu').style.display = 'block';
+            showUserInfo();
+        };
+
+        document.getElementById('userBackBtn').onclick = () => {
+            document.getElementById('userMenu').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('mainTopBar').style.display = 'flex';
+        };
+
+        document.getElementById('qrBackBtn').onclick = () => {
+            document.getElementById('qrMenu').style.display = 'none';
+            document.getElementById('settingsMenu').style.display = 'block';
+        };
+
         document.getElementById('langSelect').onchange = function() {
             lang = this.value;
             localStorage.setItem('lang', lang);
-            isTokenVisible = false; // Сбрасываем видимость при смене языка
             applyTranslations();
+            initTokenButton('tok');
+            initTokenButton('userTok');
             showUserStatistics();
-        };
-
-        document.getElementById('tok').onclick = function() {
-            const userToken = localStorage.getItem('userToken') || '';
-            if (!isTokenVisible) {
-                isTokenVisible = true;
-                updateTokenLabel();
-            } else {
-                const textArea = document.createElement('textarea');
-                textArea.value = userToken;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
-                } catch (err) {
-                    alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
-                }
-                document.body.removeChild(textArea);
-                isTokenVisible = false; // Скрываем токен после копирования
-                updateTokenLabel();
-            }
+            showUserInfo();
         };
 
         // ===== Maintenance check =====
@@ -461,21 +605,48 @@
             alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
         }
 
+        // Set first use date if not set
+        if (!localStorage.getItem('first_use_date')) {
+            localStorage.setItem('first_use_date', new Date().toISOString());
+        }
+
         function showUserStatistics() {
+            let html = '';
+            const genData = [
+                {name: lang === 'ru' ? 'Никнейм' : 'Nickname', count: parseInt(localStorage.getItem('created_nicknames') || '0')},
+                {name: lang === 'ru' ? 'Описание' : 'Description', count: parseInt(localStorage.getItem('created_descriptions') || '0')},
+                {name: lang === 'ru' ? 'Аватарка' : 'Avatar', count: parseInt(localStorage.getItem('created_profiles') || '0')},
+                {name: lang === 'ru' ? 'Лego' : 'Lego', count: parseInt(localStorage.getItem('created_lego') || '0')},
+                {name: lang === 'ru' ? 'Шрифт' : 'Font', count: parseInt(localStorage.getItem('created_fonts') || '0')},
+                {name: lang === 'ru' ? 'Символ-арт' : 'ASCII art', count: parseInt(localStorage.getItem('created_ascii_arts') || '0')},
+                {name: lang === 'ru' ? 'QR-код' : 'QR code', count: parseInt(localStorage.getItem('created_qr_codes') || '0')},
+                {name: lang === 'ru' ? 'Музыка' : 'Music', count: parseInt(localStorage.getItem('created_musics') || '0')},
+                {name: lang === 'ru' ? 'Цвета' : 'Colors', count: parseInt(localStorage.getItem('copied_color_codes') || '0')}
+            ];
+            genData.sort((a, b) => b.count - a.count);
+            let topHtml = (lang === 'ru' ? '<div>Топ используемых генераторов:</div>' : '<div>Top used generators:</div>');
+            genData.slice(0, 3).forEach((g, i) => {
+                topHtml += `<div>${i + 1}. ${g.name}: ${g.count}</div>`;
+            });
             if (localStorage.getItem('lang') === 'ru'){
-                warningToClear = 'Вы уверены, что хотите очистить всю свою статистику?\nЭто действие нельзя будет отменить!\nВся ваша статистика будет полностью обнулена, все значения станут равны нулю!\nОК - Подтвердить очистку\nОтмена - Отменить очистку.';
                 document.getElementById('statSelect').innerHTML = 
                 `
                 <option value="yes">Собирать данные для статистики</option>
                 <option value="no">Не собирать данные для статистики</option>
                 `
+                if (localStorage.getItem('statistic_turn') === 'yes'){
+                    document.getElementById('statSelect').value = 'yes'
+                }
+                else{
+                    document.getElementById('statSelect').value = 'no'
+                }
                 document.getElementById('stat_setting_text').textContent = 'Настройка статистики';
                 document.getElementById('clear').textContent = 'Очистить все данные статистики';
-                document.getElementById('stat').innerHTML =
+                html =
                 `<div>Создано никнеймов: ${localStorage.getItem('created_nicknames') || 0}</div>` +
                 `<div>Создано описаний: ${localStorage.getItem('created_descriptions') || 0}</div>` +
                 `<div>Создано аватаров: ${localStorage.getItem('created_profiles') || 0}</div>` +
-                `<div>Создано лего: ${localStorage.getItem('created_lego') || 0}</div>` +
+                `<div>Создано лego: ${localStorage.getItem('created_lego') || 0}</div>` +
                 `<div>Создано шрифтов: ${localStorage.getItem('created_fonts') || 0}</div>` +
                 `<div>Создано символ-артов: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
                 `<div>Создано qr-кодов: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
@@ -485,17 +656,24 @@
                 `<div>Скопировано описаний: ${localStorage.getItem('copied_descriptions') || 0}</div>` +
                 `<div>Отправлено никнеймов: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
                 `<div>Отправлено описаний: ${localStorage.getItem('shared_descriptions') || 0}</div>`;
+                html += topHtml;
+                document.getElementById('stat').innerHTML = html;
             }
             else{
-                warningToClear = 'Are you sure you want to clear all your statistics?\nThis action cannot be undone!\nAll your statistics will be completely reset; all values will be set to zero!\nOK - Confirm reset\nCancel - Cancel reset';
                 document.getElementById('statSelect').innerHTML = 
                 `
                 <option value="yes">Collect statistics data</option>
                 <option value="no">Do not collect statistics data</option>
                 `
+                if (localStorage.getItem('statistic_turn') === 'yes'){
+                    document.getElementById('statSelect').value = 'yes'
+                }
+                else{
+                    document.getElementById('statSelect').value = 'no'
+                }
                 document.getElementById('stat_setting_text').textContent = 'Setting up statistics';
                 document.getElementById('clear').textContent = 'Clear all statistics data';
-                document.getElementById('stat').innerHTML =
+                html =
                     `<div>Nicknames created: ${localStorage.getItem('created_nicknames') || 0}</div>` +
                     `<div>Descriptions created: ${localStorage.getItem('created_descriptions') || 0}</div>` +
                     `<div>Avatars created: ${localStorage.getItem('created_profiles') || 0}</div>` +
@@ -509,8 +687,73 @@
                     `<div>Descriptions copied: ${localStorage.getItem('copied_descriptions') || 0}</div>` +
                     `<div>Nicknames sent: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
                     `<div>Descriptions sent: ${localStorage.getItem('shared_descriptions') || 0}</div>`;
+                html += topHtml;
+                document.getElementById('stat').innerHTML = html;
             }
         }
+
+        function calculateUsageDuration() {
+            const firstDateStr = localStorage.getItem('first_use_date');
+            if (!firstDateStr) return {days: 0, months: 0, years: 0};
+
+            const first = new Date(firstDateStr);
+            const now = new Date();
+            let delta = new Date(now - first);
+
+            let years = delta.getUTCFullYear() - 1970;
+            let months = delta.getUTCMonth();
+            let days = delta.getUTCDate() - 1;
+
+            return {days, months, years};
+        }
+
+        function getPluralForm(number, forms) {
+            if (number % 10 === 1 && number % 100 !== 11) return forms[0];
+            if (number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20)) return forms[1];
+            return forms[2];
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear().toString().slice(-2);
+            return `${day}.${month}.${year}`;
+        }
+
+        function showUserInfo() {
+            const histElem = document.getElementById('histories');
+            const usageElem = document.getElementById('usageTimes');
+            const firstDate = localStorage.getItem('first_use_date');
+            const firstEntryText = lang === 'ru' ? 'Первый вход: ' : 'First entry: ';
+            const usageText = lang === 'ru' ? 'Вы пользуетесь приложением уже ' : 'You have been using the app for ';
+            const {days, months, years} = calculateUsageDuration();
+            let duration = '';
+            if (lang === 'ru') {
+                const yearForm = getPluralForm(years, ['год', 'года', 'лет']);
+                const monthForm = getPluralForm(months, ['месяц', 'месяца', 'месяцев']);
+                const dayForm = getPluralForm(days, ['день', 'дня', 'дней']);
+                duration = `${days} ${dayForm} ${months} ${monthForm} ${years} ${yearForm}`;
+                histElem.innerHTML = 
+                    `<div>История никнеймов: ${localStorage.getItem('nick_story') || 'Нет'}</div>` +
+                    `<div>История описаний: ${localStorage.getItem('desc_story') || 'Нет'}</div>`;
+                usageElem.innerHTML = 
+                    `<div>${firstEntryText}${formatDate(firstDate)}</div>` +
+                    `<div>${usageText}${duration}</div>`;
+            } else {
+                const yearForm = years === 1 ? 'year' : 'years';
+                const monthForm = months === 1 ? 'month' : 'months';
+                const dayForm = days === 1 ? 'day' : 'days';
+                duration = `${days} ${dayForm} ${months} ${monthForm} ${years} ${yearForm}`;
+                histElem.innerHTML = 
+                    `<div>Nicknames history: ${localStorage.getItem('nick_story') || 'None'}</div>` +
+                    `<div>Descriptions history: ${localStorage.getItem('desc_story') || 'None'}</div>`;
+                usageElem.innerHTML = 
+                    `<div>${firstEntryText}${formatDate(firstDate)}</div>` +
+                    `<div>${usageText}${duration}</div>`;
+            }
+        }
+
         function clearAllStatistic() {
             // Определяем язык и показываем диалог подтверждения
             let confirmed;
@@ -548,24 +791,29 @@
                 'copied_nicknames',
                 'copied_descriptions',
                 'shared_nicknames',
-                'shared_descriptions'
+                'shared_descriptions',
+                'usage_day',
+                'usage_week',
+                'usage_month',
+                'last_day',
+                'last_week',
+                'last_month',
+                'nick_story',
+                'desc_story'
             ];
 
             // Удаляем все ключи из localStorage
             keys.forEach(key => localStorage.removeItem(key));
             showUserStatistics();
+            showUserInfo();
         }
 
-
         function checkStatSelectValueToStatButtonShowing(){
-            if (localStorage.getItem('statistic_turn') === 'no'){
-                document.getElementById('statsBtn').disabled = 'true'
-                document.getElementById('statsBtn').style.background = 'gray'
-            }
-            else{
-                document.getElementById('statsBtn').disabled = false;
-                document.getElementById('statsBtn').style.background = ''
-            }
+            const isDisabled = localStorage.getItem('statistic_turn') === 'no';
+            document.getElementById('statsBtn').disabled = isDisabled;
+            document.getElementById('statsBtn').style.background = isDisabled ? 'gray' : '';
+            document.getElementById('userBtn').disabled = isDisabled;
+            document.getElementById('userBtn').style.background = isDisabled ? 'gray' : '';
         }
         const statSelect = document.getElementById('statSelect');
 
@@ -590,6 +838,341 @@
         statSelect.addEventListener('change', saveStatValue);
 
         showUserStatistics();
+        showUserInfo();
+
+        // Time tracking minutes removed, as display changed
+
+        // User data functions
+        const dataKeys = [
+            'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
+            'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
+            'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
+            'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story',
+            'first_use_date', 'statistic_turn', 'lang' // userToken excluded
+        ];
+
+        const statKeys = [
+            'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
+            'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
+            'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
+            'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story'
+        ];
+
+        function saveUserData() {
+            const data = {};
+            const statTurn = localStorage.getItem('statistic_turn') || 'yes';
+
+            dataKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value === null || value === undefined) return; // Skip null/undefined
+                if (key === 'userToken') return; // Never save token
+                if (statKeys.includes(key) && statTurn === 'no') return; // Skip stats if turned off
+                if (statKeys.includes(key) && (value === '0' || value.trim() === '')) return; // Skip zero/empty stats
+                data[key] = value;
+            });
+
+            const dataString = JSON.stringify(data);
+            localStorage.setItem('user_data_string', dataString);
+            alert(lang === 'ru' ? 'Данные сохранены! Теперь вы можете показать QR-код.' : 'Data saved! Now you can show the QR code.');
+            applyTranslations(); // To add show button
+        }
+
+        function copyUserData() {
+            const dataString = localStorage.getItem('user_data_string');
+            if (!dataString) {
+                alert(lang === 'ru' ? 'Сначала сохраните данные!' : 'Save data first!');
+                return;
+            }
+            navigator.clipboard.writeText(dataString).then(() => {
+                alert(lang === 'ru' ? 'Данные скопированы в буфер обмена!' : 'Data copied to clipboard!');
+            }).catch(err => {
+                alert(lang === 'ru' ? 'Не удалось скопировать данные.' : 'Failed to copy data.');
+            });
+        }
+
+        function loadFromClipboard() {
+            navigator.clipboard.readText().then(payload => {
+                processLoadedData(payload.trim());
+            }).catch(err => {
+                alert(lang === 'ru' ? 'Не удалось прочитать из буфера обмена.' : 'Failed to read from clipboard.');
+            });
+        }
+
+        function showQrMenu() {
+            const dataString = localStorage.getItem('user_data_string');
+            if (!dataString) return;
+
+            document.getElementById('settingsMenu').style.display = 'none';
+            document.getElementById('qrMenu').style.display = 'block';
+
+            const qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = '';
+            const qrDiv = document.createElement('div');
+            qrContainer.appendChild(qrDiv);
+
+            try {
+                new QRCode(qrDiv, {
+                    text: dataString,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (err) {
+                console.error("QR generation error:", err);
+                qrDiv.innerHTML = lang === 'ru'
+                    ? "Данные не вмещаются в QR-код, попробуйте другой способ сохранения/загрузки данных."
+                    : "Data does not fit in QR code, please try another way to save/load data.";
+            }
+        }
+
+
+        function loadUserData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = new Image();
+                    img.onload = async () => {
+                        try {
+                            const MAX_DIM = 1200;
+                            const scales = [1, 1.5, 2, 3, 4];
+                            let code = null;
+
+                            const toGrayscale = (imageData) => {
+                                const { data, width, height } = imageData;
+                                const gray = new Uint8ClampedArray(width * height);
+                                for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+                                    const y = (0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2]);
+                                    gray[j] = y;
+                                }
+                                return { gray, width, height };
+                            };
+
+                            const histogramEqualize = (gray) => {
+                                const hist = new Uint32Array(256);
+                                for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
+                                const cdf = new Uint32Array(256);
+                                cdf[0] = hist[0];
+                                for (let i = 1; i < 256; i++) cdf[i] = cdf[i-1] + hist[i];
+                                const cdfMin = cdf.find(v => v > 0) || 0;
+                                const total = gray.length;
+                                const lut = new Uint8ClampedArray(256);
+                                for (let i = 0; i < 256; i++) {
+                                    lut[i] = Math.round((cdf[i] - cdfMin) / (total - cdfMin) * 255);
+                                }
+                                const out = new Uint8ClampedArray(gray.length);
+                                for (let i = 0; i < gray.length; i++) out[i] = lut[gray[i]];
+                                return out;
+                            };
+
+                            const otsuThreshold = (gray) => {
+                                const hist = new Uint32Array(256);
+                                for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
+                                const total = gray.length;
+                                let sum = 0;
+                                for (let t = 0; t < 256; t++) sum += t * hist[t];
+                                let sumB = 0, wB = 0, max = 0, threshold = 0;
+                                for (let t = 0; t < 256; t++) {
+                                    wB += hist[t];
+                                    if (wB === 0) continue;
+                                    const wF = total - wB;
+                                    if (wF === 0) break;
+                                    sumB += t * hist[t];
+                                    const mB = sumB / wB;
+                                    const mF = (sum - sumB) / wF;
+                                    const between = wB * wF * (mB - mF) * (mB - mF);
+                                    if (between > max) { max = between; threshold = t; }
+                                }
+                                return threshold;
+                            };
+
+                            const binarize = (gray, thresh) => {
+                                const bin = new Uint8ClampedArray(gray.length);
+                                for (let i = 0; i < gray.length; i++) bin[i] = gray[i] >= thresh ? 255 : 0;
+                                return bin;
+                            };
+
+                            const dilateBinary = (bin, w, h, iter = 1) => {
+                                let cur = bin.slice();
+                                const next = new Uint8ClampedArray(bin.length);
+                                for (let it = 0; it < iter; it++) {
+                                    next.set(cur);
+                                    for (let y = 1; y < h - 1; y++) {
+                                        for (let x = 1; x < w - 1; x++) {
+                                            const i = y * w + x;
+                                            if (cur[i] === 255) {
+                                                const n1 = cur[i-1], n2 = cur[i+1], n3 = cur[i-w], n4 = cur[i+w];
+                                                if (n1 === 0 || n2 === 0 || n3 === 0 || n4 === 0) next[i] = 0;
+                                            }
+                                        }
+                                    }
+                                    cur.set(next);
+                                }
+                                return cur;
+                            };
+
+                            const binaryToImageData = (bin, w, h) => {
+                                const out = new Uint8ClampedArray(w * h * 4);
+                                for (let i = 0, j = 0; i < bin.length; i++, j += 4) {
+                                    out[j] = out[j+1] = out[j+2] = bin[i];
+                                    out[j+3] = 255;
+                                }
+                                return new ImageData(out, w, h);
+                            };
+
+                            const imageDataToImageDataObj = (ctx, w, h) => ctx.getImageData(0, 0, w, h);
+
+                            const tryDecodeImageData = (imageData) => {
+                                try {
+                                    return jsQR(imageData.data, imageData.width, imageData.height);
+                                } catch (err) {
+                                    console.warn('jsQR exception:', err);
+                                    return null;
+                                }
+                            };
+
+                            for (let scale of scales) {
+                                let w = Math.round(img.width * scale);
+                                let h = Math.round(img.height * scale);
+                                if (w > MAX_DIM || h > MAX_DIM) {
+                                    const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
+                                    w = Math.max(16, Math.round(w * ratio));
+                                    h = Math.max(16, Math.round(h * ratio));
+                                }
+                                if (w < 16 || h < 16) continue;
+
+                                const canvas = document.createElement('canvas');
+                                canvas.width = w;
+                                canvas.height = h;
+                                const ctx = canvas.getContext('2d');
+
+                                for (const smoothing of [false, true]) {
+                                    ctx.imageSmoothingEnabled = smoothing;
+                                    ctx.clearRect(0, 0, w, h);
+                                    ctx.drawImage(img, 0, 0, w, h);
+
+                                    console.log(`Try scale=${scale}, smoothing=${smoothing}, canvas=${w}x${h}`);
+
+                                    let id = imageDataToImageDataObj(ctx, w, h);
+                                    code = tryDecodeImageData(id);
+                                    if (code && code.data) { console.log('Found (raw) at', scale, smoothing); break; }
+
+                                    const { gray } = toGrayscale(id);
+                                    const he = histogramEqualize(gray);
+                                    const heImage = binaryToImageData(he.map(v => v), w, h);
+                                    code = tryDecodeImageData(heImage);
+                                    if (code && code.data) { console.log('Found (hist eq) at', scale, smoothing); break; }
+
+                                    const thresh = otsuThreshold(he);
+                                    const bin = binarize(he, thresh);
+                                    const dil = dilateBinary(bin, w, h, 1);
+                                    const dilImage = binaryToImageData(dil, w, h);
+                                    code = tryDecodeImageData(dilImage);
+                                    if (code && code.data) { console.log('Found (binary+dilate) at', scale, smoothing); break; }
+
+                                    const invBin = new Uint8ClampedArray(bin.length);
+                                    for (let i = 0; i < bin.length; i++) invBin[i] = 255 - bin[i];
+                                    const invDil = dilateBinary(invBin, w, h, 1);
+                                    const invImage = binaryToImageData(invDil, w, h);
+                                    code = tryDecodeImageData(invImage);
+                                    if (code && code.data) { console.log('Found (inv binary+dilate) at', scale, smoothing); break; }
+                                }
+
+                                if (code && code.data) break;
+                            }
+
+                            if (!code) {
+                                alert(lang === 'ru' ? 'Ошибка: QR-код не найден или некорректен.' : 'Error: QR code not found or invalid.');
+                                return;
+                            }
+
+                            processLoadedData(code.data.trim());
+                        } catch (err) {
+                            console.error('Processing error:', err);
+                            alert(lang === 'ru' ? 'Ошибка при обработке изображения.' : 'Error while processing the image.');
+                        }
+                    };
+                    img.onerror = () => {
+                        alert(lang === 'ru' ? 'Не удалось загрузить изображение.' : 'Could not load the image.');
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        function processLoadedData(payload) {
+            try {
+                const data = JSON.parse(payload);
+
+                let confirmed;
+                if (lang === 'ru') {
+                    confirmed = confirm(
+                        "Вы точно хотите загрузить эти данные из QR-кода?\n" +
+                        "Предыдущие данные будут заменены на те что из QR-кода.\n" +
+                        "ОК - Подтвердить\nОтмена - Отменить"
+                    );
+                } else {
+                    confirmed = confirm(
+                        "Are you sure you want to load these data from QR code?\n" +
+                        "Previous data will be replaced with those from the QR code.\n" +
+                        "OK - Confirm\nCancel - Cancel"
+                    );
+                }
+                if (!confirmed) return;
+
+                // ============ ВАЖНО: при загрузке статистики если в QR null/ошибка => ставим '0' ===========
+                const statKeys = [
+                    'created_nicknames','created_descriptions','created_profiles','created_lego',
+                    'created_fonts','created_ascii_arts','created_qr_codes','created_musics',
+                    'copied_color_codes','copied_nicknames','copied_descriptions',
+                    'shared_nicknames','shared_descriptions',
+                    'usage_day','usage_week','usage_month','last_day','last_week','last_month'
+                ];
+
+                Object.keys(data).forEach(key => {
+                    if (!dataKeys.includes(key)) return; // игнорим неизвестные ключи
+                    if (key === 'userToken') return;     // не трогаем токен
+
+                    const raw = data[key];
+
+                    if (statKeys.includes(key)) {
+                        // Для счётчиков: если null/undefined/NaN/нечисло -> ставим '0'
+                        const n = parseInt(raw);
+                        if (raw === null || raw === undefined || isNaN(n)) {
+                            localStorage.setItem(key, '0');
+                        } else {
+                            localStorage.setItem(key, String(n));
+                        }
+                    } else {
+                        // Для остальных: если null/undefined -> пустая строка, иначе строка значения
+                        if (raw === null || raw === undefined) {
+                            localStorage.setItem(key, '');
+                        } else {
+                            localStorage.setItem(key, String(raw));
+                        }
+                    }
+                });
+                // =====================================================================================
+
+                alert(lang === 'ru' ? 'Данные успешно загружены!' : 'Data successfully loaded!');
+                showUserStatistics();
+                showUserInfo();
+                applyTranslations();
+            } catch (err) {
+                console.error('JSON parse error:', err, 'raw:', payload);
+                alert(lang === 'ru' ? 'Ошибка: Некорректные данные в QR-коде.' : 'Error: Invalid data in QR code.');
+            }
+        }
+
+
     </script>
 </body>
 </html>
