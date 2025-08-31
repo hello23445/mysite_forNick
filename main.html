@@ -145,7 +145,7 @@
                     <h3 data-translate="langSectionTitle">Язык / Language</h3>
                     <div class="field">
                         <select id="langSelect"></select>
-                        <button class="btn" id="tok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                        <button class="btn" id="tok" ><i class="fa-solid fa-key"></i><span>Token</span></button>
                     </div>
                 </div>
                 <div class="card">
@@ -289,6 +289,15 @@
             support: 'support_en.html',
             connection: 'connection_en.html'
         };
+
+        const tok = document.getElementById("tok");
+        tok.style.background = "linear-gradient(180deg, var(--btn), #1b1280)";
+        tok.style.color = "#fff";
+        tok.style.border = "none";
+        tok.style.borderRadius = "12px";
+        tok.style.padding = "10px 16px";
+        tok.style.fontWeight = "600";
+        tok.style.cursor = "pointer";
 
         // ===== Язык =====
         let lang = localStorage.getItem('lang') || 'en';
@@ -1264,7 +1273,6 @@
                 alert(lang === 'ru' ? 'Ошибка: Некорректные данные в QR-коде.' : 'Error: Invalid data in QR code.');
             }
         }
-
 
     </script>
 </body>
