@@ -172,10 +172,11 @@
         <div class="settings-wrap">
             <div class="row">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" onclick="this.querySelector('button').click()">
                         <h3 data-translate="langSectionTitle">Язык / Language</h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
+
                     <div class="collapsible-content" style="display: none;">
                         <div class="field">
                             <select id="langSelect"></select>
@@ -184,10 +185,11 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" onclick="this.querySelector('button').click()">
                         <h3 id="stat_setting_text">Настройки статистики</h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
+
                     <div class="collapsible-content" style="display: none;">
                         <select id="statSelect">
                             <option value="yes">Собирать данные для статистики</option>
@@ -197,19 +199,21 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" onclick="this.querySelector('button').click()">
                         <h3 data-translate="userDataSectionTitle">Данные пользователя</h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
+
                     <div class="collapsible-content" style="display: none;">
                         <div class="settings-buttons" id="userDataButtons"></div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" onclick="this.querySelector('button').click()">
                         <h3 data-translate="supportSectionTitle">Поддержка</h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
+
                     <div class="collapsible-content" style="display: none;">
                         <div class="settings-buttons" id="settingsButtons"></div>
                     </div>
@@ -245,28 +249,31 @@
         <div class="settings-wrap">
             <div class="row">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" onclick="this.querySelector('button').click()">
                         <h3 data-translate="tokenSectionTitle"></h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
+
                     <div class="collapsible-content" style="display: none;">
                         <button class="btn" id="userTok"><i class="fa-solid fa-key"></i><span>Token</span></button>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" onclick="this.querySelector('button').click()">
                         <h3 data-translate="historySectionTitle"></h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
+
                     <div class="collapsible-content" style="display: none;">
                         <div id="histories"></div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" onclick="this.querySelector('button').click()">
                         <h3 data-translate="usageTimeTitle"></h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
+
                     <div class="collapsible-content" style="display: none;">
                         <div id="usageTimes"></div>
                     </div>
