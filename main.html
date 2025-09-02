@@ -34,84 +34,114 @@
             z-index: 20;
             display: flex;
             align-items: center;
-            padding: 10px 16px;
+            padding: 8px 12px;
             background: linear-gradient(180deg, rgba(0,0,0,.35), transparent);
             backdrop-filter: blur(6px);
         }
         #mainTopBar { justify-content: flex-end; }
-        #settingsTopBar { justify-content: space-between; gap: 8px; }
-        #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
-        #statsTopBar { justify-content: space-between; gap: 8px; }
-        #statsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
-        #userTopBar { justify-content: space-between; gap: 8px; }
-        #userTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
-        #qrTopBar { justify-content: space-between; gap: 8px; }
-        #qrTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .3px; }
+        #settingsTopBar { justify-content: space-between; gap: 6px; }
+        #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        #statsTopBar { justify-content: space-between; gap: 6px; }
+        #statsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        #userTopBar { justify-content: space-between; gap: 6px; }
+        #userTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        #qrTopBar { justify-content: space-between; gap: 6px; }
+        #qrTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
         .icon-btn {
             display: inline-flex; align-items: center; justify-content: center;
             background: #090975; border: 1px solid rgba(255,255,255,.08);
-            color: var(--text); font-size: 18px; width: 40px; height: 40px; border-radius: 12px;
+            color: var(--text); font-size: 16px; width: 36px; height: 36px; border-radius: 10px;
             cursor: pointer; transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
-            box-shadow: 0 6px 18px var(--shadow);
+            box-shadow: 0 4px 12px var(--shadow);
         }
         .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
 
-        .main { text-align: center; margin: 24px auto 0; padding: 0 14px; max-width: 860px; }
-        h2 { margin: 12px 0 10px; font-weight: 800; }
+        .main { text-align: center; margin: 16px auto 0; padding: 0 12px; max-width: 860px; }
+        h2 { margin: 8px 0 6px; font-weight: 800; font-size: 18px; }
 
         .buttons-container {
-            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; justify-items: stretch;
-        }
-        .settings-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 16px; }
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; justify-items: stretch; }
+        .settings-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
 
         .btn {
-            --pad: 12px;
+            --pad: 10px;
             padding: var(--pad);
             background: linear-gradient(180deg, var(--btn), #1b1280);
-            color: var(--text); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; cursor: pointer; width: 100%; font-size: 14px; font-weight: 600;
-            box-shadow: 0 6px 18px var(--shadow);
+            color: var(--text); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; cursor: pointer; width: 100%; font-size: 13px; font-weight: 600;
+            box-shadow: 0 4px 12px var(--shadow);
             transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
         }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px var(--shadow); }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--shadow); }
         .btn:disabled { opacity: .6; cursor: not-allowed; }
-        .btn .fa-solid, .btn .fa-regular { margin-right: 8px; }
+        .btn .fa-solid, .btn .fa-regular { margin-right: 6px; }
 
         /* Modern settings card */
-        #settingsMenu { display: none; padding: 20px 14px 32px; }
-        #statsMenu { display: none; padding: 20px 14px 32px; }
-        #userMenu { display: none; padding: 20px 14px 32px; }
-        #qrMenu { display: none; padding: 20px 14px 32px; text-align: center; }
-        .settings-wrap { max-width: 880px; margin: 0 auto; }
+        #settingsMenu { display: none; padding: 16px 12px 24px; }
+        #statsMenu { display: none; padding: 16px 12px 24px; }
+        #userMenu { display: none; padding: 16px 12px 24px; }
+        #qrMenu { display: none; padding: 16px 12px 24px; text-align: center; }
+        .settings-wrap { max-width: 860px; margin: 0 auto; }
         .card {
             background: linear-gradient(180deg, var(--card), #0b0862);
             border: 1px solid rgba(255,255,255,.08);
-            border-radius: 18px; padding: 16px; box-shadow: 0 16px 40px var(--shadow);
-        }
-        .row { display: grid; grid-template-columns: 1fr; gap: 16px; }
-        .card h3 { margin: 8px 4px 12px; font-size: 16px; color: var(--muted); font-weight: 700; letter-spacing: .3px; }
+            border-radius: 14px; padding: 12px; box-shadow: 0 12px 32px var(--shadow); }
+        .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .card h3 { margin: 6px 4px 8px; font-size: 14px; color: var(--muted); font-weight: 700; letter-spacing: .2px; }
 
-        .field { display: flex; align-items: center; gap: 10px; }
-        select#langSelect { flex: 1; min-width: 160px; padding: 12px; background: var(--bg-soft); color: var(--text); border-radius: 12px; border: 1px solid rgba(255,255,255,.08); }
+        .field { display: flex; align-items: center; gap: 8px; }
+        select#langSelect { flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
 
-        #tok { margin-top: 8px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); }
+        #tok { margin-top: 6px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); }
 
-        #maintenance { display: none; text-align: center; margin-top: 20px; color: #ff6b6b; padding: 12px; }
-        #statSelect{
-            flex: 1; min-width: 160px; padding: 12px; background: var(--bg-soft); color: var(--text); border-radius: 12px; border: 1px solid rgba(255,255,255,.08); 
-        }
+        #maintenance { display: none; text-align: center; margin-top: 16px; color: #ff6b6b; padding: 10px; }
+        #statSelect {
+            flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
         @media (max-width: 560px) {
             .buttons-container { grid-template-columns: 1fr; }
-            /* На мобильных: токен под селектом языка */
             .field { flex-direction: column; align-items: stretch; }
-            #langSelect { order: 1; width: 100%; min-width: 100%; padding: 14px; font-size: 18px;}
-            #statSelect{order: 1; width: 100%; min-width: 100%; padding: 14px; font-size: 18px;}
+            #langSelect { order: 1; width: 100%; min-width: 100%; padding: 12px; font-size: 16px;}
+            #statSelect { order: 1; width: 100%; min-width: 100%; padding: 12px; font-size: 16px;}
             #tok { order: 2; width: 100%; }
-
         }
         #stat div {
-            margin-bottom: 6px; /* небольшой отступ между строками */
+            margin-bottom: 4px;
         }
-
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .collapsible-content {
+            padding: 8px 0; /* Уменьшенные отступы для компактности, как в настройках */
+            font-size: 13px; /* Соответствует шрифту кнопок в настройках */
+            line-height: 1.4; /* Компактная высота строки */
+        }
+        /* Уменьшение пространства в карточках профиля */
+        #userMenu .card {
+            padding: 12px; /* Соответствует настройкам */
+            margin-bottom: 12px; /* Соответствует gap в .row */
+        }
+        #userMenu .card h3 {
+            margin: 6px 4px 8px; /* Соответствует настройкам */
+            font-size: 14px; /* Соответствует настройкам */
+        }
+        #userMenu .collapsible-content {
+            padding: 8px 0; /* Точно как в настройках */
+            margin: 0; /* Убраны лишние отступы */
+        }
+        #histories, #usageTimes {
+            margin: 0; /* Убраны отступы */
+            padding: 0; /* Убраны внутренние отступы */
+        }
+        #histories div, #usageTimes ul, #usageTimes ul li {
+            margin: 0; /* Убраны все отступы */
+            padding: 0; /* Убраны внутренние отступы */
+            line-height: 1.4; /* Компактная высота строки */
+            font-size: 13px; /* Соответствует настройкам */
+        }
+        #usageTimes ul {
+            list-style: none; /* Убраны маркеры списка для компактности */
+        }
     </style>
 </head>
 <body>
@@ -137,32 +167,52 @@
         <div class="top-bar" id="settingsTopBar">
             <button class="icon-btn" id="backBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
             <span class="title" data-translate="settingsTitle" id="settingsTitle"></span>
-            <span style="width:40px; height:40px;"></span> <!-- баланс правой части -->
+            <span style="width:36px; height:36px;"></span>
         </div>
         <div class="settings-wrap">
             <div class="row">
                 <div class="card">
-                    <h3 data-translate="langSectionTitle">Язык / Language</h3>
-                    <div class="field">
-                        <select id="langSelect"></select>
-                        <button class="btn" id="tok" ><i class="fa-solid fa-key"></i><span>Token</span></button>
+                    <div class="card-header">
+                        <h3 data-translate="langSectionTitle">Язык / Language</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div class="field">
+                            <select id="langSelect"></select>
+                            <button class="btn" id="tok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                        </div>
                     </div>
                 </div>
                 <div class="card">
-                    <h3 id="stat_setting_text">Настройки статистики</h3>
-                    <select id="statSelect">
-                        <option value="yes">Собирать данные для статистики</option>
-                        <option value="no">Не собирать данные для статистики</option>
-                    </select>
-                    <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">Очистить все данные статистики</button>
+                    <div class="card-header">
+                        <h3 id="stat_setting_text">Настройки статистики</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <select id="statSelect">
+                            <option value="yes">Собирать данные для статистики</option>
+                            <option value="no">Не собирать данные для статистики</option>
+                        </select>
+                        <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">Очистить все данные статистики</button>
+                    </div>
                 </div>
                 <div class="card">
-                    <h3 data-translate="userDataSectionTitle">Данные пользователя</h3>
-                    <div class="settings-buttons" id="userDataButtons"></div>
+                    <div class="card-header">
+                        <h3 data-translate="userDataSectionTitle">Данные пользователя</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div class="settings-buttons" id="userDataButtons"></div>
+                    </div>
                 </div>
                 <div class="card">
-                    <h3 data-translate="supportSectionTitle">Поддержка</h3>
-                    <div class="settings-buttons" id="settingsButtons"></div>
+                    <div class="card-header">
+                        <h3 data-translate="supportSectionTitle">Поддержка</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div class="settings-buttons" id="settingsButtons"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -173,15 +223,13 @@
         <div class="top-bar" id="statsTopBar">
             <button class="icon-btn" id="statsBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
             <span class="title" data-translate="statsTitle" id="statsTitle"></span>
-            <span style="width:40px; height:40px;"></span> <!-- баланс правой части -->
+            <span style="width:36px; height:36px;"></span>
         </div>
 
         <div class="settings-wrap">
-            <!-- Здесь будет статистика, которую вы напишете сами -->
             <div class="row">
                 <div class="card" style="white-space: pre-line;">
                     <h3 id="stat" style="color: white;">Статистики нет || No statistic</h3>
-                    <!-- Placeholder for statistics content -->
                 </div>
             </div>
         </div>
@@ -192,21 +240,36 @@
         <div class="top-bar" id="userTopBar">
             <button class="icon-btn" id="userBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
             <span class="title" data-translate="userTitle" id="userTitle"></span>
-            <span style="width:40px; height:40px;"></span>
+            <span style="width:36px; height:36px;"></span>
         </div>
         <div class="settings-wrap">
             <div class="row">
                 <div class="card">
-                    <h3 data-translate="tokenSectionTitle"></h3>
-                    <button class="btn" id="userTok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                    <div class="card-header">
+                        <h3 data-translate="tokenSectionTitle"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <button class="btn" id="userTok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                    </div>
                 </div>
-                <div class="card" style="white-space: pre-line;">
-                    <h3 data-translate="historySectionTitle"></h3>
-                    <div id="histories"></div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="historySectionTitle"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div id="histories"></div>
+                    </div>
                 </div>
-                <div class="card" style="white-space: pre-line;">
-                    <h3 data-translate="usageTimeTitle"></h3>
-                    <div id="usageTimes"></div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="usageTimeTitle"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div id="usageTimes"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -217,7 +280,7 @@
         <div class="top-bar" id="qrTopBar">
             <button class="icon-btn" id="qrBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
             <span class="title" data-translate="qrTitle" id="qrTitle"></span>
-            <span style="width:40px; height:40px;"></span>
+            <span style="width:36px; height:36px;"></span>
         </div>
         <div class="settings-wrap">
             <div class="row">
@@ -230,34 +293,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script>
-        /*
-        ===================== ПАМЯТКА/ИНСТРУКЦИЯ =====================
-        1) КАК ДОБАВИТЬ КНОПКУ В ГЛАВНОЕ МЕНЮ:
-           a) В объекте filesRu/filesEn добавьте путь для новой фичи, например:
-              filesRu.mytool = 'mytool.html';   filesEn.mytool = 'mytool_en.html';
-           b) В translations[ru|en].featureButtons добавьте подпись кнопки (в конец списка).
-           c) В массив featureKeys ниже добавьте ключ 'mytool' на ту же позицию, что и подпись.
-           d) Кнопка появится автоматически; если это внешний сайт, укажите полный URL — он откроется в новой вкладке.
-
-        2) КАК ДОБАВИТЬ КНОПКУ В НАСТРОЙКИ:
-           Вариант А — переход на внутреннюю страницу:
-             - Добавьте путь в filesRu/filesEn, например: filesRu.help = 'help.html'; filesEn.help = 'help_en.html';
-             - Добавьте текст в translations[lang].settingsButtons и ключ в settingsKeys (ниже).
-           Вариант Б — внешняя ссылка (например, форму жалобы или поддержку):
-             - Укажите ссылку в объекте LINKS ниже (complaintRU, supportRU/EN).
-             - Кнопки создаются динамически в функции applyTranslations() в блоке "EXTRA".
-             - Для кнопки, показываемой только на русском ("Написать жалобу"), ничего менять в EN не нужно.
-        ==============================================================
-        */
-
-        // ===== Ссылки, которые вы укажете =====
         const LINKS = {
-            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",              // TODO: сюда вставьте ссылку на форму жалобы (только RU)
-            supportRU:   "https://t.me/Clickerstart_bot",              // TODO: ссылка на поддержку (RU)
-            supportEN:   "https://t.me/Clickerstart_bot"               // TODO: ссылка на поддержку (EN)
+            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",
+            supportRU:   "https://t.me/Clickerstart_bot",
+            supportEN:   "https://t.me/Clickerstart_bot"
         };
 
-        // ===== Карта файлов =====
         const filesRu = {
             nickname: 'nickname.html',
             description: 'description.html',
@@ -299,10 +340,8 @@
         tok.style.fontWeight = "600";
         tok.style.cursor = "pointer";
 
-        // ===== Язык =====
         let lang = localStorage.getItem('lang') || 'en';
 
-        // ===== Переводы =====
         let translations = {
             ru: {
                 main: "Что будем создавать?",
@@ -320,7 +359,7 @@
                 langOptions: ["Русский","English"],
                 writeComplaint: "Написать жалобу",
                 writeSupport: "Написать в службу поддержки",
-                userTitle: "Профиль",
+                userTitle: "Ваш профиль",
                 historySectionTitle: "История",
                 tokenSectionTitle: "Токен",
                 usageTimeTitle: "Время использования",
@@ -345,7 +384,7 @@
                 ],
                 settingsButtons: ["Support","Connection check"],
                 langOptions: ["Русский","English"],
-                writeComplaint: "", // специально пусто — эта кнопка только для RU
+                writeComplaint: "",
                 writeSupport: "Contact Support",
                 userTitle: "Profile",
                 historySectionTitle: "History",
@@ -388,7 +427,6 @@
         function applyTranslations() {
             const files = lang === 'ru' ? filesRu : filesEn;
 
-            // Apply text translations
             document.querySelectorAll('[data-translate]').forEach(el => {
                 const key = el.getAttribute('data-translate');
                 if (translations[lang][key] !== undefined) {
@@ -396,7 +434,6 @@
                 }
             });
 
-            // ===== Главные кнопки (фичи) =====
             const featureContainer = document.getElementById('featureButtons');
             featureContainer.innerHTML = '';
             const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai'];
@@ -407,7 +444,6 @@
                 featureContainer.appendChild(btn);
             });
 
-            // ===== Кнопки настроек (базовые) =====
             const settingsContainer = document.getElementById('settingsButtons');
             settingsContainer.innerHTML = '';
             const settingsKeys = ['support','connection'];
@@ -418,8 +454,6 @@
                 settingsContainer.appendChild(btn);
             });
 
-            // ===== EXTRA: внешние ссылки =====
-            // RU только: "Написать жалобу"
             if (lang === 'ru') {
                 const hasLink = !!LINKS.complaintRU && /^https?:\/\//i.test(LINKS.complaintRU);
                 const complaintBtn = createButton({
@@ -432,7 +466,6 @@
                 settingsContainer.appendChild(complaintBtn);
             }
 
-            // RU/EN: "Написать в службу поддержки" / "Contact Support"
             const supportLink = lang === 'ru' ? LINKS.supportRU : LINKS.supportEN;
             const supportOk = !!supportLink && /^https?:\/\//i.test(supportLink);
             const writeSupportBtn = createButton({
@@ -444,11 +477,9 @@
             });
             settingsContainer.appendChild(writeSupportBtn);
 
-            // ===== Кнопки данных пользователя =====
             const userDataContainer = document.getElementById('userDataButtons');
             userDataContainer.innerHTML = '';
 
-            // Сначала добавляем кнопку сохранения (всегда первая)
             const saveDataBtn = createButton({
                 text: translations[lang].saveData,
                 icon: 'fa-solid fa-save',
@@ -456,7 +487,6 @@
             });
             userDataContainer.appendChild(saveDataBtn);
 
-            // Если данные сохранены, добавляем кнопку показа QR (вторая)
             if (localStorage.getItem('user_data_string')) {
                 const showQrBtn = createButton({
                     text: translations[lang].showQr,
@@ -466,7 +496,6 @@
                 userDataContainer.appendChild(showQrBtn);
             }
 
-            // Добавляем кнопку загрузки из QR (теперь третья или четвёртая, в зависимости от наличия данных)
             const loadDataBtn = createButton({
                 text: translations[lang].loadData,
                 icon: 'fa-solid fa-upload',
@@ -474,7 +503,6 @@
             });
             userDataContainer.appendChild(loadDataBtn);
 
-            // Добавляем кнопку копирования (теперь предпоследняя, всегда видна)
             const copyDataBtn = createButton({
                 text: translations[lang].copyData,
                 icon: 'fa-solid fa-copy',
@@ -482,14 +510,13 @@
             });
             userDataContainer.appendChild(copyDataBtn);
 
-            // Последняя кнопка - загрузка из буфера обмена
             const loadClipboardBtn = createButton({
                 text: translations[lang].loadClipboard,
                 icon: 'fa-solid fa-paste',
                 onClick: loadFromClipboard
             });
             userDataContainer.appendChild(loadClipboardBtn);
-            // ===== Выпадающий список языков =====
+
             const langSelect = document.getElementById('langSelect');
             langSelect.innerHTML = '';
             translations[lang].langOptions.forEach((text, i) => {
@@ -500,9 +527,8 @@
                 langSelect.appendChild(option);
             });
         }
-        const btn = document.getElementById("userBtn");
 
-        // Следим, если кто-то меняет disabled → сразу убираем
+        const btn = document.getElementById("userBtn");
         const observer = new MutationObserver(() => {
             if (btn.disabled){
                 btn.disabled = false;
@@ -551,17 +577,15 @@
             };
         }
 
-        // ===== Initial load =====
         applyTranslations();
         initTokenButton('tok');
         initTokenButton('userTok');
 
-        // ===== Events =====
         document.getElementById('settingsBtn').onclick = () => {
             document.getElementById('mainMenu').style.display = 'none';
             document.getElementById('mainTopBar').style.display = 'none';
             document.getElementById('settingsMenu').style.display = 'block';
-            applyTranslations(); // Update buttons in case
+            applyTranslations();
         };
 
         document.getElementById('backBtn').onclick = () => {
@@ -611,7 +635,6 @@
             showUserInfo();
         };
 
-        // ===== Maintenance check =====
         const m = localStorage.getItem('m');
         if (m === 'Уже' || m === 'уже') {
             document.querySelectorAll('div').forEach(el => el.style.display = 'none');
@@ -622,7 +645,6 @@
             alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
         }
 
-        // Set first use date if not set
         if (!localStorage.getItem('first_use_date')) {
             localStorage.setItem('first_use_date', new Date().toISOString());
         }
@@ -650,12 +672,12 @@
                 `
                 <option value="yes">Собирать данные для статистики</option>
                 <option value="no">Не собирать данные для статистики</option>
-                `
+                `;
                 if (localStorage.getItem('statistic_turn') === 'yes'){
-                    document.getElementById('statSelect').value = 'yes'
+                    document.getElementById('statSelect').value = 'yes';
                 }
                 else{
-                    document.getElementById('statSelect').value = 'no'
+                    document.getElementById('statSelect').value = 'no';
                 }
                 document.getElementById('stat_setting_text').textContent = 'Настройка статистики';
                 document.getElementById('clear').textContent = 'Очистить все данные статистики';
@@ -663,7 +685,7 @@
                 `<div>Создано никнеймов: ${localStorage.getItem('created_nicknames') || 0}</div>` +
                 `<div>Создано описаний: ${localStorage.getItem('created_descriptions') || 0}</div>` +
                 `<div>Создано аватаров: ${localStorage.getItem('created_profiles') || 0}</div>` +
-                `<div>Создано лego: ${localStorage.getItem('created_lego') || 0}</div>` +
+                `<div>Создано лего: ${localStorage.getItem('created_lego') || 0}</div>` +
                 `<div>Создано шрифтов: ${localStorage.getItem('created_fonts') || 0}</div>` +
                 `<div>Создано символ-артов: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
                 `<div>Создано qr-кодов: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
@@ -681,12 +703,12 @@
                 `
                 <option value="yes">Collect statistics data</option>
                 <option value="no">Do not collect statistics data</option>
-                `
+                `;
                 if (localStorage.getItem('statistic_turn') === 'yes'){
-                    document.getElementById('statSelect').value = 'yes'
+                    document.getElementById('statSelect').value = 'yes';
                 }
                 else{
-                    document.getElementById('statSelect').value = 'no'
+                    document.getElementById('statSelect').value = 'no';
                 }
                 document.getElementById('stat_setting_text').textContent = 'Setting up statistics';
                 document.getElementById('clear').textContent = 'Clear all statistics data';
@@ -755,8 +777,8 @@
                     `<div>История никнеймов: ${localStorage.getItem('nick_story') || 'Нет'}</div>` +
                     `<div>История описаний: ${localStorage.getItem('desc_story') || 'Нет'}</div>`;
                 usageElem.innerHTML = 
-                    `<div>${firstEntryText}${formatDate(firstDate)}</div>` +
-                    `<div>${usageText}${duration}</div>`;
+                    `<ul><li>${firstEntryText}${formatDate(firstDate)}</li>` +
+                    `<li>${usageText}${duration}</li></ul>`;
             } else {
                 const yearForm = years === 1 ? 'year' : 'years';
                 const monthForm = months === 1 ? 'month' : 'months';
@@ -766,13 +788,12 @@
                     `<div>Nicknames history: ${localStorage.getItem('nick_story') || 'None'}</div>` +
                     `<div>Descriptions history: ${localStorage.getItem('desc_story') || 'None'}</div>`;
                 usageElem.innerHTML = 
-                    `<div>${firstEntryText}${formatDate(firstDate)}</div>` +
-                    `<div>${usageText}${duration}</div>`;
+                    `<ul><li>${firstEntryText}${formatDate(firstDate)}</li>` +
+                    `<li>${usageText}${duration}</li></ul>`;
             }
         }
 
         function clearAllStatistic() {
-            // Определяем язык и показываем диалог подтверждения
             let confirmed;
             if (localStorage.getItem('lang') === 'ru') {
                 confirmed = confirm(
@@ -789,12 +810,10 @@
                     `OK - Confirm reset\nCancel - Cancel reset`
                 );
             }
-            // Если пользователь отменил — выходим
             if (!confirmed) return;
             if (confirmed){
-                alert('✅')
+                alert('✅');
             }
-            // Массив всех ключей статистики
             const keys = [
                 'created_nicknames',
                 'created_descriptions',
@@ -818,8 +837,6 @@
                 'nick_story',
                 'desc_story'
             ];
-
-            // Удаляем все ключи из localStorage
             keys.forEach(key => localStorage.removeItem(key));
             showUserStatistics();
             showUserInfo();
@@ -834,38 +851,32 @@
         }
         const statSelect = document.getElementById('statSelect');
 
-        // Восстанавливаем значение при загрузке страницы
         window.addEventListener('DOMContentLoaded', () => {
             const savedValue = localStorage.getItem('statistic_turn');
             if (savedValue) {
                 statSelect.value = savedValue;
             }
-            saveStatValue(); // применяем сразу выбранное значение
+            saveStatValue();
             checkStatSelectValueToStatButtonShowing();
         });
 
-        // Функция сохранения выбора
         function saveStatValue() {
             const value = statSelect.value === 'yes' ? 'yes' : 'no';
             localStorage.setItem('statistic_turn', value);
             checkStatSelectValueToStatButtonShowing();
         }
 
-        // Сохраняем при изменении
         statSelect.addEventListener('change', saveStatValue);
 
         showUserStatistics();
         showUserInfo();
 
-        // Time tracking minutes removed, as display changed
-
-        // User data functions
         const dataKeys = [
             'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
             'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
             'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
             'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story',
-            'first_use_date', 'statistic_turn', 'lang' // userToken excluded
+            'first_use_date', 'statistic_turn', 'lang'
         ];
 
         const statKeys = [
@@ -881,114 +892,95 @@
 
             dataKeys.forEach(key => {
                 const value = localStorage.getItem(key);
-                if (value === null || value === undefined) return; // Skip null/undefined
-                if (key === 'userToken') return; // Never save token
-                if (statKeys.includes(key) && statTurn === 'no') return; // Skip stats if turned off
-                if (statKeys.includes(key) && (value === '0' || value.trim() === '')) return; // Skip zero/empty stats
+                if (value === null || value === undefined) return;
+                if (key === 'userToken') return;
+                if (statKeys.includes(key) && statTurn === 'no') return;
+                if (statKeys.includes(key) && (value === '0' || value.trim() === '')) return;
                 data[key] = value;
             });
 
             const dataString = JSON.stringify(data);
             localStorage.setItem('user_data_string', dataString);
             alert(lang === 'ru' ? 'Данные сохранены! Теперь вы можете показать QR-код.' : 'Data saved! Now you can show the QR code.');
-            applyTranslations(); // To add show button
+            applyTranslations();
         }
 
-        // Собираем экспорт прямо из localStorage (не из сохранённой строки)
         function buildExportObject() {
-        const includeStats = (localStorage.getItem('statistic_turn') === 'yes');
-
-        // базовые данные
-        const out = {};
-        (dataKeys || []).forEach(k => {
-            // пропускаем артефакт, если вдруг есть
-            if (k === 'user_data_string') return;
-            out[k] = localStorage.getItem(k);
-        });
-
-        // статистика по условию + нормализация null/ошибок -> '0'
-        if (includeStats) {
-            const stats = {};
-            statKeys.forEach(k => {
-            const raw = localStorage.getItem(k);
-            const n = parseInt(raw, 10);
-            stats[k] = (raw === null || raw === undefined || isNaN(n)) ? '0' : String(n);
+            const includeStats = (localStorage.getItem('statistic_turn') === 'yes');
+            const out = {};
+            (dataKeys || []).forEach(k => {
+                if (k === 'user_data_string') return;
+                out[k] = localStorage.getItem(k);
             });
-            out.statistics = stats;
+            if (includeStats) {
+                const stats = {};
+                statKeys.forEach(k => {
+                    const raw = localStorage.getItem(k);
+                    const n = parseInt(raw, 10);
+                    stats[k] = (raw === null || raw === undefined || isNaN(n)) ? '0' : String(n);
+                });
+                out.statistics = stats;
+            }
+            out.__statsIncluded = includeStats;
+            out.__exportedAt = new Date().toISOString();
+            out.__formatVersion = 2;
+            return out;
         }
 
-        // Служебные поля (для отладки и стабильности формата)
-        out.__statsIncluded = includeStats;
-        out.__exportedAt = new Date().toISOString();
-        out.__formatVersion = 2;
-
-        return out;
-        }
-
-        // Безопасная запись в буфер (HTTPS + фолбэк)
         async function writeToClipboardSafe(text) {
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(text);
-            return true;
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch (e) {
+                console.warn('navigator.clipboard failed:', e);
             }
-        } catch (e) {
-            console.warn('navigator.clipboard failed:', e);
-        }
-        // фолбэк
-        try {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.left = '-9999px';
-            ta.setAttribute('readonly', '');
-            document.body.appendChild(ta);
-            ta.select();
-            const ok = document.execCommand('copy');
-            document.body.removeChild(ta);
-            return ok;
-        } catch (e) {
-            console.warn('execCommand copy failed:', e);
-            return false;
-        }
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                ta.setAttribute('readonly', '');
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            } catch (e) {
+                console.warn('execCommand copy failed:', e);
+                return false;
+            }
         }
 
-        // Кнопка "Скопировать данные"
         async function copyUserData() {
-        try {
-            const exportObj = buildExportObject();
-
-            // стабильный порядок ключей на верхнем уровне
-            const preferredOrder = [
-            'lang','userToken','statistic_turn','first_use_date',
-            'created_nicknames','created_descriptions','created_profiles','created_lego',
-            'created_fonts','created_ascii_arts','created_qr_codes','created_musics',
-            'copied_color_codes','copied_nicknames','copied_descriptions',
-            'shared_nicknames','shared_descriptions','nick_story','desc_story',
-            '__statsIncluded','statistics','__exportedAt','__formatVersion'
-            ];
-            const ordered = {};
-            preferredOrder.forEach(k => { if (k in exportObj) ordered[k] = exportObj[k]; });
-            // добавим внезапные ключи, если появятся в будущем
-            Object.keys(exportObj).sort().forEach(k => {
-            if (!(k in ordered)) ordered[k] = exportObj[k];
-            });
-
-            const json = JSON.stringify(ordered, null, 2);
-            const ok = await writeToClipboardSafe(json);
-
-            if (ok) {
-            alert(lang === 'ru' ? 'Данные скопированы.' : 'Data copied.');
-            } else {
-            alert(lang === 'ru' ? 'Не удалось скопировать данные.' : 'Failed to copy data.');
+            try {
+                const exportObj = buildExportObject();
+                const preferredOrder = [
+                    'lang','userToken','statistic_turn','first_use_date',
+                    'created_nicknames','created_descriptions','created_profiles','created_lego',
+                    'created_fonts','created_ascii_arts','created_qr_codes','created_musics',
+                    'copied_color_codes','copied_nicknames','copied_descriptions',
+                    'shared_nicknames','shared_descriptions','nick_story','desc_story',
+                    '__statsIncluded','statistics','__exportedAt','__formatVersion'
+                ];
+                const ordered = {};
+                preferredOrder.forEach(k => { if (k in exportObj) ordered[k] = exportObj[k]; });
+                Object.keys(exportObj).sort().forEach(k => {
+                    if (!(k in ordered)) ordered[k] = exportObj[k];
+                });
+                const json = JSON.stringify(ordered, null, 2);
+                const ok = await writeToClipboardSafe(json);
+                if (ok) {
+                    alert(lang === 'ru' ? 'Данные скопированы.' : 'Data copied.');
+                } else {
+                    alert(lang === 'ru' ? 'Не удалось скопировать данные.' : 'Failed to copy data.');
+                }
+            } catch (err) {
+                console.error('copyUserData error:', err);
+                alert(lang === 'ru' ? 'Ошибка при подготовке данных.' : 'Error preparing data.');
             }
-        } catch (err) {
-            console.error('copyUserData error:', err);
-            alert(lang === 'ru' ? 'Ошибка при подготовке данных.' : 'Error preparing data.');
         }
-        }
-
-
 
         function loadFromClipboard() {
             navigator.clipboard.readText().then(payload => {
@@ -1002,15 +994,12 @@
         function showQrMenu() {
             const dataString = localStorage.getItem('user_data_string');
             if (!dataString) return;
-
             document.getElementById('settingsMenu').style.display = 'none';
             document.getElementById('qrMenu').style.display = 'block';
-
             const qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = '';
             const qrDiv = document.createElement('div');
             qrContainer.appendChild(qrDiv);
-
             try {
                 new QRCode(qrDiv, {
                     text: dataString,
@@ -1028,7 +1017,6 @@
             }
         }
 
-
         function loadUserData() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -1044,7 +1032,6 @@
                             const MAX_DIM = 1200;
                             const scales = [1, 1.5, 2, 3, 4];
                             let code = null;
-
                             const toGrayscale = (imageData) => {
                                 const { data, width, height } = imageData;
                                 const gray = new Uint8ClampedArray(width * height);
@@ -1054,7 +1041,6 @@
                                 }
                                 return { gray, width, height };
                             };
-
                             const histogramEqualize = (gray) => {
                                 const hist = new Uint32Array(256);
                                 for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
@@ -1071,7 +1057,6 @@
                                 for (let i = 0; i < gray.length; i++) out[i] = lut[gray[i]];
                                 return out;
                             };
-
                             const otsuThreshold = (gray) => {
                                 const hist = new Uint32Array(256);
                                 for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
@@ -1092,13 +1077,11 @@
                                 }
                                 return threshold;
                             };
-
                             const binarize = (gray, thresh) => {
                                 const bin = new Uint8ClampedArray(gray.length);
                                 for (let i = 0; i < gray.length; i++) bin[i] = gray[i] >= thresh ? 255 : 0;
                                 return bin;
                             };
-
                             const dilateBinary = (bin, w, h, iter = 1) => {
                                 let cur = bin.slice();
                                 const next = new Uint8ClampedArray(bin.length);
@@ -1117,7 +1100,6 @@
                                 }
                                 return cur;
                             };
-
                             const binaryToImageData = (bin, w, h) => {
                                 const out = new Uint8ClampedArray(w * h * 4);
                                 for (let i = 0, j = 0; i < bin.length; i++, j += 4) {
@@ -1126,9 +1108,7 @@
                                 }
                                 return new ImageData(out, w, h);
                             };
-
                             const imageDataToImageDataObj = (ctx, w, h) => ctx.getImageData(0, 0, w, h);
-
                             const tryDecodeImageData = (imageData) => {
                                 try {
                                     return jsQR(imageData.data, imageData.width, imageData.height);
@@ -1137,7 +1117,6 @@
                                     return null;
                                 }
                             };
-
                             for (let scale of scales) {
                                 let w = Math.round(img.width * scale);
                                 let h = Math.round(img.height * scale);
@@ -1147,36 +1126,29 @@
                                     h = Math.max(16, Math.round(h * ratio));
                                 }
                                 if (w < 16 || h < 16) continue;
-
                                 const canvas = document.createElement('canvas');
                                 canvas.width = w;
                                 canvas.height = h;
                                 const ctx = canvas.getContext('2d');
-
                                 for (const smoothing of [false, true]) {
                                     ctx.imageSmoothingEnabled = smoothing;
                                     ctx.clearRect(0, 0, w, h);
                                     ctx.drawImage(img, 0, 0, w, h);
-
                                     console.log(`Try scale=${scale}, smoothing=${smoothing}, canvas=${w}x${h}`);
-
                                     let id = imageDataToImageDataObj(ctx, w, h);
                                     code = tryDecodeImageData(id);
                                     if (code && code.data) { console.log('Found (raw) at', scale, smoothing); break; }
-
                                     const { gray } = toGrayscale(id);
                                     const he = histogramEqualize(gray);
                                     const heImage = binaryToImageData(he.map(v => v), w, h);
                                     code = tryDecodeImageData(heImage);
                                     if (code && code.data) { console.log('Found (hist eq) at', scale, smoothing); break; }
-
                                     const thresh = otsuThreshold(he);
                                     const bin = binarize(he, thresh);
                                     const dil = dilateBinary(bin, w, h, 1);
                                     const dilImage = binaryToImageData(dil, w, h);
                                     code = tryDecodeImageData(dilImage);
                                     if (code && code.data) { console.log('Found (binary+dilate) at', scale, smoothing); break; }
-
                                     const invBin = new Uint8ClampedArray(bin.length);
                                     for (let i = 0; i < bin.length; i++) invBin[i] = 255 - bin[i];
                                     const invDil = dilateBinary(invBin, w, h, 1);
@@ -1184,15 +1156,12 @@
                                     code = tryDecodeImageData(invImage);
                                     if (code && code.data) { console.log('Found (inv binary+dilate) at', scale, smoothing); break; }
                                 }
-
                                 if (code && code.data) break;
                             }
-
                             if (!code) {
                                 alert(lang === 'ru' ? 'Ошибка: QR-код не найден или некорректен.' : 'Error: QR code not found or invalid.');
                                 return;
                             }
-
                             processLoadedData(code.data.trim());
                         } catch (err) {
                             console.error('Processing error:', err);
@@ -1212,7 +1181,6 @@
         function processLoadedData(payload) {
             try {
                 const data = JSON.parse(payload);
-
                 let confirmed;
                 if (lang === 'ru') {
                     confirmed = confirm(
@@ -1228,8 +1196,6 @@
                     );
                 }
                 if (!confirmed) return;
-
-                // ============ ВАЖНО: при загрузке статистики если в QR null/ошибка => ставим '0' ===========
                 const statKeys = [
                     'created_nicknames','created_descriptions','created_profiles','created_lego',
                     'created_fonts','created_ascii_arts','created_qr_codes','created_musics',
@@ -1237,15 +1203,11 @@
                     'shared_nicknames','shared_descriptions',
                     'usage_day','usage_week','usage_month','last_day','last_week','last_month'
                 ];
-
                 Object.keys(data).forEach(key => {
-                    if (!dataKeys.includes(key)) return; // игнорим неизвестные ключи
-                    if (key === 'userToken') return;     // не трогаем токен
-
+                    if (!dataKeys.includes(key)) return;
+                    if (key === 'userToken') return;
                     const raw = data[key];
-
                     if (statKeys.includes(key)) {
-                        // Для счётчиков: если null/undefined/NaN/нечисло -> ставим '0'
                         const n = parseInt(raw);
                         if (raw === null || raw === undefined || isNaN(n)) {
                             localStorage.setItem(key, '0');
@@ -1253,7 +1215,6 @@
                             localStorage.setItem(key, String(n));
                         }
                     } else {
-                        // Для остальных: если null/undefined -> пустая строка, иначе строка значения
                         if (raw === null || raw === undefined) {
                             localStorage.setItem(key, '');
                         } else {
@@ -1261,8 +1222,6 @@
                         }
                     }
                 });
-                // =====================================================================================
-
                 alert(lang === 'ru' ? 'Данные успешно загружены!' : 'Data successfully loaded!');
                 showUserStatistics();
                 showUserInfo();
@@ -1274,6 +1233,23 @@
             }
         }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const content = btn.closest('.card-header').nextElementSibling;
+                    const icon = btn.querySelector('i');
+                    if (content.style.display === 'none' || content.style.display === '') {
+                        content.style.display = 'block';
+                        icon.classList.remove('fa-caret-down');
+                        icon.classList.add('fa-caret-up');
+                    } else {
+                        content.style.display = 'none';
+                        icon.classList.remove('fa-caret-up');
+                        icon.classList.add('fa-caret-down');
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
