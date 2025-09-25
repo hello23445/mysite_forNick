@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <title>QR Code Generator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" async></script>
+  <style>
+    :root {
+      --primary-color: #5563DE;
+      --primary-hover: #4452c9;
+      --background-light: rgba(255, 255, 255, 0.95);
+      --text-light: #333;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow-y: auto;
+    }
+
+    body {
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 10px;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    #statusMessage {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1100;
+      background: #fff;
+      padding: 8px 16px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      font-size: 14px;
+    }
+
+    .container {
+      background: var(--background-light);
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 1000px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      max-height: calc(100vh - 20px);
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        flex-direction: row;
+      }
+      .qr-container {
+        border-left: 1px solid #ccc;
+        padding-left: 15px;
+      }
+      .form-container {
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .container {
+        padding: 10px;
+      }
+      .qr-container, .form-container {
+        padding: 10px;
+      }
+      .qr-settings {
+        max-width: 100%;
+      }
+    }
+
+    .qr-container {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      gap: 15px;
+      overflow-y: auto;
+      max-height: calc(100vh - 40px);
+    }
+
+    .qr-settings {
+      flex: 1;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      text-align: left;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .qr-preview-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .qr-preview {
+      flex: 0 0 auto;
+      transition: transform 0.3s ease;
+      padding: 8px;
+      background: #fff;
+      border-radius: 8px;
+      text-align: center;
+      position: relative;
+    }
+
+    .form-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      max-height: calc(100vh - 40px);
+    }
+
+    select#qrType {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+    }
+
+    .input-group {
+      margin: 8px 0;
+      width: 100%;
+    }
+
+    .input-group-flex {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .input-group-flex input,
+    .input-group-flex select,
+    .input-group-flex textarea {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .generate, .backButton {
+      margin-top: 10px;
+      padding: 10px 20px;
+      width: auto;
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 14px;
+      align-self: center;
+    }
+
+    .generate:hover, .backButton:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .info-button {
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .info-button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 15px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 350px;
+      border-radius: 8px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #000;
+    }
+
+    #warningMessage h3 {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      display: inline-block;
+      font-size: 14px;
+    }
+
+    #warningInfoBtn {
+      margin-left: 8px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+    }
+
+    #warningInfoBtn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .qr-settings label {
+      display: block;
+      margin-bottom: 15px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .qr-settings input[type="range"] {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .color-palette {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      margin-bottom: 15px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .color-option {
+      width: 25px;
+      height: 25px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .color-option.selected {
+      border: 2px solid #000;
+    }
+  </style>
+</head>
+<body>
+<button 
+    onclick="window.location.href = 'main.html'" 
+    style="position: absolute; bottom: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
+>
+    BACK TO MAIN MENU
+</button>
+
+
+
+  <div id="statusMessage"></div>
+  
+  <div class="container">
+    <div class="form-container">
+      <select id="qrType" onchange="updateForm()">
+        <option value="url">URL</option>
+        <option value="wifi">WiFi Network</option>
+        <option value="contact">Contact</option>
+        <option value="text">Text Message</option>
+        <option value="map">Map</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="phone">Phone Call</option>
+        <option value="email">Email</option>
+        <option value="sms">SMS</option>
+        <option value="payment">Payment</option>
+        <option value="skype">Skype</option>
+        <option value="telegram">Telegram</option>
+        <option value="facebook">Facebook</option>
+        <option value="instagram">Instagram</option>
+        <option value="linkedin">LinkedIn</option>
+        <option value="youtube">YouTube</option>
+        <option value="viber">Viber</option>
+        <option value="pinterest">Pinterest</option>
+        <option value="x">X</option>
+        <option value="tiktok">TikTok</option>
+        <option value="discord">Discord</option>
+        <option value="snapchat">Snapchat</option>
+        <option value="reddit">Reddit</option>
+        <option value="twitch">Twitch</option>
+        <option value="signal">Signal</option>
+        <option value="wechat">WeChat</option>
+        <option value="line">Line</option>
+      </select>
+      
+      <div id="urlForm" class="input-group">
+        <div class="input-group-flex">
+          <input type="text" id="urlInput" placeholder="Enter URL or @username">
+          <button type="button" class="info-button" onclick="showFieldInfo('url')">?</button>
+        </div>
+      </div>
+      
+      <div id="wifiForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="wifiSSID" placeholder="Network SSID (Name)">
+          <button type="button" class="info-button" onclick="showFieldInfo('wifiSSID')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <select id="wifiEncryption" onchange="toggleWifiPassword()">
+            <option value="WPA">WPA/WPA2</option>
+            <option value="WEP">WEP</option>
+            <option value="nopass">No Password</option>
+          </select>
+          <button type="button" class="info-button" onclick="showFieldInfo('wifiEncryption')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <input type="text" id="wifiPassword" placeholder="Password">
+          <button type="button" class="info-button" onclick="showFieldInfo('wifiPassword')">?</button>
+        </div>
+      </div>
+      
+      <div id="contactForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="contactName" placeholder="Name (Latin letters only)" pattern="[a-zA-Z\s]+">
+          <button type="button" class="info-button" onclick="showFieldInfo('contactName')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <input type="tel" id="contactPhone" placeholder="Phone" class="phone-format">
+          <button type="button" class="info-button" onclick="showFieldInfo('contactPhone')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <input type="email" id="contactEmail" placeholder="Email">
+          <button type="button" class="info-button" onclick="showFieldInfo('contactEmail')">?</button>
+        </div>
+      </div>
+      
+      <div id="textForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <textarea id="textMessage" placeholder="Enter text message"></textarea>
+          <button type="button" class="info-button" onclick="showFieldInfo('textMessage')">?</button>
+        </div>
+      </div>
+      
+      <div id="mapForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="mapInput" placeholder="Enter address or coordinates">
+          <button type="button" class="info-button" onclick="showFieldInfo('mapInput')">?</button>
+        </div>
+      </div>
+      
+      <div id="whatsappForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="tel" id="whatsappPhone" placeholder="Enter phone number (with country code)" class="phone-format">
+          <button type="button" class="info-button" onclick="showFieldInfo('whatsappPhone')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <input type="text" id="whatsappMessage" placeholder="Enter message (optional)">
+          <button type="button" class="info-button" onclick="showFieldInfo('whatsappMessage')">?</button>
+        </div>
+      </div>
+      
+      <div id="phoneForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="tel" id="phoneNumber" placeholder="Enter phone number" class="phone-format">
+          <button type="button" class="info-button" onclick="showFieldInfo('phoneNumber')">?</button>
+        </div>
+      </div>
+      
+      <div id="emailForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="email" id="emailAddress" placeholder="Enter Email address">
+          <button type="button" class="info-button" onclick="showFieldInfo('emailAddress')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <input type="text" id="emailSubject" placeholder="Enter subject (optional)">
+          <button type="button" class="info-button" onclick="showFieldInfo('emailSubject')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <textarea id="emailBody" placeholder="Enter message (optional)"></textarea>
+          <button type="button" class="info-button" onclick="showFieldInfo('emailBody')">?</button>
+        </div>
+      </div>
+      
+      <div id="smsForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="tel" id="smsPhone" placeholder="Enter phone number" class="phone-format">
+          <button type="button" class="info-button" onclick="showFieldInfo('smsPhone')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <textarea id="smsMessage" placeholder="Enter message (optional)"></textarea>
+          <button type="button" class="info-button" onclick="showFieldInfo('smsMessage')">?</button>
+        </div>
+      </div>
+      
+      <div id="paymentForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="paymentAccount" placeholder="Enter account number/identifier">
+          <button type="button" class="info-button" onclick="showFieldInfo('paymentAccount')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <input type="number" id="paymentAmount" placeholder="Enter payment amount" min="0" step="0.01">
+          <button type="button" class="info-button" onclick="showFieldInfo('paymentAmount')">?</button>
+        </div>
+        <div class="input-group-flex">
+          <textarea id="paymentDesc" placeholder="Enter payment description (optional)"></textarea>
+          <button type="button" class="info-button" onclick="showFieldInfo('paymentDesc')">?</button>
+        </div>
+      </div>
+      
+      <div id="skypeForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="skypeUsername" placeholder="Enter Skype username">
+          <button type="button" class="info-button" onclick="showFieldInfo('skypeUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="telegramForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="telegramUsername" placeholder="Enter Telegram username">
+          <button type="button" class="info-button" onclick="showFieldInfo('telegramUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="facebookForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="facebookUsername" placeholder="Enter Facebook username/ID">
+          <button type="button" class="info-button" onclick="showFieldInfo('facebookUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="instagramForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="instagramUsername" placeholder="Enter Instagram username">
+          <button type="button" class="info-button" onclick="showFieldInfo('instagramUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="linkedinForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="linkedinUsername" placeholder="Enter LinkedIn username">
+          <button type="button" class="info-button" onclick="showFieldInfo('linkedinUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="youtubeForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="youtubeChannel" placeholder="Enter YouTube ID or link">
+          <button type="button" class="info-button" onclick="showFieldInfo('youtubeChannel')">?</button>
+        </div>
+      </div>
+      
+      <div id="viberForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="tel" id="viberNumber" placeholder="Enter Viber number" class="phone-format">
+          <button type="button" class="info-button" onclick="showFieldInfo('viberNumber')">?</button>
+        </div>
+      </div>
+      
+      <div id="pinterestForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="pinterestUsername" placeholder="Enter Pinterest username">
+          <button type="button" class="info-button" onclick="showFieldInfo('pinterestUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="xForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="xUsername" placeholder="Enter X username">
+          <button type="button" class="info-button" onclick="showFieldInfo('xUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="tiktokForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="tiktokUsername" placeholder="Enter TikTok username">
+          <button type="button" class="info-button" onclick="showFieldInfo('tiktokUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="discordForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="discordUsername" placeholder="Enter Discord username or ID">
+          <button type="button" class="info-button" onclick="showFieldInfo('discordUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="snapchatForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="snapchatUsername" placeholder="Enter Snapchat username">
+          <button type="button" class="info-button" onclick="showFieldInfo('snapchatUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="redditForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="redditUsername" placeholder="Enter Reddit username">
+          <button type="button" class="info-button" onclick="showFieldInfo('redditUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="twitchForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="twitchUsername" placeholder="Enter Twitch username">
+          <button type="button" class="info-button" onclick="showFieldInfo('twitchUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="signalForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="tel" id="signalNumber" placeholder="Enter Signal number" class="phone-format">
+          <button type="button" class="info-button" onclick="showFieldInfo('signalNumber')">?</button>
+        </div>
+      </div>
+      
+      <div id="wechatForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="wechatUsername" placeholder="Enter WeChat ID">
+          <button type="button" class="info-button" onclick="showFieldInfo('wechatUsername')">?</button>
+        </div>
+      </div>
+      
+      <div id="lineForm" class="input-group" style="display: none;">
+        <div class="input-group-flex">
+          <input type="text" id="lineUsername" placeholder="Enter Line ID">
+          <button type="button" class="info-button" onclick="showFieldInfo('lineUsername')">?</button>
+        </div>
+      </div>
+      
+      <button type="button" class="generate" onclick="generateQRCode()">Generate</button>
+    </div>
+    <div class="qr-container" id="qrContainer">
+      <div class="qr-settings" id="qrSettings">
+        <label for="qrSize">QR Code Size:</label>
+        <input type="range" id="qrSize" min="100" max="300" value="200">
+        <label>QR Code Color:</label>
+        <div class="color-palette" id="colorPalette">
+          <div class="color-option" style="background-color: #666666" data-color="#666666"></div>
+          <div class="color-option" style="background-color: #000000" data-color="#000000"></div>
+          <div class="color-option" style="background-color: #333333" data-color="#333333"></div>
+          <div class="color-option" style="background-color: #ff3333" data-color="#ff3333"></div>
+          <div class="color-option" style="background-color: #ff0000" data-color="#ff0000"></div>
+          <div class="color-option" style="background-color: #cc0000" data-color="#cc0000"></div>
+          <div class="color-option" style="background-color: #33ff33" data-color="#33ff33"></div>
+          <div class="color-option" style="background-color: #00ff00" data-color="#00ff00"></div>
+          <div class="color-option" style="background-color: #00cc00" data-color="#00cc00"></div>
+          <div class="color-option" style="background-color: #3333ff" data-color="#3333ff"></div>
+          <div class="color-option" style="background-color: #0000ff" data-color="#0000ff"></div>
+          <div class="color-option" style="background-color: #0000cc" data-color="#0000cc"></div>
+          <div class="color-option" style="background-color: #ffbb33" data-color="#ffbb33"></div>
+          <div class="color-option" style="background-color: #ffa500" data-color="#ffa500"></div>
+          <div class="color-option" style="background-color: #cc8400" data-color="#cc8400"></div>
+          <div class="color-option" style="background-color: #9933cc" data-color="#9933cc"></div>
+          <div class="color-option" style="background-color: #800080" data-color="#800080"></div>
+          <div class="color-option" style="background-color: #660066" data-color="#660066"></div>
+          <div class="color-option" style="background-color: #33cc33" data-color="#33cc33"></div>
+          <div class="color-option" style="background-color: #008000" data-color="#008000"></div>
+          <div class="color-option" style="background-color: #006600" data-color="#006600"></div>
+          <div class="color-option" style="background-color: #ff6b33" data-color="#ff6b33"></div>
+          <div class="color-option" style="background-color: #ff4500" data-color="#ff4500"></div>
+          <div class="color-option" style="background-color: #cc3600" data-color="#cc3600"></div>
+          <div class="color-option" style="background-color: #54a57a" data-color="#54a57a"></div>
+          <div class="color-option" style="background-color: #2e8b57" data-color="#2e8b57"></div>
+          <div class="color-option" style="background-color: #256b45" data-color="#256b45"></div>
+          <div class="color-option" style="background-color: #6699cc" data-color="#6699cc"></div>
+          <div class="color-option" style="background-color: #4682b4" data-color="#4682b4"></div>
+          <div class="color-option" style="background-color: #386890" data-color="#386890"></div>
+          <div class="color-option" style="background-color: #db8744" data-color="#db8744"></div>
+          <div class="color-option" style="background-color: #d2691e" data-color="#d2691e"></div>
+          <div class="color-option" style="background-color: #a95418" data-color="#a95418"></div>
+          <div class="color-option" style="background-color: #b17cc9" data-color="#b17cc9"></div>
+          <div class="color-option" style="background-color: #9b59b6" data-color="#9b59b6"></div>
+          <div class="color-option" style="background-color: #7c4792" data-color="#7c4792"></div>
+          <div class="color-option" style="background-color: #5caee3" data-color="#5caee3"></div>
+          <div class="color-option" style="background-color: #3498db" data-color="#3498db"></div>
+          <div class="color-option" style="background-color: #2a7aaf" data-color="#2a7aaf"></div>
+          <div class="color-option" style="background-color: #ed7669" data-color="#ed7669"></div>
+          <div class="color-option" style="background-color: #e74c3c" data-color="#e74c3c"></div>
+          <div class="color-option" style="background-color: #b93d30" data-color="#b93d30"></div>
+          <div class="color-option" style="background-color: #4fc381" data-color="#4fc381"></div>
+          <div class="color-option" style="background-color: #27ae60" data-color="#27ae60"></div>
+          <div class="color-option" style="background-color: #1f8b4c" data-color="#1f8b4c"></div>
+          <div class="color-option" style="background-color: #f4d33f" data-color="#f4d33f"></div>
+          <div class="color-option" style="background-color: #f1c40f" data-color="#f1c40f"></div>
+          <div class="color-option" style="background-color: #c19e0c" data-color="#c19e0c"></div>
+          <div class="color-option" style="background-color: #a865c3" data-color="#a865c3"></div>
+          <div class="color-option" style="background-color: #8e44ad" data-color="#8e44ad"></div>
+          <div class="color-option" style="background-color: #72368a" data-color="#72368a"></div>
+          <div class="color-option" style="background-color: #3bbca0" data-color="#3bbca0"></div>
+          <div class="color-option" style="background-color: #16a085" data-color="#16a085"></div>
+          <div class="color-option" style="background-color: #11806a" data-color="#11806a"></div>
+          <div class="color-option" style="background-color: #ffffff" data-color="#ffffff"></div>
+          <div class="color-option" style="background-color: #f5f5f5" data-color="#f5f5f5"></div>
+          <div class="color-option" style="background-color: #e0e0e0" data-color="#e0e0e0"></div>
+          <div class="color-option" style="background-color: #ff69b4" data-color="#ff69b4"></div>
+          <div class="color-option" style="background-color: #ff1493" data-color="#ff1493"></div>
+          <div class="color-option" style="background-color: #c71585" data-color="#c71585"></div>
+          <div class="color-option" style="background-color: #00ffff" data-color="#00ffff"></div>
+          <div class="color-option" style="background-color: #00ced1" data-color="#00ced1"></div>
+          <div class="color-option" style="background-color: #008b8b" data-color="#008b8b"></div>
+          <div class="color-option" style="background-color: #ffd700" data-color="#ffd700"></div>
+          <div class="color-option" style="background-color: #daa520" data-color="#daa520"></div>
+          <div class="color-option" style="background-color: #b8860b" data-color="#b8860b"></div>
+          <div class="color-option" style="background-color: #ff6347" data-color="#ff6347"></div>
+          <div class="color-option" style="background-color: #dc143c" data-color="#dc143c"></div>
+          <div class="color-option" style="background-color: #a52a2a" data-color="#a52a2a"></div>
+          <div class="color-option" style="background-color: #6a5acd" data-color="#6a5acd"></div>
+          <div class="color-option" style="background-color: #483d8b" data-color="#483d8b"></div>
+          <div class="color-option" style="background-color: #2f4f4f" data-color="#2f4f4f"></div>
+          <div class="color-option" style="background-color: #9acd32" data-color="#9acd32"></div>
+        </div>
+        <label>QR Code Background Color:</label>
+        <div class="color-palette" id="backgroundColorPalette">
+          <div class="color-option" style="background-color: #666666" data-color="#666666"></div>
+          <div class="color-option" style="background-color: #000000" data-color="#000000"></div>
+          <div class="color-option" style="background-color: #333333" data-color="#333333"></div>
+          <div class="color-option" style="background-color: #ff3333" data-color="#ff3333"></div>
+          <div class="color-option" style="background-color: #ff0000" data-color="#ff0000"></div>
+          <div class="color-option" style="background-color: #cc0000" data-color="#cc0000"></div>
+          <div class="color-option" style="background-color: #33ff33" data-color="#33ff33"></div>
+          <div class="color-option" style="background-color: #00ff00" data-color="#00ff00"></div>
+          <div class="color-option" style="background-color: #00cc00" data-color="#00cc00"></div>
+          <div class="color-option" style="background-color: #3333ff" data-color="#3333ff"></div>
+          <div class="color-option" style="background-color: #0000ff" data-color="#0000ff"></div>
+          <div class="color-option" style="background-color: #0000cc" data-color="#0000cc"></div>
+          <div class="color-option" style="background-color: #ffbb33" data-color="#ffbb33"></div>
+          <div class="color-option" style="background-color: #ffa500" data-color="#ffa500"></div>
+          <div class="color-option" style="background-color: #cc8400" data-color="#cc8400"></div>
+          <div class="color-option" style="background-color: #9933cc" data-color="#9933cc"></div>
+          <div class="color-option" style="background-color: #800080" data-color="#800080"></div>
+          <div class="color-option" style="background-color: #660066" data-color="#660066"></div>
+          <div class="color-option" style="background-color: #33cc33" data-color="#33cc33"></div>
+          <div class="color-option" style="background-color: #008000" data-color="#008000"></div>
+          <div class="color-option" style="background-color: #006600" data-color="#006600"></div>
+          <div class="color-option" style="background-color: #ff6b33" data-color="#ff6b33"></div>
+          <div class="color-option" style="background-color: #ff4500" data-color="#ff4500"></div>
+          <div class="color-option" style="background-color: #cc3600" data-color="#cc3600"></div>
+          <div class="color-option" style="background-color: #54a57a" data-color="#54a57a"></div>
+          <div class="color-option" style="background-color: #2e8b57" data-color="#2e8b57"></div>
+          <div class="color-option" style="background-color: #256b45" data-color="#256b45"></div>
+          <div class="color-option" style="background-color: #6699cc" data-color="#6699cc"></div>
+          <div class="color-option" style="background-color: #4682b4" data-color="#4682b4"></div>
+          <div class="color-option" style="background-color: #386890" data-color="#386890"></div>
+          <div class="color-option" style="background-color: #db8744" data-color="#db8744"></div>
+          <div class="color-option" style="background-color: #d2691e" data-color="#d2691e"></div>
+          <div class="color-option" style="background-color: #a95418" data-color="#a95418"></div>
+          <div class="color-option" style="background-color: #b17cc9" data-color="#b17cc9"></div>
+          <div class="color-option" style="background-color: #9b59b6" data-color="#9b59b6"></div>
+          <div class="color-option" style="background-color: #7c4792" data-color="#7c4792"></div>
+          <div class="color-option" style="background-color: #5caee3" data-color="#5caee3"></div>
+          <div class="color-option" style="background-color: #3498db" data-color="#3498db"></div>
+          <div class="color-option" style="background-color: #2a7aaf" data-color="#2a7aaf"></div>
+          <div class="color-option" style="background-color: #ed7669" data-color="#ed7669"></div>
+          <div class="color-option" style="background-color: #e74c3c" data-color="#e74c3c"></div>
+          <div class="color-option" style="background-color: #b93d30" data-color="#b93d30"></div>
+          <div class="color-option" style="background-color: #4fc381" data-color="#4fc381"></div>
+          <div class="color-option" style="background-color: #27ae60" data-color="#27ae60"></div>
+          <div class="color-option" style="background-color: #1f8b4c" data-color="#1f8b4c"></div>
+          <div class="color-option" style="background-color: #f4d33f" data-color="#f4d33f"></div>
+          <div class="color-option" style="background-color: #f1c40f" data-color="#f1c40f"></div>
+          <div class="color-option" style="background-color: #c19e0c" data-color="#c19e0c"></div>
+          <div class="color-option" style="background-color: #a865c3" data-color="#a865c3"></div>
+          <div class="color-option" style="background-color: #8e44ad" data-color="#8e44ad"></div>
+          <div class="color-option" style="background-color: #72368a" data-color="#72368a"></div>
+          <div class="color-option" style="background-color: #3bbca0" data-color="#3bbca0"></div>
+          <div class="color-option" style="background-color: #16a085" data-color="#16a085"></div>
+          <div class="color-option" style="background-color: #11806a" data-color="#11806a"></div>
+          <div class="color-option" style="background-color: #ffffff" data-color="#ffffff"></div>
+          <div class="color-option" style="background-color: #f5f5f5" data-color="#f5f5f5"></div>
+          <div class="color-option" style="background-color: #e0e0e0" data-color="#e0e0e0"></div>
+          <div class="color-option" style="background-color: #ff69b4" data-color="#ff69b4"></div>
+          <div class="color-option" style="background-color: #ff1493" data-color="#ff1493"></div>
+          <div class="color-option" style="background-color: #c71585" data-color="#c71585"></div>
+          <div class="color-option" style="background-color: #00ffff" data-color="#00ffff"></div>
+          <div class="color-option" style="background-color: #00ced1" data-color="#00ced1"></div>
+          <div class="color-option" style="background-color: #008b8b" data-color="#008b8b"></div>
+          <div class="color-option" style="background-color: #ffd700" data-color="#ffd700"></div>
+          <div class="color-option" style="background-color: #daa520" data-color="#daa520"></div>
+          <div class="color-option" style="background-color: #b8860b" data-color="#b8860b"></div>
+          <div class="color-option" style="background-color: #ff6347" data-color="#ff6347"></div>
+          <div class="color-option" style="background-color: #dc143c" data-color="#dc143c"></div>
+          <div class="color-option" style="background-color: #a52a2a" data-color="#a52a2a"></div>
+          <div class="color-option" style="background-color: #6a5acd" data-color="#6a5acd"></div>
+          <div class="color-option" style="background-color: #483d8b" data-color="#483d8b"></div>
+          <div class="color-option" style="background-color: #2f4f4f" data-color="#2f4f4f"></div>
+          <div class="color-option" style="background-color: #9acd32" data-color="#9acd32"></div>
+        </div>
+      </div>
+      <div class="qr-preview-wrapper">
+        <div id="qrcode" class="qr-preview"></div>
+        <div id="warningMessage"></div>
+        <button class="backButton" id="backButton" style="display: none;" onclick="goBack()">Back</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">×</span>
+      <h3 id="modalHeader"></h3>
+      <p id="modalContent"></p>
+    </div>
+  </div>
+  
+  <script>
+    var lastWarningDetails = "";
+    var qrCodeInstance = null;
+
+    function updateForm() {
+      var type = document.getElementById("qrType").value;
+      document.getElementById("qrcode").innerHTML = "";
+      clearWarning();
+      var forms = ["urlForm","wifiForm","contactForm","textForm","mapForm","whatsappForm","phoneForm",
+                   "emailForm","smsForm","paymentForm","skypeForm","telegramForm",
+                   "facebookForm","instagramForm","linkedinForm","youtubeForm","viberForm","pinterestForm","xForm",
+                   "tiktokForm","discordForm","snapchatForm","redditForm","twitchForm","signalForm","wechatForm","lineForm"];
+      forms.forEach(function(formId) {
+        document.getElementById(formId).style.display = (type === formId.replace("Form", "")) ? "block" : "none";
+      });
+      if (type === "wifi") {
+        toggleWifiPassword();
+      }
+    }
+    
+    function toggleWifiPassword() {
+      var encryption = document.getElementById("wifiEncryption").value;
+      var wifiPassword = document.getElementById("wifiPassword");
+      wifiPassword.disabled = encryption === "nopass";
+      if (encryption === "nopass") wifiPassword.value = "";
+    }
+    
+    function clearErrorStyles() {
+      document.querySelectorAll("input, textarea, select").forEach(el => {
+        el.style.border = "1px solid #ccc";
+      });
+    }
+    
+    function validateInput(input, pattern, errorMessage) {
+      if (pattern && !pattern.test(input.value.trim())) {
+        input.style.border = "2px solid red";
+        showWarning(errorMessage, errorMessage);
+        return false;
+      }
+      return true;
+    }
+    
+    function applyFrameStyle(canvas) {
+      const qrContainer = document.getElementById("qrcode");
+      qrContainer.style.border = "none";
+      qrContainer.style.borderRadius = "0";
+      qrContainer.style.padding = "8px";
+      qrContainer.style.background = "none";
+      if (canvas) {
+        canvas.style.border = "none";
+      }
+    }
+    
+    function generateQRCode() {
+
+      if (localStorage.getItem('created_qr_codes')){
+        localStorage.setItem('created_qr_codes', String(Number(localStorage.getItem('created_qr_codes')) + 1));
+      }
+      else{
+          localStorage.setItem('created_qr_codes', '1');
+      }
+      clearWarning();
+      clearErrorStyles();
+      document.getElementById("qrcode").innerHTML = "";
+      document.getElementById("qrContainer").style.display = "flex";
+      document.querySelector('.form-container').style.display = 'none';
+      document.getElementById('backButton').style.display = 'block';
+      
+      var type = document.getElementById("qrType").value;
+      var qrText = "";
+      var missingFields = [];
+      
+      if (type === "url") {
+        var urlInput = document.getElementById("urlInput");
+        var inputValue = urlInput.value.trim();
+        if (inputValue.startsWith("@")) {
+          if (!validateInput(urlInput, /^@[a-zA-Z0-9_]+$/, "Username must contain only Latin letters, numbers, and underscores")) {
+            document.getElementById('qrSettings').style.display = 'none';
+            return;
+          }
+          qrText = `https://t.me/${inputValue.substring(1)}`;
+        } else if (!validateInput(urlInput, /^(https?:\/\/|t\.me\/).+/, "Enter a valid URL (starts with http://, https://, or t.me/)")) {
+          document.getElementById('qrSettings').style.display = 'none';
+          return;
+        } else {
+          qrText = inputValue.startsWith("t.me/") ? `https://${inputValue}` : inputValue;
+        }
+      } else if (type === "wifi") {
+        var wifiSSID = document.getElementById("wifiSSID");
+        var wifiEncryption = document.getElementById("wifiEncryption");
+        var wifiPassword = document.getElementById("wifiPassword");
+        if (wifiSSID.value.trim() === "") {
+          missingFields.push("Network SSID");
+          wifiSSID.style.border = "2px solid red";
+        }
+        if (wifiEncryption.value !== "nopass" && wifiPassword.value.trim() === "") {
+          missingFields.push("Password");
+          wifiPassword.style.border = "2px solid red";
+        }
+        if (missingFields.length === 0) {
+          qrText = `WIFI:S:${wifiSSID.value.trim()};T:${wifiEncryption.value};P:${wifiPassword.value.trim()};;`;
+        } else {
+          document.getElementById('qrSettings').style.display = 'none';
+        }
+      } else if (type === "contact") {
+        var contactName = document.getElementById("contactName");
+        var contactPhone = document.getElementById("contactPhone");
+        var contactEmail = document.getElementById("contactEmail");
+        if (!validateInput(contactName, /^[a-zA-Z\s]+$/, "Name must contain only Latin letters and spaces")) {
+          document.getElementById('qrSettings').style.display = 'none';
+          return;
+        }
+        if (contactPhone.value.trim() === "") {
+          missingFields.push("Phone");
+          contactPhone.style.border = "2px solid red";
+        }
+        if (!validateInput(contactEmail, /^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Enter a valid Email")) {
+          document.getElementById('qrSettings').style.display = 'none';
+          return;
+        }
+        if (missingFields.length === 0) {
+          qrText = `MECARD:N:${contactName.value.trim()};TEL:${contactPhone.value.trim()};EMAIL:${contactEmail.value.trim()};;`;
+        } else {
+          document.getElementById('qrSettings').style.display = 'none';
+        }
+      } else if (type === "text") {
+        var textMessage = document.getElementById("textMessage");
+        if (textMessage.value.trim() === "") {
+          missingFields.push("Text Message");
+          textMessage.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = textMessage.value.trim();
+        }
+      } else if (type === "map") {
+        var mapInput = document.getElementById("mapInput");
+        if (mapInput.value.trim() === "") {
+          missingFields.push("Address/Coordinates");
+          mapInput.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          var input = mapInput.value.trim();
+          var coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
+          qrText = coordRegex.test(input) ? `geo:${input}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(input)}`;
+        }
+      } else if (type === "whatsapp") {
+        var whatsappPhone = document.getElementById("whatsappPhone");
+        var whatsappMessage = document.getElementById("whatsappMessage");
+        if (whatsappPhone.value.trim() === "") {
+          missingFields.push("Phone");
+          whatsappPhone.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://wa.me/${whatsappPhone.value.trim()}${whatsappMessage.value.trim() ? "?text=" + encodeURIComponent(whatsappMessage.value.trim()) : ""}`;
+        }
+      } else if (type === "phone") {
+        var phoneNumber = document.getElementById("phoneNumber");
+        if (phoneNumber.value.trim() === "") {
+          missingFields.push("Phone Number");
+          phoneNumber.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `tel:${phoneNumber.value.trim()}`;
+        }
+      } else if (type === "email") {
+        var emailAddress = document.getElementById("emailAddress");
+        var emailSubject = document.getElementById("emailSubject");
+        var emailBody = document.getElementById("emailBody");
+        if (!validateInput(emailAddress, /^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Enter a valid Email")) {
+          document.getElementById('qrSettings').style.display = 'none';
+          return;
+        }
+        qrText = `mailto:${emailAddress.value.trim()}`;
+        var params = [];
+        if (emailSubject.value.trim()) params.push(`subject=${encodeURIComponent(emailSubject.value.trim())}`);
+        if (emailBody.value.trim()) params.push(`body=${encodeURIComponent(emailBody.value.trim())}`);
+        if (params.length) qrText += `?${params.join("&")}`;
+      } else if (type === "sms") {
+        var smsPhone = document.getElementById("smsPhone");
+        var smsMessage = document.getElementById("smsMessage");
+        if (smsPhone.value.trim() === "") {
+          missingFields.push("Phone Number");
+          smsPhone.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `SMSTO:${smsPhone.value.trim()}:${smsMessage.value.trim()}`;
+        }
+      } else if (type === "payment") {
+        var paymentAccount = document.getElementById("paymentAccount");
+        var paymentAmount = document.getElementById("paymentAmount");
+        var paymentDesc = document.getElementById("paymentDesc");
+        if (paymentAccount.value.trim() === "") {
+          missingFields.push("Account Number");
+          paymentAccount.style.border = "2px solid red";
+        }
+        if (paymentAmount.value.trim() === "") {
+          missingFields.push("Payment Amount");
+          paymentAmount.style.border = "2px solid red";
+        }
+        if (missingFields.length === 0) {
+          qrText = `PAYMENT:account=${paymentAccount.value.trim()}&amount=${paymentAmount.value.trim()}${paymentDesc.value.trim() ? "&desc=" + encodeURIComponent(paymentDesc.value.trim()) : ""}`;
+        } else {
+          document.getElementById('qrSettings').style.display = 'none';
+        }
+      } else if (type === "skype") {
+        var skypeUsername = document.getElementById("skypeUsername");
+        if (skypeUsername.value.trim() === "") {
+          missingFields.push("Skype Username");
+          skypeUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `skype:${skypeUsername.value.trim()}?chat`;
+        }
+      } else if (type === "telegram") {
+        var telegramUsername = document.getElementById("telegramUsername");
+        if (telegramUsername.value.trim() === "") {
+          missingFields.push("Telegram Username");
+          telegramUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://t.me/${telegramUsername.value.trim()}`;
+        }
+      } else if (type === "facebook") {
+        var facebookUsername = document.getElementById("facebookUsername");
+        if (facebookUsername.value.trim() === "") {
+          missingFields.push("Facebook Username/ID");
+          facebookUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://www.facebook.com/${facebookUsername.value.trim()}`;
+        }
+      } else if (type === "instagram") {
+        var instagramUsername = document.getElementById("instagramUsername");
+        if (instagramUsername.value.trim() === "") {
+          missingFields.push("Instagram Username");
+          instagramUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://www.instagram.com/${instagramUsername.value.trim()}`;
+        }
+      } else if (type === "linkedin") {
+        var linkedinUsername = document.getElementById("linkedinUsername");
+        if (linkedinUsername.value.trim() === "") {
+          missingFields.push("LinkedIn Username");
+          linkedinUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://www.linkedin.com/in/${linkedinUsername.value.trim()}`;
+        }
+      } else if (type === "youtube") {
+        var youtubeChannel = document.getElementById("youtubeChannel");
+        if (youtubeChannel.value.trim() === "") {
+          missingFields.push("YouTube ID/Link");
+          youtubeChannel.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://www.youtube.com/${youtubeChannel.value.trim()}`;
+        }
+      } else if (type === "viber") {
+        var viberNumber = document.getElementById("viberNumber");
+        if (viberNumber.value.trim() === "") {
+          missingFields.push("Viber Number");
+          viberNumber.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `viber://chat?number=${viberNumber.value.trim()}`;
+        }
+      } else if (type === "pinterest") {
+        var pinterestUsername = document.getElementById("pinterestUsername");
+        if (pinterestUsername.value.trim() === "") {
+          missingFields.push("Pinterest Username");
+          pinterestUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://www.pinterest.com/${pinterestUsername.value.trim()}`;
+        }
+      } else if (type === "x") {
+        var xUsername = document.getElementById("xUsername");
+        if (xUsername.value.trim() === "") {
+          missingFields.push("X Username");
+          xUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://x.com/${xUsername.value.trim()}`;
+        }
+      } else if (type === "tiktok") {
+        var tiktokUsername = document.getElementById("tiktokUsername");
+        if (tiktokUsername.value.trim() === "") {
+          missingFields.push("TikTok Username");
+          tiktokUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://www.tiktok.com/@${tiktokUsername.value.trim()}`;
+        }
+      } else if (type === "discord") {
+        var discordUsername = document.getElementById("discordUsername");
+        if (discordUsername.value.trim() === "") {
+          missingFields.push("Discord Username/ID");
+          discordUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://discord.gg/${discordUsername.value.trim()}`;
+        }
+      } else if (type === "snapchat") {
+        var snapchatUsername = document.getElementById("snapchatUsername");
+        if (snapchatUsername.value.trim() === "") {
+          missingFields.push("Snapchat Username");
+          snapchatUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://www.snapchat.com/add/${snapchatUsername.value.trim()}`;
+        }
+      } else if (type === "reddit") {
+        var redditUsername = document.getElementById("redditUsername");
+        if (redditUsername.value.trim() === "") {
+          missingFields.push("Reddit Username");
+          redditUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://www.reddit.com/user/${redditUsername.value.trim()}`;
+        }
+      } else if (type === "twitch") {
+        var twitchUsername = document.getElementById("twitchUsername");
+        if (twitchUsername.value.trim() === "") {
+          missingFields.push("Twitch Username");
+          twitchUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `https://www.twitch.tv/${twitchUsername.value.trim()}`;
+        }
+      } else if (type === "signal") {
+        var signalNumber = document.getElementById("signalNumber");
+        if (signalNumber.value.trim() === "") {
+          missingFields.push("Signal Number");
+          signalNumber.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `sgnl://signal.me/#p/${signalNumber.value.trim()}`;
+        }
+      } else if (type === "wechat") {
+        var wechatUsername = document.getElementById("wechatUsername");
+        if (wechatUsername.value.trim() === "") {
+          missingFields.push("WeChat ID");
+          wechatUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `weixin://contacts/profile/${wechatUsername.value.trim()}`;
+        }
+      } else if (type === "line") {
+        var lineUsername = document.getElementById("lineUsername");
+        if (lineUsername.value.trim() === "") {
+          missingFields.push("Line ID");
+          lineUsername.style.border = "2px solid red";
+          document.getElementById('qrSettings').style.display = 'none';
+        } else {
+          qrText = `line://ti/p/@${lineUsername.value.trim()}`;
+        }
+      }
+      
+      if (missingFields.length > 0) {
+        showWarning(`Please fill in: ${missingFields.join(", ")}.`, "All required fields must be filled.");
+        document.getElementById('qrSettings').style.display = 'none';
+        return;
+      }
+      
+      if (qrText.trim()) {
+        try {
+          const size = parseInt(document.getElementById("qrSize").value);
+          const color = document.querySelector('#colorPalette .color-option.selected')?.dataset.color || "#000000";
+          const bgColor = document.querySelector('#backgroundColorPalette .color-option.selected')?.dataset.color || "#ffffff";
+          let qrcodeDiv = document.getElementById("qrcode");
+          qrcodeDiv.innerHTML = "";
+          qrCodeInstance = new QRCode(qrcodeDiv, {
+            text: qrText,
+            width: size,
+            height: size,
+            colorDark: color,
+            colorLight: bgColor,
+            correctLevel: QRCode.CorrectLevel.H
+          });
+          document.getElementById('qrSettings').style.display = 'block';
+          applyFrameStyle(qrcodeDiv.querySelector('canvas'));
+        } catch (err) {
+          showWarning("Generation Error", "An error occurred while generating the QR code. Please check the data.");
+          document.getElementById('qrSettings').style.display = 'none';
+        }
+      }
+    }
+    
+    function showWarning(msg, details) {
+      lastWarningDetails = details || "";
+      var warningDiv = document.getElementById("warningMessage");
+      warningDiv.innerHTML = `<h3>${msg}${lastWarningDetails ? " <button id='warningInfoBtn' onclick='showWarningDetails()'>?</button>" : ""}</h3>`;
+    }
+    
+    function showWarningDetails() {
+      if (lastWarningDetails) {
+        document.getElementById("modalHeader").innerText = "Message Details";
+        document.getElementById("modalContent").innerText = lastWarningDetails;
+        document.getElementById("infoModal").style.display = "block";
+      }
+    }
+    
+    function clearWarning() {
+      document.getElementById("warningMessage").innerHTML = "";
+      lastWarningDetails = "";
+    }
+    
+    function showFieldInfo(field) {
+      var header = "";
+      var content = "";
+      switch(field) {
+        case 'url':
+          header = "URL";
+          content = "Enter a full URL (http://, https://, t.me/) or Telegram username (@username).";
+          break;
+        case 'wifiSSID':
+          header = "Network SSID";
+          content = "Enter the WiFi network name, e.g., MyNetwork.";
+          break;
+        case 'wifiEncryption':
+          header = "Encryption Type";
+          content = "Select the encryption type: WPA/WPA2, WEP, or 'No Password'.";
+          break;
+        case 'wifiPassword':
+          header = "Password";
+          content = "Enter the WiFi network password. If 'No Password' is selected, this field will be disabled.";
+          break;
+        case 'contactName':
+          header = "Name";
+          content = "Enter the contact name using only Latin letters and spaces.";
+          break;
+        case 'contactPhone':
+          header = "Contact: Phone";
+          content = "Enter the phone number in any format; it will be automatically formatted.";
+          break;
+        case 'contactEmail':
+          header = "Email";
+          content = "Enter a valid email address, e.g., user@example.com.";
+          break;
+        case 'textMessage':
+          header = "Text Message";
+          content = "Enter the message to be displayed after scanning the QR code.";
+          break;
+        case 'mapInput':
+          header = "Map";
+          content = "Enter an address or coordinates (e.g., '123 Main St, City' or '55.7539,37.6208').";
+          break;
+        case 'whatsappPhone':
+          header = "WhatsApp: Phone";
+          content = "Enter the phone number with country code (e.g., +1234567890).";
+          break;
+        case 'whatsappMessage':
+          header = "WhatsApp: Message";
+          content = "Enter a message to be pre-filled in the chat (optional).";
+          break;
+        case 'phoneNumber':
+          header = "Phone Call";
+          content = "Enter the phone number in any format.";
+          break;
+        case 'emailAddress':
+          header = "Email";
+          content = "Enter a valid email address, e.g., user@example.com.";
+          break;
+        case 'emailSubject':
+          header = "Email Subject";
+          content = "Enter the email subject (optional).";
+          break;
+        case 'emailBody':
+          header = "Email Message";
+          content = "Enter the email body text (optional).";
+          break;
+        case 'smsPhone':
+          header = "SMS: Phone";
+          content = "Enter the phone number in any format.";
+          break;
+        case 'smsMessage':
+          header = "SMS: Message";
+          content = "Enter the SMS message (optional).";
+          break;
+        case 'paymentAccount':
+          header = "Payment: Account Number";
+          content = "Enter the account number or payment identifier.";
+          break;
+        case 'paymentAmount':
+          header = "Payment: Amount";
+          content = "Enter the payment amount (positive number).";
+          break;
+        case 'paymentDesc':
+          header = "Payment: Description";
+          content = "Enter the payment description (optional).";
+          break;
+        case 'skypeUsername':
+          header = "Skype";
+          content = "Enter the Skype username for contact (e.g., live.username).";
+          break;
+        case 'telegramUsername':
+          header = "Telegram";
+          content = "Enter the Telegram username (without @) to link to the chat.";
+          break;
+        case 'facebookUsername':
+          header = "Facebook";
+          content = "Enter the Facebook username or ID to link to the profile.";
+          break;
+        case 'instagramUsername':
+          header = "Instagram";
+          content = "Enter the Instagram username to link to the profile.";
+          break;
+        case 'linkedinUsername':
+          header = "LinkedIn";
+          content = "Enter the LinkedIn username to link to the profile.";
+          break;
+        case 'youtubeChannel':
+          header = "YouTube";
+          content = "Enter the YouTube ID or channel link.";
+          break;
+        case 'viberNumber':
+          header = "Viber";
+          content = "Enter the Viber phone number in any format.";
+          break;
+        case 'pinterestUsername':
+          header = "Pinterest";
+          content = "Enter the Pinterest username to link to the profile.";
+          break;
+        case 'xUsername':
+          header = "X";
+          content = "Enter the X username to link to the profile.";
+          break;
+        case 'tiktokUsername':
+          header = "TikTok";
+          content = "Enter the TikTok username (without @) to link to the profile.";
+          break;
+        case 'discordUsername':
+          header = "Discord";
+          content = "Enter the Discord username or server ID to link.";
+          break;
+        case 'snapchatUsername':
+          header = "Snapchat";
+          content = "Enter the Snapchat username to add as a friend.";
+          break;
+        case 'redditUsername':
+          header = "Reddit";
+          content = "Enter the Reddit username to link to the profile.";
+          break;
+        case 'twitchUsername':
+          header = "Twitch";
+          content = "Enter the Twitch username to link to the channel.";
+          break;
+        case 'signalNumber':
+          header = "Signal";
+          content = "Enter the Signal phone number in any format.";
+          break;
+        case 'wechatUsername':
+          header = "WeChat";
+          content = "Enter the WeChat ID to link to the profile.";
+          break;
+        case 'lineUsername':
+          header = "Line";
+          content = "Enter the Line ID to link to the profile.";
+          break;
+      }
+      document.getElementById("modalHeader").innerText = header;
+      document.getElementById("modalContent").innerText = content;
+      document.getElementById("infoModal").style.display = "block";
+    }
+    
+    function closeModal() {
+      document.getElementById("infoModal").style.display = "none";
+    }
+    
+    function goBack() {
+      document.getElementById("qrcode").innerHTML = "";
+      document.getElementById("qrContainer").style.display = "none";
+      document.querySelector('.form-container').style.display = 'flex';
+      document.getElementById('backButton').style.display = 'none';
+      clearWarning();
+      document.getElementById('qrSettings').style.display = 'block';
+    }
+    
+    function formatPhoneNumber(value) {
+      const digits = value.replace(/\D/g, '');
+      let formatted = '';
+      if (digits.length > 0) formatted += '+' + digits.substring(0,3);
+      if (digits.length >= 4) formatted += ' (' + digits.substring(3,5) + ')';
+      else if (digits.length > 3) formatted += ' (' + digits.substring(3);
+      if (digits.length >= 6) formatted += ' ' + digits.substring(5,8);
+      else if (digits.length > 5) formatted += ' ' + digits.substring(5);
+      if (digits.length >= 9) formatted += ' ' + digits.substring(8,10);
+      else if (digits.length > 8) formatted += ' ' + digits.substring(8);
+      if (digits.length >= 11) formatted += ' ' + digits.substring(10,12);
+      else if (digits.length > 10) formatted += ' ' + digits.substring(10);
+      return formatted;
+    }
+    
+    document.addEventListener("DOMContentLoaded", function() {
+      var phoneInputs = document.querySelectorAll("input.phone-format");
+      phoneInputs.forEach(function(input) {
+        input.addEventListener("input", function(e) {
+          input.value = formatPhoneNumber(input.value);
+        });
+      });
+      
+      document.getElementById("qrSize").addEventListener("input", function() {
+        if (qrCodeInstance) {
+          document.getElementById("qrcode").innerHTML = "";
+          const size = parseInt(this.value);
+          const color = document.querySelector('#colorPalette .color-option.selected')?.dataset.color || "#000000";
+          const bgColor = document.querySelector('#backgroundColorPalette .color-option.selected')?.dataset.color || "#ffffff";
+          qrCodeInstance = new QRCode(document.getElementById("qrcode"), {
+            text: qrCodeInstance._htOption.text,
+            width: size,
+            height: size,
+            colorDark: color,
+            colorLight: bgColor,
+            correctLevel: QRCode.CorrectLevel.H
+          });
+          applyFrameStyle(document.querySelector('#qrcode canvas'));
+        }
+      });
+      
+      document.getElementById("colorPalette").addEventListener("click", function(e) {
+        if (e.target.classList.contains("color-option")) {
+          document.querySelectorAll("#colorPalette .color-option").forEach(opt => opt.classList.remove("selected"));
+          e.target.classList.add("selected");
+          if (qrCodeInstance) {
+            document.getElementById("qrcode").innerHTML = "";
+            const size = parseInt(document.getElementById("qrSize").value);
+            const color = e.target.dataset.color;
+            const bgColor = document.querySelector('#backgroundColorPalette .color-option.selected')?.dataset.color || "#ffffff";
+            qrCodeInstance = new QRCode(document.getElementById("qrcode"), {
+              text: qrCodeInstance._htOption.text,
+              width: size,
+              height: size,
+              colorDark: color,
+              colorLight: bgColor,
+              correctLevel: QRCode.CorrectLevel.H
+            });
+            applyFrameStyle(document.querySelector('#qrcode canvas'));
+          }
+        }
+      });
+
+      document.getElementById("backgroundColorPalette").addEventListener("click", function(e) {
+        if (e.target.classList.contains("color-option")) {
+          document.querySelectorAll("#backgroundColorPalette .color-option").forEach(opt => opt.classList.remove("selected"));
+          e.target.classList.add("selected");
+          if (qrCodeInstance) {
+            document.getElementById("qrcode").innerHTML = "";
+            const size = parseInt(document.getElementById("qrSize").value);
+            const color = document.querySelector('#colorPalette .color-option.selected')?.dataset.color || "#000000";
+            const bgColor = e.target.dataset.color;
+            qrCodeInstance = new QRCode(document.getElementById("qrcode"), {
+              text: qrCodeInstance._htOption.text,
+              width: size,
+              height: size,
+              colorDark: color,
+              colorLight: bgColor,
+              correctLevel: QRCode.CorrectLevel.H
+            });
+            applyFrameStyle(document.querySelector('#qrcode canvas'));
+          }
+        }
+      });
+
+      document.querySelector("#colorPalette .color-option[data-color='#000000']").classList.add("selected");
+      document.querySelector("#backgroundColorPalette .color-option[data-color='#ffffff']").classList.add("selected");
+    });
+  </script>
+</body>
+</html>

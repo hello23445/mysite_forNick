@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Генератор ASCII Арт</title>
+  <style>
+    /* Общие стили */
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: flex-start;
+      margin-top: 1%;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+    }
+    .container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 600px;
+      padding: 20px;
+      /* Автопрокрутка, чтобы рисунок отображался полностью */
+      overflow-y: auto;
+      position: relative;
+    }
+    /* Экран с анимацией появления */
+    .screen {
+      display: none;
+    }
+    .screen.active {
+      display: block;
+      animation: fadeInScreen 0.5s ease;
+    }
+    @keyframes fadeInScreen {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    /* Анимация появления рисунка */
+    .ascii-art {
+      white-space: pre;
+      background-color: #f0f0f0;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+      margin-bottom: 10px;
+      /* Убрано ограничение по высоте – рисунок отображается полностью */
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInArt 0.7s ease-out forwards;
+      animation-delay: 0.2s;
+      text-align: center; /* Центрирование рисунка */
+    }
+    @keyframes fadeInArt {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    .button-group {
+      text-align: center;
+      margin-top: 10px;
+    }
+    button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:disabled,
+    button.next:disabled {
+      background-color: #ccc !important;
+      cursor: not-allowed;
+    }
+    button.random, button.next, button.copy-btn, button.back, button.variant-btn {
+      background-color: #007BFF;
+      color: white;
+      font-weight: bold;
+    }
+    button.copy-btn {
+      background-color: #28a745;
+    }
+    /* Кнопка закрытия меню — красная */
+    button.close-menu {
+      background-color: #dc3545;
+      color: white;
+      font-weight: bold;
+    }
+    .message {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .message.success {
+      color: green;
+    }
+    .message.error {
+      color: red;
+    }
+    .error-header {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .art-header h2 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    /* Стили для бокового меню с вариантами */
+    #variantMenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 100%;
+      background-color: #fff;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #variantMenu.active {
+      transform: translateX(0);
+    }
+    /* Убрать заголовок "Variants" в меню */
+    #variantMenu h3 {
+      display: none;
+    }
+    /* Фильтры – селекты и поиск в одной строке */
+    .filter-group {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .filter-group input {
+      flex-grow: 1;
+      padding: 5px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .filter-group select {
+      height: 4vh;
+      font-size: 14px;
+    }
+    /* Контейнер для настройки сброса страниц (расположен ниже селектов) */
+    .reset-setting {
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    /* Контейнер для вариантов */
+    #variantList {
+      margin-bottom: 15px;
+    }
+    /* Кнопки вариантов в меню */
+    .variant-item {
+      display: block;
+      margin: 8px 0;
+      padding: 8px 12px;
+      background-color: #007BFF;
+      color: white;
+      text-align: center;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .variant-item:hover {
+      background-color: #0056b3;
+    }
+    /* Контейнер для пагинации */
+    #variantPagination {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #variantPagination button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+    #pageIndicator {
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 10px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<button 
+    onclick="window.location.href = 'main.html'" 
+    style="position: absolute; bottom: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
+>
+    ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ
+</button>
+
+
+  <!-- Боковое меню с вариантами (без заголовка) -->
+  <div id="variantMenu">
+    <h3></h3>
+    <!-- Поле поиска и фильтры -->
+    <div class="filter-group">
+      <input type="text" id="variantSearch" placeholder="Поиск...">
+      <select id="filterCategory" style="width: 35%;">
+        <option value="All">КАТЕГОРИЯ</option>
+        <option value="Nature">Природа</option>
+        <option value="Animal">Животное</option>
+        <option value="Building">Здание</option>
+        <option value="Transport">Транспорт</option>
+        <option value="Fantasy">Фантастика</option>
+        <option value="People">Люди</option>
+        <option value="Music">Музыка</option>
+        <option value="Object">Объект</option>
+        <option value="Food">Еда</option>
+        <option value="Уно">Уно</option>
+        <option value="Другое">Другое</option>
+      </select>
+      <!-- Новый селект для перехода по страницам -->
+      <select id="pageSelect" style="width: 30%;">
+        <!-- Опции будут динамически добавлены -->
+      </select>
+    </div>
+    <!-- Настройка сброса страниц (галочка по умолчанию установлена) -->
+    <div class="reset-setting">
+      <label>
+        <input type="checkbox" id="resetPages" checked>
+        Сбрасывать страницы
+      </label>
+    </div>
+    <span id="pageIndicator"></span>
+    <div id="variantList">
+      <!-- Варианты будут динамически вставлены -->
+    </div>
+    <div id="variantPagination">
+      <!-- Кнопки пагинации с жирным текстом -->
+      <button id="prevPageBtn" class="variant-btn"><b>←</b></button>
+      <button id="nextPageBtn" class="variant-btn"><b>→</b></button>
+    </div>
+    <button class="close-menu"><b>Закрыть меню</b></button>
+  </div>
+
+  <div class="container">
+    <!-- Экран 1: ввод описания -->
+    <div id="screen1" class="screen active">
+      <div class="input-group">
+        <label for="description">Опишите желаемый рисунок:</label>
+        <textarea id="description" placeholder="Например: закат над морем, улыбающийся кот, звездное небо, горы под луной, забавный клоун, абстрактные узоры и т.д."></textarea>
+      </div>
+      <div class="button-group">
+        <button id="variantsBtn" class="variant-btn"><b>Варианты</b></button>
+        <button id="randomBtn" class="random"><b>Случайный</b></button>
+        <button id="nextBtn" class="next" disabled><b>Далее</b></button>
+      </div>
+    </div>
+
+    <!-- Экран 2: вывод рисунка -->
+    <div id="screen2" class="screen">
+      <div id="errorHeader"></div>
+      <div class="art-header" id="artHeader"></div>
+      <div class="ascii-art" id="asciiArt"></div>
+      <div class="button-group">
+        <button id="backBtn" class="back"><b>Назад</b></button>
+        <button id="copyBtn" class="copy-btn"><b>Скопировать</b></button>
+      </div>
+      <div id="copyMessage" class="message"></div>
+    </div>
+  </div>
+
+  <script>
+    // Элементы экранов и элементов управления
+    const screen1 = document.getElementById("screen1");
+    const screen2 = document.getElementById("screen2");
+    const descriptionInput = document.getElementById("description");
+    const nextBtn = document.getElementById("nextBtn");
+    const randomBtn = document.getElementById("randomBtn");
+    const variantsBtn = document.getElementById("variantsBtn");
+    const asciiArtDiv = document.getElementById("asciiArt");
+    const artHeader = document.getElementById("artHeader");
+    const errorHeader = document.getElementById("errorHeader");
+    const copyBtn = document.getElementById("copyBtn");
+    const backBtn = document.getElementById("backBtn");
+    const copyMessage = document.getElementById("copyMessage");
+    const variantMenu = document.getElementById("variantMenu");
+    const closeMenuBtn = document.querySelector("#variantMenu .close-menu");
+    const prevPageBtn = document.getElementById("prevPageBtn");
+    const nextPageBtn = document.getElementById("nextPageBtn");
+    const variantListDiv = document.getElementById("variantList");
+    const pageIndicator = document.getElementById("pageIndicator");
+    const variantSearch = document.getElementById("variantSearch");
+    const filterCategory = document.getElementById("filterCategory");
+    const pageSelect = document.getElementById("pageSelect");
+    const resetPagesCheckbox = document.getElementById("resetPages");
+
+    // Объект сопоставления описаний и ASCII-артов (обновлённые варианты)
+    const asciiArtMapping = {
+      "закат над морем": 
+`        \\   /
+         .-.
+      ― (   ) ―
+         \`-’
+        /   \\
+ ~~~~~~  Sea  ~~~~~~`,
+      "улыбающийся кот": 
+` /\\_/\\  
+( o.o )
+ > ^ <`,
+      "звездное небо": 
+`     .     .     .
+   .   *     .  *   .
+  *   .  *     .   *
+    .     .  *    .`,
+      "горы под луной": 
+`       /\\        /\\
+      /  \\  /\\  /  \\
+     /    \\/  \\/    \\
+    /              \\`,
+      "забавный клоун": 
+`   .-""""-.
+  / -   -  \\
+ |  .-. .-. |
+ |  | | | | |
+  \\  '-'  /
+   '-....-'`,
+      "абстрактные узоры": 
+` .   .   .   .
+  . .   . .  
+ .   .   .   .`,
+      "дерево": 
+`    ccee88oo
+  C8O8O8Q8PoOb o8oo
+ dOB69QO8PdUOpugoO9bD
+CgggbU8OU qOp qOdoUOdcb
+    6OuU  /p u gcoUodpP
+       \\\\//  /douUP
+         \\\\////
+          |||/\\
+          |||\\/ 
+          |||||  
+   .....//||||\\....`,
+      "собака": 
+`  /^-----^\\
+ V  o o  V
+  |  Y  |
+   \\ Q /
+   / - \\
+   |    \\
+   |     \\     )
+   || (___\\====`,
+      "дом": 
+`    /\\
+   /  \\
+  /____\\
+  |  _  |
+  | | | |
+  |_| |_|`,
+      "рыба": 
+`   /\\
+  /  \\
+ <    >
+  \\  /
+   \\/`,
+      "солнце": 
+`   \\   |   /
+    .-'-.-'-.
+--  (   )  --
+    '-.-'-.-'
+   /   |   \\`,
+      "луна": 
+`    .-.
+   (   ).
+    \\ /
+     '`,
+      "змея": 
+`  /^\\/^\\
+ _|__|  O|
+\\/     /
+ \\____/`,
+      "цветок": 
+`   _ _ 
+  (_)_)
+   / \\
+  '   '`,
+      "самолёт": 
+`     __|__
+--@--@--(_)--@--@--`,
+      "корабль": 
+`       |    |    |
+      )_)  )_)  )_)
+     )___))___))___)
+    )____)____)_____)
+  _____|____|____|____\\__
+---------\\____________/---------`,
+      "робот": 
+`   [::::]
+   |    |
+  (|    |)
+   |____|
+   | || |
+   |_||_|`,
+      "слон": 
+`  /  \\~~~/  \\
+(    ..     )
+ \\__-__-__/
+    /  \\ `,
+      "тигр": 
+`   /\\     /\\
+ {  \`---'  }
+ {  O   O  }
+  ~~>  V  <~~
+   \\  \\|/  //
+    \`-----'____
+    /     \\    \\_
+   {       }\\  )_\\_   _
+   |  \\_/  |/ /  \\_\\_/ )
+    \\__/  /(_/     \\__/
+      (__/)`,
+      "сова": 
+`  ,_,       
+ (o,o)      
+ (   )      
+  " "`,
+      "кит": 
+`       __    __
+      /  \\~~/  \\
+     (    ..    )
+      \\__-__-__/
+         || ||`,
+      "облако": 
+`      .-~~~-.
+  .- ~ ~-(       )_ _
+ /                     ~ -.
+|                          |
+ \\                         .'
+   ~- ._ ,. ,.,.,., ,.. -~`,
+      "гитара": 
+`     ___
+    |   |
+    |   |
+    |   |__
+    |      )
+    |     /
+    |____/`,
+      "бутылка": 
+`    __
+   |  |
+   |  |
+   |  |
+   |  |
+   |  |
+   |  |
+   |__|`,
+      "чашка": 
+`   ( (
+    ) )
+  ........
+  |      |]
+  \\      /
+   \`----'`,
+      "сердце": 
+`  **   **
+ ****** 
+********
+ ****** 
+  ****  
+   **   `,
+      "звезда": 
+`   *
+  * *
+ *   *
+*     *
+ *   *
+  * *
+   *`,
+      "улыбающееся лицо": 
+`  _____
+ |     |
+ | ^ ^ |
+ |  ~  |
+ | \\_/ |
+  -----`,
+      "грустное лицо": 
+`  _____
+ |     |
+ | - - |
+ |  _  |
+ | / \\ |
+  -----`,
+      "лиса": 
+`  /\\   /\\
+ {  \`---'  }
+ {  O   O  }
+  ~~>  V  <~~
+   \\  \\|/  //
+    \`-----'`,
+      "птичка": 
+`  ,_
+ (o>
+ //)
+ V_/_ `,
+      "бабочка": 
+`  .==-.                   .-.==
+   \\()8\`-._  \`.   .'  _.-'8()/
+   (88"   ::.  \\./  .::   "88)
+    \\_.'\`-::::.(#).::::-' \`._/
+      \`._... .q(_)p. ..._.'
+        ""-..-'|=| \`-..-"" 
+        .""' .'|=| \`. \`"".
+      ,':8(o)./|=|\\.(o)8:\`.
+     (O:-::(-)|=|-(:::-O)
+      \\_::(_)|=|(_)::_/
+       \`"\'--' \`-" \`--"\'`,
+      "плюшевый мишка": 
+`  ʕ·ᴥ·ʔ`,
+      "панда": 
+`   ʕ •ᴥ•ʔ`,
+      "кролик": 
+` (\\_/)
+ ( . .)
+ c(")(")`,
+      "морж": 
+`  .---.
+ (     )
+(  O O  )
+ \\_=_/
+ /   \\`,
+      "лошадь": 
+`   ,--,_
+  (  /  )
+   \\(__)`,
+      "фламинго": 
+`   _    
+  ( \\   
+   \\ \\  
+    \\ \\ 
+     \\( )
+      \\/`,
+      "динозавр": 
+`           __
+          / _)
+ .-^^^-/ /
+(___  ((
+    \\_\\ `,
+      "мышь": 
+`   ()___
+  /      \\
+ |  o  o  |
+  \\__==__/`,
+      "зайчик": 
+` (\\_/)
+ ( •_•)
+ (  > <)`,
+      "улитка": 
+`    __@__
+   /     \\
+  |  o o  |
+   \\_____/`,
+      "молния": 
+`   /\\
+  /  \\
+  \\  /
+   \\/`,
+      "компас": 
+`    N
+W ← + → E
+    S`,
+      "ключ": 
+`    __
+   / o)
+  /  /
+ |  |
+  \\_\\`,
+      "домик на дереве": 
+`     /\\
+    /  \\
+   /____\\
+  |  __  |
+  ||  || |
+  ||__||_|`,
+      "замок": 
+`    |~~|
+    |  |
+  __|  |__
+ |  |  |  |
+ |__|__|__|`,
+      "танк": 
+`     ___
+ ___|[_]|___
+/-----------\\
+\\-----------/
+  O       O`,
+      "машина": 
+`    ______
+   /|_||_\\\`.__
+  (   _    _ _\\
+  =\`-(_)--(_)-'`,
+      "велосипед": 
+`   __o
+ _ \<_
+(_)/(_)`,
+      "скутер": 
+`   __
+  /o \\__ 
+  \\__/  \\`,
+      "наушники": 
+`   ______
+  /      \\
+ |  () () |
+  \\  __  /
+   \\____/`,
+      "фрукты": 
+`  ,--./,-.
+ / #      \\
+|          |
+ \\        /
+  \`._,._,'`,
+      "блоки": 
+`  ______
+ /\\     \\
+/  \\_____\\
+\\  /_____/
+ \\/_____/`,
+      "книга": 
+`     ______
+    /     /,
+   /     //
+  /____ //
+ (____(/`,
+      "телефон": 
+`   .-""""-.
+  / -   -  \\
+ |  .-. .- |
+ |  \\o| |o/
+  \\     /
+   '-..-'`,
+      "планета": 
+`    _.-.
+  .'     '.
+ /  o   o  \\
+:           :
+|           |
+:           :
+ \\         /
+  '.     .'
+    '-.-'`,
+      "ракета": 
+`    /\\
+   /  \\
+  |    |
+  |    |
+  |____|
+   |  |
+   |  |
+   |  |
+  /____\\`,
+      "летающий корабль": 
+`      |\\
+     /| \\
+    /_|__\\
+   /_/  \\_\\
+   \\ \\__/ /
+    \\____/`,
+      "лабиринт": 
+`+---+---+---+
+|   |       |
++   +   +   +
+|   |   |   |
++---+---+---+`,
+      "пейзаж": 
+`   /\\      /\\
+  /  \\____/  \\
+ /             \\
+/_______________\\`,
+      "окно": 
+`+-----+
+|     |
+|     |
+|     |
++-----+`,
+      "улица": 
+`  ||  ||  ||
+==||==||==||
+  ||  ||  ||`,
+      "город": 
+`  ||  ||  || 
+ [__][__][__]
+  ||  ||  ||`,
+      "мост": 
+`  _________
+ /         \\
+/___________\\
+|  _   _   |
+| | | | | | |`,
+      "фонтан": 
+`    ~ ~ ~
+  ~       ~
+ ~  O   O  ~
+  ~       ~
+    ~ ~ ~`,
+      "осьминог": 
+`    .--.
+   (    )
+  (      )
+   (      )
+    '--'
+   /|\\ /|\\`,
+      "акула": 
+`      /""-._ 
+     .      '-.
+    :          :
+    |          |
+    :          ;
+     '-.____.-'`,
+      "кактус": 
+`   _  _
+  | || |
+  | || |
+  | || |
+  |_|  |_|
+   ||  ||`,
+      "печенье": 
+`  .-''''-.
+ /        \\
+|  .--.  .-|
+| (    )(  |
+ \\        /
+  '-....-'`,
+      "пирог": 
+`   _______
+  /       \\
+ /  PIE!   \\
+/___________\\`,
+      "человек": 
+`   O
+  /|\\
+  / \\`,
+      "танцор": 
+`  \\o/
+   |
+  / \\`,
+      // Новые варианты:
+      "карта уно": 
+`⁣⣿⣿⡿⠋⠄⡀⣿⣿⣿⣿⣿⣿⣿⠿⠛⠋⣉⣉⣉⡉⠙⠻
+⣿⣿⣇⠔⠈⣿⣿⣿⣿⡿⠛⢉⣤⣶⣾⣿⣿⣿⣿⣿⣿⣦
+⣿⠃⠄⢠⣾⣿⣿⠟⢁⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⠟⢁⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⡟⠁⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⠋⢠⣾⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⣿⣿⣿⣿⣿⣿
+⡿⠁⣰⣿⣿⣿⣿⣿⣿⣿⣿⠗⠄⠄⠄⠄⣿⣿⣿⣿⣿⣿
+⠁⣼⣿⣿⣿⣿⣿⣿⡿⠋⠄⠄⠄⣠⣄⢰⣿⣿⣿⣿⣿⣿
+⣼⣿⣿⣿⣿⣿⣿⡇⠄⢀⡴⠚⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⢰⣿⣿⣿⣿⣿⡿⣿⣿⠴⠋⠄⠄⢸⣿⣿⣿⣿⣿⣿⣿⡟
+⣿⣿⣿⣿⣿⣿⠃⠈⠁⠄⠄⢀⣴⣿⣿⣿⣿⣿⣿⣿⡟⢀
+⣿⣿⣿⣿⣿⣿⠄⠄⠄⠄⢶⣿⣿⣿⣿⣿⣿⣿⠏⢀⣾
+⣿⣿⣿⣿⣿⣷⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⠋⣠⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⢁⣼⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⢁⣴⣿⣿⣿⣿⣿
+⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⢁⣴⣿⣿⣿⠗⠄⠄⣿
+⠈⠻⣿⣿⣿⣿⣿⣿⠿⠛⣉⣤⣾⣿⣿⣿⣿⣇⠠⠺⣷⣿
+⣦⣄⣈⣉⣉⣉⣡⣤⣶⣿⣿⣿⣿⣿⣿⣿⠉⠁⣀⣼⣿⣿`,
+      "поцелуй": 
+`💨💨💨💨💨💨
+💨💋💋💨💋💋
+💨💋💋💋💋💨
+💨💋💋💋💨💨
+💨💋💋💋💋💨
+💨💋💋💨💋💋
+💨💨💨💨💨💨
+💨💋💋💋💋💨
+💨💨💋💋💨💨
+💨💨💋💋💨💨
+💨💨💋💋💨💨
+💨💋💋💋💋💨
+💨💨💨💨💨💨
+💨💨💋💋💋💨
+💨💋💋💨💨💨
+💨💋💋💋💋💨
+💨💨💨💋💋💨
+💨💋💋💋💨💨
+💨💨💨💨💨💨
+💨💨💋💋💋💨
+💨💋💋💨💨💨
+💨💋💋💋💋💨
+💨💨💨💋💋💨
+💨💋💋💋💨💨
+💨💨💨💨💨💨`,
+      "логотип тик ток": 
+`███████▀▀▀████
+████████────▀██
+████████──█▄──█
+███▀▀▀██──█████
+█▀──▄▄██──█████
+█──█████──█████
+█▄──▀▀▀──▄█████
+███▄▄██████`,
+      "стив из майнкрафт": 
+`🏿🏿🏿🏿🏿🏿🏿🏿
+🏿🏿🏽🏽🏽🏽🏿🏿
+🏽🏽🏽🏽🏽🏽🏽🏽
+🏽⬜️⬛️🏽🏽⬛️⬜️🏽
+🏽🏽🏽🏿🏿🏽🏽🏽
+🏽🏽🏿🏽🏽🏿🏽🏽
+🏽🏽🏿🏿🏿🏿🏽🏽‍‍`,
+      "улыбка": 
+`▒▒▒▒▒▒▒▒▒▒▒▒
+ ▒▒▒▒▓▒▒▓▒▒▒▒
+ ▒▒▒▒▓▒▒▓▒▒▒▒
+ ▒▒▒▒▒▒▒▒▒▒▒▒
+ ▒▓▒▒▒▒▒▒▒▒▓▒
+ ▒▒▓▓▓▓▓▓▓▓▒▒
+ ▒▒▒▒▒▒▒▒▒▒▒▒`,
+      "лайк": 
+`╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱
+╱╱┏╮╱╱╱╱╱╱╱╱╱╱╱
+╱╱┃┃╱╱╱┳╱┓┳╭┫┳┓
+▉━╯┗━╮╱┃╱┃┣┻╮┣╱
+▉┈┈┈┈┃╱┻┛┛┻╱┻┻┛
+▉╮┈┈┈┃╱╱╱╱╱╱╱╱╱
+╱╰━━━╯╱╱╱╱╱╱╱╱╱`
+    };
+
+    // Функция для определения фильтров по имени варианта.
+    // Теперь возвращается категория, совпадающая со значениями в селекте.
+    function getFilters(name) {
+      const lower = name.toLowerCase();
+      let category = "Другое"; // значение по умолчанию
+      if (lower.includes("уно")) {
+        category = "Уно";
+      } else if (lower.includes("поцелуй") ||
+                 lower.includes("тик ток") || lower.includes("тик-ток") ||
+                 lower.includes("стив из майнкрафт") ||
+                 lower.includes("улыбка") ||
+                 lower.includes("лайк") ||
+                 lower.includes("Рука") ) {
+        category = "Другое";
+      } else if (lower.includes("кот") || lower.includes("собака") || lower.includes("рыба") ||
+                 lower.includes("тигр") || lower.includes("сова") || lower.includes("слон") ||
+                 lower.includes("лиса") || lower.includes("птичка") || lower.includes("бабочка") ||
+                 lower.includes("плюшевый мишка") || lower.includes("панда") || lower.includes("кролик") ||
+                 lower.includes("морж") || lower.includes("лошадь") || lower.includes("фламинго") ||
+                 lower.includes("волк") || lower.includes("мышь") || lower.includes("зайчик") ||
+                 lower.includes("улитка") || lower.includes("осьминог") || lower.includes("акула") ||
+                 lower.includes("динозавр")) {
+        if (lower.includes("дракон")) {
+          category = "Fantasy";
+        } else {
+          category = "Animal";
+        }
+      } else if (lower.includes("дерево") || lower.includes("гора") || lower.includes("солнце") ||
+                 lower.includes("луна") || lower.includes("облако") || lower.includes("звездное небо") ||
+                 lower.includes("пейзаж") || lower.includes("планета")) {
+        category = "Nature";
+      } else if (lower.includes("дом") || lower.includes("замок") || lower.includes("пирамида") ||
+                 lower.includes("лабиринт") || lower.includes("город") || lower.includes("мост") ) {
+        if (lower.includes("лабиринт")) {
+          category = "Другое";
+        } else {
+          category = "Building";
+        }
+      } else if (lower.includes("самолёт") || lower.includes("корабль") || lower.includes("танк") ||
+                 lower.includes("машина") || lower.includes("велосипед") || lower.includes("скутер") ||
+                 lower.includes("ракета") || lower.includes("летающий корабль")) {
+        category = "Transport";
+      } else if (lower.includes("робот") || lower.includes("дракон")) {
+        category = "Fantasy";
+      } else if (lower.includes("лицо") || lower.includes("человек") || lower.includes("танцор")) {
+        category = "People";
+      } else if (lower.includes("гитара") || lower.includes("флейта")) {
+        category = "Music";
+      } else if (lower.includes("бутылка") || lower.includes("чашка") || lower.includes("компас") ||
+                 lower.includes("ключ") || lower.includes("наушники") || lower.includes("телефон") ||
+                 lower.includes("блоки") || lower.includes("книга")) {
+        category = "Object";
+      } else if (lower.includes("печенье") || lower.includes("пирог") || lower.includes("фрукты")) {
+        category = "Food";
+      }
+      return { size: "Standard", category };
+    }
+
+    // Создаём массив объектов вариантов с дополнительными фильтрами
+    const variantsList = Object.keys(asciiArtMapping).map(name => {
+      const filters = getFilters(name);
+      return { name, art: asciiArtMapping[name], size: filters.size, category: filters.category };
+    });
+
+    // Функция генерации рисунка по описанию.
+    function generateArtFromDescription(description) {
+      const desc = description.toLowerCase();
+      for (const key in asciiArtMapping) {
+        if (desc.includes(key)) {
+          return asciiArtMapping[key];
+        }
+      }
+      return null;
+    }
+
+    /**
+     * Функция для показа экрана 2.
+     * artText: ASCII рисунок.
+     * description: исходное описание.
+     * error: если true – генерация не удалась.
+     */
+    function showScreen2(artText, description = "", error = false) {
+      asciiArtDiv.textContent = artText || "";
+      copyMessage.textContent = "";
+      
+      // Всегда убираем класс "reduced", чтобы рисунок отображался полностью
+      asciiArtDiv.classList.remove("reduced");
+
+      if (error) {
+        errorHeader.innerHTML = '<h3 class="error-header"><b>Не удалось сгенерировать рисунок!</b></h3>';
+        artHeader.textContent = "";
+      } else {
+        errorHeader.textContent = "";
+        if (description) {
+          artHeader.innerHTML = `<h4><b>Рисунок по описанию: "${description}"\n(Некоторые рисунки могут не отображаться, но их можно скопировать)</b></h4>`;
+        } else {
+          artHeader.textContent = "";
+        }
+      }
+      screen1.classList.remove("active");
+      screen2.classList.add("active");
+    }
+
+    // Включение/отключение кнопки "Далее" при вводе описания
+    descriptionInput.addEventListener("input", function() {
+      nextBtn.disabled = descriptionInput.value.trim() === "";
+    });
+
+    // Обработчик кнопки "Случайный" – выбирается один случайный вариант и выводится с его названием
+    randomBtn.addEventListener("click", function() {
+      const keys = Object.keys(asciiArtMapping);
+      const randomIndex = Math.floor(Math.random() * keys.length);
+      const randomKey = keys[randomIndex];
+      showScreen2(asciiArtMapping[randomKey], randomKey);
+    });
+
+    // Обработчик кнопки "Далее" – пытаемся сгенерировать рисунок по описанию
+    nextBtn.addEventListener("click", function() {
+        if (localStorage.getItem('created_ascii_arts')){
+          localStorage.setItem('created_ascii_arts', String(Number(localStorage.getItem('created_ascii_arts')) + 1));
+        }
+        else{
+            localStorage.setItem('created_ascii_arts', '1');
+        }
+      const description = descriptionInput.value.trim();
+      if (!description) return;
+      const art = generateArtFromDescription(description);
+      if (art === null) {
+        const keys = Object.keys(asciiArtMapping);
+        const randomIndex = Math.floor(Math.random() * keys.length);
+        showScreen2(asciiArtMapping[keys[randomIndex]], description, true);
+      } else {
+        showScreen2(art, description);
+      }
+    });
+
+    // Обработчик кнопки "Скопировать"
+    copyBtn.addEventListener("click", function() {
+      const artText = asciiArtDiv.textContent;
+      navigator.clipboard.writeText(artText)
+        .then(() => {
+          copyMessage.textContent = "Скопировано!";
+          copyMessage.classList.remove("error");
+          copyMessage.classList.add("success");
+        })
+        .catch(() => {
+          copyMessage.textContent = "Ошибка копирования!";
+          copyMessage.classList.remove("success");
+          copyMessage.classList.add("error");
+        });
+    });
+
+    // Обработчик кнопки "Назад" – возвращаемся к экрану 1 (фильтры в меню не сбрасываются)
+    backBtn.addEventListener("click", function() {
+      errorHeader.textContent = "";
+      artHeader.textContent = "";
+      asciiArtDiv.textContent = "";
+      screen2.classList.remove("active");
+      screen1.classList.add("active");
+    });
+
+    // --------------- Функционал бокового меню с пагинацией и фильтрами ---------------
+    let currentPage = 1;
+    const pageSize = 10;
+
+    // Функция для отрисовки страницы меню вариантов с поиском и фильтрами
+    function renderVariantMenuPage() {
+      const searchText = variantSearch.value.trim().toLowerCase();
+      // Фильтрация только по категории (фильтр размера удалён)
+      const selectedCategory = filterCategory.value;
+
+      let filtered = variantsList.filter(variant => {
+        const nameLower = variant.name.toLowerCase();
+        const matchesSearch = nameLower.includes(searchText);
+        const matchesCategory = (selectedCategory === "All") || (variant.category === selectedCategory);
+        return matchesSearch && matchesCategory;
+      });
+
+      const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageItems = filtered.slice(start, end);
+
+      // Обновляем селект для перехода по страницам
+      pageSelect.innerHTML = "";
+      for (let i = 1; i <= totalPages; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = `Страница ${i}`;
+        if (i === currentPage) {
+          option.selected = true;
+        }
+        pageSelect.appendChild(option);
+      }
+
+      variantListDiv.innerHTML = "";
+      pageItems.forEach(function(item) {
+        const btn = document.createElement("button");
+        btn.className = "variant-item";
+        // Делаем текст кнопки жирным
+        btn.innerHTML = `<b>${item.name}</b>`;
+        btn.addEventListener("click", function() {
+          descriptionInput.value = item.name;
+          nextBtn.disabled = descriptionInput.value.trim() === "";
+          // При выборе варианта закрываем меню
+          // Если настройка сброса страниц включена – сбрасываем currentPage
+          if (resetPagesCheckbox.checked) {
+            currentPage = 1;
+          }
+          variantMenu.classList.remove("active");
+        });
+        variantListDiv.appendChild(btn);
+      });
+
+      prevPageBtn.style.display = currentPage > 1 ? "inline-block" : "none";
+      nextPageBtn.style.display = end < filtered.length ? "inline-block" : "none";
+      pageIndicator.textContent = `Страница ${currentPage} из ${totalPages}`;
+    }
+
+    // Обработчик изменения селекта для страниц
+    pageSelect.addEventListener("change", function() {
+      currentPage = Number(pageSelect.value);
+      renderVariantMenuPage();
+    });
+
+    variantSearch.addEventListener("input", function() {
+      currentPage = 1;
+      renderVariantMenuPage();
+    });
+    filterCategory.addEventListener("change", function() {
+      currentPage = 1;
+      renderVariantMenuPage();
+    });
+
+    variantsBtn.addEventListener("click", function() {
+      variantMenu.classList.add("active");
+      // Не сбрасываем currentPage при открытии меню, если настройка сброса не активна
+      renderVariantMenuPage();
+    });
+    closeMenuBtn.addEventListener("click", function() {
+      // При закрытии меню, если галочка установлена, сбрасываем currentPage
+      if (resetPagesCheckbox.checked) {
+        currentPage = 1;
+      }
+      variantMenu.classList.remove("active");
+    });
+    nextPageBtn.addEventListener("click", function() {
+      currentPage++;
+      renderVariantMenuPage();
+    });
+    prevPageBtn.addEventListener("click", function() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderVariantMenuPage();
+      }
+    });
+  </script>
+</body>
+</html>

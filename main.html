@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsqr.min.js"></script>
+    <style>
+        :root {
+            --bg: #060039;
+            --bg-soft: #0b0660;
+            --card: #0d0870;
+            --text: #d9d9d9;
+            --muted: #a7a7c7;
+            --accent: #5f57ff;
+            --accent-2: #8f87ff;
+            --btn: #251897;
+            --shadow: rgba(0,0,0,.35);
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+            background: radial-gradient(1200px 800px at 80% -10%, #100a7a 0%, var(--bg) 60%);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: linear-gradient(180deg, rgba(0,0,0,.35), transparent);
+            backdrop-filter: blur(6px);
+        }
+        #mainTopBar { justify-content: flex-end; }
+        #settingsTopBar { justify-content: space-between; gap: 6px; }
+        #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        #statsTopBar { justify-content: space-between; gap: 6px; }
+        #statsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        #userTopBar { justify-content: space-between; gap: 6px; }
+        #userTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        #qrTopBar { justify-content: space-between; gap: 6px; }
+        #qrTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        .icon-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #090975; border: 1px solid rgba(255,255,255,.08);
+            color: var(--text); font-size: 16px; width: 36px; height: 36px; border-radius: 10px;
+            cursor: pointer; transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
+
+        .main { text-align: center; margin: 16px auto 0; padding: 0 12px; max-width: 860px; }
+        h2 { margin: 8px 0 6px; font-weight: 800; font-size: 18px; }
+
+        .buttons-container {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; justify-items: stretch; }
+        .settings-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
+
+        .btn {
+            --pad: 10px;
+            padding: var(--pad);
+            background: linear-gradient(180deg, var(--btn), #1b1280);
+            color: var(--text); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; cursor: pointer; width: 100%; font-size: 13px; font-weight: 600;
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--shadow); }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .btn .fa-solid, .btn .fa-regular { margin-right: 6px; }
+
+        /* Modern settings card */
+        #settingsMenu { display: none; padding: 16px 12px 24px; }
+        #statsMenu { display: none; padding: 16px 12px 24px; }
+        #userMenu { display: none; padding: 16px 12px 24px; }
+        #qrMenu { display: none; padding: 16px 12px 24px; text-align: center; }
+        .settings-wrap { max-width: 860px; margin: 0 auto; }
+        .card {
+            background: linear-gradient(180deg, var(--card), #0b0862);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 14px; padding: 12px; box-shadow: 0 12px 32px var(--shadow); }
+        .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .card h3 { margin: 6px 4px 8px; font-size: 14px; color: var(--muted); font-weight: 700; letter-spacing: .2px; }
+
+        .field { display: flex; align-items: center; gap: 8px; }
+        select#langSelect { flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
+
+        #tok { margin-top: 6px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); }
+
+        #maintenance { display: none; text-align: center; margin-top: 16px; color: #ff6b6b; padding: 10px; }
+        #statSelect {
+            flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
+        @media (max-width: 560px) {
+            .buttons-container { grid-template-columns: 1fr; }
+            .field { flex-direction: column; align-items: stretch; }
+            #langSelect { order: 1; width: 100%; min-width: 100%; padding: 12px; font-size: 16px;}
+            #statSelect { order: 1; width: 100%; min-width: 100%; padding: 12px; font-size: 16px;}
+            #tok { order: 2; width: 100%;}
+        }
+        #stat div {
+            margin-bottom: 4px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .collapsible-content {
+            padding: 8px 0;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        #userMenu .card {
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        #userMenu .card h3 {
+            margin: 6px 4px 8px;
+            font-size: 14px;
+        }
+        #userMenu .collapsible-content {
+            padding: 8px 0;
+            margin: 0;
+        }
+        #histories, #usageTimes {
+            margin: 0;
+            padding: 0;
+        }
+        #histories div, #usageTimes ul, #usageTimes ul li {
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+            font-size: 13px;
+        }
+        #usageTimes ul {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Техническое обслуживание -->
+    <div id="maintenance">
+        <h2 data-translate="maintenance" id="maintenanceM"></h2>
+    </div>
+
+    <!-- Главное меню -->
+    <div class="top-bar" id="mainTopBar">
+        <button class="icon-btn" id="userBtn" title="Profile" style="margin-right: 2.5%;"><i class="fa-solid fa-user"></i></button>
+        <button class="icon-btn" id="statsBtn" title="Statistics" style="margin-right: 2.5%;"><i class="fa-solid fa-chart-simple"></i></button>
+        <button class="icon-btn" id="settingsBtn" title="Settings"><i class="fa-solid fa-gear"></i></button>
+    </div>
+
+    <div class="main" id="mainMenu">
+        <h2 data-translate="main" id="mainM"></h2>
+        <div class="buttons-container" id="featureButtons"></div>
+    </div>
+
+    <!-- Меню настроек -->
+    <div id="settingsMenu">
+        <div class="top-bar" id="settingsTopBar">
+            <button class="icon-btn" id="backBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="settingsTitle" id="settingsTitle"></span>
+            <span style="width:36px; height:36px;"></span>
+        </div>
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="langSectionTitle">Язык / Language</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div class="field">
+                            <select id="langSelect"></select>
+                            <button class="btn" id="tok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 id="stat_setting_text">Настройки статистики</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <select id="statSelect">
+                            <option value="yes">Собирать данные для статистики</option>
+                            <option value="no">Не собирать данные для статистики</option>
+                        </select>
+                        <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">Очистить все данные статистики</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="userDataSectionTitle">Данные пользователя</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div class="settings-buttons" id="userDataButtons"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="supportSectionTitle">Поддержка</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div class="settings-buttons" id="settingsButtons"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Меню статистики -->
+    <div id="statsMenu">
+        <div class="top-bar" id="statsTopBar">
+            <button class="icon-btn" id="statsBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="statsTitle" id="statsTitle"></span>
+            <span style="width:36px; height:36px;"></span>
+        </div>
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card" style="white-space: pre-line;">
+                    <h3 id="stat" style="color: white;">Статистики нет || No statistic</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Меню пользователя -->
+    <div id="userMenu">
+        <div class="top-bar" id="userTopBar">
+            <button class="icon-btn" id="userBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="userTitle" id="userTitle"></span>
+            <span style="width:36px; height:36px;"></span>
+        </div>
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="tokenSectionTitle"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <button class="btn" id="userTok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="historySectionTitle"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div id="histories"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="usageTimeTitle"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div id="usageTimes"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Меню QR-кода -->
+    <div id="qrMenu">
+        <div class="top-bar" id="qrTopBar">
+            <button class="icon-btn" id="qrBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="qrTitle" id="qrTitle"></span>
+            <span style="width:36px; height:36px;"></span>
+        </div>
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card">
+                    <div id="qrCodeContainer" style="display: flex; justify-content: center;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <script>
+        const LINKS = {
+            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",
+            supportRU:   "https://t.me/Clickerstart_bot",
+            supportEN:   "https://t.me/Clickerstart_bot"
+        };
+
+        const filesRu = {
+            nickname: 'nickname.html',
+            description: 'description.html',
+            profile: 'avatar.html',
+            lego: 'lego.html',
+            font: 'font.html',
+            sites: 'https://sites.google.com/',
+            ascii: 'ascii.html',
+            qr: 'qr.html',
+            music: 'music.html',
+            colors: 'colors.html',
+            ai: 'ai.html',
+            support: 'support.html',
+            connection: 'connection.html'
+        };
+
+        const filesEn = {
+            nickname: 'nickname_en.html',
+            description: 'description_en.html',
+            profile: 'avatar_en.html',
+            lego: 'lego_en.html',
+            font: 'font_en.html',
+            sites: 'https://sites.google.com/',
+            ascii: 'ascii_en.html',
+            qr: 'qr_en.html',
+            music: 'music_en.html',
+            colors: 'colors_en.html',
+            ai: 'ai_en.html',
+            support: 'support_en.html',
+            connection: 'connection_en.html'
+        };
+
+        const tok = document.getElementById("tok");
+        tok.style.background = "linear-gradient(180deg, var(--btn), #1b1280)";
+        tok.style.color = "#fff";
+        tok.style.border = "none";
+        tok.style.borderRadius = "12px";
+        tok.style.padding = "10px 16px";
+        tok.style.fontWeight = "600";
+        tok.style.cursor = "pointer";
+
+        let lang = localStorage.getItem('lang') || 'en';
+
+        let translations = {
+            ru: {
+                main: "Что будем создавать?",
+                maintenance: "Проводится техническое обслуживание.",
+                settingsTitle: "Настройки",
+                statsTitle: "Ваша статистика за все время",
+                langSectionTitle: "Настройки языка и токена",
+                supportSectionTitle: "Поддержка и связь",
+                userDataSectionTitle: "Загрузка и сохранение данных",
+                featureButtons: [
+                    "Никнейм","Описание","Аватарка","Лego","Шрифт","Сайт",
+                    "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
+                ],
+                settingsButtons: ["Поддержка","Проверка соединения"],
+                langOptions: ["Русский","English"],
+                writeComplaint: "Написать жалобу",
+                writeSupport: "Написать в службу поддержки",
+                userTitle: "Ваш профиль",
+                historySectionTitle: "История",
+                tokenSectionTitle: "Токен",
+                usageTimeTitle: "Время использования",
+                qrTitle: "QR-код данных",
+                saveData: "Сохранить мои данные для QR-кода",
+                loadData: "Загрузить данные из QR-кода",
+                showQr: "Показать QR-код моих данных",
+                copyData: "Скопировать мои данные в буфер обмена",
+                loadClipboard: "Загрузить данные из буфера обмена"
+            },
+            en: {
+                main: "What do you want to create?",
+                maintenance: "Maintenance in progress.",
+                settingsTitle: "Settings",
+                statsTitle: "Your all-time statistics",
+                langSectionTitle: "Language & token",
+                supportSectionTitle: "Support",
+                userDataSectionTitle: "Save and load datas",
+                featureButtons: [
+                    "Nickname","Description","Profile","Lego","Font","Sites",
+                    "ASCII-art","QR-code","Music","Colors","AI-Generator"
+                ],
+                settingsButtons: ["Support","Connection check"],
+                langOptions: ["Русский","English"],
+                writeComplaint: "",
+                writeSupport: "Contact Support",
+                userTitle: "Profile",
+                historySectionTitle: "History",
+                tokenSectionTitle: "Token",
+                usageTimeTitle: "Usage Time",
+                qrTitle: "Data QR Code",
+                saveData: "Save my data for QR code",
+                loadData: "Load data from QR code",
+                showQr: "Show QR code of my data",
+                copyData: "Copy my datas to clipboard",
+                loadClipboard: "Load datas from clipboard"
+            }
+        };
+
+        function createButton({ text, icon, onClick, href, newTab=false, disabled=false, id }) {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            if (id) btn.id = id;
+            if (icon) {
+                const i = document.createElement('i');
+                i.className = icon;
+                btn.appendChild(i);
+            }
+            const span = document.createElement('span');
+            span.textContent = text;
+            btn.appendChild(span);
+
+            if (href) {
+                btn.onclick = () => { newTab ? window.open(href, '_blank') : window.location.href = href; };
+            } else if (onClick) {
+                btn.onclick = onClick;
+            }
+            if (disabled) {
+                btn.disabled = true;
+                btn.title = 'Укажите ссылку в объекте LINKS';
+            }
+            return btn;
+        }
+
+        function applyTranslations() {
+            const files = lang === 'ru' ? filesRu : filesEn;
+
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[lang][key] !== undefined) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            const featureContainer = document.getElementById('featureButtons');
+            featureContainer.innerHTML = '';
+            const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai'];
+            translations[lang].featureButtons.forEach((text, i) => {
+                const url = files[featureKeys[i]];
+                const isExternal = /^https?:\/\//i.test(url);
+                const btn = createButton({ text, icon: 'fa-solid fa-shapes', href: url, newTab: isExternal });
+                featureContainer.appendChild(btn);
+            });
+
+            const settingsContainer = document.getElementById('settingsButtons');
+            settingsContainer.innerHTML = '';
+            const settingsKeys = ['support','connection'];
+            const settingsIcons = ['fa-solid fa-circle-info','fa-solid fa-wifi'];
+            translations[lang].settingsButtons.forEach((text, i) => {
+                const url = files[settingsKeys[i]];
+                const btn = createButton({ text, icon: settingsIcons[i], href: url });
+                settingsContainer.appendChild(btn);
+            });
+
+            if (lang === 'ru') {
+                const hasLink = !!LINKS.complaintRU && /^https?:\/\//i.test(LINKS.complaintRU);
+                const complaintBtn = createButton({
+                    text: translations.ru.writeComplaint,
+                    icon: 'fa-solid fa-pen-to-square',
+                    href: hasLink ? LINKS.complaintRU : undefined,
+                    newTab: true,
+                    disabled: !hasLink
+                });
+                settingsContainer.appendChild(complaintBtn);
+            }
+
+            const supportLink = lang === 'ru' ? LINKS.supportRU : LINKS.supportEN;
+            const supportOk = !!supportLink && /^https?:\/\//i.test(supportLink);
+            const writeSupportBtn = createButton({
+                text: translations[lang].writeSupport,
+                icon: 'fa-solid fa-headset',
+                href: supportOk ? supportLink : undefined,
+                newTab: true,
+                disabled: !supportOk
+            });
+            settingsContainer.appendChild(writeSupportBtn);
+
+            const userDataContainer = document.getElementById('userDataButtons');
+            userDataContainer.innerHTML = '';
+
+            const saveDataBtn = createButton({
+                text: translations[lang].saveData,
+                icon: 'fa-solid fa-save',
+                onClick: saveUserData
+            });
+            userDataContainer.appendChild(saveDataBtn);
+
+            if (localStorage.getItem('user_data_string')) {
+                const showQrBtn = createButton({
+                    text: translations[lang].showQr,
+                    icon: 'fa-solid fa-qrcode',
+                    onClick: showQrMenu
+                });
+                userDataContainer.appendChild(showQrBtn);
+            }
+
+            const loadDataBtn = createButton({
+                text: translations[lang].loadData,
+                icon: 'fa-solid fa-upload',
+                onClick: loadUserData
+            });
+            userDataContainer.appendChild(loadDataBtn);
+
+            const copyDataBtn = createButton({
+                text: translations[lang].copyData,
+                icon: 'fa-solid fa-copy',
+                onClick: copyUserData
+            });
+            userDataContainer.appendChild(copyDataBtn);
+
+            const loadClipboardBtn = createButton({
+                text: translations[lang].loadClipboard,
+                icon: 'fa-solid fa-paste',
+                onClick: loadFromClipboard
+            });
+            userDataContainer.appendChild(loadClipboardBtn);
+
+            const langSelect = document.getElementById('langSelect');
+            langSelect.innerHTML = '';
+            translations[lang].langOptions.forEach((text, i) => {
+                const option = document.createElement('option');
+                option.value = i === 0 ? 'ru' : 'en';
+                option.textContent = text;
+                option.selected = (option.value === lang);
+                langSelect.appendChild(option);
+            });
+        }
+
+        const btn = document.getElementById("userBtn");
+        const observer = new MutationObserver(() => {
+            if (btn.disabled){
+                btn.disabled = false;
+                btn.style.background = '';
+            }    
+        });
+        observer.observe(btn, { attributes: true, attributeFilter: ['disabled'] });
+
+        function initTokenButton(btnId) {
+            let isVisible = false;
+            const updateLabel = () => {
+                const userToken = localStorage.getItem('userToken') || '';
+                const maskedToken = userToken ? '*'.repeat(userToken.length) : '';
+                const btn = document.getElementById(btnId);
+                if (isVisible) {
+                    btn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                        (lang === 'ru' ? 'Ваш токен: ' + userToken + ' (Нажмите для копирования)' : 
+                        'Your token: ' + userToken + ' (Click to copy)') + '</span>';
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                        (lang === 'ru' ? 'Ваш токен: ' + maskedToken + ' (Нажмите для показа)' : 
+                        'Your token: ' + maskedToken + ' (Click to show)') + '</span>';
+                }
+            };
+            updateLabel();
+            document.getElementById(btnId).onclick = () => {
+                const userToken = localStorage.getItem('userToken') || '';
+                if (!isVisible) {
+                    isVisible = true;
+                    updateLabel();
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = userToken;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+                    } catch (err) {
+                        alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+                    }
+                    document.body.removeChild(textArea);
+                    isVisible = false;
+                    updateLabel();
+                }
+            };
+        }
+
+        applyTranslations();
+        initTokenButton('tok');
+        initTokenButton('userTok');
+
+        document.getElementById('settingsBtn').onclick = () => {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('mainTopBar').style.display = 'none';
+            document.getElementById('settingsMenu').style.display = 'block';
+            applyTranslations();
+        };
+
+        document.getElementById('backBtn').onclick = () => {
+            document.getElementById('settingsMenu').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('mainTopBar').style.display = 'flex';
+        };
+
+        document.getElementById('statsBtn').onclick = () => {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('mainTopBar').style.display = 'none';
+            document.getElementById('statsMenu').style.display = 'block';
+            showUserStatistics();
+        };
+
+        document.getElementById('statsBackBtn').onclick = () => {
+            document.getElementById('statsMenu').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('mainTopBar').style.display = 'flex';
+        };
+
+        document.getElementById('userBtn').onclick = () => {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('mainTopBar').style.display = 'none';
+            document.getElementById('userMenu').style.display = 'block';
+            showUserInfo();
+        };
+
+        document.getElementById('userBackBtn').onclick = () => {
+            document.getElementById('userMenu').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('mainTopBar').style.display = 'flex';
+        };
+
+        document.getElementById('qrBackBtn').onclick = () => {
+            document.getElementById('qrMenu').style.display = 'none';
+            document.getElementById('settingsMenu').style.display = 'block';
+        };
+
+        document.getElementById('langSelect').onchange = function() {
+            lang = this.value;
+            localStorage.setItem('lang', lang);
+            applyTranslations();
+            initTokenButton('tok');
+            initTokenButton('userTok');
+            showUserStatistics();
+            showUserInfo();
+        };
+
+        const m = localStorage.getItem('m');
+        if (m === 'Уже' || m === 'уже') {
+            document.querySelectorAll('div').forEach(el => el.style.display = 'none');
+            alert(lang === 'ru' ? 'Идет техническое обслуживание' : 'Maintenance in progress');
+            document.getElementById('maintenance').style.display = 'block';
+            document.getElementById('maintenanceM').textContent = translations[lang].maintenance;
+        } else if (m === 'Скоро' || m === 'скоро') {
+            alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
+        }
+
+        if (!localStorage.getItem('first_use_date')) {
+            localStorage.setItem('first_use_date', new Date().toISOString());
+        }
+
+        function showUserStatistics() {
+            let html = '';
+            const genData = [
+                {name: lang === 'ru' ? 'Никнейм' : 'Nickname', count: parseInt(localStorage.getItem('created_nicknames') || '0')},
+                {name: lang === 'ru' ? 'Описание' : 'Description', count: parseInt(localStorage.getItem('created_descriptions') || '0')},
+                {name: lang === 'ru' ? 'Аватарка' : 'Avatar', count: parseInt(localStorage.getItem('created_profiles') || '0')},
+                {name: lang === 'ru' ? 'Лego' : 'Lego', count: parseInt(localStorage.getItem('created_lego') || '0')},
+                {name: lang === 'ru' ? 'Шрифт' : 'Font', count: parseInt(localStorage.getItem('created_fonts') || '0')},
+                {name: lang === 'ru' ? 'Символ-арт' : 'ASCII art', count: parseInt(localStorage.getItem('created_ascii_arts') || '0')},
+                {name: lang === 'ru' ? 'QR-код' : 'QR code', count: parseInt(localStorage.getItem('created_qr_codes') || '0')},
+                {name: lang === 'ru' ? 'Музыка' : 'Music', count: parseInt(localStorage.getItem('created_musics') || '0')},
+                {name: lang === 'ru' ? 'Цвета' : 'Colors', count: parseInt(localStorage.getItem('copied_color_codes') || '0')}
+            ];
+            genData.sort((a, b) => b.count - a.count);
+            let topHtml = (lang === 'ru' ? '<div>Топ используемых генераторов:</div>' : '<div>Top used generators:</div>');
+            genData.slice(0, 3).forEach((g, i) => {
+                topHtml += `<div>${i + 1}. ${g.name}: ${g.count}</div>`;
+            });
+            if (localStorage.getItem('lang') === 'ru'){
+                document.getElementById('statSelect').innerHTML = 
+                `
+                <option value="yes">Собирать данные для статистики</option>
+                <option value="no">Не собирать данные для статистики</option>
+                `;
+                if (localStorage.getItem('statistic_turn') === 'yes'){
+                    document.getElementById('statSelect').value = 'yes';
+                }
+                else{
+                    document.getElementById('statSelect').value = 'no';
+                }
+                document.getElementById('stat_setting_text').textContent = 'Настройка статистики';
+                document.getElementById('clear').textContent = 'Очистить все данные статистики';
+                html =
+                `<div>Создано никнеймов: ${localStorage.getItem('created_nicknames') || 0}</div>` +
+                `<div>Создано описаний: ${localStorage.getItem('created_descriptions') || 0}</div>` +
+                `<div>Создано аватаров: ${localStorage.getItem('created_profiles') || 0}</div>` +
+                `<div>Создано лего: ${localStorage.getItem('created_lego') || 0}</div>` +
+                `<div>Создано шрифтов: ${localStorage.getItem('created_fonts') || 0}</div>` +
+                `<div>Создано символ-артов: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
+                `<div>Создано qr-кодов: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
+                `<div>Создано музыки: ${localStorage.getItem('created_musics') || 0}</div>` +
+                `<div>Скопировано кодов цвета: ${localStorage.getItem('copied_color_codes') || 0}</div>` +
+                `<div>Скопировано никнеймов: ${localStorage.getItem('copied_nicknames') || 0}</div>` +
+                `<div>Скопировано описаний: ${localStorage.getItem('copied_descriptions') || 0}</div>` +
+                `<div>Отправлено никнеймов: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
+                `<div>Отправлено описаний: ${localStorage.getItem('shared_descriptions') || 0}</div>`;
+                html += topHtml;
+                document.getElementById('stat').innerHTML = html;
+            }
+            else{
+                document.getElementById('statSelect').innerHTML = 
+                `
+                <option value="yes">Collect statistics data</option>
+                <option value="no">Do not collect statistics data</option>
+                `;
+                if (localStorage.getItem('statistic_turn') === 'yes'){
+                    document.getElementById('statSelect').value = 'yes';
+                }
+                else{
+                    document.getElementById('statSelect').value = 'no';
+                }
+                document.getElementById('stat_setting_text').textContent = 'Setting up statistics';
+                document.getElementById('clear').textContent = 'Clear all statistics data';
+                html =
+                    `<div>Nicknames created: ${localStorage.getItem('created_nicknames') || 0}</div>` +
+                    `<div>Descriptions created: ${localStorage.getItem('created_descriptions') || 0}</div>` +
+                    `<div>Avatars created: ${localStorage.getItem('created_profiles') || 0}</div>` +
+                    `<div>Lego created: ${localStorage.getItem('created_lego') || 0}</div>` +
+                    `<div>Fonts created: ${localStorage.getItem('created_fonts') || 0}</div>` +
+                    `<div>ASCII arts created: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
+                    `<div>QR codes created: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
+                    `<div>Music created: ${localStorage.getItem('created_musics') || 0}</div>` +
+                    `<div>Color codes copied: ${localStorage.getItem('copied_color_codes') || 0}</div>` +
+                    `<div>Nicknames copied: ${localStorage.getItem('copied_nicknames') || 0}</div>` +
+                    `<div>Descriptions copied: ${localStorage.getItem('copied_descriptions') || 0}</div>` +
+                    `<div>Nicknames sent: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
+                    `<div>Descriptions sent: ${localStorage.getItem('shared_descriptions') || 0}</div>`;
+                html += topHtml;
+                document.getElementById('stat').innerHTML = html;
+            }
+        }
+
+        function calculateUsageDuration() {
+            const firstDateStr = localStorage.getItem('first_use_date');
+            if (!firstDateStr) return {days: 0, months: 0, years: 0};
+
+            const first = new Date(firstDateStr);
+            const now = new Date();
+            let delta = new Date(now - first);
+
+            let years = delta.getUTCFullYear() - 1970;
+            let months = delta.getUTCMonth();
+            let days = delta.getUTCDate() - 1;
+
+            return {days, months, years};
+        }
+
+        function getPluralForm(number, forms) {
+            if (number % 10 === 1 && number % 100 !== 11) return forms[0];
+            if (number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20)) return forms[1];
+            return forms[2];
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear().toString().slice(-2);
+            return `${day}.${month}.${year}`;
+        }
+
+        function showUserInfo() {
+            const histElem = document.getElementById('histories');
+            const usageElem = document.getElementById('usageTimes');
+            const firstDate = localStorage.getItem('first_use_date');
+            const firstEntryText = lang === 'ru' ? 'Первый вход: ' : 'First entry: ';
+            const usageText = lang === 'ru' ? 'Вы пользуетесь приложением уже ' : 'You have been using the app for ';
+            const {days, months, years} = calculateUsageDuration();
+            let duration = '';
+            if (lang === 'ru') {
+                const yearForm = getPluralForm(years, ['год', 'года', 'лет']);
+                const monthForm = getPluralForm(months, ['месяц', 'месяца', 'месяцев']);
+                const dayForm = getPluralForm(days, ['день', 'дня', 'дней']);
+                duration = `${days} ${dayForm} ${months} ${monthForm} ${years} ${yearForm}`;
+                histElem.innerHTML = 
+                    `<div>История никнеймов: ${localStorage.getItem('nick_story') || 'Нет'}</div>` +
+                    `<div>История описаний: ${localStorage.getItem('desc_story') || 'Нет'}</div>`;
+                usageElem.innerHTML = 
+                    `<ul><li>${firstEntryText}${formatDate(firstDate)}</li>` +
+                    `<li>${usageText}${duration}</li></ul>`;
+            } else {
+                const yearForm = years === 1 ? 'year' : 'years';
+                const monthForm = months === 1 ? 'month' : 'months';
+                const dayForm = days === 1 ? 'day' : 'days';
+                duration = `${days} ${dayForm} ${months} ${monthForm} ${years} ${yearForm}`;
+                histElem.innerHTML = 
+                    `<div>Nicknames history: ${localStorage.getItem('nick_story') || 'None'}</div>` +
+                    `<div>Descriptions history: ${localStorage.getItem('desc_story') || 'None'}</div>`;
+                usageElem.innerHTML = 
+                    `<ul><li>${firstEntryText}${formatDate(firstDate)}</li>` +
+                    `<li>${usageText}${duration}</li></ul>`;
+            }
+        }
+
+        function clearAllStatistic() {
+            let confirmed;
+            if (localStorage.getItem('lang') === 'ru') {
+                confirmed = confirm(
+                    `Вы уверены, что хотите очистить всю свою статистику?\n` +
+                    `Это действие нельзя будет отменить!\n` +
+                    `Вся ваша статистика будет полностью обнулена, все значения станут равны нулю!\n` +
+                    `ОК - Подтвердить очистку\nОтмена - Отменить очистку.`
+                );
+            } else {
+                confirmed = confirm(
+                    `Are you sure you want to clear all your statistics?\n` +
+                    `This action cannot be undone!\n` +
+                    `All your statistics will be completely reset; all values will be set to zero!\n` +
+                    `OK - Confirm reset\nCancel - Cancel reset`
+                );
+            }
+            if (!confirmed) return;
+            if (confirmed){
+                alert('✅');
+            }
+            const keys = [
+                'created_nicknames',
+                'created_descriptions',
+                'created_profiles',
+                'created_lego',
+                'created_fonts',
+                'created_ascii_arts',
+                'created_qr_codes',
+                'created_musics',
+                'copied_color_codes',
+                'copied_nicknames',
+                'copied_descriptions',
+                'shared_nicknames',
+                'shared_descriptions',
+                'usage_day',
+                'usage_week',
+                'usage_month',
+                'last_day',
+                'last_week',
+                'last_month',
+                'nick_story',
+                'desc_story'
+            ];
+            keys.forEach(key => localStorage.removeItem(key));
+            showUserStatistics();
+            showUserInfo();
+        }
+
+        function checkStatSelectValueToStatButtonShowing(){
+            const isDisabled = localStorage.getItem('statistic_turn') === 'no';
+            document.getElementById('statsBtn').disabled = isDisabled;
+            document.getElementById('statsBtn').style.background = isDisabled ? 'gray' : '';
+            document.getElementById('userBtn').disabled = isDisabled;
+            document.getElementById('userBtn').style.background = isDisabled ? 'gray' : '';
+        }
+        const statSelect = document.getElementById('statSelect');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedValue = localStorage.getItem('statistic_turn');
+            if (savedValue) {
+                statSelect.value = savedValue;
+            }
+            saveStatValue();
+            checkStatSelectValueToStatButtonShowing();
+        });
+
+        function saveStatValue() {
+            const value = statSelect.value === 'yes' ? 'yes' : 'no';
+            localStorage.setItem('statistic_turn', value);
+            checkStatSelectValueToStatButtonShowing();
+        }
+
+        statSelect.addEventListener('change', saveStatValue);
+
+        showUserStatistics();
+        showUserInfo();
+
+        const dataKeys = [
+            'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
+            'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
+            'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
+            'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story',
+            'first_use_date', 'statistic_turn', 'lang'
+        ];
+
+        const statKeys = [
+            'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
+            'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
+            'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
+            'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story'
+        ];
+
+        function saveUserData() {
+            const data = {};
+            const statTurn = localStorage.getItem('statistic_turn') || 'yes';
+
+            dataKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value === null || value === undefined) return;
+                if (key === 'userToken') return;
+                if (statKeys.includes(key) && statTurn === 'no') return;
+                if (statKeys.includes(key) && (value === '0' || value.trim() === '')) return;
+                data[key] = value;
+            });
+
+            const dataString = JSON.stringify(data);
+            localStorage.setItem('user_data_string', dataString);
+            alert(lang === 'ru' ? 'Данные сохранены! Теперь вы можете показать QR-код.' : 'Data saved! Now you can show the QR code.');
+            applyTranslations();
+        }
+
+        function buildExportObject() {
+            const includeStats = (localStorage.getItem('statistic_turn') === 'yes');
+            const out = {};
+            (dataKeys || []).forEach(k => {
+                if (k === 'user_data_string') return;
+                out[k] = localStorage.getItem(k);
+            });
+            if (includeStats) {
+                const stats = {};
+                statKeys.forEach(k => {
+                    const raw = localStorage.getItem(k);
+                    const n = parseInt(raw, 10);
+                    stats[k] = (raw === null || raw === undefined || isNaN(n)) ? '0' : String(n);
+                });
+                out.statistics = stats;
+            }
+            out.__statsIncluded = includeStats;
+            out.__exportedAt = new Date().toISOString();
+            out.__formatVersion = 2;
+            return out;
+        }
+
+        async function writeToClipboardSafe(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch (e) {
+                console.warn('navigator.clipboard failed:', e);
+            }
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                ta.setAttribute('readonly', '');
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            } catch (e) {
+                console.warn('execCommand copy failed:', e);
+                return false;
+            }
+        }
+
+        async function copyUserData() {
+            try {
+                const exportObj = buildExportObject();
+                const preferredOrder = [
+                    'lang','userToken','statistic_turn','first_use_date',
+                    'created_nicknames','created_descriptions','created_profiles','created_lego',
+                    'created_fonts','created_ascii_arts','created_qr_codes','created_musics',
+                    'copied_color_codes','copied_nicknames','copied_descriptions',
+                    'shared_nicknames','shared_descriptions','nick_story','desc_story',
+                    '__statsIncluded','statistics','__exportedAt','__formatVersion'
+                ];
+                const ordered = {};
+                preferredOrder.forEach(k => { if (k in exportObj) ordered[k] = exportObj[k]; });
+                Object.keys(exportObj).sort().forEach(k => {
+                    if (!(k in ordered)) ordered[k] = exportObj[k];
+                });
+                const json = JSON.stringify(ordered, null, 2);
+                const ok = await writeToClipboardSafe(json);
+                if (ok) {
+                    alert(lang === 'ru' ? 'Данные скопированы.' : 'Data copied.');
+                } else {
+                    alert(lang === 'ru' ? 'Не удалось скопировать данные.' : 'Failed to copy data.');
+                }
+            } catch (err) {
+                console.error('copyUserData error:', err);
+                alert(lang === 'ru' ? 'Ошибка при подготовке данных.' : 'Error preparing data.');
+            }
+        }
+
+        function loadFromClipboard() {
+            navigator.clipboard.readText().then(payload => {
+                processLoadedData(payload.trim());
+            }).catch(err => {
+                alert(lang === 'ru' ? 'Не удалось прочитать из буфера обмена.' : 'Failed to read from clipboard.');
+            });
+            location.reload();
+        }
+
+        function showQrMenu() {
+            const dataString = localStorage.getItem('user_data_string');
+            if (!dataString) return;
+            document.getElementById('settingsMenu').style.display = 'none';
+            document.getElementById('qrMenu').style.display = 'block';
+            const qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = '';
+            const qrDiv = document.createElement('div');
+            qrContainer.appendChild(qrDiv);
+            try {
+                new QRCode(qrDiv, {
+                    text: dataString,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (err) {
+                console.error("QR generation error:", err);
+                qrDiv.innerHTML = lang === 'ru'
+                    ? "Данные не вмещаются в QR-код, попробуйте другой способ сохранения/загрузки данных."
+                    : "Data does not fit in QR code, please try another way to save/load data.";
+            }
+        }
+
+        function loadUserData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = new Image();
+                    img.onload = async () => {
+                        try {
+                            const MAX_DIM = 1200;
+                            const scales = [1, 1.5, 2, 3, 4];
+                            let code = null;
+                            const toGrayscale = (imageData) => {
+                                const { data, width, height } = imageData;
+                                const gray = new Uint8ClampedArray(width * height);
+                                for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+                                    const y = (0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2]);
+                                    gray[j] = y;
+                                }
+                                return { gray, width, height };
+                            };
+                            const histogramEqualize = (gray) => {
+                                const hist = new Uint32Array(256);
+                                for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
+                                const cdf = new Uint32Array(256);
+                                cdf[0] = hist[0];
+                                for (let i = 1; i < 256; i++) cdf[i] = cdf[i-1] + hist[i];
+                                const cdfMin = cdf.find(v => v > 0) || 0;
+                                const total = gray.length;
+                                const lut = new Uint8ClampedArray(256);
+                                for (let i = 0; i < 256; i++) {
+                                    lut[i] = Math.round((cdf[i] - cdfMin) / (total - cdfMin) * 255);
+                                }
+                                const out = new Uint8ClampedArray(gray.length);
+                                for (let i = 0; i < gray.length; i++) out[i] = lut[gray[i]];
+                                return out;
+                            };
+                            const otsuThreshold = (gray) => {
+                                const hist = new Uint32Array(256);
+                                for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
+                                const total = gray.length;
+                                let sum = 0;
+                                for (let t = 0; t < 256; t++) sum += t * hist[t];
+                                let sumB = 0, wB = 0, max = 0, threshold = 0;
+                                for (let t = 0; t < 256; t++) {
+                                    wB += hist[t];
+                                    if (wB === 0) continue;
+                                    const wF = total - wB;
+                                    if (wF === 0) break;
+                                    sumB += t * hist[t];
+                                    const mB = sumB / wB;
+                                    const mF = (sum - sumB) / wF;
+                                    const between = wB * wF * (mB - mF) * (mB - mF);
+                                    if (between > max) { max = between; threshold = t; }
+                                }
+                                return threshold;
+                            };
+                            const binarize = (gray, thresh) => {
+                                const bin = new Uint8ClampedArray(gray.length);
+                                for (let i = 0; i < gray.length; i++) bin[i] = gray[i] >= thresh ? 255 : 0;
+                                return bin;
+                            };
+                            const dilateBinary = (bin, w, h, iter = 1) => {
+                                let cur = bin.slice();
+                                const next = new Uint8ClampedArray(bin.length);
+                                for (let it = 0; it < iter; it++) {
+                                    next.set(cur);
+                                    for (let y = 1; y < h - 1; y++) {
+                                        for (let x = 1; x < w - 1; x++) {
+                                            const i = y * w + x;
+                                            if (cur[i] === 255) {
+                                                const n1 = cur[i-1], n2 = cur[i+1], n3 = cur[i-w], n4 = cur[i+w];
+                                                if (n1 === 0 || n2 === 0 || n3 === 0 || n4 === 0) next[i] = 0;
+                                            }
+                                        }
+                                    }
+                                    cur.set(next);
+                                }
+                                return cur;
+                            };
+                            const binaryToImageData = (bin, w, h) => {
+                                const out = new Uint8ClampedArray(w * h * 4);
+                                for (let i = 0, j = 0; i < bin.length; i++, j += 4) {
+                                    out[j] = out[j+1] = out[j+2] = bin[i];
+                                    out[j+3] = 255;
+                                }
+                                return new ImageData(out, w, h);
+                            };
+                            const imageDataToImageDataObj = (ctx, w, h) => ctx.getImageData(0, 0, w, h);
+                            const tryDecodeImageData = (imageData) => {
+                                try {
+                                    return jsQR(imageData.data, imageData.width, imageData.height);
+                                } catch (err) {
+                                    console.warn('jsQR exception:', err);
+                                    return null;
+                                }
+                            };
+                            for (let scale of scales) {
+                                let w = Math.round(img.width * scale);
+                                let h = Math.round(img.height * scale);
+                                if (w > MAX_DIM || h > MAX_DIM) {
+                                    const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
+                                    w = Math.max(16, Math.round(w * ratio));
+                                    h = Math.max(16, Math.round(h * ratio));
+                                }
+                                if (w < 16 || h < 16) continue;
+                                const canvas = document.createElement('canvas');
+                                canvas.width = w;
+                                canvas.height = h;
+                                const ctx = canvas.getContext('2d');
+                                for (const smoothing of [false, true]) {
+                                    ctx.imageSmoothingEnabled = smoothing;
+                                    ctx.clearRect(0, 0, w, h);
+                                    ctx.drawImage(img, 0, 0, w, h);
+                                    console.log(`Try scale=${scale}, smoothing=${smoothing}, canvas=${w}x${h}`);
+                                    let id = imageDataToImageDataObj(ctx, w, h);
+                                    code = tryDecodeImageData(id);
+                                    if (code && code.data) { console.log('Found (raw) at', scale, smoothing); break; }
+                                    const { gray } = toGrayscale(id);
+                                    const he = histogramEqualize(gray);
+                                    const heImage = binaryToImageData(he.map(v => v), w, h);
+                                    code = tryDecodeImageData(heImage);
+                                    if (code && code.data) { console.log('Found (hist eq) at', scale, smoothing); break; }
+                                    const thresh = otsuThreshold(he);
+                                    const bin = binarize(he, thresh);
+                                    const dil = dilateBinary(bin, w, h, 1);
+                                    const dilImage = binaryToImageData(dil, w, h);
+                                    code = tryDecodeImageData(dilImage);
+                                    if (code && code.data) { console.log('Found (binary+dilate) at', scale, smoothing); break; }
+                                    const invBin = new Uint8ClampedArray(bin.length);
+                                    for (let i = 0; i < bin.length; i++) invBin[i] = 255 - bin[i];
+                                    const invDil = dilateBinary(invBin, w, h, 1);
+                                    const invImage = binaryToImageData(invDil, w, h);
+                                    code = tryDecodeImageData(invImage);
+                                    if (code && code.data) { console.log('Found (inv binary+dilate) at', scale, smoothing); break; }
+                                }
+                                if (code && code.data) break;
+                            }
+                            if (!code) {
+                                alert(lang === 'ru' ? 'Ошибка: QR-код не найден или некорректен.' : 'Error: QR code not found or invalid.');
+                                return;
+                            }
+                            processLoadedData(code.data.trim());
+                        } catch (err) {
+                            console.error('Processing error:', err);
+                            alert(lang === 'ru' ? 'Ошибка при обработке изображения.' : 'Error while processing the image.');
+                        }
+                    };
+                    img.onerror = () => {
+                        alert(lang === 'ru' ? 'Не удалось загрузить изображение.' : 'Could not load the image.');
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        function processLoadedData(payload) {
+            try {
+                const data = JSON.parse(payload);
+                let confirmed;
+                if (lang === 'ru') {
+                    confirmed = confirm(
+                        "Вы точно хотите загрузить эти данные из QR-кода?\n" +
+                        "Предыдущие данные будут заменены на те что из QR-кода.\n" +
+                        "ОК - Подтвердить\nОтмена - Отменить"
+                    );
+                } else {
+                    confirmed = confirm(
+                        "Are you sure you want to load these data from QR code?\n" +
+                        "Previous data will be replaced with those from the QR code.\n" +
+                        "OK - Confirm\nCancel - Cancel"
+                    );
+                }
+                if (!confirmed) return;
+                const statKeys = [
+                    'created_nicknames','created_descriptions','created_profiles','created_lego',
+                    'created_fonts','created_ascii_arts','created_qr_codes','created_musics',
+                    'copied_color_codes','copied_nicknames','copied_descriptions',
+                    'shared_nicknames','shared_descriptions',
+                    'usage_day','usage_week','usage_month','last_day','last_week','last_month'
+                ];
+                Object.keys(data).forEach(key => {
+                    if (!dataKeys.includes(key)) return;
+                    if (key === 'userToken') return;
+                    const raw = data[key];
+                    if (statKeys.includes(key)) {
+                        const n = parseInt(raw);
+                        if (raw === null || raw === undefined || isNaN(n)) {
+                            localStorage.setItem(key, '0');
+                        } else {
+                            localStorage.setItem(key, String(n));
+                        }
+                    } else {
+                        if (raw === null || raw === undefined) {
+                            localStorage.setItem(key, '');
+                        } else {
+                            localStorage.setItem(key, String(raw));
+                        }
+                    }
+                });
+                alert(lang === 'ru' ? 'Данные успешно загружены!' : 'Data successfully loaded!');
+                showUserStatistics();
+                showUserInfo();
+                applyTranslations();
+                location.reload();
+            } catch (err) {
+                console.error('JSON parse error:', err, 'raw:', payload);
+                alert(lang === 'ru' ? 'Ошибка: Некорректные данные в QR-коде.' : 'Error: Invalid data in QR code.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.card-header, .toggle-btn').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    if (e.target.closest('.toggle-btn') && e.currentTarget.classList.contains('card-header')) {
+                        return;
+                    }
+                    const header = element.closest('.card-header');
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('.toggle-btn i');
+                    if (content.style.display === 'none' || content.style.display === '') {
+                        content.style.display = 'block';
+                        icon.classList.remove('fa-caret-down');
+                        icon.classList.add('fa-caret-up');
+                    } else {
+                        content.style.display = 'none';
+                        icon.classList.remove('fa-caret-up');
+                        icon.classList.add('fa-caret-down');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

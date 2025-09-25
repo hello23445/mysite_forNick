@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Font Creation for Text</title>
+  <style>
+    /* Main styles (blue, light blue, white) */
+    body {
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: flex-start; /* changed: align to top */
+      justify-content: center;
+      padding-top: 50px; /* added top padding to raise the screen */
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 500px;
+      border: 2px solid #2196f3;
+      overflow: hidden;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #1565c0;
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #90caf9;
+      border-radius: 5px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus {
+      border-color: #2196f3;
+    }
+    button.arrow {
+      background: #2196f3;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button.arrow:hover {
+      background: #1976d2;
+    }
+    /* Styles for the options block with "unfold" animation (1s transition) */
+    .options-container {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 1.3s ease, opacity 1s ease;
+    }
+    .options-container.visible {
+      max-height: 1000px; /* large enough value for the animation */
+      opacity: 1;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #90caf9;
+      border-radius: 5px;
+      outline: none;
+      appearance: none;
+      background: #fff url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E") no-repeat right 10px center;
+      background-size: 10px 6px;
+      margin-top: 15px;
+    }
+    .preview {
+      padding: 15px;
+      background: #e3f2fd;
+      border: 1px dashed #90caf9;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 20px;
+      word-wrap: break-word;
+      margin-top: 15px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    .btn-group button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+      color: #fff;
+    }
+    .btn-copy {
+      background: #1e88e5;
+    }
+    .btn-copy:hover {
+      background: #1565c0;
+    }
+    .btn-telegram {
+      background: #039be5;
+    }
+    .btn-telegram:hover {
+      background: #0288d1;
+    }
+    center h4 {
+      margin: 0;
+      padding: 5px;
+      font-size: 14px;
+      color: rgb(255, 0, 0);
+    }
+  </style>
+</head>
+<body>
+    <button 
+    onclick="window.location.href = 'main.html'" 
+    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
+>
+    BACK TO MAIN MENU
+    </button>
+
+  <div class="container">
+    <h1 id="cr1">Enter Text</h1>
+    <div class="input-group">
+      <input type="text" id="userText" maxlength="40" placeholder="Enter text (up to 40 characters)">
+      <button id="arrowBtn" class="arrow" title="Next" style="display: none;">&#10140;</button>
+    </div>
+    <div id="optionsContainer" class="options-container">
+      <select id="fontSelect"></select>
+      <div id="preview" class="preview"></div>
+      <div class="btn-group">
+        <button id="copyBtn" class="btn-copy">Copy</button>
+        <button id="telegramBtn" class="btn-telegram">Share on Telegram</button>
+      </div>
+      <center>
+        <h4 id="h3"></h4>
+      </center>
+    </div>
+  </div>
+
+  <script>
+    /* Array of 168 Google Fonts.
+       Each object has properties: name and style.
+       (The actual list of fonts can be expanded or replaced as needed) */
+    const fonts = [
+      { name: "Roboto", style: "font-family: 'Roboto', sans-serif;" },
+      { name: "Open Sans", style: "font-family: 'Open Sans', sans-serif;" },
+      { name: "Lato", style: "font-family: 'Lato', sans-serif;" },
+      { name: "Montserrat", style: "font-family: 'Montserrat', sans-serif;" },
+      { name: "Oswald", style: "font-family: 'Oswald', sans-serif;" },
+      { name: "Source Sans Pro", style: "font-family: 'Source Sans Pro', sans-serif;" },
+      { name: "Slabo 27px", style: "font-family: 'Slabo 27px', serif;" },
+      { name: "Raleway", style: "font-family: 'Raleway', sans-serif;" },
+      { name: "PT Sans", style: "font-family: 'PT Sans', sans-serif;" },
+      { name: "Merriweather", style: "font-family: 'Merriweather', serif;" },
+      { name: "Roboto Condensed", style: "font-family: 'Roboto Condensed', sans-serif;" },
+      { name: "Nunito", style: "font-family: 'Nunito', sans-serif;" },
+      { name: "Ubuntu", style: "font-family: 'Ubuntu', sans-serif;" },
+      { name: "Playfair Display", style: "font-family: 'Playfair Display', serif;" },
+      { name: "Titillium Web", style: "font-family: 'Titillium Web', sans-serif;" },
+      { name: "Fira Sans", style: "font-family: 'Fira Sans', sans-serif;" },
+      { name: "Cabin", style: "font-family: 'Cabin', sans-serif;" },
+      { name: "Roboto Slab", style: "font-family: 'Roboto Slab', serif;" },
+      { name: "Anton", style: "font-family: 'Anton', sans-serif;" },
+      { name: "Exo 2", style: "font-family: 'Exo 2', sans-serif;" },
+      { name: "Quicksand", style: "font-family: 'Quicksand', sans-serif;" },
+      { name: "Work Sans", style: "font-family: 'Work Sans', sans-serif;" },
+      { name: "Arimo", style: "font-family: 'Arimo', sans-serif;" },
+      { name: "Muli", style: "font-family: 'Muli', sans-serif;" },
+      { name: "Nunito Sans", style: "font-family: 'Nunito Sans', sans-serif;" },
+      { name: "Varela Round", style: "font-family: 'Varela Round', sans-serif;" },
+      { name: "Pacifico", style: "font-family: 'Pacifico', cursive;" },
+      { name: "Dosis", style: "font-family: 'Dosis', sans-serif;" },
+      { name: "Fjalla One", style: "font-family: 'Fjalla One', sans-serif;" },
+      { name: "Indie Flower", style: "font-family: 'Indie Flower', cursive;" },
+      { name: "Abel", style: "font-family: 'Abel', sans-serif;" },
+      { name: "Barlow", style: "font-family: 'Barlow', sans-serif;" },
+      { name: "Libre Franklin", style: "font-family: 'Libre Franklin', sans-serif;" },
+      { name: "Jost", style: "font-family: 'Jost', sans-serif;" },
+      { name: "Prompt", style: "font-family: 'Prompt', sans-serif;" },
+      { name: "Rubik", style: "font-family: 'Rubik', sans-serif;" },
+      { name: "IBM Plex Sans", style: "font-family: 'IBM Plex Sans', sans-serif;" },
+      { name: "Fira Sans Condensed", style: "font-family: 'Fira Sans Condensed', sans-serif;" },
+      { name: "Exo", style: "font-family: 'Exo', sans-serif;" },
+      { name: "Nanum Gothic", style: "font-family: 'Nanum Gothic', sans-serif;" },
+      { name: "Vollkorn", style: "font-family: 'Vollkorn', serif;" },
+      { name: "Josefin Sans", style: "font-family: 'Josefin Sans', sans-serif;" },
+      { name: "PT Serif", style: "font-family: 'PT Serif', serif;" },
+      { name: "Lora", style: "font-family: 'Lora', serif;" },
+      { name: "Alegreya", style: "font-family: 'Alegreya', serif;" },
+      { name: "Overpass", style: "font-family: 'Overpass', sans-serif;" },
+      { name: "Arvo", style: "font-family: 'Arvo', sans-serif;" },
+      { name: "Cabin Sketch", style: "font-family: 'Cabin Sketch', cursive;" },
+      { name: "Crimson Text", style: "font-family: 'Crimson Text', serif;" },
+      { name: "Cinzel", style: "font-family: 'Cinzel', serif;" },
+      { name: "Cormorant Garamond", style: "font-family: 'Cormorant Garamond', serif;" },
+      { name: "Oxygen", style: "font-family: 'Oxygen', sans-serif;" },
+      { name: "Rokkitt", style: "font-family: 'Rokkitt', serif;" },
+      { name: "Asap", style: "font-family: 'Asap', sans-serif;" },
+      { name: "Catamaran", style: "font-family: 'Catamaran', sans-serif;" },
+      { name: "Karla", style: "font-family: 'Karla', sans-serif;" },
+      { name: "Play", style: "font-family: 'Play', sans-serif;" },
+      { name: "Saira", style: "font-family: 'Saira', sans-serif;" },
+      { name: "Acme", style: "font-family: 'Acme', sans-serif;" },
+      { name: "Baloo", style: "font-family: 'Baloo', cursive;" },
+      { name: "Bangers", style: "font-family: 'Bangers', cursive;" },
+      { name: "Bebas Neue", style: "font-family: 'Bebas Neue', cursive;" },
+      { name: "Black Han Sans", style: "font-family: 'Black Han Sans', sans-serif;" },
+      { name: "Bubbler One", style: "font-family: 'Bubbler One', sans-serif;" },
+      { name: "Bubblegum Sans", style: "font-family: 'Bubblegum Sans', cursive;" },
+      { name: "Chewy", style: "font-family: 'Chewy', cursive;" },
+      { name: "Chivo", style: "font-family: 'Chivo', sans-serif;" },
+      { name: "Codystar", style: "font-family: 'Codystar', sans-serif;" },
+      { name: "Comfortaa", style: "font-family: 'Comfortaa', cursive;" },
+      { name: "Cuprum", style: "font-family: 'Cuprum', sans-serif;" },
+      { name: "Damion", style: "font-family: 'Damion', cursive;" },
+      { name: "Eczar", style: "font-family: 'Eczar', serif;" },
+      { name: "El Messiri", style: "font-family: 'El Messiri', sans-serif;" },
+      { name: "Elsie", style: "font-family: 'Elsie', cursive;" },
+      { name: "Emblema One", style: "font-family: 'Emblema One', cursive;" },
+      { name: "Francois One", style: "font-family: 'Francois One', sans-serif;" },
+      { name: "Gloria Hallelujah", style: "font-family: 'Gloria Hallelujah', cursive;" },
+      { name: "Graduate", style: "font-family: 'Graduate', cursive;" },
+      { name: "Heebo", style: "font-family: 'Heebo', sans-serif;" },
+      { name: "Hind", style: "font-family: 'Hind', sans-serif;" },
+      { name: "Inconsolata", style: "font-family: 'Inconsolata', monospace;" },
+      { name: "Istok Web", style: "font-family: 'Istok Web', sans-serif;" },
+      { name: "K2D", style: "font-family: 'K2D', sans-serif;" },
+      { name: "Kavivanar", style: "font-family: 'Kavivanar', cursive;" },
+      { name: "KoHo", style: "font-family: 'KoHo', sans-serif;" },
+      { name: "Kristi", style: "font-family: 'Kristi', cursive;" },
+      { name: "Luckiest Guy", style: "font-family: 'Luckiest Guy', cursive;" },
+      { name: "Macondo", style: "font-family: 'Macondo', cursive;" },
+      { name: "Mandali", style: "font-family: 'Mandali', sans-serif;" },
+      { name: "Marko One", style: "font-family: 'Marko One', sans-serif;" },
+      { name: "Megrim", style: "font-family: 'Megrim', cursive;" },
+      { name: "Merriweather Sans", style: "font-family: 'Merriweather Sans', sans-serif;" },
+      { name: "Milonga", style: "font-family: 'Milonga', cursive;" },
+      { name: "Modern Antiqua", style: "font-family: 'Modern Antiqua', cursive;" },
+      { name: "Montserrat Alternates", style: "font-family: 'Montserrat Alternates', sans-serif;" },
+      { name: "Mountains of Christmas", style: "font-family: 'Mountains of Christmas', cursive;" },
+      { name: "Noto Sans", style: "font-family: 'Noto Sans', sans-serif;" },
+      { name: "Noto Serif", style: "font-family: 'Noto Serif', serif;" },
+      { name: "Noticia Text", style: "font-family: 'Noticia Text', serif;" },
+      { name: "Oleo Script", style: "font-family: 'Oleo Script', cursive;" },
+      { name: "Orbitron", style: "font-family: 'Orbitron', sans-serif;" },
+      { name: "Oregano", style: "font-family: 'Oregano', cursive;" },
+      { name: "Oxygen Mono", style: "font-family: 'Oxygen Mono', monospace;" },
+      { name: "Passero One", style: "font-family: 'Passero One', sans-serif;" },
+      { name: "Patua One", style: "font-family: 'Patua One', cursive;" },
+      { name: "Permanent Marker", style: "font-family: 'Permanent Marker', cursive;" },
+      { name: "Poppins", style: "font-family: 'Poppins', sans-serif;" },
+      { name: "Press Start 2P", style: "font-family: 'Press Start 2P', cursive;" },
+      { name: "Proza Libre", style: "font-family: 'Proza Libre', sans-serif;" },
+      { name: "Puritan", style: "font-family: 'Puritan', sans-serif;" },
+      { name: "Questrial", style: "font-family: 'Questrial', sans-serif;" },
+      { name: "Radley", style: "font-family: 'Radley', serif;" },
+      { name: "Rajdhani", style: "font-family: 'Rajdhani', sans-serif;" },
+      { name: "Rasa", style: "font-family: 'Rasa', sans-serif;" },
+      { name: "Red Hat Display", style: "font-family: 'Red Hat Display', sans-serif;" },
+      { name: "Redressed", style: "font-family: 'Redressed', cursive;" },
+      { name: "Reem Kufi", style: "font-family: 'Reem Kufi', sans-serif;" },
+      { name: "Righteous", style: "font-family: 'Righteous', cursive;" },
+      { name: "Roboto Mono", style: "font-family: 'Roboto Mono', monospace;" },
+      { name: "Rosarivo", style: "font-family: 'Rosarivo', serif;" },
+      { name: "Russo One", style: "font-family: 'Russo One', sans-serif;" },
+      { name: "Sacramento", style: "font-family: 'Sacramento', cursive;" },
+      { name: "Sanchez", style: "font-family: 'Sanchez', serif;" },
+      { name: "Sarabun", style: "font-family: 'Sarabun', sans-serif;" },
+      { name: "Seaweed Script", style: "font-family: 'Seaweed Script', cursive;" },
+      { name: "Sedgwick Ave", style: "font-family: 'Sedgwick Ave', cursive;" },
+      { name: "Sen", style: "font-family: 'Sen', sans-serif;" },
+      { name: "Share Tech Mono", style: "font-family: 'Share Tech Mono', monospace;" },
+      { name: "Short Stack", style: "font-family: 'Short Stack', cursive;" },
+      { name: "Signika", style: "font-family: 'Signika', sans-serif;" },
+      { name: "Six Caps", style: "font-family: 'Six Caps', cursive;" },
+      { name: "Sniglet", style: "font-family: 'Sniglet', cursive;" },
+      { name: "Special Elite", style: "font-family: 'Special Elite', cursive;" },
+      { name: "Spicy Rice", style: "font-family: 'Spicy Rice', cursive;" },
+      { name: "Staatliches", style: "font-family: 'Staatliches', sans-serif;" },
+      { name: "Stint Ultra Condensed", style: "font-family: 'Stint Ultra Condensed', sans-serif;" },
+      { name: "Sukhumvit Set", style: "font-family: 'Sukhumvit Set', sans-serif;" },
+      { name: "Sunflower", style: "font-family: 'Sunflower', sans-serif;" },
+      { name: "Teko", style: "font-family: 'Teko', sans-serif;" },
+      { name: "Telex", style: "font-family: 'Telex', sans-serif;" },
+      { name: "Tenor Sans", style: "font-family: 'Tenor Sans', sans-serif;" },
+      { name: "Text Me One", style: "font-family: 'Text Me One', sans-serif;" },
+      { name: "Tillana", style: "font-family: 'Tillana', cursive;" },
+      { name: "Unica One", style: "font-family: 'Unica One', sans-serif;" },
+      { name: "Unna", style: "font-family: 'Unna', serif;" },
+      { name: "Varela", style: "font-family: 'Varela', sans-serif;" },
+      { name: "Voltaire", style: "font-family: 'Voltaire', sans-serif;" },
+      { name: "Wire One", style: "font-family: 'Wire One', sans-serif;" },
+      { name: "Yeseva One", style: "font-family: 'Yeseva One', cursive;" },
+      { name: "Yesteryear", style: "font-family: 'Yesteryear', cursive;" },
+      { name: "ZCOOL KuaiLe", style: "font-family: 'ZCOOL KuaiLe', sans-serif;" },
+      { name: "ZCOOL QingKe HuangYou", style: "font-family: 'ZCOOL QingKe HuangYou', sans-serif;" },
+      { name: "ZCOOL YongHua", style: "font-family: 'ZCOOL YongHua', sans-serif;" },
+      { name: "Zilla Slab", style: "font-family: 'Zilla Slab', sans-serif;" },
+      // Additional 14 fonts to reach 168
+      { name: "Abhaya Libre", style: "font-family: 'Abhaya Libre', serif;" },
+      { name: "Adamina", style: "font-family: 'Adamina', serif;" },
+      { name: "Aldrich", style: "font-family: 'Aldrich', sans-serif;" },
+      { name: "Alfa Slab One", style: "font-family: 'Alfa Slab One', cursive;" },
+      { name: "Alice", style: "font-family: 'Alice', serif;" },
+      { name: "Allerta", style: "font-family: 'Allerta', sans-serif;" },
+      { name: "Allerta Stencil", style: "font-family: 'Allerta Stencil', sans-serif;" },
+      { name: "Amaranth", style: "font-family: 'Amaranth', sans-serif;" },
+      { name: "Andada", style: "font-family: 'Andada', serif;" },
+      { name: "Andika", style: "font-family: 'Andika', sans-serif;" },
+      { name: "Angkor", style: "font-family: 'Angkor', sans-serif;" },
+      { name: "Annie Use Your Telescope", style: "font-family: 'Annie Use Your Telescope', cursive;" },
+      { name: "Anonymous Pro", style: "font-family: 'Anonymous Pro', monospace;" },
+      { name: "B612", style: "font-family: 'B612', sans-serif;" }
+    ];
+
+    // For each font, create a <link> element to load it from Google Fonts
+    fonts.forEach(font => {
+      const fontFamilyName = font.name.replace(/ /g, '+');
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=' + fontFamilyName + '&display=swap';
+      document.head.appendChild(link);
+    });
+
+    const userTextInput = document.getElementById("userText");
+    const arrowBtn = document.getElementById("arrowBtn");
+    const optionsContainer = document.getElementById("optionsContainer");
+    const fontSelect = document.getElementById("fontSelect");
+    const preview = document.getElementById("preview");
+    const copyBtn = document.getElementById("copyBtn");
+    const telegramBtn = document.getElementById("telegramBtn");
+    const hintText = document.getElementById("h3");
+
+    // Update the text in the select options
+    function updateSelectOptions() {
+      for (let i = 0; i < fontSelect.options.length; i++) {
+        fontSelect.options[i].text = `(${fonts[i].name}) ${userTextInput.value}`;
+      }
+    }
+
+    // Show the arrow button if at least one character is entered
+    userTextInput.addEventListener("input", () => {
+      if (userTextInput.value.trim().length > 0) {
+        arrowBtn.style.display = "block";
+      } else {
+        arrowBtn.style.display = "none";
+      }
+      if (optionsContainer.classList.contains("visible")) {
+        updateSelectOptions();
+        updatePreview();
+      }
+    });
+
+    // On clicking the arrow – fill the select (if not already filled) and display the options block with a slide-down animation
+    arrowBtn.addEventListener("click", () => {
+      if (fontSelect.options.length === 0) {
+        if (localStorage.getItem('created_fonts')){
+          localStorage.setItem('created_fonts', String(Number(localStorage.getItem('created_fonts')) + 1));
+        }
+        else{
+            localStorage.setItem('created_fonts', '1');
+        }
+        hintText.textContent = '(We recommend selecting the text and copying it manually)';
+        document.querySelector('#cr1').textContent = 'Choose Font';
+        fonts.forEach((font, index) => {
+          const option = document.createElement("option");
+          option.value = index;
+          option.text = `(${font.name}) ${userTextInput.value}`;
+          option.setAttribute("style", font.style);
+          fontSelect.add(option);
+        });
+      } else {
+        updateSelectOptions();
+      }
+      optionsContainer.style.display = "block";
+      // Add the visible class to start the "unfold" animation
+      setTimeout(() => {
+        optionsContainer.classList.add("visible");
+      }, 10);
+      updatePreview();
+    });
+
+    fontSelect.addEventListener("change", updatePreview);
+
+    // Update the preview – only the text with the selected font is displayed
+    function updatePreview() {
+      const selectedFont = fonts[fontSelect.value] || fonts[0];
+      preview.innerHTML = `<span style="${selectedFont.style}">${escapeHtml(userTextInput.value)}</span>`;
+    }
+
+    // Escape HTML entities for safety
+    function escapeHtml(text) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Copy the text (without the font name) to the clipboard
+    copyBtn.addEventListener("click", () => {
+      const textToCopy = userTextInput.value;
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+          copyBtn.textContent = "Copied!";
+          setTimeout(() => copyBtn.textContent = "Copy", 1500);
+        })
+        .catch(err => {
+          alert("Copy error: " + err);
+        });
+    });
+
+    // Share on Telegram (text only)
+    telegramBtn.addEventListener("click", () => {
+      const textToShare = encodeURIComponent(userTextInput.value);
+      const telegramUrl = `https://telegram.me/share/url?url=${textToShare}`;
+      window.open(telegramUrl, '_blank');
+    });
+  </script>
+</body>
+</html>

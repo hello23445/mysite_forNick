@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Avatar Generator</title>
+  <style>
+    /* Common styles */
+    * {
+      user-select: none;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      display: flex;
+      width: 90%;
+      max-width: 1200px;
+      height: 90%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      overflow: hidden;
+      background: none;
+      position: relative;
+    }
+    .preview {
+      flex: 1;
+      background: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    #avatarCanvas {
+      max-width: 100%;
+      max-height: 100%;
+      border: 1px solid #ccc;
+      background: transparent;
+    }
+    /* Drag‐and‐drop overlay */
+    #dragOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 24px;
+      font-weight: bold;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .tools {
+      width: 350px;
+      padding: 20px;
+      overflow-y: auto;
+      background: #c6ddff;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    #hideToolsButton {
+      display: block;
+      margin-bottom: 20px;
+      padding: 10px 15px;
+      background: red;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+    .tools label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    .tools input[type="range"],
+    .tools select,
+    .tools input[type="color"],
+    .tools input[type="file"],
+    .tools textarea {
+      width: 100%;
+      margin-top: 5px;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    .btn-remove {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px;
+      background: red;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    .tools button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      background: blue;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+    .preview.dragover {
+      border: 3px dashed #888;
+    }
+    #mediaSettings {
+      margin-top: 15px;
+      padding: 10px;
+      border: 1px dashed #ccc;
+      display: none;
+    }
+    #orientation-warning {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+    }
+    #orientation-warning div {
+      background-color: rgba(50, 50, 50, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      color: #fff;
+    }
+    #orientation-warning p {
+      margin: 0 0 20px;
+      font-weight: bold;
+    }
+    #orientation-warning button {
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #video-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 15000;
+      justify-content: center;
+      align-items: center;
+    }
+    #video-modal div {
+      background-color: rgba(50, 50, 50, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      color: #fff;
+    }
+    #video-modal p {
+      margin: 0 0 20px;
+      font-weight: bold;
+    }
+    #video-modal button {
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin: 0 5px;
+    }
+    #openToolsButton {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px 15px;
+      background: red;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      display: none;
+      z-index: 9999;
+    }
+    /* Custom shape modal */
+    #customShapeModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 20000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    #eraserSettings {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      background: rgba(0,0,0,0.6);
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+      z-index: 21000;
+    }
+    #eraserSettings label {
+      font-weight: bold;
+      color: #fff;
+    }
+    #eraserSettings input[type="range"] {
+      width: 150px;
+      margin-top: 5px;
+    }
+    #customShapeModal canvas {
+      background: #fff;
+      border: 2px solid #000;
+    }
+    #customShapeModal .modal-buttons {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    #customShapeModal button {
+      padding: 10px 20px;
+      background: green;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #customShapeModal button.cancel {
+      background: red;
+    }
+    @media (max-width: 600px) {
+      .container {
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+      }
+      .preview {
+        width: 100%;
+        height: 50vh;
+      }
+      .tools {
+        width: 100%;
+        height: 50vh;
+      }
+      #hideToolsButton {
+        padding: 8px 12px;
+      }
+      #customShapeModal canvas {
+        width: 90vw;
+        height: 50vh;
+      }
+      #eraserSettings input[type="range"] {
+        width: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Portrait orientation warning -->
+  <div id="orientation-warning">
+    <div>
+      <p>Some elements may not display correctly in landscape mode.<br/>Please rotate your device to portrait mode.</p>
+      <button id="orientation-ok">OK</button>
+    </div>
+  </div>
+
+  <!-- Video upload error modal -->
+  <div id="video-modal">
+    <div>
+      <p>You can upload videos up to 15 seconds!</p>
+      <button id="video-modal-ok">OK</button>
+    </div>
+  </div>
+
+  <!-- Custom shape drawing modal -->
+  <div id="customShapeModal">
+    <div id="eraserSettings">
+      <label for="eraserSizeRange">Eraser size:</label>
+      <input type="range" id="eraserSizeRange" min="5" max="250" value="20" />
+    </div>
+    <canvas id="customShapeCanvas" width="400" height="400"></canvas>
+    <div class="modal-buttons">
+      <button id="toggleEraser">Eraser</button>
+      <button id="resetCustomShape">Reset</button>
+      <button id="saveCustomShape">Save</button>
+      <button id="cancelCustomShape" class="cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <button id="openToolsButton"><b>OPEN TOOLS MENU</b></button>
+
+    <div class="preview" id="previewArea">
+      <canvas id="avatarCanvas" width="300" height="300"></canvas>
+      <div id="dragOverlay">
+        Drag & drop an image, video, or font file here<br/>
+        Please do not drop folders!
+      </div>
+    </div>
+
+    <div class="tools" id="toolsPanel">
+      <button id="hideToolsButton"><b>HIDE TOOLS MENU</b></button>
+        <button 
+        onclick="window.location.href = 'main.html'" 
+        style="padding: 10px 20px; font-size: 16px;"
+    >
+        BACK TO MAIN MENU
+        </button>
+      <label for="bgColor"><b>Background color:</b></label>
+      <input type="color" id="bgColor" value="#800080" />
+
+      <label for="textColor"><b>Text color:</b></label>
+      <input type="color" id="textColor" value="#000000" />
+
+      <label for="borderColor"><b>Border color:</b></label>
+      <input type="color" id="borderColor" value="#000000" />
+
+      <label for="borderWidth"><b>Border width:</b></label>
+      <input type="range" id="borderWidth" min="0" max="100" value="0" />
+
+      <label for="text"><b>Avatar text: (max 10,000 chars) <span id="charCount">0/10000</span></b></label>
+      <textarea id="text" placeholder="Your text..." maxlength="10000"></textarea>
+
+      <label for="fontSelect"><b>Text font:</b></label>
+      <select id="fontSelect">
+        <option value="upload">UPLOAD FONT</option>
+        <option value="Arial" selected>Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Comic Sans MS">Comic Sans MS</option>
+        <option value="Impact">Impact</option>
+        <option value="Tahoma">Tahoma</option>
+        <option value="Lucida Console">Lucida Console</option>
+        <option value="Segoe UI">Segoe UI</option>
+        <option value="Roboto">Roboto</option>
+        <option value="Open Sans">Open Sans</option>
+        <option value="Monospace">Monospace</option>
+        <option value="Poppins">Poppins</option>
+        <option value="Lobster">Lobster</option>
+        <option value="Oswald">Oswald</option>
+      </select>
+      <input type="file" id="fontUpload" style="display:none" />
+      <button id="fontUploadButton" style="display:none;"><b>UPLOAD FONT</b></button>
+
+      <label for="textSize"><b>Text size:</b></label>
+      <input type="range" id="textSize" min="0" max="1000" value="50" />
+
+      <label for="textShadow"><b>Text shadow:</b></label>
+      <input type="range" id="textShadow" min="0" max="30" value="0" />
+
+      <label for="shapeSelect"><b>Avatar shape:</b></label>
+      <select id="shapeSelect">
+        <option value="circle">Circle</option>
+        <option value="square">Square</option>
+        <option value="hexagon">Hexagon</option>
+        <option value="star">Star</option>
+        <option value="rectangle">Rectangle</option>
+        <option value="oval">Oval</option>
+        <option value="triangle">Triangle</option>
+        <option value="pentagon">Pentagon</option>
+        <option value="heart">Heart</option>
+        <option value="rhombus">Rhombus</option>
+        <option value="cloud">Cloud</option>
+        <option value="arrowRight">Arrow Right</option>
+        <option value="lightning">Lightning</option>
+        <option value="custom"><b>DRAW CUSTOM SHAPE</b></option>
+      </select>
+
+      <label for="bgType"><b>Background type:</b></label>
+      <select id="bgType">
+        <option value="other">Other</option>
+        <option value="telegram">Telegram</option>
+      </select>
+
+      <label for="imageUpload"><b>Upload image:</b></label>
+      <input type="file" id="imageUpload" />
+      <button id="removeImageBtn" class="btn-remove" style="display:none;"><b>REMOVE IMAGE</b></button>
+
+      <div id="videoSection" style="display:none;">
+        <label for="videoUpload"><b>Upload video (15s):</b></label>
+        <input type="file" id="videoUpload" accept="video/*" />
+        <button id="removeVideoBtn" class="btn-remove" style="display:none;"><b>REMOVE VIDEO</b></button>
+      </div>
+
+      <div id="mediaSettings">
+        <label for="alignCheckbox"><b>Align image/video:</b></label>
+        <input type="checkbox" id="alignCheckbox" />
+
+        <label for="qualitySelect"><b>Image/video quality:</b></label>
+        <select id="qualitySelect">
+          <option value="original">Original</option>
+          <option value="144">144p</option>
+          <option value="240">240p</option>
+          <option value="360">360p</option>
+          <option value="480">480p</option>
+          <option value="720" disabled>720p60</option>
+          <option value="1080" disabled>1080p60</option>
+          <option value="1440" disabled>1440p60</option>
+          <option value="2160" disabled>2k</option>
+          <option value="4320" disabled>4k</option>
+        </select>
+
+        <label for="blurRange"><b>Image/video blur:</b></label>
+        <input type="range" id="blurRange" min="0" max="40" value="0" />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ========= 0. Check device orientation ========= */
+    function checkOrientationWarning() {
+      if (window.innerWidth > window.innerHeight) {
+        orientationWarning.style.display = 'flex';
+      } else {
+        orientationWarning.style.display = 'none';
+      }
+    }
+    const orientationWarning = document.getElementById('orientation-warning');
+    const orientationOk = document.getElementById('orientation-ok');
+    orientationOk.addEventListener('click', () => {
+      orientationWarning.style.display = 'none';
+    });
+    window.addEventListener('load', checkOrientationWarning);
+    window.addEventListener('resize', checkOrientationWarning);
+
+    /* ========= 1. Video error modal ========= */
+    const videoModal = document.getElementById('video-modal');
+    const videoModalOk = document.getElementById('video-modal-ok');
+    videoModalOk.addEventListener('click', () => {
+      videoModal.style.display = 'none';
+    });
+    window.addEventListener('load', () => {
+      videoModal.style.display = 'none';
+    });
+
+    /* ========= 2. Elements ========= */
+    const canvas = document.getElementById('avatarCanvas');
+    const ctx = canvas.getContext('2d');
+    const previewArea = document.getElementById('previewArea');
+    const dragOverlay = document.getElementById('dragOverlay');
+    const toolsPanel = document.getElementById('toolsPanel');
+    const openToolsButton = document.getElementById('openToolsButton');
+
+    const bgColorInput = document.getElementById('bgColor');
+    const textColorInput = document.getElementById('textColor');
+    const borderColorInput = document.getElementById('borderColor');
+    const borderWidthInput = document.getElementById('borderWidth');
+    const textInput = document.getElementById('text');
+    const fontSelect = document.getElementById('fontSelect');
+    const fontUpload = document.getElementById('fontUpload');
+    const fontUploadButton = document.getElementById('fontUploadButton');
+    const textSizeInput = document.getElementById('textSize');
+    const textShadowInput = document.getElementById('textShadow');
+    const shapeSelect = document.getElementById('shapeSelect');
+    const bgTypeSelect = document.getElementById('bgType');
+    const imageUpload = document.getElementById('imageUpload');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    const videoSection = document.getElementById('videoSection');
+    const videoUpload = document.getElementById('videoUpload');
+    const removeVideoBtn = document.getElementById('removeVideoBtn');
+    const hideToolsButton = document.getElementById('hideToolsButton');
+    const mediaSettings = document.getElementById('mediaSettings');
+    const alignCheckbox = document.getElementById('alignCheckbox');
+    const qualitySelect = document.getElementById('qualitySelect');
+    const blurRange = document.getElementById('blurRange');
+
+    /* ========= 3. Media vars ========= */
+    let bgImage = null;
+    let bgVideo = null;
+    let videoAnimationId = null;
+
+    /* ========= 4. Custom shape vars ========= */
+    let drawnStrokes = [];
+    let currentStroke = [];
+    let customShapePoints = null;
+    let eraserActive = false;
+    let eraserRadius = 20;
+    const eraserSizeRange = document.getElementById('eraserSizeRange');
+    eraserSizeRange.addEventListener('input', () => {
+      eraserRadius = parseInt(eraserSizeRange.value, 10);
+    });
+
+    /* ========= 5. FontFace support ========= */
+    window.addEventListener('load', () => {
+      if (typeof FontFace === 'undefined') {
+        const uploadOpt = document.querySelector('option[value="upload"]');
+        uploadOpt.disabled = true;
+        uploadOpt.textContent = 'UPLOAD FONT (Not Supported)';
+      }
+    });
+
+    /* ========= 6. Tools panel toggle ========= */
+    hideToolsButton.addEventListener('click', () => {
+      toolsPanel.style.display = 'none';
+      openToolsButton.style.display = 'block';
+      if (localStorage.getItem('created_profiles')){
+        localStorage.setItem('created_profiles', String(Number(localStorage.getItem('created_profiles')) + 1));
+      }
+      else{
+        localStorage.setItem('created_profiles', '1');
+      }
+    });
+    openToolsButton.addEventListener('click', () => {
+      toolsPanel.style.display = 'block';
+      openToolsButton.style.display = 'none';
+    });
+
+    /* ========= 7. Draw avatar ========= */
+    function drawAvatar() {
+      const size = Math.min(canvas.parentElement.clientWidth, canvas.parentElement.clientHeight);
+      canvas.width = size;
+      canvas.height = size;
+      ctx.clearRect(0, 0, size, size);
+
+      ctx.save();
+      applyShapeClip(ctx, size, shapeSelect.value);
+      ctx.fillStyle = bgColorInput.value;
+      ctx.fillRect(0, 0, size, size);
+
+      if (bgVideo) {
+        drawMedia(bgVideo);
+      } else if (bgImage) {
+        drawMedia(bgImage);
+      }
+      ctx.restore();
+
+      const bw = +borderWidthInput.value;
+      if (bw > 0) {
+        ctx.save();
+        ctx.beginPath();
+        if (shapeSelect.value === "circle") {
+          ctx.arc(size/2, size/2, size/2 - bw/2, 0, Math.PI*2);
+        } else if (shapeSelect.value === "square" || shapeSelect.value === "rectangle") {
+          ctx.rect(bw/2, bw/2, size - bw, size - bw);
+        } else {
+          applyShapeClip(ctx, size, shapeSelect.value);
+        }
+        ctx.strokeStyle = borderColorInput.value;
+        ctx.lineWidth = bw;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      const txt = textInput.value;
+      if (txt.trim() !== "") {
+        ctx.save();
+        const lines = txt.split("\n");
+        ctx.font = `${textSizeInput.value}px ${fontSelect.value}`;
+        ctx.fillStyle = textColorInput.value;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = '#000';
+        ctx.shadowBlur = +textShadowInput.value;
+        const lineHeight = textSizeInput.value * 1.2;
+        const totalHeight = lineHeight * lines.length;
+        lines.forEach((line, i) => {
+          ctx.fillText(line, size/2, size/2 - totalHeight/2 + lineHeight/2 + i * lineHeight);
+        });
+        ctx.restore();
+      }
+    }
+
+    /* ========= 8. Draw media (image/video) ========= */
+    function drawMedia(media) {
+      const qualityVal = qualitySelect.value;
+      const align = alignCheckbox.checked;
+      const blurVal = blurRange.value;
+
+      let mediaWidth, mediaHeight;
+      if (media.tagName === 'IMG') {
+        mediaWidth = media.naturalWidth;
+        mediaHeight = media.naturalHeight;
+      } else {
+        mediaWidth = media.videoWidth;
+        mediaHeight = media.videoHeight;
+      }
+      let source = media;
+      if (qualityVal !== "original" && !qualitySelect.options[qualitySelect.selectedIndex].disabled) {
+        const targetHeight = parseInt(qualityVal, 10);
+        const scale = targetHeight / mediaHeight;
+        const targetWidth = Math.floor(mediaWidth * scale);
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = targetWidth;
+        offCanvas.height = targetHeight;
+        const offCtx = offCanvas.getContext('2d');
+        offCtx.drawImage(media, 0, 0, targetWidth, targetHeight);
+        source = offCanvas;
+        mediaWidth = targetWidth;
+        mediaHeight = targetHeight;
+      }
+      if (blurVal > 0) {
+        ctx.filter = `blur(${blurVal * 3}px)`;
+      }
+      const cw = canvas.width;
+      const ch = canvas.height;
+      if (align) {
+        const canvasRatio = cw / ch;
+        const mediaRatio = mediaWidth / mediaHeight;
+        let sx, sy, sWidth, sHeight;
+        if (mediaRatio > canvasRatio) {
+          sHeight = mediaHeight;
+          sWidth = sHeight * canvasRatio;
+          sx = (mediaWidth - sWidth) / 2;
+          sy = 0;
+        } else {
+          sWidth = mediaWidth;
+          sHeight = sWidth / canvasRatio;
+          sx = 0;
+          sy = (mediaHeight - sHeight) / 2;
+        }
+        ctx.drawImage(source, sx, sy, sWidth, sHeight, 0, 0, cw, ch);
+      } else {
+        ctx.drawImage(source, 0, 0, cw, ch);
+      }
+      ctx.filter = 'none';
+    }
+
+    /* ========= 9. Apply shape clip ========= */
+    function applyShapeClip(ctx, size, shape) {
+      ctx.beginPath();
+      const center = size / 2;
+      switch(shape) {
+        case "circle":
+          ctx.arc(center, center, center, 0, Math.PI * 2);
+          break;
+        case "square":
+        case "rectangle":
+          ctx.rect(0, 0, size, size);
+          break;
+        case "hexagon":
+          for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i - Math.PI / 6;
+            const x = center + center * Math.cos(angle);
+            const y = center + center * Math.sin(angle);
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          break;
+        case "star":
+          const outerRadius = center;
+          const innerRadius = center * 0.5;
+          for (let i = 0; i < 10; i++) {
+            const angle = (Math.PI / 5) * i - Math.PI / 2;
+            const r = i % 2 === 0 ? outerRadius : innerRadius;
+            const x = center + r * Math.cos(angle);
+            const y = center + r * Math.sin(angle);
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          break;
+        case "oval":
+          ctx.ellipse(center, center, center, center * 0.8, 0, 0, Math.PI * 2);
+          break;
+        case "triangle":
+          ctx.moveTo(center, 0);
+          ctx.lineTo(size, size);
+          ctx.lineTo(0, size);
+          ctx.closePath();
+          break;
+        case "pentagon":
+          for (let i = 0; i < 5; i++) {
+            const angle = Math.PI / 2 + (2 * Math.PI * i) / 5;
+            const x = center + center * Math.cos(angle);
+            const y = center + center * Math.sin(angle);
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          break;
+        case "heart":
+          ctx.moveTo(center, size * 0.9);
+          ctx.bezierCurveTo(
+            center + size * 0.5, size * 0.6,
+            center + size * 0.5, size * 0.2,
+            center,            size * 0.35
+          );
+          ctx.bezierCurveTo(
+            center - size * 0.5, size * 0.2,
+            center - size * 0.5, size * 0.6,
+            center, size * 0.9
+          );
+          break;
+        case "rhombus":
+          ctx.moveTo(center, 0);
+          ctx.lineTo(size, center);
+          ctx.lineTo(center, size);
+          ctx.lineTo(0, center);
+          ctx.closePath();
+          break;
+        case "cloud":
+          ctx.moveTo(center * 0.2, center);
+          ctx.bezierCurveTo(
+            center * 0.1, center * 0.6,
+            center * 0.5, center * 0.6,
+            center * 0.4, center * 0.3
+          );
+          ctx.bezierCurveTo(
+            center * 0.6, center * 0.1,
+            center * 1.4, center * 0.1,
+            center * 1.6, center * 0.3
+          );
+          ctx.bezierCurveTo(
+            center * 1.8, center * 0.4,
+            center * 1.8, center,
+            center * 1.6, center
+          );
+          ctx.bezierCurveTo(
+            center * 1.4, center * 1.3,
+            center * 0.6, center * 1.3,
+            center * 0.4, center
+          );
+          ctx.closePath();
+          break;
+        case "arrowRight":
+          ctx.moveTo(0, center * 0.5);
+          ctx.lineTo(center, center * 0.5);
+          ctx.lineTo(center, 0);
+          ctx.lineTo(size, center);
+          ctx.lineTo(center, size);
+          ctx.lineTo(center, center * 1.5);
+          ctx.lineTo(0, center * 1.5);
+          ctx.closePath();
+          break;
+        case "lightning":
+          ctx.moveTo(center * 0.3, 0);
+          ctx.lineTo(center * 0.7, 0);
+          ctx.lineTo(center * 0.4, center * 0.6);
+          ctx.lineTo(center * 0.8, center * 0.6);
+          ctx.lineTo(center * 0.2, size);
+          ctx.lineTo(center * 0.6, center * 0.6);
+          ctx.lineTo(center * 0.3, center * 0.6);
+          ctx.closePath();
+          break;
+        case "custom":
+          if (customShapePoints && customShapePoints.length > 0) {
+            const path = new Path2D();
+            path.moveTo(customShapePoints[0][0] * size, customShapePoints[0][1] * size);
+            for (let i = 1; i < customShapePoints.length; i++) {
+              path.lineTo(customShapePoints[i][0] * size, customShapePoints[i][1] * size);
+            }
+            path.closePath();
+            ctx.clip(path);
+            return;
+          } else {
+            ctx.arc(center, center, center, 0, Math.PI * 2);
+          }
+          break;
+        default:
+          ctx.rect(0, 0, size, size);
+          break;
+      }
+      ctx.clip();
+    }
+
+    /* ========= 10. Update video section visibility ========= */
+    function updateToolsVisibility() {
+      if (bgTypeSelect.value === 'telegram') {
+        videoSection.style.display = 'block';
+      } else {
+        videoSection.style.display = 'none';
+        bgVideo = null;
+        removeVideoBtn.style.display = 'none';
+      }
+    }
+
+    /* ========= 11. Update media settings visibility ========= */
+    function updateMediaSettingsVisibility() {
+      if (bgImage || bgVideo) {
+        mediaSettings.style.display = 'block';
+        updateQualityOptions();
+      } else {
+        mediaSettings.style.display = 'none';
+      }
+    }
+    function updateQualityOptions() {
+      const options = qualitySelect.options;
+      let mediaHeight = 0;
+      if (bgImage) {
+        mediaHeight = bgImage.naturalHeight;
+      } else if (bgVideo) {
+        mediaHeight = bgVideo.videoHeight;
+      }
+      for (let i = 0; i < options.length; i++) {
+        const opt = options[i];
+        if (opt.value === "original") {
+          opt.disabled = false;
+        } else {
+          const targetHeight = parseInt(opt.value);
+          opt.disabled = (targetHeight > mediaHeight);
+        }
+      }
+    }
+
+    /* ========= 12. Image upload ========= */
+    imageUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      e.target.value = '';
+      if (!file || !file.type.startsWith('image/')) return;
+      bgVideo = null;
+      removeVideoBtn.style.display = 'none';
+      const img = new Image();
+      img.onload = () => {
+        bgImage = img;
+        removeImageBtn.style.display = 'inline-block';
+        drawAvatar();
+        updateMediaSettingsVisibility();
+      };
+      img.src = URL.createObjectURL(file);
+    });
+    removeImageBtn.addEventListener('click', () => {
+      bgImage = null;
+      imageUpload.value = '';
+      removeImageBtn.style.display = 'none';
+      drawAvatar();
+      updateMediaSettingsVisibility();
+    });
+
+    /* ========= 13. Video upload ========= */
+    videoUpload.addEventListener('change', (e) => {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+      const file = files[0];
+      if (!file || !file.type.startsWith('video/')) return;
+      bgImage = null;
+      removeImageBtn.style.display = 'none';
+
+      const vid = document.createElement('video');
+      vid.muted = true;
+      vid.playsInline = true;
+
+      vid.addEventListener('loadedmetadata', () => {
+        console.log("Video loaded:", file.name, "Duration:", vid.duration);
+        if (vid.duration > 15) {
+          videoModal.style.display = 'flex';
+          bgVideo = null;
+          removeVideoBtn.style.display = 'none';
+        } else {
+          bgVideo = vid;
+          removeVideoBtn.style.display = 'inline-block';
+          vid.play();
+          startVideoAnimation();
+          drawAvatar();
+          updateMediaSettingsVisibility();
+        }
+        videoUpload.value = '';
+      });
+
+      vid.addEventListener('error', (err) => {
+        console.error("Video loading error", err);
+        videoUpload.value = '';
+      });
+
+      vid.src = URL.createObjectURL(file);
+      console.log("Starting video load:", file.name);
+      vid.load(); 
+    });
+    removeVideoBtn.addEventListener('click', () => {
+      bgVideo = null;
+      videoUpload.value = '';
+      removeVideoBtn.style.display = 'none';
+      stopVideoAnimation();
+      drawAvatar();
+      updateMediaSettingsVisibility();
+    });
+    function startVideoAnimation() {
+      function updateFrame() {
+        if (bgVideo && !bgVideo.paused && !bgVideo.ended) {
+          drawAvatar();
+          videoAnimationId = requestAnimationFrame(updateFrame);
+        }
+      }
+      updateFrame();
+    }
+    function stopVideoAnimation() {
+      if (videoAnimationId) {
+        cancelAnimationFrame(videoAnimationId);
+        videoAnimationId = null;
+      }
+    }
+
+    /* ========= 14. Font loading logic ========= */
+    fontSelect.addEventListener('change', () => {
+      if (fontSelect.value === "upload") {
+        fontUploadButton.style.display = 'block';
+        fontUpload.click();
+        setTimeout(() => {
+          fontSelect.value = "Arial";
+          drawAvatar();
+        }, 0);
+      } else {
+        fontUploadButton.style.display = 'none';
+        drawAvatar();
+      }
+    });
+    fontUploadButton.addEventListener('click', () => {
+      fontUpload.click();
+    });
+    fontUpload.addEventListener('change', (e) => {
+      let files = e.target.files;
+      if (!files || files.length === 0) return;
+      if (files.length > 1) {
+        alert("Please upload a single font file, not a folder.");
+        return;
+      }
+      let fontFile = null;
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].name.match(/\.(ttf|otf)$/i)) {
+          fontFile = files[i];
+          break;
+        }
+      }
+      if (!fontFile) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const fontData = ev.target.result;
+        const fontName = "CustomFont_" + Date.now();
+        const fontFace = new FontFace(fontName, fontData);
+        fontFace.load().then((loadedFace) => {
+          document.fonts.add(loadedFace);
+          const option = document.createElement("option");
+          option.value = fontName;
+          option.textContent = fontName;
+          fontSelect.appendChild(option);
+          fontSelect.value = fontName;
+          drawAvatar();
+        }).catch(err => console.error("Font loading error:", err));
+      };
+      reader.readAsArrayBuffer(fontFile);
+    });
+
+    /* ========= 15. Drag-and-drop for media & fonts ========= */
+    previewArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      previewArea.classList.add('dragover');
+      dragOverlay.style.opacity = "1";
+    });
+    previewArea.addEventListener('dragleave', () => {
+      previewArea.classList.remove('dragover');
+      dragOverlay.style.opacity = "0";
+    });
+    previewArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      previewArea.classList.remove('dragover');
+      dragOverlay.style.opacity = "0";
+      const files = e.dataTransfer.files;
+      if (!files || files.length === 0) return;
+      if (/\.(ttf|otf)$/i.test(files[0].name)) {
+        if (files.length > 1) {
+          alert("Please upload a single font file, not a folder.");
+          return;
+        }
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          const fontData = ev.target.result;
+          const fontName = "CustomFont_" + Date.now();
+          const fontFace = new FontFace(fontName, fontData);
+          fontFace.load().then((loadedFace) => {
+            document.fonts.add(loadedFace);
+            const option = document.createElement("option");
+            option.value = fontName;
+            option.textContent = fontName;
+            fontSelect.appendChild(option);
+            fontSelect.value = fontName;
+            drawAvatar();
+          }).catch(err => console.error("Font loading error:", err));
+        };
+        reader.readAsArrayBuffer(file);
+        return;
+      }
+      if (files[0].type.startsWith('image/')) {
+        const img = new Image();
+        img.onload = () => {
+          bgImage = img;
+          removeImageBtn.style.display = 'inline-block';
+          bgVideo = null;
+          removeVideoBtn.style.display = 'none';
+          drawAvatar();
+          updateMediaSettingsVisibility();
+        };
+        img.src = URL.createObjectURL(files[0]);
+      }
+      else if (files[0].type.startsWith('video/')) {
+        const vid = document.createElement('video');
+        vid.muted = true;
+        vid.playsInline = true;
+        vid.addEventListener('loadedmetadata', () => {
+          if (vid.duration > 15) {
+            videoModal.style.display = 'flex';
+            bgVideo = null;
+            removeVideoBtn.style.display = 'none';
+          } else {
+            bgVideo = vid;
+            removeVideoBtn.style.display = 'inline-block';
+            bgImage = null;
+            removeImageBtn.style.display = 'none';
+            vid.play();
+            startVideoAnimation();
+            drawAvatar();
+            updateMediaSettingsVisibility();
+          }
+        });
+        vid.src = URL.createObjectURL(files[0]);
+        vid.load();
+      }
+    });
+
+    /* ========= 16. Custom shape drawing logic ========= */
+    const customShapeModal = document.getElementById('customShapeModal');
+    const customShapeCanvas = document.getElementById('customShapeCanvas');
+    const customCtx = customShapeCanvas.getContext('2d');
+    const saveCustomShapeBtn = document.getElementById('saveCustomShape');
+    const cancelCustomShapeBtn = document.getElementById('cancelCustomShape');
+    const eraseCustomShapeBtn = document.getElementById('toggleEraser');
+    const resetCustomShapeBtn = document.getElementById('resetCustomShape');
+
+    eraserActive = false;
+    eraseCustomShapeBtn.addEventListener('click', () => {
+      eraserActive = !eraserActive;
+      document.getElementById('eraserSettings').style.display = eraserActive ? 'block' : 'none';
+      eraseCustomShapeBtn.textContent = eraserActive ? "Eraser (active)" : "Eraser";
+      customShapeCanvas.style.cursor = eraserActive ? 'none' : 'default';
+    });
+
+    resetCustomShapeBtn.addEventListener('click', () => {
+      drawnStrokes = [];
+      currentStroke = [];
+      customCtx.clearRect(0, 0, customShapeCanvas.width, customShapeCanvas.height);
+    });
+
+    function redrawCustomShapeCanvas() {
+      customCtx.clearRect(0, 0, customShapeCanvas.width, customShapeCanvas.height);
+      customCtx.beginPath();
+      drawnStrokes.forEach(stroke => {
+        if (stroke.length > 0) {
+          customCtx.moveTo(stroke[0][0], stroke[0][1]);
+          for (let i = 1; i < stroke.length; i++) {
+            customCtx.lineTo(stroke[i][0], stroke[i][1]);
+          }
+        }
+      });
+      if (currentStroke.length > 0) {
+        customCtx.moveTo(currentStroke[0][0], currentStroke[0][1]);
+        for (let i = 1; i < currentStroke.length; i++) {
+          customCtx.lineTo(currentStroke[i][0], currentStroke[i][1]);
+        }
+      }
+      customCtx.strokeStyle = 'black';
+      customCtx.lineWidth = 2;
+      customCtx.stroke();
+    }
+
+    function eraseAtPoint(x, y) {
+      const newStrokes = [];
+      drawnStrokes.forEach(stroke => {
+        let subStroke = [];
+        stroke.forEach(pt => {
+          const dx = pt[0] - x;
+          const dy = pt[1] - y;
+          if (Math.sqrt(dx * dx + dy * dy) > eraserRadius) {
+            subStroke.push(pt);
+          } else {
+            if (subStroke.length > 0) {
+              newStrokes.push(subStroke);
+              subStroke = [];
+            }
+          }
+        });
+        if (subStroke.length > 0) {
+          newStrokes.push(subStroke);
+        }
+      });
+      drawnStrokes = newStrokes;
+      currentStroke = currentStroke.filter(pt => {
+        const dx = pt[0] - x;
+        const dy = pt[1] - y;
+        return Math.sqrt(dx * dx + dy * dy) > eraserRadius;
+      });
+      redrawCustomShapeCanvas();
+      drawEraserIndicator(x, y);
+    }
+
+    function drawEraserIndicator(x, y) {
+      customCtx.save();
+      customCtx.beginPath();
+      customCtx.arc(x, y, eraserRadius, 0, 2 * Math.PI);
+      customCtx.strokeStyle = 'red';
+      customCtx.lineWidth = 1;
+      customCtx.setLineDash([4, 2]);
+      customCtx.stroke();
+      customCtx.restore();
+    }
+
+    customShapeCanvas.addEventListener('mousedown', (e) => {
+      const rect = customShapeCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      if (eraserActive) {
+        eraseAtPoint(x, y);
+      } else {
+        currentStroke = [];
+        currentStroke.push([x, y]);
+      }
+    });
+    customShapeCanvas.addEventListener('mousemove', (e) => {
+      const rect = customShapeCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      if (eraserActive) {
+        if (e.buttons === 1) {
+          eraseAtPoint(x, y);
+        } else {
+          redrawCustomShapeCanvas();
+          drawEraserIndicator(x, y);
+        }
+      } else {
+        if (e.buttons !== 1) return;
+        currentStroke.push([x, y]);
+        redrawCustomShapeCanvas();
+      }
+    });
+    customShapeCanvas.addEventListener('mouseup', () => {
+      if (!eraserActive && currentStroke.length > 0) {
+        drawnStrokes.push(currentStroke);
+        currentStroke = [];
+      }
+    });
+    customShapeCanvas.addEventListener('mouseleave', () => {
+      if (!eraserActive && currentStroke.length > 0) {
+        drawnStrokes.push(currentStroke);
+        currentStroke = [];
+      }
+    });
+
+    customShapeCanvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = customShapeCanvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      if (eraserActive) {
+        eraseAtPoint(x, y);
+      } else {
+        currentStroke = [];
+        currentStroke.push([x, y]);
+      }
+    });
+    customShapeCanvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = customShapeCanvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      if (eraserActive) {
+        eraseAtPoint(x, y);
+      } else {
+        currentStroke.push([x, y]);
+        redrawCustomShapeCanvas();
+      }
+    });
+    customShapeCanvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      if (!eraserActive && currentStroke.length > 0) {
+        drawnStrokes.push(currentStroke);
+        currentStroke = [];
+      }
+    });
+
+    saveCustomShapeBtn.addEventListener('click', () => {
+      let combinedPoints = [];
+      drawnStrokes.forEach(stroke => {
+        combinedPoints = combinedPoints.concat(stroke);
+      });
+      if (combinedPoints.length > 1) {
+        customShapePoints = combinedPoints.map(pt => [pt[0] / customShapeCanvas.width, pt[1] / customShapeCanvas.height]);
+      }
+      customShapeModal.style.display = 'none';
+      drawAvatar();
+    });
+    cancelCustomShapeBtn.addEventListener('click', () => {
+      customShapeModal.style.display = 'none';
+      shapeSelect.value = 'circle';
+      drawAvatar();
+    });
+    shapeSelect.addEventListener('change', () => {
+      if (shapeSelect.value === 'custom') {
+        customShapeModal.style.display = 'flex';
+      }
+    });
+
+    /* ========= 17. Bind all inputs ========= */
+    const allInputs = document.querySelectorAll('.tools input, .tools select, .tools textarea');
+    allInputs.forEach(el => {
+      el.addEventListener('input', drawAvatar);
+      el.addEventListener('change', drawAvatar);
+    });
+    bgTypeSelect.addEventListener('change', () => {
+      updateToolsVisibility();
+      drawAvatar();
+    });
+
+    function formatNumber(n) {
+      return n.toLocaleString('en-US');
+    }
+    function updateCharCount() {
+      document.getElementById('charCount').textContent = formatNumber(textInput.value.length) + "/10000";
+    }
+    textInput.addEventListener('input', updateCharCount);
+
+    let cursorX = 0;
+    let cursorY = 0;
+    let isHoveringCanvas = false;
+    canvas.addEventListener('mousemove', e => {
+      isHoveringCanvas = true;
+      const rect = canvas.getBoundingClientRect();
+      cursorX = e.clientX - rect.left;
+      cursorY = e.clientY - rect.top;
+    });
+    canvas.addEventListener('mouseleave', () => {
+      isHoveringCanvas = false;
+    });
+    bgColorInput.addEventListener('input', () => {
+      drawAvatar();
+      if (isHoveringCanvas) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cursorX, cursorY, 20, 0, 2 * Math.PI);
+        ctx.fillStyle = bgColorInput.value;
+        ctx.fill();
+        ctx.restore();
+      }
+    });
+
+    /* ========= 18. Init ========= */
+    updateToolsVisibility();
+    updateMediaSettingsVisibility();
+    drawAvatar();
+  </script>
+</body>
+</html>

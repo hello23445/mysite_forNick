@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Color Picker</title>
+  <!-- Font Awesome для иконки копирования -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: #ff1717;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background 0.2s ease;
+      padding: 1em;
+    }
+    .picker {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8em;
+    }
+    .format-buttons {
+      display: flex;
+      gap: 0.3em;
+      justify-content: center;
+    }
+    .format-buttons button {
+      flex: 1;
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 0.4em 0.8em;
+      font-size: 0.9em;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .format-buttons button.active {
+      background: #fff;
+      color: #000;
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .hex {
+      flex: 1;
+      padding: 0.5em 0.8em;
+      font-size: 1em;
+      border: none;
+      border-radius: 0.5em;
+      outline: none;
+      min-width: 0;
+    }
+    .copy-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5em;
+      color: #fff;
+    }
+    .copy-btn:hover {
+      color: #eee;
+    }
+    canvas {
+      width: 100%;
+      display: block;
+      touch-action: none;
+      border-radius: 8px;
+    }
+    .alpha-overlay {
+      position: relative;
+      height: 30px;
+    }
+    .alpha-overlay .checkerboard {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-conic-gradient(#ccc 0% 25%, transparent 0% 50%) 50% / 16px 16px;
+      z-index: 1;
+      pointer-events: none;
+      border-radius: 8px;
+    }
+    #alphaCanvas {
+      position: relative;
+      z-index: 2;
+    }
+
+  </style>
+</head>
+<body>
+    <button 
+    onclick="window.location.href = 'main.html'" 
+    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
+>
+    BACK TO MAIN MENU
+    </button>
+
+  <div class="picker">
+    <div class="format-buttons">
+      <button data-format="HEX" class="active"><b>HEX</b></button>
+      <button data-format="RGB"><b>RGB(A)</b></button>
+      <button data-format="HSL"><b>HSL(A)</b></button>
+    </div>
+    <div class="input-group">
+      <input type="text" class="hex" value="#ff1717" maxlength="30">
+      <button class="copy-btn" title="Копировать"><i class="fa-solid fa-copy"></i></button>
+    </div>
+    <div class="alpha-overlay">
+      <div class="checkerboard"></div>
+      <canvas id="alphaCanvas" height="30"></canvas>
+    </div>
+    <canvas id="svCanvas" height="300"></canvas>
+    <canvas id="hueCanvas" height="30"></canvas>
+  </div>
+
+  <script>
+    const hexInput = document.querySelector('.hex');
+    const copyBtn = document.querySelector('.copy-btn');
+    const formatButtons = document.querySelectorAll('.format-buttons button');
+    let currentFormat = 'HEX';
+    const alphaCanvas = document.getElementById('alphaCanvas');
+    const svCanvas = document.getElementById('svCanvas');
+    const hueCanvas = document.getElementById('hueCanvas');
+    const alphaCtx = alphaCanvas.getContext('2d');
+    const svCtx = svCanvas.getContext('2d');
+    const hueCtx = hueCanvas.getContext('2d');
+
+    let hue = 0, sat = 100, val = 100, alpha = 1;
+
+    function hsvToRgb(h, s, v) {
+      s /= 100; v /= 100;
+      let c = v * s;
+      let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+      let m = v - c;
+      let r = 0, g = 0, b = 0;
+      if (h < 60) { r = c; g = x; }
+      else if (h < 120) { r = x; g = c; }
+      else if (h < 180) { g = c; b = x; }
+      else if (h < 240) { g = x; b = c; }
+      else if (h < 300) { r = x; b = c; }
+      else { r = c; b = x; }
+      return { r: Math.round((r + m) * 255), g: Math.round((g + m) * 255), b: Math.round((b + m) * 255) };
+    }
+    function rgbToHsv(r, g, b, a = 1) {
+      r /= 255; g /= 255; b /= 255;
+      let max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+      let h = 0;
+      if (d !== 0) {
+        if (max === r) h = 60 * (((g - b) / d) % 6);
+        else if (max === g) h = 60 * ((b - r) / d + 2);
+        else h = 60 * ((r - g) / d + 4);
+      }
+      if (h < 0) h += 360;
+      let s = max === 0 ? 0 : d / max;
+      let v = max;
+      return { h, s: s * 100, v: v * 100, a };
+    }
+    function rgbToHsl(r, g, b, a = 1) {
+      r /= 255; g /= 255; b /= 255;
+      let max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2, d = max - min;
+      if (d === 0) h = 0;
+      else if (max === r) h = 60 * (((g - b) / d) % 6);
+      else if (max === g) h = 60 * ((b - r) / d + 2);
+      else h = 60 * ((r - g) / d + 4);
+      s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+      return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100), a };
+    }
+
+    function drawHue() {
+      const w = hueCanvas.width;
+      const grad = hueCtx.createLinearGradient(0, 0, w, 0);
+      for (let i = 0; i <= 360; i += 10) {
+        const c = hsvToRgb(i, 100, 100);
+        grad.addColorStop(i / 360, `rgb(${c.r},${c.g},${c.b})`);
+      }
+      hueCtx.fillStyle = grad;
+      hueCtx.fillRect(0, 0, w, hueCanvas.height);
+      drawHuePointer();
+    }
+    function drawSV() {
+      const w = svCanvas.width, h = svCanvas.height;
+      const c = hsvToRgb(hue, 100, 100);
+      svCtx.fillStyle = `rgb(${c.r},${c.g},${c.b})`;
+      svCtx.fillRect(0, 0, w, h);
+      let g = svCtx.createLinearGradient(0, 0, w, 0);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      svCtx.fillStyle = g;
+      svCtx.fillRect(0, 0, w, h);
+      g = svCtx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(1, 'rgba(0,0,0,1)');
+      svCtx.fillStyle = g;
+      svCtx.fillRect(0, 0, w, h);
+      drawSVPointer();
+    }
+    function drawAlphaSlider() {
+      const w = alphaCanvas.width;
+      const c = hsvToRgb(hue, sat, val);
+      const grad = alphaCtx.createLinearGradient(0, 0, w, 0);
+      grad.addColorStop(0, `rgba(${c.r},${c.g},${c.b},0)`);
+      grad.addColorStop(1, `rgba(${c.r},${c.g},${c.b},1)`);
+      alphaCtx.clearRect(0, 0, w, alphaCanvas.height);
+      alphaCtx.fillStyle = grad;
+      alphaCtx.fillRect(0, 0, w, alphaCanvas.height);
+      drawAlphaPointer();
+    }
+    function updateInput() {
+      const { r, g, b } = hsvToRgb(hue, sat, val);
+      const a = parseFloat(alpha.toFixed(2));
+      let value;
+      if (currentFormat === 'HEX') {
+        const hex = [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        const alphaHex = a < 1 ? Math.round(a * 255).toString(16).padStart(2, '0') : '';
+        value = `#${hex}${alphaHex}`;
+      } else if (currentFormat === 'RGB') {
+        value = a < 1 ? `rgba(${r},${g},${b},${a})` : `rgb(${r},${g},${b})`;
+      } else {
+        const hsl = rgbToHsl(r, g, b, a);
+        value = a < 1 ? `hsla(${hsl.h},${hsl.s}%,${hsl.l}%,${a})` : `hsl(${hsl.h},${hsl.s}%,${hsl.l}%)`;
+      }
+      hexInput.value = value;
+      document.body.style.background = value;
+    }
+
+    function drawHuePointer() {
+      const x = (hue / 360) * hueCanvas.width;
+      hueCtx.strokeStyle = '#fff';
+      hueCtx.lineWidth = 4;
+      hueCtx.beginPath();
+      hueCtx.moveTo(x, 0);
+      hueCtx.lineTo(x, hueCanvas.height);
+      hueCtx.stroke();
+    }
+    function drawSVPointer() {
+      const x = (sat / 100) * svCanvas.width;
+      const y = (1 - val / 100) * svCanvas.height;
+      svCtx.strokeStyle = '#fff';
+      svCtx.lineWidth = 2;
+      svCtx.beginPath();
+      svCtx.arc(x, y, 8, 0, 2 * Math.PI);
+      svCtx.stroke();
+    }
+    function drawAlphaPointer() {
+      const x = alpha * alphaCanvas.width;
+      alphaCtx.strokeStyle = '#fff';
+      alphaCtx.lineWidth = 2;
+      alphaCtx.beginPath();
+      alphaCtx.moveTo(x, 0);
+      alphaCtx.lineTo(x, alphaCanvas.height);
+      alphaCtx.stroke();
+    }
+
+    function resizeCanvases() {
+      [hueCanvas, svCanvas, alphaCanvas].forEach(c => {
+        const r = c.getBoundingClientRect();
+        c.width = r.width;
+      });
+      drawHue(); drawSV(); drawAlphaSlider(); updateInput();
+    }
+    window.addEventListener('resize', resizeCanvases);
+    resizeCanvases();
+
+    function bindCanvas(canvas, onMove) {
+      let down = false;
+      const rect = () => canvas.getBoundingClientRect();
+      const toPos = e => {
+        const client = e.touches ? e.touches[0] : e;
+        const r = rect();
+        return { x: client.clientX - r.left, y: client.clientY - r.top };
+      };
+      canvas.addEventListener('mousedown', e => { down = true; onMove(toPos(e)); });
+      canvas.addEventListener('mouseup', () => down = false);
+      canvas.addEventListener('mouseleave', () => down = false);
+      canvas.addEventListener('mousemove', e => down && onMove(toPos(e)));
+      canvas.addEventListener('touchstart', e => { down = true; onMove(toPos(e)); e.preventDefault(); });
+      canvas.addEventListener('touchend', () => down = false);
+      canvas.addEventListener('touchmove', e => down && onMove(toPos(e)));
+    }
+    bindCanvas(hueCanvas, pos => {
+      hue = Math.max(0, Math.min(360, (pos.x / hueCanvas.width) * 360));
+      drawHue(); drawSV(); drawAlphaSlider(); updateInput();
+    });
+    bindCanvas(svCanvas, pos => {
+      sat = Math.max(0, Math.min(100, (pos.x / svCanvas.width) * 100));
+      val = Math.max(0, Math.min(100, 100 - (pos.y / svCanvas.height) * 100));
+      drawSV(); updateInput();
+    });
+    bindCanvas(alphaCanvas, pos => {
+      alpha = Math.max(0, Math.min(1, pos.x / alphaCanvas.width));
+      drawAlphaSlider(); updateInput();
+    });
+
+    // Парсинг вручную введённого кода
+    function parseInput() {
+      const v = hexInput.value.trim();
+      let m;
+      if (m = /^#([0-9a-f]{3,8})$/i.exec(v)) {
+        let hex = m[1];
+        if (hex.length === 3) hex = hex.split('').map(s=>s+s).join('');
+        if (hex.length === 6) hex += 'ff';
+        const num = parseInt(hex, 16);
+        const r = num >> 24 & 0xff, g = num >> 16 & 0xff, b = num >> 8 & 0xff, a = (num & 0xff)/255;
+        const hsv = rgbToHsv(r, g, b, a);
+        hue = hsv.h; sat = hsv.s; val = hsv.v; alpha = hsv.a;
+      } else if (m = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)$/i.exec(v)) {
+        const r = +m[1], g = +m[2], b = +m[3], a = m[4]?+m[4]:1;
+        const hsv = rgbToHsv(r, g, b, a);
+        hue = hsv.h; sat = hsv.s; val = hsv.v; alpha = hsv.a;
+      } else if (m = /^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*([\d.]+))?\)$/i.exec(v)) {
+        const h = +m[1], s = +m[2], l = +m[3], a = m[4]?+m[4]:1;
+        // конвертация HSL->HSV
+        // сначала HSL->RGB через rgbToHsl обратное, но проще: HSL->RGB->HSV
+        const { r, g, b } = (() => {
+          l /= 100; s /= 100;
+          const c = (1 - Math.abs(2*l-1))*s;
+          const x = c*(1-Math.abs((h/60)%2-1));
+          const m2 = l - c/2;
+          let rp=0,gp=0,bp=0;
+          if (h<60) rp=c,gp=x;
+          else if (h<120) rp=x,gp=c;
+          else if (h<180) gp=c,bp=x;
+          else if (h<240) gp=x,bp=c;
+          else if (h<300) rp=x,bp=c;
+          else rp=c,bp=x;
+          return { r: Math.round((rp+m2)*255), g: Math.round((gp+m2)*255), b: Math.round((bp+m2)*255) };
+        })();
+        const hsv = rgbToHsv(r, g, b, a);
+        hue = hsv.h; sat = hsv.s; val = hsv.v; alpha = hsv.a;
+      } else {
+        return;
+      }
+      drawHue(); drawSV(); drawAlphaSlider(); updateInput();
+    }
+    hexInput.addEventListener('blur', parseInput);
+    hexInput.addEventListener('keydown', e => { if (e.key === 'Enter') parseInput(); });
+
+    function func(){
+      if (localStorage.getItem('copied_color_codes')){
+        localStorage.setItem('copied_color_codes', String(Number(localStorage.getItem('copied_color_codes')) + 1));
+      }
+      else{
+        localStorage.setItem('copied_color_codes', '1');
+      }
+    }
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(hexInput.value)
+        .then(() => {
+          copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+          func();
+        })
+        .catch(() => {
+          copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        });
+
+      setTimeout(() => {
+        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+      }, 1500);
+    });
+
+
+    formatButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        formatButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFormat = btn.dataset.format;
+        updateInput();
+      });
+    });
+  </script>
+</body>
+</html>

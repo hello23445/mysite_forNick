@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Support Chat</title>
+  <style>
+    /* Reset default margins and set box-sizing */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      margin: 0;
+      padding-top: 20px; /* top padding */
+      display: flex;
+      justify-content: center; /* center horizontally */
+      align-items: flex-start; /* align to top */
+      min-height: 100vh;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh; /* height limit so it doesn't overflow the screen */
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chat-header {
+      background-color: #5563DE;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      background-color: #f4f4f4;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      display: flex;
+      max-width: 70%;
+      word-wrap: break-word;
+      padding: 12px 18px;
+      border-radius: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background-color: #dcf8c6;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background-color: #ffffff;
+    }
+
+    /* System message (rating block) */
+    .message.rating {
+      align-self: center;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    .rating p {
+      margin: 0;
+      font-weight: bold;
+    }
+
+    .stars {
+      display: flex;
+      gap: 5px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .stars .star {
+      user-select: none;
+    }
+
+    .rating button {
+      background-color: #5563DE;
+      color: #fff;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin: 0 5px;
+    }
+
+    .rating button:hover {
+      background-color: #3b45a0;
+    }
+
+    /* Styles for disabled elements */
+    .disabled {
+      opacity: 0.5;
+      background-color: #ccc !important;
+      pointer-events: none;
+      cursor: default;
+      color: #888 !important;
+    }
+
+    /* Error messages (headings instead of alerts) */
+    .error-message {
+      color: red;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    /* Styles for modal window */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .modal p {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .modal input {
+      width: 90%;
+      padding: 6px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .modal button {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      background-color: #5563DE;
+      color: #fff;
+      cursor: pointer;
+      margin-right: 5px;
+      transition: background-color 0.2s;
+    }
+    .modal button:hover {
+      background-color: #3b45a0;
+    }
+    .modal button.cancel {
+      background-color: #ccc;
+      color: #333;
+    }
+    .modal button.cancel:hover {
+      background-color: #b3b3b3;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+    .chat-input button {
+      background: linear-gradient(135deg, #5563DE, #74ABE2);
+      border: none;
+      color: #fff;
+      padding: 0 25px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border-radius: 0 10px 10px 0;
+    }
+    .chat-input button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Typing indicator styles (small circles) */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .typing-indicator .dot {
+      width: 6px;       /* reduced size */
+      height: 6px;
+      margin: 0 3px;
+      background-color: #5563DE; /* matches header color */
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: blink 1.4s infinite;
+    }
+    .typing-indicator .dot:nth-child(1) {
+      animation-delay: 0s;
+    }
+    .typing-indicator .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-indicator .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes blink {
+      0%, 80%, 100% {
+        opacity: 0.5;
+        transform: translateY(0);
+      }
+      40% {
+        opacity: 1;
+        transform: translateY(-5px);
+      }
+    }
+
+    /* Media queries for responsiveness */
+    @media (max-width: 600px) {
+      .chat-container {
+        margin: 10px;
+        border-radius: 8px;
+        margin-top: 8%;
+      }
+      .chat-header {
+        font-size: 20px;
+        padding: 15px;
+      }
+      .chat-input input {
+        padding: 10px;
+        font-size: 14px;
+      }
+      .chat-input button {
+        padding: 0 20px;
+        font-size: 14px;
+      }
+      .stars {
+        font-size: 20px;
+      }
+      .modal {
+        width: 90%;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .chat-container {
+        border-radius: 0;
+        margin-top: 5%;
+      }
+      .chat-header {
+        font-size: 18px;
+        padding: 10px;
+      }
+      .chat-input input {
+        font-size: 14px;
+        padding: 8px;
+      }
+      .chat-input button {
+        font-size: 14px;
+        padding: 0 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+    <button 
+    onclick="window.location.href = 'main.html'" 
+    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
+>
+    BACK TO MAIN MENU
+    </button>
+
+  <div class="chat-container">
+    <div class="chat-header">Support Service</div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input">
+      <input type="text" id="message" placeholder="Enter your message..." autocomplete="off" />
+      <!-- "Send" button will be displayed via JS -->
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    // Array of Q&A
+    const adminQna = [
+      { 
+        question: "Bot Problem", 
+        keywords: ['error', 'technical error occurred', 'we are sorry', 'we are sorry, a technical error occurred.'], 
+        answer: 'In this case, you need to contact the administrators via the feedback bot @Clickerstart_bot .<br>So only they can help you and fix this error.'
+      },
+      { 
+        question: "What to do?", 
+        keywords: ['work', 'suspended', 'sorry,'], 
+        answer: 'A technical break is in progress. <br>If the bot does not start working after a few days, please contact our bot @Clickerstart_bot.' 
+      },
+      { 
+        question: "Help", 
+        keywords: ['help', 'help me', 'support', 'assist'], 
+        answer: 'How can I help you?<br>If you need to speak with an administrator, type "Admin"'
+      },
+      { 
+        question: "Understood", 
+        keywords: ['understood', 'clear', 'got it'], 
+        answer: "I'm glad I was able to explain it to you :)"
+      },
+      { 
+        question: "Contact", 
+        keywords: ['don\'t understand', 'admin'], 
+        answer: 'Please contact our feedback bot: @Clickerstart_bot.'
+      },
+      { 
+        question: "Support", 
+        keywords: ['support'], 
+        answer: 'We are always ready to help! Ask your question.'
+      },
+      { 
+        question: "Greeting", 
+        keywords: ['hello', 'hi', 'hey'], 
+        answer: 'Hello! How can I help you? <br>(Our Telegram feedback bot: @Clickerstart_bot)'
+      },
+      { 
+        question: "Okay", 
+        keywords: ['okay', 'alright', 'ok'], 
+        answer: '🙂'
+      },
+      { 
+        question: "Gratitude", 
+        keywords: ['thank you', 'thanks', 'ty'], 
+        answer: "You're welcome 😄"
+      },
+      { 
+        question: "Bot not responding", 
+        keywords: ['ignores', 'not responding', 'not working', 'ignore'], 
+        answer: `If the bot does not respond to your messages, try the following steps:<br><br>1. Restart Telegram, Wi-Fi or your device.<br>Sometimes the problem might be with your Telegram, Wi-Fi, or your device.<br><br>2. Wait a little.<br>Sometimes the system can be overloaded.<br><br>3. Turn off your device for a couple of minutes.<br>Sometimes turning off the device may also help.<br><br>4. Clear the Telegram cache.<br>We recommend clearing your Telegram cache in the "Data and Storage" section of your Telegram settings.<br><br>If none of this helps, send me "Help".`
+      }
+    ];
+
+    const defaultMessage = "Unfortunately, I couldn't find an answer to your question.<br>Please clarify your question or contact our feedback bot: @Clickerstart_bot.";
+
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('send-btn');
+    const chatMessages = document.getElementById('chat-messages');
+
+    // Constants for Telegram
+    const telegramToken = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
+    const telegramChatId = '6434781065';
+
+    let userMessageCount = 0;
+    let ratingDisplayed = false;
+    let selectedStars = 0;
+    let ratingDisabled = false;  // lock system message
+    let ratingSent = false;      // flag for sent rating
+    let systemTypingActive = false; // flag that system is typing
+
+    // References to system message elements
+    let ratingDiv = null;
+    let reasonBtn = null;
+
+    // Function to display an error message (heading instead of alert)
+    function showError(message) {
+      const errorHeading = document.createElement('h3');
+      errorHeading.classList.add('error-message');
+      errorHeading.textContent = message;
+      chatMessages.appendChild(errorHeading);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      setTimeout(() => {
+        errorHeading.remove();
+      }, 3000);
+    }
+
+    function appendMessage(sender, text) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', sender);
+      messageDiv.innerHTML = text;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function getAnswer(inputText) {
+      const lowerText = inputText.toLowerCase();
+      for (const { keywords, answer } of adminQna) {
+        if (keywords.some(keyword => lowerText.includes(keyword))) {
+          return answer;
+        }
+      }
+      return defaultMessage;
+    }
+
+    function processMessage() {
+      // If the system is still typing, do not send the message
+      if (systemTypingActive) return;
+      const text = messageInput.value.trim();
+      if (!text) return;
+      appendMessage('user', text);
+      messageInput.value = '';
+      updateSendButtonVisibility();
+      userMessageCount++;
+      setTimeout(() => {
+        const answer = getAnswer(text);
+        appendMessage('ai', answer);
+        if (userMessageCount === 3 && !ratingDisplayed) {
+          showRatingMessage();
+          ratingDisplayed = true;
+        }
+      }, 500);
+    }
+
+    sendBtn.addEventListener('click', processMessage);
+    messageInput.addEventListener('keypress', e => {
+      // If Enter is pressed and the system is not typing
+      if (e.key === 'Enter' && !systemTypingActive) {
+        processMessage();
+      }
+    });
+
+    // Function to update the visibility and active state of the "Send" button
+    // The button appears only if the input is not empty and the system is not typing
+    function updateSendButtonVisibility() {
+      if (messageInput.value.trim() !== '' && !systemTypingActive) {
+        sendBtn.style.display = "inline-block";
+      } else {
+        sendBtn.style.display = "none";
+      }
+    }
+
+    messageInput.addEventListener("input", updateSendButtonVisibility);
+
+    // Function to display the animated typing indicator (jumping dots)
+    function showTypingIndicator() {
+      const indicator = document.createElement('div');
+      indicator.classList.add('message', 'ai');
+      indicator.innerHTML = '<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+      chatMessages.appendChild(indicator);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return indicator;
+    }
+
+    // On page load, set flag, update button visibility, show typing indicator,
+    // then after 3 seconds remove the indicator, display a greeting and update button visibility
+    window.onload = () => {
+      systemTypingActive = true;
+      updateSendButtonVisibility();
+      const indicator = showTypingIndicator();
+      setTimeout(() => {
+        systemTypingActive = false;
+        indicator.remove();
+        appendMessage('ai', 'Hello, how can I help you?');
+        updateSendButtonVisibility();
+      }, 3000);
+    };
+
+    // Creating the rating block
+    function showRatingMessage() {
+      ratingDiv = document.createElement('div');
+      ratingDiv.classList.add('message', 'rating');
+
+      const ratingText = document.createElement('p');
+      ratingText.textContent = 'Rate our support from 1 to 5 stars:';
+
+      const starsDiv = document.createElement('div');
+      starsDiv.classList.add('stars');
+      for (let i = 1; i <= 5; i++) {
+        const starSpan = document.createElement('span');
+        starSpan.classList.add('star');
+        starSpan.dataset.value = i;
+        starSpan.textContent = '☆';
+        starSpan.addEventListener('click', () => {
+          if (ratingDisabled) return;
+          selectedStars = i;
+          updateStarsDisplay(starsDiv);
+        });
+        starsDiv.appendChild(starSpan);
+      }
+
+      const sendRatingBtn = document.createElement('button');
+      sendRatingBtn.textContent = 'Send';
+      sendRatingBtn.addEventListener('click', sendRating);
+
+      reasonBtn = document.createElement('button');
+      reasonBtn.textContent = 'Reason';
+      reasonBtn.style.display = 'none';
+      reasonBtn.addEventListener('click', openImprovementWindow);
+
+      const buttonsDiv = document.createElement('div');
+      buttonsDiv.appendChild(sendRatingBtn);
+      buttonsDiv.appendChild(reasonBtn);
+
+      ratingDiv.appendChild(ratingText);
+      ratingDiv.appendChild(starsDiv);
+      ratingDiv.appendChild(buttonsDiv);
+
+      chatMessages.appendChild(ratingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Updating stars display
+    function updateStarsDisplay(starsDiv) {
+      const starSpans = starsDiv.querySelectorAll('.star');
+      starSpans.forEach(star => {
+        const starValue = Number(star.dataset.value);
+        star.textContent = starValue <= selectedStars ? '★' : '☆';
+      });
+    }
+
+    // Sending rating to Telegram and disabling other elements of the system message
+    function sendRating() {
+      if (ratingDisabled) return;
+      if (selectedStars === 0) {
+        showError('Please select the number of stars for rating.');
+        return;
+      }
+      const ratingMsg = `Someone rated our support with ${selectedStars} ${selectedStars === 1 ? 'star' : 'stars'}!`;
+      const url = `https://api.telegram.org/bot${telegramToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(ratingMsg)}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            ratingSent = true;
+            if (selectedStars <= 3) {
+              appendMessage('ai', 'We apologize for the issues you experienced. We will strive to improve!');
+              disableRatingMessage({ allowReason: true });
+              reasonBtn.style.display = 'inline-block';
+            } else {
+              appendMessage('ai', 'Thank you!');
+              disableRatingMessage({ allowReason: false });
+            }
+          } else {
+            showError('Error sending rating to Telegram.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showError('Error sending rating.');
+        });
+    }
+
+    // Disabling system message elements.
+    // If allowReason==true, disable all elements except the "Reason" button and text.
+    function disableRatingMessage({ allowReason }) {
+      ratingDisabled = true;
+      if (ratingDiv) {
+        const buttons = ratingDiv.querySelectorAll('button');
+        buttons.forEach(btn => {
+          if (allowReason && btn === reasonBtn) {
+            // do not disable the "Reason" button
+          } else {
+            btn.disabled = true;
+            btn.classList.add('disabled');
+          }
+        });
+        const stars = ratingDiv.querySelectorAll('.star');
+        stars.forEach(star => {
+          star.style.pointerEvents = 'none';
+          star.style.color = '#888';
+        });
+        const ratingText = ratingDiv.querySelector('p');
+        if (ratingText) {
+          ratingText.classList.add('disabled');
+        }
+      }
+    }
+
+    // Opening the modal window for entering a reason
+    function openImprovementWindow() {
+      if (!ratingDisabled) return;
+      if (document.querySelector('.modal-overlay')) return;
+
+      const overlay = document.createElement('div');
+      overlay.classList.add('modal-overlay');
+
+      const modal = document.createElement('div');
+      modal.classList.add('modal');
+
+      const promptText = document.createElement('p');
+      promptText.textContent = 'Why did you give such a rating?';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Your suggestions';
+
+      const sendImpBtn = document.createElement('button');
+      sendImpBtn.textContent = 'Send';
+      sendImpBtn.disabled = true;
+      sendImpBtn.classList.add('disabled');
+      input.addEventListener('input', () => {
+        if (input.value.trim() === '') {
+          sendImpBtn.disabled = true;
+          sendImpBtn.classList.add('disabled');
+        } else {
+          sendImpBtn.disabled = false;
+          sendImpBtn.classList.remove('disabled');
+        }
+      });
+      sendImpBtn.addEventListener('click', () => {
+        const suggestion = input.value.trim();
+        if (!suggestion) {
+          showError('Please enter your suggestions.');
+          return;
+        }
+        const impText = `Someone suggested improvements: ${suggestion}`;
+        const impUrl = `https://api.telegram.org/bot${telegramToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(impText)}`;
+        fetch(impUrl)
+          .then(response => response.json())
+          .then(data => {
+            if (data.ok) {
+              overlay.remove();
+              reasonBtn.disabled = true;
+              reasonBtn.classList.add('disabled');
+            } else {
+              showError('Error sending suggestion.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            showError('Error sending suggestion.');
+          });
+      });
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = 'Cancel';
+      cancelBtn.classList.add('cancel');
+      cancelBtn.addEventListener('click', () => {
+        overlay.remove();
+      });
+
+      modal.appendChild(promptText);
+      modal.appendChild(input);
+      modal.appendChild(sendImpBtn);
+      modal.appendChild(cancelBtn);
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+    }
+  </script>
+</body>
+</html>
