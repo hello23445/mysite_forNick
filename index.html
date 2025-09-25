@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Фейковая проверка подписки</title>
+  <title>Загрузка</title>
   <style>
     html, body {
       margin: 0;
@@ -88,36 +88,35 @@
 </head>
 <body>
   <div class="centered">
-    <h1 id="message">Загрузка... || Loading...</h1>
+    <h1 id="message">Идет загрузка... || Loading...</h1>
     <div id="buttons"></div>
   </div>
 
   <script type="module">
-    if (window.Telegram && Telegram.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.expand();
-    }
+    // --- security.js ---
+    import { texpereriv, blockedTokens } from './security.js';
 
-    var texpereriv = '';
-    localStorage.setItem('m', texpereriv || 'false'); // Устанавливаем статус технического обслуживания для теста
     const channelUsername = 'Nicknaymes2bot';
     const redirectUrl = 'main.html';
-    const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss'];
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytybZm3FJ48XaSfxzqk7iiTo3yR2BNf-F23pXAF6pI3lJGu6E3G5oVFPhi7xjXk3NO/exec';
 
     const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
     const text = {
       ru: {
-        mustSub: 'Чтобы пользоваться этим мини-приложением, надо подписаться на канал\n || To use this mini app, you must subscribe to the channel',
-        check: 'Проверить\n || Check',
-        subscribe: 'Подписаться\n || Subscribe',
-        loading: 'Загрузка...\n|| Loading...',
+        loading: 'Идет загрузка...\n|| Loading...',
         blocked: 'Ваш аккаунт заблокирован. || Your account is blocked.',
         support: 'Служба поддержки || Support service: @',
         supportBot: 'Clickerstart_bot',
         maintenance: 'Ведется техническое обслуживание!\nTechnical maintenance',
         soon: 'Скоро мы начнем техническое обслуживание\nTechnical maintenance will start soon.'
       },
+      en: {
+        loading: 'Loading... || Идет загрузка...',
+        blocked: 'Your account is blocked. || Ваш аккаунт заблокирован.',
+        support: 'Support service || Служба поддержки: @',
+        supportBot: 'Clickerstart_bot',
+        maintenance: 'Technical maintenance!\nВедется техническое обслуживание!',
+        soon: 'Technical maintenance will start soon.\nСкоро мы начнем техническое обслуживание.'
+      }
     };
 
     const messageEl = document.getElementById('message');
@@ -127,28 +126,22 @@
     function copyToClipboard(text) {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
-          alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
+          alert('Ваш токен скопирован!\nYour token copied!');
           const copyBtn = document.querySelector('.copy-btn');
-          if (copyBtn) {
-            copyBtn.textContent = 'Скопировано! || Copied!';
-          }
+          if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
         }, () => {
           alert('Не удалось скопировать токен.');
         });
       } else {
         const textArea = document.createElement('textarea');
         textArea.value = text;
-        textArea.style.position = 'fixed';
         document.body.appendChild(textArea);
-        textArea.focus();
         textArea.select();
         try {
           document.execCommand('copy');
-          alert('Ваш токен скопирован в буфер обмена!\nYour token copied to clipboard!');
+          alert('Ваш токен скопирован!\nYour token copied!');
           const copyBtn = document.querySelector('.copy-btn');
-          if (copyBtn) {
-            copyBtn.textContent = 'Скопировано! || Copied!';
-          }
+          if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
         } catch {
           alert('Не удалось скопировать токен.');
         }
@@ -167,7 +160,6 @@
       const copyBtn = document.createElement('button');
       copyBtn.className = 'copy-btn';
       copyBtn.textContent = 'Скопировать || Copy';
-      copyBtn.title = 'Скопировать токен';
       copyBtn.onclick = () => copyToClipboard(userToken);
       tokenContainer.appendChild(copyBtn);
 
@@ -177,7 +169,7 @@
     function createSupportText() {
       const supportDiv = document.createElement('div');
       supportDiv.className = 'support-text';
-      supportDiv.innerHTML = `${text[userLang].support}<a href="https://t.me/Clickerstart_bot" target="_blank" rel="noopener noreferrer">Clickerstart_bot</a>`;
+      supportDiv.innerHTML = `${text[userLang].support}<a href="https://t.me/${text[userLang].supportBot}" target="_blank">Clickerstart_bot</a>`;
       return supportDiv;
     }
 
@@ -195,45 +187,6 @@
       buttonsEl.appendChild(createSupportText());
     }
 
-    function showSubscribeScreen() {
-      messageEl.textContent = text[userLang].mustSub;
-      buttonsEl.innerHTML = '';
-
-      const subBtn = document.createElement('button');
-      subBtn.textContent = text[userLang].subscribe;
-      subBtn.onclick = () => window.open(`https://t.me/${channelUsername}`, '_blank');
-      buttonsEl.appendChild(subBtn);
-
-      const checkBtn = document.createElement('button');
-      checkBtn.textContent = text[userLang].check;
-      checkBtn.onclick = () => {
-        localStorage.setItem('checkedSubscription', 'true');
-        window.location.href = redirectUrl;
-      };
-      buttonsEl.appendChild(checkBtn);
-
-      buttonsEl.appendChild(createTokenContainer());
-      buttonsEl.appendChild(createSupportText());
-    }
-
-    function fakeCheckSubscription(startapp) {
-      if (startapp) {
-        window.location.href = redirectUrl;
-
-        return;
-      }
-
-      const checkedBefore = localStorage.getItem('checkedSubscription') === 'true';
-      const randomFail = Math.random() < 0.02;
-
-      if (checkedBefore && !randomFail) {
-        window.location.href = redirectUrl;
-
-      } else {
-        showSubscribeScreen();
-      }
-    }
-
     function generateToken(length = 16) {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       let token = '';
@@ -243,27 +196,18 @@
       return token;
     }
 
-    async function saveTokenToGoogle(token) {
-      try {
-        await fetch(`${GOOGLE_SCRIPT_URL}?token=${token}`);
-      } catch (err) {
-        console.warn('Ошибка отправки токена в Google таблицу:', err);
-      }
-    }
-
     async function main() {
       userToken = localStorage.getItem('userToken');
-
       if (!userToken) {
         userToken = generateToken(16);
         localStorage.setItem('userToken', userToken);
-        await saveTokenToGoogle(userToken);
       }
 
       buttonsEl.appendChild(createTokenContainer());
       buttonsEl.appendChild(createSupportText());
 
       if (blockedTokens.includes(userToken)) {
+        alert('Вы заблокированы!\nYou have been banned!');
         showBlockedScreen();
         return;
       }
@@ -276,16 +220,15 @@
         return;
       }
 
-      const urlStartApp = new URLSearchParams(window.location.search).get('startapp');
-      messageEl.textContent = text[userLang].loading;
-      fakeCheckSubscription(urlStartApp);
+      // сразу идем в main.html
+      window.location.href = redirectUrl;
     }
 
     main();
+
+    if (localStorage.getItem('forever') === 'yes') {
+      window.location.href = 'blocked_forever.html';
+    }
   </script>
 </body>
 </html>
-
-
-
-
