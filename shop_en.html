@@ -720,7 +720,7 @@
                     for (let char of priceStr) {
                         encodedPrice += digitToLetter[char] || char;
                     }
-                    const buttonUrl = `https://t.me/NickNaymesBot/beta?startapp=${encodedPrice}_${
+                    const buttonUrl = `https://t.me/NickNaymesBot/create2?startapp=${encodedPrice}_${
                         Array.from({length: 20}, () => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 62)]).join('')
                     }`;
 
