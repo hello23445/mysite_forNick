@@ -244,6 +244,11 @@
         <div id="extraControls"><!-- Контролы генерируются автоматически --></div>
       </div>
     </section>
+
+    <!-- Кнопка поделиться -->
+    <section class="share-section">
+      <button id="shareMusicBtn" disabled>Поделиться музыкой (Premium)</button>
+    </section>
   </div>
   
   <!-- Модальное окно (ошибка выбора файла) -->
@@ -291,19 +296,36 @@
     let extraControlsGenerated = false;
     let bypassExtraEffects = true; // Флаг: если все extra-слайдеры на нейтральном уровне – эффекты не применяются
     
+    // Проверка премиума
+    const premium = localStorage.getItem('premium');
+    if (premium) {
+      shareMusicBtn.disabled = false;
+      shareMusicBtn.textContent = 'Поделиться музыкой';
+    }
+
     // Обработчик кнопки "Поделиться музыкой"
-    shareMusicBtn && shareMusicBtn.addEventListener('click', async () => {
+    shareMusicBtn.addEventListener('click', async () => {
       if (!audioFile) {
         alert("Пожалуйста, выберите файл с песней.");
         return;
       }
+      shareMusicBtn.disabled = true;
+      const processedBlob = await renderProcessedAudio();
+      shareMusicBtn.disabled = false;
+      if (!processedBlob) {
+        alert("Ошибка при обработке аудио.");
+        return;
+      }
+      const fileExt = originalFileName.split('.').pop();
+      const newFileName = originalFileName.replace(`.${fileExt}`, `_processed.wav`);
+      const processedFile = new File([processedBlob], newFileName, {type: 'audio/wav'});
       const settingsText = getCurrentSettings();
-      if (navigator.canShare && navigator.canShare({ files: [audioFile] })) {
+      if (navigator.canShare && navigator.canShare({ files: [processedFile] })) {
         try {
           await navigator.share({
             title: 'Моя музыка',
             text: settingsText,
-            files: [audioFile]
+            files: [processedFile]
           });
         } catch (error) {
           alert("Ошибка при попытке поделиться: " + error);
@@ -330,14 +352,19 @@
     // Функция, которая всегда перестраивает цепочку дополнительных эффектов
     function rebuildExtraEffectsChain() {
       delayNode.disconnect();
-      delayNode.connect(extraEffects[0].node);
-      for (let i = 0; i < extraEffects.length - 1; i++) {
-        try { extraEffects[i].node.disconnect(); } catch(e){}
-        extraEffects[i].node.connect(extraEffects[i+1].node);
+      if (extraEffects.length > 0) {
+        delayNode.connect(extraEffects[0].node);
+        for (let i = 0; i < extraEffects.length - 1; i++) {
+          try { extraEffects[i].node.disconnect(); } catch(e){}
+          extraEffects[i].node.connect(extraEffects[i+1].node);
+        }
+        try { extraEffects[extraEffects.length - 1].node.disconnect(); } catch(e){}
+        extraEffects[extraEffects.length - 1].node.connect(audioContext.destination);
+        bypassExtraEffects = false;
+      } else {
+        delayNode.connect(audioContext.destination);
+        bypassExtraEffects = true;
       }
-      try { extraEffects[extraEffects.length - 1].node.disconnect(); } catch(e){}
-      extraEffects[extraEffects.length - 1].node.connect(audioContext.destination);
-      bypassExtraEffects = false;
     }
     
     // Вызывается при изменении слайдера дополнительных настроек
@@ -370,142 +397,156 @@
       { name: 'Playback Rate (Скорость воспроизведения)', type: 'playbackRate', min: 0.5, max: 2.0, step: 0.01, value: 1, info: 'Изменение скорости воспроизведения изменяет темп и высоту тона звука. Значение 1 – нормальная скорость.' },
       { name: 'Bitcrusher (Эффект lo‑fi)', type: 'bitcrusher', min: 1, max: 16, step: 1, value: 16, info: 'Bitcrusher уменьшает битовую глубину сигнала, создавая эффект lo‑fi. Значение 16 означает максимально качественное звучание (без эффекта).' }
     ];
+
+    function createImpulseResponse(ctx, duration, decay) {
+      const length = ctx.sampleRate * duration;
+      const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+      const impulseL = impulse.getChannelData(0);
+      const impulseR = impulse.getChannelData(1);
+      for (let i = 0; i < length; i++) {
+        const n = decay ? Math.exp(-i / (ctx.sampleRate * decay)) : 1;
+        impulseL[i] = (Math.random() * 2 - 1) * n;
+        impulseR[i] = (Math.random() * 2 - 1) * n;
+      }
+      return impulse;
+    }
     
     // Функция создания extra-эффекта с bypass-логикой
-    function createExtraEffect(cfg) {
+    function createExtraEffect(cfg, ctx = audioContext) {
       let node;
       let extraData = { config: cfg };
       switch(cfg.type) {
         case 'lowshelf':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createBiquadFilter();
+            node = ctx.createBiquadFilter();
             node.type = 'lowshelf';
             node.frequency.value = 200;
             node.gain.value = cfg.value;
           }
           break;
         case 'distortion':
-          node = audioContext.createWaveShaper();
+          node = ctx.createWaveShaper();
           node.curve = makeDistortionCurve(cfg.value);
           break;
         case 'highpass':
           if (cfg.value == 20) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createBiquadFilter();
+            node = ctx.createBiquadFilter();
             node.type = 'highpass';
             node.frequency.value = cfg.value;
           }
           break;
         case 'lowpass':
           if (cfg.value == 22050) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createBiquadFilter();
+            node = ctx.createBiquadFilter();
             node.type = 'lowpass';
             node.frequency.value = cfg.value;
           }
           break;
         case 'panner':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createStereoPanner();
+            node = ctx.createStereoPanner();
             node.pan.value = cfg.value;
           }
           break;
         case 'compressor':
           if (cfg.value == -100) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createDynamicsCompressor();
+            node = ctx.createDynamicsCompressor();
             node.threshold.value = cfg.value;
           }
           break;
         case 'delay':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createDelay(1.0);
+            node = ctx.createDelay(1.0);
             node.delayTime.value = cfg.value;
           }
           break;
         case 'notch':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createBiquadFilter();
+            node = ctx.createBiquadFilter();
             node.type = 'notch';
             node.frequency.value = cfg.value;
           }
           break;
         case 'peaking':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createBiquadFilter();
+            node = ctx.createBiquadFilter();
             node.type = 'peaking';
             node.gain.value = cfg.value;
           }
           break;
         case 'gain':
           if (cfg.value == 1) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = cfg.value;
           }
           break;
         case 'tremolo':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
-            const tremoloOsc = audioContext.createOscillator();
+            const tremoloOsc = ctx.createOscillator();
             tremoloOsc.type = 'sine';
             tremoloOsc.frequency.value = 5;
-            const tremoloGain = audioContext.createGain();
+            const tremoloGain = ctx.createGain();
             tremoloGain.gain.value = cfg.value;
             tremoloOsc.connect(tremoloGain);
             tremoloGain.connect(node.gain);
-            tremoloOsc.start();
+            tremoloOsc.start(0);
+            extraData.tremoloOsc = tremoloOsc;
             extraData.tremoloGain = tremoloGain;
           }
           break;
         case 'bandpass':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createBiquadFilter();
+            node = ctx.createBiquadFilter();
             node.type = 'bandpass';
             node.frequency.value = cfg.value;
           }
           break;
         case 'allpass':
-          node = audioContext.createBiquadFilter();
+          node = ctx.createBiquadFilter();
           node.type = 'allpass';
           node.frequency.value = cfg.value;
           break;
         case 'highshelf':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createBiquadFilter();
+            node = ctx.createBiquadFilter();
             node.type = 'highshelf';
             node.frequency.value = 5000;
             node.gain.value = cfg.value;
@@ -513,12 +554,12 @@
           break;
         case 'reverb':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            const convolver = audioContext.createConvolver();
-            convolver.buffer = createImpulseResponse(audioContext, 2.0, 2.0);
-            const reverbGain = audioContext.createGain();
+            const convolver = ctx.createConvolver();
+            convolver.buffer = createImpulseResponse(ctx, 2.0, 2.0);
+            const reverbGain = ctx.createGain();
             reverbGain.gain.value = cfg.value;
             convolver.connect(reverbGain);
             node = reverbGain;
@@ -527,70 +568,72 @@
           break;
         case 'flanger':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createDelay();
+            node = ctx.createDelay();
             node.delayTime.value = cfg.value;
-            const flangerOsc = audioContext.createOscillator();
+            const flangerOsc = ctx.createOscillator();
             flangerOsc.type = 'sine';
             flangerOsc.frequency.value = 0.25;
-            const flangerGain = audioContext.createGain();
+            const flangerGain = ctx.createGain();
             flangerGain.gain.value = cfg.value;
             flangerOsc.connect(flangerGain);
             flangerGain.connect(node.delayTime);
-            flangerOsc.start();
+            flangerOsc.start(0);
+            extraData.flangerOsc = flangerOsc;
           }
           break;
         case 'chorus':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createDelay();
+            node = ctx.createDelay();
             node.delayTime.value = cfg.value;
-            const chorusOsc = audioContext.createOscillator();
+            const chorusOsc = ctx.createOscillator();
             chorusOsc.type = 'sine';
             chorusOsc.frequency.value = 1.5;
-            const chorusGain = audioContext.createGain();
+            const chorusGain = ctx.createGain();
             chorusGain.gain.value = cfg.value;
             chorusOsc.connect(chorusGain);
             chorusGain.connect(node.delayTime);
-            chorusOsc.start();
+            chorusOsc.start(0);
+            extraData.chorusOsc = chorusOsc;
           }
           break;
         case 'vibrato':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = cfg.value;
           }
           break;
         case 'phaser':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = cfg.value;
           }
           break;
         case 'autowah':
           if (cfg.value == 0) {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = 1;
           } else {
-            node = audioContext.createGain();
+            node = ctx.createGain();
             node.gain.value = cfg.value;
           }
           break;
         case 'playbackRate':
-          node = audioContext.createGain();
+          node = ctx.createGain();
           break;
         case 'bitcrusher':
-          node = audioContext.createScriptProcessor(4096, 1, 1);
+          node = ctx.createScriptProcessor(4096, 1, 1);
           node.bits = cfg.value;
           node.onaudioprocess = function(e) {
             const input = e.inputBuffer.getChannelData(0);
@@ -602,7 +645,7 @@
           };
           break;
         default:
-          node = audioContext.createGain();
+          node = ctx.createGain();
           node.gain.value = cfg.value;
       }
       extraData.node = node;
@@ -690,61 +733,12 @@
         slider.addEventListener('input', () => {
           const val = parseFloat(slider.value);
           valueDisplay.textContent = `Значение: ${slider.value}`;
-          switch(cfg.type) {
-            case 'lowshelf':
-            case 'highpass':
-            case 'lowpass':
-            case 'panner':
-            case 'compressor':
-            case 'delay':
-            case 'notch':
-            case 'peaking':
-            case 'gain':
-            case 'tremolo':
-            case 'bandpass':
-            case 'allpass':
-            case 'highshelf':
-            case 'reverb':
-            case 'flanger':
-            case 'chorus':
-            case 'vibrato':
-            case 'phaser':
-            case 'autowah':
-              if(effectData.node.gain !== undefined) {
-                effectData.node.gain.value = val;
-              }
-              if(cfg.type === 'distortion') {
-                effectData.node.curve = makeDistortionCurve(val);
-              }
-              if(cfg.type === 'panner') {
-                effectData.node.pan.value = val;
-              }
-              if(cfg.type === 'compressor') {
-                effectData.node.threshold.value = val;
-              }
-              if(cfg.type === 'delay') {
-                effectData.node.delayTime.value = val;
-              }
-              if(cfg.type === 'notch') {
-                effectData.node.frequency.value = val;
-              }
-              if(cfg.type === 'lowpass' || cfg.type === 'highpass') {
-                effectData.node.frequency.value = val;
-              }
-              if(cfg.type === 'playbackRate') {
-                audioPlayer.playbackRate = val;
-              }
-              if(cfg.type === 'bitcrusher') {
-                effectData.node.bits = val;
-              }
-              break;
-            case 'distortion':
-              effectData.node.curve = makeDistortionCurve(val);
-              break;
-            default:
-              if(effectData.node.gain !== undefined) {
-                effectData.node.gain.value = val;
-              }
+          const thisCfg = extraEffectsConfig[index];
+          if (thisCfg.type === 'playbackRate') {
+            audioPlayer.playbackRate = val;
+          } else {
+            const newCfg = {...thisCfg, value: val};
+            extraEffects[index] = createExtraEffect(newCfg, audioContext);
           }
           extraSliderChanged();
         });
@@ -1034,6 +1028,91 @@
       }
     }
     /* --- Конец кода визуализатора --- */
+
+    // Функция рендеринга обработанного аудио
+    async function renderProcessedAudio() {
+      if (!audioPlayer.src) return null;
+      try {
+        const response = await fetch(audioPlayer.src);
+        const arrayBuffer = await response.arrayBuffer();
+        const originalBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        const offlineContext = new OfflineAudioContext(originalBuffer.numberOfChannels, originalBuffer.length, originalBuffer.sampleRate);
+        const offlineSource = offlineContext.createBufferSource();
+        offlineSource.buffer = originalBuffer;
+        const offlineGain = offlineContext.createGain();
+        offlineGain.gain.value = gainNode.gain.value;
+        const offlineDelay = offlineContext.createDelay(2.0);
+        offlineDelay.delayTime.value = delayNode.delayTime.value;
+        const offlineExtraEffects = [];
+        let playbackRateVal = 1;
+        for (let i = 0; i < extraEffectsConfig.length; i++) {
+          const slider = document.getElementById(`extraControl${i}`);
+          const val = parseFloat(slider.value);
+          const cfg = {...extraEffectsConfig[i], value: val};
+          if (cfg.type === 'playbackRate') {
+            playbackRateVal = val;
+          } else {
+            const effectData = createExtraEffect(cfg, offlineContext);
+            offlineExtraEffects.push(effectData);
+          }
+        }
+        offlineSource.playbackRate.value = playbackRateVal;
+        offlineSource.connect(offlineGain);
+        offlineGain.connect(offlineDelay);
+        let lastNode = offlineDelay;
+        if (offlineExtraEffects.length > 0) {
+          lastNode.connect(offlineExtraEffects[0].node);
+          for (let i = 0; i < offlineExtraEffects.length - 1; i++) {
+            offlineExtraEffects[i].node.connect(offlineExtraEffects[i + 1].node);
+          }
+          offlineExtraEffects[offlineExtraEffects.length - 1].node.connect(offlineContext.destination);
+        } else {
+          lastNode.connect(offlineContext.destination);
+        }
+        offlineSource.start(0);
+        const renderedBuffer = await offlineContext.startRendering();
+        return audioBufferToWav(renderedBuffer);
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+
+    // Функция конвертации AudioBuffer в WAV Blob
+    function audioBufferToWav(buffer) {
+      const numOfChan = buffer.numberOfChannels;
+      const length = buffer.length * numOfChan * 2 + 44;
+      const out = new ArrayBuffer(length);
+      const view = new DataView(out);
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, length - 8, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, numOfChan, true);
+      view.setUint32(24, buffer.sampleRate, true);
+      view.setUint32(28, buffer.sampleRate * numOfChan * 2, true);
+      view.setUint16(32, numOfChan * 2, true);
+      view.setUint16(34, 16, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, buffer.length * numOfChan * 2, true);
+      let offset = 44;
+      for (let i = 0; i < buffer.length; i++) {
+        for (let channel = 0; channel < numOfChan; channel++) {
+          const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+          view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+          offset += 2;
+        }
+      }
+      return new Blob([out], {type: 'audio/wav'});
+    }
+
+    function writeString(view, offset, string) {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    }
   </script>
 </body>
 </html>

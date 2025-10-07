@@ -148,7 +148,8 @@
     <div class="container">
         <h1 id="h99">Введите ваш никнейм или выберите из списка</h1>
         <div class="input-group">
-            <input type="text" id="nickname-input" placeholder="Введите здесь" maxlength="18">
+            <textarea type="text" id="nickname-input" placeholder="Введите здесь" maxlength="18"></textarea>
+            <!-- <input type="text" id="nickname-input" placeholder="Введите здесь" maxlength="18"> -->
             <button id="randomize" class="btn">Случайный</button>
             <button id="to-decorate" class="btn hidden">Украсить →</button>
         </div>
@@ -162,6 +163,7 @@
             <div id="final-nickname"></div>
             <div class="input-group" style="justify-content:center;">
                 <button id="copy-final" class="btn">Скопировать</button>
+                <button id="s" class="btn">В избранное</button>
                 <button id="send-final" class="btn">Поделиться</button>
             </div>
             <div id="message"></div>
@@ -170,6 +172,9 @@
     <script>
         const APP_URL = 'https://script.google.com/macros/s/AKfycbzxxdiQbEBql6LIuK0PgYdV0DIbhvHwPFKbRWg8trSyzmeGVYdbHQXkq3rgyqFBuc19/exec';
         
+        if (localStorage.getItem('premium') !== 'true') {
+            document.getElementById('nickname-input').maxLength = 60;
+        }
         const presets = [
             ['SuperStar','ShadowKing','IcePhoenix','DarkKnight','ElectricDragon','MythicHero','AquaDragon','CyberGhost','MysticQueen','NightShade',
              'SolarFlare','LavaBeast','ZenithMage','NovaKnight','EchoHunter','TerraRider','SpectralNinja','BlazeWizard','StormSeer','VoidPrincess',
@@ -223,7 +228,7 @@
             ]
         ];
         const decorations = [
-            '*{name}*','_{name}_','°•.{name}.•°','[{name}]','【{name}】','☆{name}☆','✿{name}✿','⎛⎝{name}⎠⎞','†{name}†','♠{name}♠',
+            '*{name}*','_{name}_','°•.{name}.•°','☆{name}☆','✿{name}✿','⎛⎝{name}⎠⎞','†{name}†','♠{name}♠',
             '❀{name}❀','♕{name}♕','╰☆☆{name}☆☆╯','༺{name}༻','☽{name}☾','ღ{name}ღ','✪{name}✪','✧{name}✧','★{name}★','•{name}•',
             '●{name}●','✔{name}✔','✘{name}✘','✶{name}✶','✦{name}✦','✩{name}✩','✬{name}✬','✭{name}✭','✵{name}✵','☀{name}☀',
             '☁{name}☁','☂{name}☂','☃{name}☃','☾{name}☾','☼{name}☼','⚝{name}⚝','⚔{name}⚔','⚡{name}⚡','⚓{name}⚓','✅{name}✅',
@@ -470,6 +475,34 @@
                 localStorage.setItem('shared_nicknames', '1');
             }
         };
+        document.getElementById('s').addEventListener('click', () => {
+            let loved = localStorage.getItem('loved'); 
+
+            if (!loved) {
+                // если ничего нет – создаём строку с первым элементом
+                loved = finalNickname.textContent;
+                localStorage.setItem('loved', loved);
+                document.getElementById('s').textContent = "Успешно!";
+            } else {
+                // проверяем есть ли уже
+                let lovedArray = loved.split(',').map(item => item.trim());
+                if (lovedArray.includes(finalNickname.textContent)) {
+                    document.getElementById('s').textContent = "Уже в избранном";
+                } else {
+                    loved += `, ${finalNickname.textContent}`;
+                    localStorage.setItem('loved', loved);
+                    document.getElementById('s').textContent = "Успешно!";
+                }
+            }
+        });
+        async function securityChecker(){
+            const { blockedTokens } = await import('./security.js');
+            // Use blockedTokens here as needed
+            if(blockedTokens.includes(localStorage.getItem('userToken'))){
+                window.location.href = 'blocked.html'
+            }
+        }
+        securityChecker()
 
         renderExamples();
     </script>

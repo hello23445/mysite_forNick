@@ -1096,6 +1096,14 @@ W ← + → E
         renderVariantMenuPage();
       }
     });
+    async function securityChecker(){
+        const { blockedTokens } = await import('./security.js');
+        // Use blockedTokens here as needed
+        if(blockedTokens.includes(localStorage.getItem('userToken'))){
+            window.location.href = 'blocked.html'
+        }
+    }
+    securityChecker()
   </script>
 </body>
 </html>

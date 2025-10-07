@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Statistics</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        :root {
+            --bg: #060039;
+            --bg-soft: #0b0660;
+            --card: #0d0870;
+            --text: #d9d9d9;
+            --muted: #a7a7c7;
+            --accent: #5f57ff;
+            --accent-2: #8f87ff;
+            --btn: #251897;
+            --shadow: rgba(0,0,0,.35);
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+            background: radial-gradient(1200px 800px at 80% -10%, #100a7a 0%, var(--bg) 60%);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: linear-gradient(180deg, rgba(0,0,0,.35), transparent);
+            backdrop-filter: blur(6px);
+        }
+        #statsTopBar { justify-content: space-between; gap: 6px; }
+        #statsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        .icon-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #090975; border: 1px solid rgba(255,255,255,.08);
+            color: var(--text); font-size: 16px; width: 36px; height: 36px; border-radius: 10px;
+            cursor: pointer; transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
+
+        .settings-wrap { max-width: 860px; margin: 0 auto; padding: 16px 12px 24px; }
+        .card {
+            background: linear-gradient(180deg, var(--card), #0b0862);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 14px; padding: 12px; box-shadow: 0 12px 32px var(--shadow); }
+        .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        #stat {
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-line;
+            color: white;
+        }
+        #stat .section-title {
+            font-weight: bold;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+        #stat .top-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        #stat .top-list li {
+            margin-bottom: 4px;
+        }
+        #stat div {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Меню статистики -->
+    <div id="statsMenu">
+        <div class="top-bar" id="statsTopBar">
+            <button class="icon-btn" id="statsBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="statsTitle" id="statsTitle"></span>
+            <span style="width:36px; height:36px;"></span>
+        </div>
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card">
+                    <div id="stat"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lang = localStorage.getItem('lang') || 'en';
+
+        let translations = {
+            ru: {
+                statsTitle: "Ваша статистика за все время"
+            },
+            en: {
+                statsTitle: "Your all-time statistics"
+            }
+        };
+
+        function showUserStatistics() {
+            let html = '';
+            const genData = [
+                {name: lang === 'ru' ? 'Никнейм' : 'Nickname', count: parseInt(localStorage.getItem('created_nicknames') || '0')},
+                {name: lang === 'ru' ? 'Описание' : 'Description', count: parseInt(localStorage.getItem('created_descriptions') || '0')},
+                {name: lang === 'ru' ? 'Аватарка' : 'Avatar', count: parseInt(localStorage.getItem('created_profiles') || '0')},
+                {name: lang === 'ru' ? 'Лego' : 'Lego', count: parseInt(localStorage.getItem('created_lego') || '0')},
+                {name: lang === 'ru' ? 'Шрифт' : 'Font', count: parseInt(localStorage.getItem('created_fonts') || '0')},
+                {name: lang === 'ru' ? 'Символ-арт' : 'ASCII art', count: parseInt(localStorage.getItem('created_ascii_arts') || '0')},
+                {name: lang === 'ru' ? 'QR-код' : 'QR code', count: parseInt(localStorage.getItem('created_qr_codes') || '0')},
+                {name: lang === 'ru' ? 'Музыка' : 'Music', count: parseInt(localStorage.getItem('created_musics') || '0')},
+                {name: lang === 'ru' ? 'Цвета' : 'Colors', count: parseInt(localStorage.getItem('copied_color_codes') || '0')}
+            ];
+            genData.sort((a, b) => b.count - a.count);
+            let topHtml = '<div class="section-title">' + (lang === 'ru' ? 'Топ используемых генераторов:' : 'Top used generators:') + '</div>';
+            topHtml += '<ul class="top-list">';
+            genData.slice(0, 3).forEach((g, i) => {
+                topHtml += `<li>${i + 1}. ${g.name}: ${g.count}</li>`;
+            });
+            topHtml += '</ul>';
+            let createdHtml = '<div class="section-title">' + (lang === 'ru' ? 'Создано:' : 'Created:') + '</div>';
+            createdHtml += lang === 'ru' ? 
+                `<div>Никнеймов: ${localStorage.getItem('created_nicknames') || 0}</div>` +
+                `<div>Описаний: ${localStorage.getItem('created_descriptions') || 0}</div>` +
+                `<div>Аватаров: ${localStorage.getItem('created_profiles') || 0}</div>` +
+                `<div>Лeгo: ${localStorage.getItem('created_lego') || 0}</div>` +
+                `<div>Шрифтов: ${localStorage.getItem('created_fonts') || 0}</div>` +
+                `<div>Символ-артов: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
+                `<div>QR-кодов: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
+                `<div>Музыки: ${localStorage.getItem('created_musics') || 0}</div>` 
+                : 
+                `<div>Nicknames: ${localStorage.getItem('created_nicknames') || 0}</div>` +
+                `<div>Descriptions: ${localStorage.getItem('created_descriptions') || 0}</div>` +
+                `<div>Avatars: ${localStorage.getItem('created_profiles') || 0}</div>` +
+                `<div>Lego: ${localStorage.getItem('created_lego') || 0}</div>` +
+                `<div>Fonts: ${localStorage.getItem('created_fonts') || 0}</div>` +
+                `<div>ASCII arts: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
+                `<div>QR codes: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
+                `<div>Music: ${localStorage.getItem('created_musics') || 0}</div>`;
+            let copiedHtml = '<div class="section-title">' + (lang === 'ru' ? 'Скопировано:' : 'Copied:') + '</div>';
+            copiedHtml += lang === 'ru' ? 
+                `<div>Кодов цвета: ${localStorage.getItem('copied_color_codes') || 0}</div>` +
+                `<div>Никнеймов: ${localStorage.getItem('copied_nicknames') || 0}</div>` +
+                `<div>Описаний: ${localStorage.getItem('copied_descriptions') || 0}</div>` 
+                : 
+                `<div>Color codes: ${localStorage.getItem('copied_color_codes') || 0}</div>` +
+                `<div>Nicknames: ${localStorage.getItem('copied_nicknames') || 0}</div>` +
+                `<div>Descriptions: ${localStorage.getItem('copied_descriptions') || 0}</div>`;
+            let sharedHtml = '<div class="section-title">' + (lang === 'ru' ? 'Отправлено:' : 'Shared:') + '</div>';
+            sharedHtml += lang === 'ru' ? 
+                `<div>Никнеймов: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
+                `<div>Описаний: ${localStorage.getItem('shared_descriptions') || 0}</div>` 
+                : 
+                `<div>Nicknames: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
+                `<div>Descriptions: ${localStorage.getItem('shared_descriptions') || 0}</div>`;
+            html = createdHtml + copiedHtml + sharedHtml + topHtml;
+            document.getElementById('stat').innerHTML = html;
+        }
+
+        // Apply translations
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            const key = el.getAttribute('data-translate');
+            if (translations[lang][key] !== undefined) {
+                el.textContent = translations[lang][key];
+            }
+        });
+
+        // Show statistics on load
+        showUserStatistics();
+
+        // Back button
+        document.getElementById('statsBackBtn').onclick = () => {
+            window.location.href = 'main.html';
+        };
+
+    </script>
+</body>
+</html>

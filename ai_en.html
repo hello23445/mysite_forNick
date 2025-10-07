@@ -36,6 +36,14 @@
     BACK TO MAIN MENU
 </button>
 <script>
+    async function securityChecker(){
+        const { blockedTokens } = await import('./security.js');
+        // Use blockedTokens here as needed
+        if(blockedTokens.includes(localStorage.getItem('userToken'))){
+            window.location.href = 'blocked.html'
+        }
+    }
+    securityChecker()
     document.getElementById('b').addEventListener('click', function() {
         window.location.href = 'https://t.me/GeneratorPhotosBot';
     });

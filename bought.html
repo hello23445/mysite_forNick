@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Избранное</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Общие стили */
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 80% -10%, #100a7a 0%, #0a002e 60%);
+      color: #e0e0ff;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* Контейнер */
+    .wrapper {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    h2 {
+      font-size: clamp(1.3rem, 2.5vw, 2rem);
+      margin: 0;
+    }
+
+    /* Сетка элементов */
+    .favorites {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    /* Карточка */
+    .favorite-item {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: default;
+      position: relative;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .favorite-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .item-text {
+      flex: 1;
+      white-space: normal; /* Позволяет оборачивать текст */
+      word-wrap: break-word; /* Разрывает длинные слова */
+      position: relative;
+    }
+
+    .action-btn {
+      cursor: pointer;
+      color: #e0e0ff;
+      font-size: 1rem;
+      transition: color 0.2s;
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+    }
+
+    .action-btn:hover {
+      color: #fff;
+    }
+
+    /* Кнопка */
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      background: #1c1270;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.1s;
+      align-self: center;
+    }
+
+    button:hover {
+      background: #2a1d9c;
+    }
+
+    button:active {
+      background: #150d54;
+      transform: scale(0.97);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h2 id="title">Ваше избранное</h2>
+    </div>
+    <div class="favorites" id="favoritesList"></div>
+    <button id="showMoreBtn" style="display: none;"></button>
+    <button id="backBtn"></button>
+  </div>
+
+  <script>
+    const lang = localStorage.getItem('lang') || 'ru';
+    let loved = localStorage.getItem('bought') || '';
+    let increment = 10;
+    let displayedItems = 0;
+
+    const title = document.getElementById('title');
+    const favoritesList = document.getElementById('favoritesList');
+    const backBtn = document.getElementById('backBtn');
+    const showMoreBtn = document.getElementById('showMoreBtn');
+
+    function renderItems(itemsToRender) {
+      itemsToRender.forEach(item => {
+        if (item.trim() === '') return;
+
+        const div = document.createElement('div');
+        div.className = 'favorite-item';
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'item-text';
+        textSpan.textContent = item;
+
+        const copyIcon = document.createElement('i');
+        copyIcon.className = 'action-btn fa-solid fa-copy';
+        copyIcon.onclick = () => {
+          navigator.clipboard.writeText(item).then(() => {
+            copyIcon.className = 'action-btn fa-solid fa-check';
+            setTimeout(() => {
+              copyIcon.className = 'action-btn fa-solid fa-copy';
+            }, 3000);
+          });
+        };
+
+        const shareIcon = document.createElement('i');
+        shareIcon.className = 'action-btn fa-solid fa-share-from-square';
+        shareIcon.onclick = () => {
+          window.open(`https://telegram.me/share/url?url=${encodeURIComponent(item)}`, '_blank');
+        };
+
+        div.appendChild(textSpan);
+        div.appendChild(copyIcon);
+        div.appendChild(shareIcon);
+        favoritesList.appendChild(div);
+      });
+    }
+
+    function render() {
+      document.title = lang === 'ru' ? 'Избранное' : 'Favorites';
+      title.textContent = lang === 'ru' ? 'Ваше избранное' : 'Your Favorites';
+
+      favoritesList.innerHTML = '';
+
+      const items = loved.split(',').filter(i => i.trim() !== '');
+
+      if (items.length === 0) {
+        favoritesList.innerHTML = lang === 'ru' ? '<p>Список пуст.</p>' : '<p>No favorites yet.</p>';
+        showMoreBtn.style.display = 'none';
+      } else {
+        if (displayedItems === 0) {
+          displayedItems = increment;
+        }
+        renderItems(items.slice(0, displayedItems));
+        displayedItems = Math.min(displayedItems, items.length);
+        showMoreBtn.style.display = displayedItems < items.length ? 'block' : 'none';
+      }
+
+      showMoreBtn.textContent = lang === 'ru' ? 'Показать еще' : 'Show more';
+
+      backBtn.textContent = lang === 'ru' ? 'ВЕРНУТЬСЯ НАЗАД' : 'GO BACK';
+      backBtn.onclick = () => window.location.href = 'izbr.html';
+    }
+
+    showMoreBtn.onclick = () => {
+      const items = loved.split(',').filter(i => i.trim() !== '');
+      increment += 10;
+      const nextItems = items.slice(displayedItems, displayedItems + increment);
+      renderItems(nextItems);
+      displayedItems += nextItems.length;
+      showMoreBtn.style.display = displayedItems < items.length ? 'block' : 'none';
+    };
+
+    render();
+  </script>
+</body>
+</html>

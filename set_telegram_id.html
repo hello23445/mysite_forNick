@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Telegram ID Verification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#060039;
+      --card-bg:rgba(255,255,255,0.06);
+      --muted:#d9d9d9;
+      --accent:#251897;
+      --accent-hover:#3a2cc9;
+      --success-green:#00c853;
+      --success-dark:#046b40;
+    }
+
+    html,body{height:100%;margin:0;}
+    body{
+      background:var(--bg);
+      color:#fff;
+      font-family: "Roboto", sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      box-sizing:border-box;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .container{
+      width:100%;
+      max-width:520px;
+      background:var(--card-bg);
+      backdrop-filter: blur(18px) saturate(120%);
+      border-radius:18px;
+      padding:34px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.55);
+      position:relative;
+      overflow:visible;
+      transition: transform .35s cubic-bezier(.2,.9,.2,1);
+    }
+
+    @keyframes popIn { from{opacity:0; transform:translateY(18px) scale(.98)} to{opacity:1; transform:translateY(0) scale(1)} }
+    .container { animation: popIn .45s ease both; }
+
+    .header{ display:block; margin-bottom:18px; }
+
+    #back-button{
+      display:block;
+      width:100%;
+      box-sizing:border-box;
+      text-align:center;
+      background:var(--accent);
+      color:#ffffff;
+      padding:10px 14px;
+      border-radius:14px;
+      font-weight:500;
+      font-size:14px;
+      text-decoration:none;
+      cursor:pointer;
+      transition: all .22s ease;
+      border: none;
+      box-shadow: 0 6px 18px rgba(37,24,151,0.28);
+    }
+    #back-button:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(37,24,151,0.36); background:var(--accent-hover); }
+
+    h1{ font-size:24px; margin:8px 0 12px; font-weight:700; color:#fff; }
+    p{ font-size:15px; margin:0 0 18px; color:var(--muted); line-height:1.6; }
+
+    input[type="text"]{
+      width:100%;
+      padding:14px 16px;
+      border-radius:12px;
+      border:none;
+      background: rgba(255,255,255,0.12);
+      color:#fff;
+      font-size:15px;
+      box-sizing:border-box;
+      margin-bottom:14px;
+      transition: box-shadow .18s ease, background .18s ease, transform .12s ease;
+    }
+    input[type="text"]:focus{ outline:none; background: rgba(255,255,255,0.16); box-shadow: 0 8px 20px rgba(37,24,151,0.12); transform: translateY(-1px); }
+
+    .controls-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+    .btn{
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      padding:11px 20px;
+      border-radius:28px;
+      font-weight:500;
+      cursor:pointer;
+      min-width:120px;
+      transition: all .22s ease;
+      box-shadow: 0 6px 18px rgba(37,24,151,0.28);
+    }
+    .btn:hover{ background:var(--accent-hover); transform:translateY(-3px); box-shadow:0 10px 26px rgba(37,24,151,0.36); }
+    .btn.small{ min-width:96px; padding:10px 14px; }
+
+    .message{ font-size:15px; margin:8px 0 0; min-height:22px; }
+    .message.error{ color:#ff4d6d; }
+    .message.success{ color:var(--success-green); }
+
+    .hidden{ display:none !important; }
+
+    /* SUCCESS CARD & ANIMATIONS */
+    .success-card{
+      margin-top:10px;
+      padding:22px;
+      border-radius:14px;
+      background: linear-gradient(135deg, rgba(0,200,120,0.12), rgba(0,200,120,0.06));
+      border: 1px solid rgba(0,200,120,0.12);
+      text-align:center;
+      position:relative;
+      overflow:visible;
+      transform-origin:center;
+    }
+    .success-inner{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+
+    .checkmark{ width:84px; height:84px; display:block; margin:0 auto; transform:scale(.95); }
+    .checkmark-circle{ fill:none; stroke: rgba(0,200,120,0.18); stroke-width:8; transform-origin:center; }
+    .checkmark-path{ fill:none; stroke:#00e676; stroke-width:6; stroke-linecap:round; stroke-linejoin:round; }
+
+    .animate-check .checkmark-circle{ animation: circlePop .6s ease forwards; }
+    .animate-check .checkmark-path{ stroke-dasharray: 80; stroke-dashoffset: 80; animation: drawCheck .45s ease .22s forwards; }
+
+    @keyframes circlePop{ 0%{ transform: scale(.8); opacity:0; } 60%{ transform: scale(1.06); opacity:1; } 100%{ transform: scale(1); opacity:1; } }
+    @keyframes drawCheck{ to{ stroke-dashoffset: 0; } }
+
+    .animate-success { animation: successPop .48s cubic-bezier(.2,.9,.3,1) forwards; }
+    @keyframes successPop{ 0%{ transform: translateY(8px) scale(.98); opacity:0; } 60%{ transform: translateY(-6px) scale(1.02); opacity:1; } 100%{ transform: translateY(0) scale(1); opacity:1; } }
+
+    .confetti { position:absolute; width:10px; height:14px; opacity:0; top:18%; left:50%; transform-origin:center; pointer-events:none; border-radius:2px; }
+    @keyframes confettiFall { 0%{ transform: translate3d(0,-10px) rotate(0deg) scale(1); opacity:1; } 60%{ opacity:1; } 100%{ transform: translate3d(var(--tx, -40px), 160px) rotate(var(--rot, 360deg)) scale(.96); opacity:0; } }
+
+    @media (max-width:600px){
+      .container{ padding:20px; border-radius:14px; }
+      h1{ font-size:20px; }
+      .checkmark{ width:68px; height:68px; }
+      .btn{ min-width:unset; width:100%; }
+      .controls-row{ flex-direction:column; gap:10px; }
+    }
+    a{
+        background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-labelledby="title-step1">
+    <div class="header">
+      <a id="back-button" href="main.html" class="button" aria-label="Back to main menu">← RETURN TO MAIN MENU</a>
+    </div>
+
+    <div id="step1" aria-hidden="false">
+      <h1 id="title-step1">Verify Your Telegram ID</h1>
+      <p id="info-id">You can get your Telegram ID from the bot <a id="link-myid" href="https://t.me/my_id_bot" target="_blank" rel="noopener">@my_id_bot</a>.</p>
+      <input type="text" id="tg-id" placeholder="Enter your Telegram ID" inputmode="numeric" />
+      <div id="step1-message" class="message hidden" role="status"></div>
+      <div class="controls-row" style="margin-top:10px;">
+        <button class="btn" onclick="nextStep()" id="btn-next">Next</button>
+      </div>
+    </div>
+
+    <div id="step2" class="hidden" aria-hidden="true">
+      <h1 id="title-step2">Enter Verification Code</h1>
+      <p id="info-code">Enter the code sent from <a id="link-bot" href="https://t.me/NickNaymesBot" target="_blank" rel="noopener">@NickNaymesBot</a>.</p>
+      <input type="text" id="code-input" placeholder="Enter the code" inputmode="numeric" />
+      <div id="step2-message" class="message hidden" role="status"></div>
+      <div class="controls-row">
+        <button class="btn" onclick="verifyCode()" id="btn-verify">Verify</button>
+        <button class="btn small" onclick="resendCode()" id="btn-resend">Resend</button>
+        <button class="btn small" onclick="changeId()" id="btn-change">Change ID</button>
+      </div>
+    </div>
+
+    <div id="success" class="hidden" aria-hidden="true">
+      <div class="success-card" id="successCard" role="status" aria-live="polite">
+        <div class="success-inner">
+          <svg class="checkmark" viewBox="0 0 52 52" aria-hidden="true">
+            <circle class="checkmark-circle" cx="26" cy="26" r="20"></circle>
+            <path class="checkmark-path" fill="none" d="M14 27 l8 7 l16 -18"></path>
+          </svg>
+
+          <h1 id="success-title">Success!</h1>
+          <p id="success-message">Your Telegram ID has been verified and saved.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --------- localization texts ----------
+    const texts = {
+      en: {
+        backButton: "← RETURN TO MAIN MENU",
+        titleStep1: "Verify Your Telegram ID",
+        infoId: 'You can get your Telegram ID from the bot <a id="link-myid" href="https://t.me/my_id_bot" target="_blank" rel="noopener">@my_id_bot</a>.',
+        placeholderId: "Enter your Telegram ID",
+        buttonNext: "Next",
+        titleStep2: "Enter Verification Code",
+        infoCode: 'Enter the code sent from <a id="link-bot" href="https://t.me/NickNaymesBot" target="_blank" rel="noopener">@NickNaymesBot</a>.',
+        placeholderCode: "Enter the code",
+        buttonVerify: "Verify",
+        buttonResend: "Resend",
+        buttonChange: "Change ID",
+        successTitle: "Success!",
+        successMessage: "Your Telegram ID has been verified and saved.",
+        errorEmptyId: "Please enter your Telegram ID.",
+        errorInvalidCode: "Invalid code. Try again.",
+        errorSend: "Error sending code. Please try again.",
+        successResend: "Code resent."
+      },
+      ru: {
+        backButton: "← ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ",
+        titleStep1: "Подтвердите ваш Telegram ID",
+        infoId: 'Вы можете получить ваш Telegram ID у бота <a id="link-myid" href="https://t.me/my_id_bot" target="_blank" rel="noopener">@my_id_bot</a>.',
+        placeholderId: "Введите ваш Telegram ID",
+        buttonNext: "Далее",
+        titleStep2: "Введите код подтверждения",
+        infoCode: 'Введите код, отправленный от <a id="link-bot" href="https://t.me/NickNaymesBot" target="_blank" rel="noopener">@NickNaymesBot</a>.',
+        placeholderCode: "Введите код",
+        buttonVerify: "Подтвердить",
+        buttonResend: "Отправить снова",
+        buttonChange: "Изменить ID",
+        successTitle: "Успех!",
+        successMessage: "Ваш Telegram ID подтверждён и сохранён.",
+        errorEmptyId: "Пожалуйста, введите ваш Telegram ID.",
+        errorInvalidCode: "Неверный код. Попробуйте ещё раз.",
+        errorSend: "Ошибка отправки кода. Попробуйте снова.",
+        successResend: "Код повторно отправлен."
+      }
+    };
+
+    // choose language based on localStorage
+    const lang = (localStorage.getItem('lang') === 'ru') ? 'ru' : 'en';
+    const t = texts[lang];
+
+    // apply localization to DOM
+    function applyLocalization() {
+      document.getElementById('back-button').textContent = t.backButton;
+      document.getElementById('title-step1').textContent = t.titleStep1;
+      document.getElementById('info-id').innerHTML = t.infoId;
+      document.getElementById('tg-id').placeholder = t.placeholderId;
+      document.getElementById('btn-next').textContent = t.buttonNext;
+
+      document.getElementById('title-step2').textContent = t.titleStep2;
+      document.getElementById('info-code').innerHTML = t.infoCode;
+      document.getElementById('code-input').placeholder = t.placeholderCode;
+      document.getElementById('btn-verify').textContent = t.buttonVerify;
+      document.getElementById('btn-resend').textContent = t.buttonResend;
+      document.getElementById('btn-change').textContent = t.buttonChange;
+
+      document.getElementById('success-title').textContent = t.successTitle;
+      document.getElementById('success-message').textContent = t.successMessage;
+    }
+
+    applyLocalization();
+
+    // --------- Telegram logic (unchanged core) ----------
+    const botToken = '6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI'; // ваш токен бота
+
+    let tempId = '';
+    let verificationCode = '';
+
+    async function sendCodeToTelegram(id, code) {
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${encodeURIComponent(id)}&text=${encodeURIComponent((lang === 'ru' ? 'Ваш код подтверждения: ' : 'Your verification code is: ') + code)}`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to send message');
+        const json = await response.json();
+        return json && json.ok;
+      } catch (err) {
+        console.error('sendCodeToTelegram error:', err);
+        return false;
+      }
+    }
+
+    async function nextStep() {
+      const step1MessageElem = document.getElementById('step1-message');
+      tempId = document.getElementById('tg-id').value.trim();
+      if (!tempId) {
+        step1MessageElem.textContent = t.errorEmptyId;
+        step1MessageElem.classList.remove('hidden');
+        step1MessageElem.classList.add('error');
+        return;
+      }
+      step1MessageElem.classList.add('hidden');
+
+      verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const sent = await sendCodeToTelegram(tempId, verificationCode);
+
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+      document.getElementById('step1').setAttribute('aria-hidden', 'true');
+      document.getElementById('step2').setAttribute('aria-hidden', 'false');
+
+      if (!sent) {
+        const step2MessageElem = document.getElementById('step2-message');
+        step2MessageElem.textContent = t.errorSend;
+        step2MessageElem.classList.remove('hidden');
+        step2MessageElem.classList.add('error');
+      }
+    }
+
+    async function resendCode() {
+      const messageElem = document.getElementById('step2-message');
+      verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const sent = await sendCodeToTelegram(tempId, verificationCode);
+      if (sent) {
+        messageElem.textContent = t.successResend;
+        messageElem.classList.remove('hidden');
+        messageElem.classList.remove('error');
+        messageElem.classList.add('success');
+      } else {
+        messageElem.textContent = t.errorSend;
+        messageElem.classList.remove('hidden');
+        messageElem.classList.remove('success');
+        messageElem.classList.add('error');
+      }
+    }
+
+    function changeId() {
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step1').classList.remove('hidden');
+      document.getElementById('code-input').value = '';
+      document.getElementById('step2-message').classList.add('hidden');
+      document.getElementById('step1').setAttribute('aria-hidden', 'false');
+      document.getElementById('step2').setAttribute('aria-hidden', 'true');
+    }
+
+    function verifyCode() {
+      const messageElem = document.getElementById('step2-message');
+      const enteredCode = document.getElementById('code-input').value.trim();
+
+      if (enteredCode === verificationCode) {
+        // Save verified ID
+        localStorage.setItem('userID', tempId);
+
+        // Hide step2 and show success
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step1').setAttribute('aria-hidden', 'true');
+        showSuccess();
+      } else {
+        messageElem.textContent = t.errorInvalidCode;
+        messageElem.classList.remove('hidden');
+        messageElem.classList.add('error');
+      }
+    }
+
+    // ---- Success animation logic ----
+    function showSuccess() {
+      const successContainer = document.getElementById('success');
+      const successCard = document.getElementById('successCard');
+
+      successContainer.classList.remove('hidden');
+      successContainer.setAttribute('aria-hidden', 'false');
+
+      successCard.classList.remove('animate-success','animate-check');
+      void successCard.offsetWidth;
+      successCard.classList.add('animate-success','animate-check');
+
+      launchConfetti(successContainer, 18);
+
+      // Update success texts in case language changed dynamically
+      document.getElementById('success-title').textContent = t.successTitle;
+      document.getElementById('success-message').textContent = t.successMessage;
+    }
+
+    function launchConfetti(parent, count) {
+      const old = parent.querySelectorAll('.confetti');
+      old.forEach(n => n.remove());
+      const colors = ['#FF4757','#FFB86B','#7BED9F','#6CC4FF','#FF6BAD','#FFD166'];
+      for (let i=0;i<count;i++){
+        const el = document.createElement('span');
+        el.className = 'confetti';
+        const w = Math.floor(Math.random()*10)+6;
+        const h = Math.floor(Math.random()*12)+6;
+        el.style.width = w + 'px';
+        el.style.height = h + 'px';
+        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+        const offsetX = Math.floor((Math.random()*220)-110);
+        el.style.left = `calc(50% + ${offsetX}px)`;
+        el.style.top = `${Math.floor(Math.random()*10)+8}%`;
+        el.style.setProperty('--tx', (Math.floor((Math.random()*200)-100)) + 'px');
+        el.style.setProperty('--rot', (Math.floor(Math.random()*720)) + 'deg');
+        parent.appendChild(el);
+        const delay = Math.random() * 0.18;
+        const dur = 0.95 + Math.random() * 0.6;
+        el.style.animation = `confettiFall ${dur}s cubic-bezier(.2,.8,.2,1) ${delay}s both`;
+      }
+      setTimeout(()=> {
+        const elems = parent.querySelectorAll('.confetti');
+        elems.forEach(e => { if (e) e.remove(); });
+      }, 2200);
+    }
+
+    // Enter key behavior
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') {
+        if (!document.getElementById('step1').classList.contains('hidden')) {
+          document.getElementById('btn-next').click();
+        } else if (!document.getElementById('step2').classList.contains('hidden')) {
+          document.getElementById('btn-verify').click();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Menu</title>
+    <title>Main</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsqr.min.js"></script>
@@ -41,12 +41,10 @@
         #mainTopBar { justify-content: flex-end; }
         #settingsTopBar { justify-content: space-between; gap: 6px; }
         #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
-        #statsTopBar { justify-content: space-between; gap: 6px; }
-        #statsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
-        #userTopBar { justify-content: space-between; gap: 6px; }
-        #userTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
         #qrTopBar { justify-content: space-between; gap: 6px; }
         #qrTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        #sideTopBar { justify-content: space-between; gap: 6px; }
+        #sideTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
         .icon-btn {
             display: inline-flex; align-items: center; justify-content: center;
             background: #090975; border: 1px solid rgba(255,255,255,.08);
@@ -55,14 +53,11 @@
             box-shadow: 0 4px 12px var(--shadow);
         }
         .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
-
         .main { text-align: center; margin: 16px auto 0; padding: 0 12px; max-width: 860px; }
         h2 { margin: 8px 0 6px; font-weight: 800; font-size: 18px; }
-
         .buttons-container {
             display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; justify-items: stretch; }
         .settings-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
-
         .btn {
             --pad: 10px;
             padding: var(--pad);
@@ -73,12 +68,9 @@
         }
         .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--shadow); }
         .btn:disabled { opacity: .6; cursor: not-allowed; }
-        .btn .fa-solid, .btn .fa-regular { margin-right: 6px; }
-
-        /* Modern settings card */
+        .btn .left-icon { margin-right: 6px; }
+        .btn .right-icon { margin-left: 6px; }
         #settingsMenu { display: none; padding: 16px 12px 24px; }
-        #statsMenu { display: none; padding: 16px 12px 24px; }
-        #userMenu { display: none; padding: 16px 12px 24px; }
         #qrMenu { display: none; padding: 16px 12px 24px; text-align: center; }
         .settings-wrap { max-width: 860px; margin: 0 auto; }
         .card {
@@ -87,24 +79,20 @@
             border-radius: 14px; padding: 12px; box-shadow: 0 12px 32px var(--shadow); }
         .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .card h3 { margin: 6px 4px 8px; font-size: 14px; color: var(--muted); font-weight: 700; letter-spacing: .2px; }
-
-        .field { display: flex; align-items: center; gap: 8px; }
+        .field { display: flex; align-items: center; gap: 8px; flex-direction: column; }
+        .lang-field { display: flex; align-items: center; gap: 8px; width: 100%; }
         select#langSelect { flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
-
-        #tok { margin-top: 6px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); }
-
+        #tok { margin-top: 6px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); width: 100%; }
         #maintenance { display: none; text-align: center; margin-top: 16px; color: #ff6b6b; padding: 10px; }
-        #statSelect {
+        #statSelect, #avatarVisibilitySelect {
             flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
         @media (max-width: 560px) {
             .buttons-container { grid-template-columns: 1fr; }
-            .field { flex-direction: column; align-items: stretch; }
-            #langSelect { order: 1; width: 100%; min-width: 100%; padding: 12px; font-size: 16px;}
-            #statSelect { order: 1; width: 100%; min-width: 100%; padding: 12px; font-size: 16px;}
-            #tok { order: 2; width: 100%;}
-        }
-        #stat div {
-            margin-bottom: 4px;
+            .field { align-items: stretch; }
+            .lang-field { flex-direction: column; align-items: flex-start; }
+            #langSelect, #avatarVisibilitySelect { width: 100%; min-width: 100%; padding: 12px; font-size: 16px; min-height: 44px; }
+            #tok { width: 100%; }
+            .label { font-size: 16px; }
         }
         .card-header {
             display: flex;
@@ -116,46 +104,258 @@
             font-size: 13px;
             line-height: 1.4;
         }
-        #userMenu .card {
-            padding: 12px;
-            margin-bottom: 12px;
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 40;
         }
-        #userMenu .card h3 {
-            margin: 6px 4px 8px;
+        #sideMenu {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background: var(--bg);
+            z-index: 50;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.5s ease-in-out;
+        }
+        #sideMenu.open {
+            transform: translateX(0);
+        }
+        @media (max-width: 400px) {
+            #sideMenu { width: 100%; }
+        }
+        .side-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+        .coins {
+            background: linear-gradient(145deg, #060039, #0a004d);
+            border-radius: 12px;
+            padding: 10px 10px;
+            margin-right: 1%;
+            color: #e0e0ff;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(96, 75, 254, 0.3),
+                        inset 0 0 8px rgba(30, 20, 100, 0.5);
+        }
+        .coins i {
+            font-style: normal;
+            font-weight: normal;
+            color: inherit;
+            pointer-events: none;
+        }
+        .label {
             font-size: 14px;
+            font-weight: 600;
+            color: var(--muted);
         }
-        #userMenu .collapsible-content {
-            padding: 8px 0;
-            margin: 0;
-        }
-        #histories, #usageTimes {
-            margin: 0;
-            padding: 0;
-        }
-        #histories div, #usageTimes ul, #usageTimes ul li {
+
+        /* Хеллоуин */
+        body {
             margin: 0;
             padding: 0;
-            line-height: 1.4;
-            font-size: 13px;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+            color: #ff6600;
+            /* font-family: 'Creepster', cursive; */
+            overflow-x: hidden;
+            height: 100vh;
+            position: relative;
         }
-        #usageTimes ul {
-            list-style: none;
+
+        /* ===== Жуткий туман ===== */
+        .fog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300%;
+            height: 300%;
+            background: url("https://i.ibb.co/9n0xC1h/smoke.png") repeat;
+            opacity: 0.08;
+            animation: fogmove 90s linear infinite;
+            pointer-events: none;
+            z-index: 1; /* ниже контента */
         }
+        @keyframes fogmove {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* ===== CSS облака ===== */
+        .cloud {
+            position: fixed;
+            top: 10%;
+            width: 200px;
+            height: 60px;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 2;
+            animation: cloudmove 120s linear infinite;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%);
+            width: 100px;
+            height: 50px;
+            top: -10px;
+            left: -50px;
+            border-radius: 50%;
+        }
+
+        .cloud::after {
+            width: 120px;
+            height: 60px;
+            top: 10px;
+            left: 50px;
+            border-radius: 50%;
+        }
+
+        .cloud2 {
+            top: 25%;
+            width: 300px;
+            height: 80px;
+            animation-duration: 160s;
+            animation-delay: 30s;
+        }
+
+        @keyframes cloudmove {
+            from { left: -250px; }
+            to { left: 410%; }
+        }
+
+        /* ===== Заголовок ===== */
+        h1 {
+            text-align: center;
+            margin-top: 80px;
+            color: #cc0000;
+            text-shadow: 0 0 15px #ff0000, 0 0 30px #660000;
+            animation: flicker 2s infinite;
+            z-index: 10;
+            position: relative;
+        }
+
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.4; }
+        }
+
+        /* Падающие тыквы */
+        .pumpkin {
+            position: fixed;
+            top: -10%;
+            width: 50px;
+            height: auto;
+            z-index: 0; /* под контентом */
+            animation: fall linear infinite;
+            pointer-events: none; /* чтобы не мешали кликам */
+        }
+
+        @keyframes fall {
+            from { top: -10%; transform: rotate(0deg); }
+            to { top: 110%; transform: rotate(360deg); }
+        }
+
+        /* Контент всегда поверх */
+        .content, h1, p, button {
+            position: relative;
+            z-index: 10;
+        }
+        /* 20 уникальных тыкв */
+        .p1  { left: 20%;  animation-duration: 12s; animation-delay: 0s; }
+        .p2  { left: 10%; animation-duration: 15s; animation-delay: 2s; }
+        .p3  { left: 15%; animation-duration: 18s; animation-delay: 4s; }
+        .p4  { left: 20%; animation-duration: 14s; animation-delay: 1s; }
+        .p5  { left: 25%; animation-duration: 20s; animation-delay: 3s; }
+        .p6  { left: 30%; animation-duration: 16s; animation-delay: 5s; }
+        .p7  { left: 35%; animation-duration: 18s; animation-delay: 7s; }
+        .p8  { left: 40%; animation-duration: 13s; animation-delay: 2s; }
+        .p9  { left: 45%; animation-duration: 21s; animation-delay: 6s; }
+        .p10 { left: 50%; animation-duration: 15s; animation-delay: 4s; }
+        .p11 { left: 55%; animation-duration: 19s; animation-delay: 8s; }
+        .p12 { left: 60%; animation-duration: 12s; animation-delay: 1s; }
+        .p13 { left: 65%; animation-duration: 22s; animation-delay: 5s; }
+        .p14 { left: 70%; animation-duration: 14s; animation-delay: 3s; }
+        .p15 { left: 75%; animation-duration: 17s; animation-delay: 7s; }
+        .p16 { left: 80%; animation-duration: 20s; animation-delay: 9s; }
+        .p17 { left: 85%; animation-duration: 16s; animation-delay: 2s; }
+        .p18 { left: 90%; animation-duration: 18s; animation-delay: 10s; }
+        .p19 { left: 95%; animation-duration: 11s; animation-delay: 6s; }
+        .p20 { left: 100%;animation-duration: 23s; animation-delay: 8s; }
+
+        /* Контент всегда поверх */
+        .content {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+
+@keyframes roll {
+  0% { left: -150%; transform: rotate(0deg); }
+  100% { left: 100%; transform: rotate(360deg); }
+}
+
     </style>
 </head>
 <body>
+    <!-- хеллоуин -->
+<!-- Жуткий туман -->
+<!-- <div class="fog"></div> -->
+
+<!-- CSS облака -->
+<div class="cloud"></div>
+<div class="cloud cloud2"></div>
+
+<!-- Падающие тыквы -->
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p1" onclick="secret()" style="width: 60px; pointer-events: all;" id="p1">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p3">
+
+
+
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p4">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p5">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p6">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p7">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p8">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p9">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p10">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p11">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p12">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p13">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p14">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p15">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p16">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p17">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p18">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p19">
+<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p20">
+
+
+
+
+
     <!-- Техническое обслуживание -->
     <div id="maintenance">
         <h2 data-translate="maintenance" id="maintenanceM"></h2>
     </div>
-
     <!-- Главное меню -->
     <div class="top-bar" id="mainTopBar">
-        <button class="icon-btn" id="userBtn" title="Profile" style="margin-right: 2.5%;"><i class="fa-solid fa-user"></i></button>
-        <button class="icon-btn" id="statsBtn" title="Statistics" style="margin-right: 2.5%;"><i class="fa-solid fa-chart-simple"></i></button>
-        <button class="icon-btn" id="settingsBtn" title="Settings"><i class="fa-solid fa-gear"></i></button>
+        <h4 class="coins" id="coins"><i style="user-select: none;">🪙</i>0</h4>
+        <button class="icon-btn" id="sideMenuBtn" title="Menu"><i class="fa-solid fa-bars"></i></button>
     </div>
-
     <div class="main" id="mainMenu">
         <h2 data-translate="main" id="mainM"></h2>
         <div class="buttons-container" id="featureButtons"></div>
@@ -173,26 +373,71 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 data-translate="langSectionTitle">Язык / Language</h3>
-                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-up"></i></button>
                     </div>
-                    <div class="collapsible-content" style="display: none;">
+                    <div class="collapsible-content" style="display: block;">
                         <div class="field">
-                            <select id="langSelect"></select>
-                            <button class="btn" id="tok"><i class="fa-solid fa-key"></i><span>Token</span></button>
+                            <div class="lang-field">
+                                <i class="fa-solid fa-globe" style="font-size: 18px;"></i>
+                                <select id="langSelect"></select>
+                            </div>
+                            <div class="card" style="width: 100%;">
+                                <div class="card-header">
+                                    <h3 id="showmytokentext">Показать мой токен пользователя</h3>
+                                    <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-up"></i></button>
+                                </div>
+                                <div style="display: none; margin-top: 1%;">
+                                    <button class="btn" id="tok"><i class="fa-solid fa-key left-icon"></i><span>Token</span></button>
+                                    <p style="margin-top: 0%; margin-bottom: 0%; color: rgb(210, 209, 209);" id="userTokenWarning"></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h3 id="stat_setting_text">Настройки статистики</h3>
+                        <h3 data-translate="statSectionTitle" id="stat_setting_text"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;" id="stat_setting">
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="privacySectionTitle"></h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
                     <div class="collapsible-content" style="display: none;">
-                        <select id="statSelect">
-                            <option value="yes">Собирать данные для статистики</option>
-                            <option value="no">Не собирать данные для статистики</option>
-                        </select>
-                        <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">Очистить все данные статистики</button>
+                        <div class="field">
+                            <div class="lang-field">
+                                <label for="avatarVisibilitySelect" class="label" data-translate="privacyLabel" style="color: white;"></label>
+                                <select id="avatarVisibilitySelect">
+                                    <option value="all">Все</option>
+                                    <option value="verified">Проверенные</option>
+                                    <option value="liked">Те, на кого я поставил(-а) лайк</option>
+                                    <option value="nobody">Никто</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="accountSectionTitle" id="account-settings"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div style="display: none;">
+                        <div class="card" style="display: none;" id="my_idBox">
+                            <div class="card-header">
+                                <h3 id="my_idHeader">Мой Telegram ID</h3>
+                                <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                            </div>
+                            <div style="display: none;">
+                                <button id="myID" class="btn">Ваш Telegram ID</button>
+                            </div>
+                        </div>
+                        
+                        <button class="btn" id="userID-confirming" onclick="window.location.href = 'set_telegram_id.html'">Привязать или изменить свой Telegram ID</button>
                     </div>
                 </div>
                 <div class="card">
@@ -202,6 +447,7 @@
                     </div>
                     <div class="collapsible-content" style="display: none;">
                         <div class="settings-buttons" id="userDataButtons"></div>
+                        <button class="btn" style="margin-top: 2%;" id="LoadDatasFromUserToken" onclick='window.location.href = "https://t.me/Clickerstart_bot"''>Загрузить данные по токену(Через службу поддержки)</button>
                     </div>
                 </div>
                 <div class="card">
@@ -211,62 +457,6 @@
                     </div>
                     <div class="collapsible-content" style="display: none;">
                         <div class="settings-buttons" id="settingsButtons"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Меню статистики -->
-    <div id="statsMenu">
-        <div class="top-bar" id="statsTopBar">
-            <button class="icon-btn" id="statsBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
-            <span class="title" data-translate="statsTitle" id="statsTitle"></span>
-            <span style="width:36px; height:36px;"></span>
-        </div>
-        <div class="settings-wrap">
-            <div class="row">
-                <div class="card" style="white-space: pre-line;">
-                    <h3 id="stat" style="color: white;">Статистики нет || No statistic</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Меню пользователя -->
-    <div id="userMenu">
-        <div class="top-bar" id="userTopBar">
-            <button class="icon-btn" id="userBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
-            <span class="title" data-translate="userTitle" id="userTitle"></span>
-            <span style="width:36px; height:36px;"></span>
-        </div>
-        <div class="settings-wrap">
-            <div class="row">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 data-translate="tokenSectionTitle"></h3>
-                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" style="display: none;">
-                        <button class="btn" id="userTok"><i class="fa-solid fa-key"></i><span>Token</span></button>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3 data-translate="historySectionTitle"></h3>
-                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" style="display: none;">
-                        <div id="histories"></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3 data-translate="usageTimeTitle"></h3>
-                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" style="display: none;">
-                        <div id="usageTimes"></div>
                     </div>
                 </div>
             </div>
@@ -289,15 +479,73 @@
         </div>
     </div>
 
+    <!-- Overlay and Side Menu -->
+    <div id="overlay"></div>
+    <div id="sideMenu">
+        <div class="top-bar" id="sideTopBar">
+            <button class="icon-btn" id="sideCloseBtn" title="Close"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="menuTitle"></span>
+            <span style="width:36px; height:36px;"></span>
+        </div>
+        <div class="side-wrap" style="padding:16px 12px;">
+            <div class="side-buttons" id="sideButtons"></div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script>
+
+        if (!localStorage.getItem('userName')) {
+            localStorage.setItem('userName', 'User');
+        }
+        function secret() {
+            const a1 = Math.floor(Math.random() * 6) + 1;
+            if (a1 === 4 || a1 === 5) {
+                const a = localStorage.getItem('coins') || '0'
+                localStorage.setItem('coins', String(parseInt(a) + 100));
+                alert('+100🪙');
+                document.getElementById('coins').textContent = '🪙' + localStorage.getItem('coins' || 100)
+            }
+            document.getElementById("p1").style.display = "none";
+            setTimeout(function() {
+                document.getElementById("p1").style.display = "block";
+            }, 4000);
+            document.getElementById("p1").style.display = "none";
+        }
+
+                // URL вашего развернутого веб-приложения GAS
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbxkvAXAMckjNcVYGh3BmSmMI608TbUAwrmohywdKoVCMbmCz69Y0dKb3r9OP89NlH8s/exec'; // Замените на URL из шага 6 выше
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbr9H0F70BHo2js1tKD_P1MVChn-9NKr8av1p0ZtJj6h9845b3dB2xDarr_B1zpFwR/exec';
+        /*
+        Инструкция по добавлению кнопок:
+
+        1. Добавление кнопок-генераторов в главное меню (featureButtons):
+           - В массиве translations.ru.featureButtons и translations.en.featureButtons добавьте новый текст кнопки.
+           - В массиве featureKeys добавьте ключ для файла (например, 'new_generator').
+           - В объектах filesRu и filesEn добавьте соответствующую запись: new_generator: 'new_generator.html' (или URL).
+           - Кнопка автоматически создастся в applyTranslations() с href на указанный файл/URL.
+           - Если URL внешний (начинается с http/https), откроется в новой вкладке.
+
+        2. Добавление кнопок в настройки (settingsButtons или userDataButtons):
+           - Для supportSection (settingsButtons): Добавьте в translations[lang].settingsButtons новый текст.
+           - Добавьте в settingsKeys новый ключ, в settingsIcons новый иконку.
+           - В filesRu/filesEn добавьте соответствующий файл/URL.
+           - Для userDataButtons: Добавьте вручную в applyTranslations(), создав кнопку с createButton и appendChild к userDataContainer.
+
+        3. Добавление кнопок в боковое меню (sideButtons):
+           - В функции applySideButtons() в массиве items добавьте новый объект:
+             { textKey: 'new_item', icon: 'fa-solid fa-icon', href: 'url.html', onClick: function() {...}, disabled: false }
+           - Добавьте перевод в translations[lang].new_item.
+           - Кнопка создастся с указанным href или onClick.
+        */
+
         const LINKS = {
             complaintRU: "https://t.me/NickNaymesBot/submit_complaints",
             supportRU:   "https://t.me/Clickerstart_bot",
             supportEN:   "https://t.me/Clickerstart_bot"
         };
-
         const filesRu = {
+            shop: 'shop_ru.html',
             nickname: 'nickname.html',
             description: 'description.html',
             profile: 'avatar.html',
@@ -310,10 +558,15 @@
             colors: 'colors.html',
             ai: 'ai.html',
             support: 'support.html',
-            connection: 'connection.html'
+            connection: 'connection.html',
+            popular: 'popular(ru).html',
+            myshop: 'myshop_ru.html',
+            tasks: 'tasks.html'
         };
 
         const filesEn = {
+            tasks: 'tasks_en.html',
+            shop: 'shop_en.html',
             nickname: 'nickname_en.html',
             description: 'description_en.html',
             profile: 'avatar_en.html',
@@ -326,8 +579,19 @@
             colors: 'colors_en.html',
             ai: 'ai_en.html',
             support: 'support_en.html',
-            connection: 'connection_en.html'
+            connection: 'connection_en.html',
+            popular: 'popular(en).html',
+            myshop: 'myshop_ru.html'
         };
+
+        let storedCoins = parseInt(localStorage.getItem('coins'));
+
+        if (!localStorage.getItem('coins') || storedCoins < 0) {
+            localStorage.setItem('coins', '0');
+        }
+        else{
+            document.getElementById('coins').textContent = '🪙' + localStorage.getItem('coins' || 0)
+        }
 
         const tok = document.getElementById("tok");
         tok.style.background = "linear-gradient(180deg, var(--btn), #1b1280)";
@@ -338,10 +602,13 @@
         tok.style.fontWeight = "600";
         tok.style.cursor = "pointer";
 
-        let lang = localStorage.getItem('lang') || 'en';
+        let lang = localStorage.getItem('lang') || 'ru';
 
         let translations = {
             ru: {
+                task: 'Задания и награды',
+                shop: "Магазин",
+                premium: 'Премиум',
                 main: "Что будем создавать?",
                 maintenance: "Проводится техническое обслуживание.",
                 settingsTitle: "Настройки",
@@ -349,15 +616,16 @@
                 langSectionTitle: "Настройки языка и токена",
                 supportSectionTitle: "Поддержка и связь",
                 userDataSectionTitle: "Загрузка и сохранение данных",
+                privacySectionTitle: "Конфиденциальность",
+                privacyLabel: "Кто может видеть мою аватарку:",
                 featureButtons: [
-                    "Никнейм","Описание","Аватарка","Лego","Шрифт","Сайт",
+                    "Никнейм","Описание","Аватарка","Лeгo","Шрифт","Сайт",
                     "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
                 ],
                 settingsButtons: ["Поддержка","Проверка соединения"],
                 langOptions: ["Русский","English"],
                 writeComplaint: "Написать жалобу",
                 writeSupport: "Написать в службу поддержки",
-                userTitle: "Ваш профиль",
                 historySectionTitle: "История",
                 tokenSectionTitle: "Токен",
                 usageTimeTitle: "Время использования",
@@ -366,9 +634,26 @@
                 loadData: "Загрузить данные из QR-кода",
                 showQr: "Показать QR-код моих данных",
                 copyData: "Скопировать мои данные в буфер обмена",
-                loadClipboard: "Загрузить данные из буфера обмена"
+                loadClipboard: "Загрузить данные из буфера обмена",
+                menuTitle: "Меню",
+                home: "Вернуться в главное меню",
+                stats: "Статистика",
+                profile: "Мой профиль",
+                popular: "Популярное",
+                settings: "Настройки",
+                wishlist: "Мой список избранного",
+                myshop: "Мой магазин",
+                statSectionTitle: "Настройки статистики",
+                statCollectYes: "Собирать данные для статистики",
+                statCollectNo: "Не собирать данные для статистики",
+                statClear: "Очистить все данные статистики",
+                accountSectionTitle: "Аккаунт",
+                userIDButton: "Привязать или изменить свой Telegram ID"
             },
             en: {
+                task: 'Tasks and Rewards',
+                shop: "Shop",
+                premium: 'Premium',
                 main: "What do you want to create?",
                 maintenance: "Maintenance in progress.",
                 settingsTitle: "Settings",
@@ -376,6 +661,8 @@
                 langSectionTitle: "Language & token",
                 supportSectionTitle: "Support",
                 userDataSectionTitle: "Save and load datas",
+                privacySectionTitle: "Privacy",
+                privacyLabel: "Who can see my avatar:",
                 featureButtons: [
                     "Nickname","Description","Profile","Lego","Font","Sites",
                     "ASCII-art","QR-code","Music","Colors","AI-Generator"
@@ -384,7 +671,6 @@
                 langOptions: ["Русский","English"],
                 writeComplaint: "",
                 writeSupport: "Contact Support",
-                userTitle: "Profile",
                 historySectionTitle: "History",
                 tokenSectionTitle: "Token",
                 usageTimeTitle: "Usage Time",
@@ -393,25 +679,48 @@
                 loadData: "Load data from QR code",
                 showQr: "Show QR code of my data",
                 copyData: "Copy my datas to clipboard",
-                loadClipboard: "Load datas from clipboard"
+                loadClipboard: "Load datas from clipboard",
+                menuTitle: "Menu",
+                home: "Return to main menu",
+                stats: "Statistics",
+                profile: "My profile",
+                popular: "Popular",
+                settings: "Settings",
+                wishlist: "My wishlist",
+                myshop: "My Shop",
+                statSectionTitle: "Statistics settings",
+                statCollectYes: "Collect data for statistics",
+                statCollectNo: "Do not collect data for statistics",
+                statClear: "Clear all statistics data",
+                accountSectionTitle: "Account",
+                userIDButton: "Link or change my Telegram ID"
             }
         };
 
-        function createButton({ text, icon, onClick, href, newTab=false, disabled=false, id }) {
+        function createButton({ text, icon, onClick, href, newTab=false, disabled=false, id, duplicateIcon=false }) {
             const btn = document.createElement('button');
             btn.className = 'btn';
             if (id) btn.id = id;
             if (icon) {
                 const i = document.createElement('i');
                 i.className = icon;
+                i.classList.add('left-icon');
                 btn.appendChild(i);
             }
             const span = document.createElement('span');
             span.textContent = text;
             btn.appendChild(span);
-
+            if (duplicateIcon && icon) {
+                const i2 = document.createElement('i');
+                i2.className = icon;
+                i2.classList.add('right-icon');
+                btn.appendChild(i2);
+            }
             if (href) {
-                btn.onclick = () => { newTab ? window.open(href, '_blank') : window.location.href = href; };
+                btn.onclick = () => { 
+                    incrementCoins(); 
+                    newTab ? window.open(href, '_blank') : window.location.href = href; 
+                };
             } else if (onClick) {
                 btn.onclick = onClick;
             }
@@ -423,6 +732,18 @@
         }
 
         function applyTranslations() {
+            checkUserID();
+            document.getElementById('showmytokentext').style.color = 'white';
+            if (localStorage.getItem('lang') === 'ru'){
+                document.getElementById('LoadDatasFromUserToken').textContent = 'Загрузить данные по токену(Через службу поддержки)';
+                document.getElementById('userTokenWarning').textContent = 'Токен необходим для работы со службой поддержки и загрузки ваших данных в этом приложении. Будьте внимательны перед тем как показывать свой токен другим.';
+                document.getElementById('showmytokentext').textContent = 'Показать мой токен пользователя';
+            }
+            else{
+                document.getElementById('LoadDatasFromUserToken').textContent = 'Load data by token (via support service)';
+                document.getElementById('userTokenWarning').textContent = 'The token is required to work with the support service and to load your data in this application. Be careful before sharing your token with others.';
+                document.getElementById('showmytokentext').textContent = 'Show my user token'
+            }
             const files = lang === 'ru' ? filesRu : filesEn;
 
             document.querySelectorAll('[data-translate]').forEach(el => {
@@ -451,6 +772,17 @@
                 const btn = createButton({ text, icon: settingsIcons[i], href: url });
                 settingsContainer.appendChild(btn);
             });
+
+            document.getElementById('account-settings').textContent = translations[lang].accountSectionTitle;
+            document.getElementById('userID-confirming').textContent = translations[lang].userIDButton;
+            document.getElementById('stat_setting_text').textContent = translations[lang].statSectionTitle;
+            document.getElementById('stat_setting').innerHTML = `
+                <select id="statSelect">
+                    <option value="yes">${translations[lang].statCollectYes}</option>
+                    <option value="no">${translations[lang].statCollectNo}</option>
+                </select>
+                <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">${translations[lang].statClear}</button>
+            `;
 
             if (lang === 'ru') {
                 const hasLink = !!LINKS.complaintRU && /^https?:\/\//i.test(LINKS.complaintRU);
@@ -524,16 +856,19 @@
                 option.selected = (option.value === lang);
                 langSelect.appendChild(option);
             });
-        }
 
-        const btn = document.getElementById("userBtn");
-        const observer = new MutationObserver(() => {
-            if (btn.disabled){
-                btn.disabled = false;
-                btn.style.background = '';
-            }    
-        });
-        observer.observe(btn, { attributes: true, attributeFilter: ['disabled'] });
+            const avatarVisibilitySelect = document.getElementById('avatarVisibilitySelect');
+            const visibilityOptions = lang === 'ru' ? ['Все', 'Проверенные на безопасность пользователи', 'Те, на кого я поставил(-а) лайк', 'Никто'] : ['All', 'Verified users', 'Those I liked', 'Nobody'];
+            const visibilityValues = ['all', 'verified', 'liked', 'nobody'];
+            avatarVisibilitySelect.innerHTML = '';
+            visibilityOptions.forEach((text, i) => {
+                const option = document.createElement('option');
+                option.value = visibilityValues[i];
+                option.textContent = text;
+                option.selected = (option.value === (localStorage.getItem('avatar_visibility') || 'all'));
+                avatarVisibilitySelect.appendChild(option);
+            });
+        }
 
         function initTokenButton(btnId) {
             let isVisible = false;
@@ -542,11 +877,11 @@
                 const maskedToken = userToken ? '*'.repeat(userToken.length) : '';
                 const btn = document.getElementById(btnId);
                 if (isVisible) {
-                    btn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                    btn.innerHTML = '<i class="fa-solid fa-key left-icon"></i><span>' + 
                         (lang === 'ru' ? 'Ваш токен: ' + userToken + ' (Нажмите для копирования)' : 
                         'Your token: ' + userToken + ' (Click to copy)') + '</span>';
                 } else {
-                    btn.innerHTML = '<i class="fa-solid fa-key"></i><span>' + 
+                    btn.innerHTML = '<i class="fa-solid fa-key left-icon"></i><span>' + 
                         (lang === 'ru' ? 'Ваш токен: ' + maskedToken + ' (Нажмите для показа)' : 
                         'Your token: ' + maskedToken + ' (Click to show)') + '</span>';
                 }
@@ -577,45 +912,13 @@
 
         applyTranslations();
         initTokenButton('tok');
-        initTokenButton('userTok');
-
-        document.getElementById('settingsBtn').onclick = () => {
-            document.getElementById('mainMenu').style.display = 'none';
-            document.getElementById('mainTopBar').style.display = 'none';
-            document.getElementById('settingsMenu').style.display = 'block';
-            applyTranslations();
-        };
 
         document.getElementById('backBtn').onclick = () => {
+            console.log('Клик на кнопку Назад - запуск сохранения...');
             document.getElementById('settingsMenu').style.display = 'none';
             document.getElementById('mainMenu').style.display = 'block';
             document.getElementById('mainTopBar').style.display = 'flex';
-        };
-
-        document.getElementById('statsBtn').onclick = () => {
-            document.getElementById('mainMenu').style.display = 'none';
-            document.getElementById('mainTopBar').style.display = 'none';
-            document.getElementById('statsMenu').style.display = 'block';
-            showUserStatistics();
-        };
-
-        document.getElementById('statsBackBtn').onclick = () => {
-            document.getElementById('statsMenu').style.display = 'none';
-            document.getElementById('mainMenu').style.display = 'block';
-            document.getElementById('mainTopBar').style.display = 'flex';
-        };
-
-        document.getElementById('userBtn').onclick = () => {
-            document.getElementById('mainMenu').style.display = 'none';
-            document.getElementById('mainTopBar').style.display = 'none';
-            document.getElementById('userMenu').style.display = 'block';
-            showUserInfo();
-        };
-
-        document.getElementById('userBackBtn').onclick = () => {
-            document.getElementById('userMenu').style.display = 'none';
-            document.getElementById('mainMenu').style.display = 'block';
-            document.getElementById('mainTopBar').style.display = 'flex';
+            saveUserDataToGoogleSheets();
         };
 
         document.getElementById('qrBackBtn').onclick = () => {
@@ -628,9 +931,10 @@
             localStorage.setItem('lang', lang);
             applyTranslations();
             initTokenButton('tok');
-            initTokenButton('userTok');
-            showUserStatistics();
-            showUserInfo();
+        };
+
+        document.getElementById('avatarVisibilitySelect').onchange = function() {
+            localStorage.setItem('avatar_visibility', this.value);
         };
 
         const m = localStorage.getItem('m');
@@ -647,153 +951,9 @@
             localStorage.setItem('first_use_date', new Date().toISOString());
         }
 
-        function showUserStatistics() {
-            let html = '';
-            const genData = [
-                {name: lang === 'ru' ? 'Никнейм' : 'Nickname', count: parseInt(localStorage.getItem('created_nicknames') || '0')},
-                {name: lang === 'ru' ? 'Описание' : 'Description', count: parseInt(localStorage.getItem('created_descriptions') || '0')},
-                {name: lang === 'ru' ? 'Аватарка' : 'Avatar', count: parseInt(localStorage.getItem('created_profiles') || '0')},
-                {name: lang === 'ru' ? 'Лego' : 'Lego', count: parseInt(localStorage.getItem('created_lego') || '0')},
-                {name: lang === 'ru' ? 'Шрифт' : 'Font', count: parseInt(localStorage.getItem('created_fonts') || '0')},
-                {name: lang === 'ru' ? 'Символ-арт' : 'ASCII art', count: parseInt(localStorage.getItem('created_ascii_arts') || '0')},
-                {name: lang === 'ru' ? 'QR-код' : 'QR code', count: parseInt(localStorage.getItem('created_qr_codes') || '0')},
-                {name: lang === 'ru' ? 'Музыка' : 'Music', count: parseInt(localStorage.getItem('created_musics') || '0')},
-                {name: lang === 'ru' ? 'Цвета' : 'Colors', count: parseInt(localStorage.getItem('copied_color_codes') || '0')}
-            ];
-            genData.sort((a, b) => b.count - a.count);
-            let topHtml = (lang === 'ru' ? '<div>Топ используемых генераторов:</div>' : '<div>Top used generators:</div>');
-            genData.slice(0, 3).forEach((g, i) => {
-                topHtml += `<div>${i + 1}. ${g.name}: ${g.count}</div>`;
-            });
-            if (localStorage.getItem('lang') === 'ru'){
-                document.getElementById('statSelect').innerHTML = 
-                `
-                <option value="yes">Собирать данные для статистики</option>
-                <option value="no">Не собирать данные для статистики</option>
-                `;
-                if (localStorage.getItem('statistic_turn') === 'yes'){
-                    document.getElementById('statSelect').value = 'yes';
-                }
-                else{
-                    document.getElementById('statSelect').value = 'no';
-                }
-                document.getElementById('stat_setting_text').textContent = 'Настройка статистики';
-                document.getElementById('clear').textContent = 'Очистить все данные статистики';
-                html =
-                `<div>Создано никнеймов: ${localStorage.getItem('created_nicknames') || 0}</div>` +
-                `<div>Создано описаний: ${localStorage.getItem('created_descriptions') || 0}</div>` +
-                `<div>Создано аватаров: ${localStorage.getItem('created_profiles') || 0}</div>` +
-                `<div>Создано лего: ${localStorage.getItem('created_lego') || 0}</div>` +
-                `<div>Создано шрифтов: ${localStorage.getItem('created_fonts') || 0}</div>` +
-                `<div>Создано символ-артов: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
-                `<div>Создано qr-кодов: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
-                `<div>Создано музыки: ${localStorage.getItem('created_musics') || 0}</div>` +
-                `<div>Скопировано кодов цвета: ${localStorage.getItem('copied_color_codes') || 0}</div>` +
-                `<div>Скопировано никнеймов: ${localStorage.getItem('copied_nicknames') || 0}</div>` +
-                `<div>Скопировано описаний: ${localStorage.getItem('copied_descriptions') || 0}</div>` +
-                `<div>Отправлено никнеймов: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
-                `<div>Отправлено описаний: ${localStorage.getItem('shared_descriptions') || 0}</div>`;
-                html += topHtml;
-                document.getElementById('stat').innerHTML = html;
-            }
-            else{
-                document.getElementById('statSelect').innerHTML = 
-                `
-                <option value="yes">Collect statistics data</option>
-                <option value="no">Do not collect statistics data</option>
-                `;
-                if (localStorage.getItem('statistic_turn') === 'yes'){
-                    document.getElementById('statSelect').value = 'yes';
-                }
-                else{
-                    document.getElementById('statSelect').value = 'no';
-                }
-                document.getElementById('stat_setting_text').textContent = 'Setting up statistics';
-                document.getElementById('clear').textContent = 'Clear all statistics data';
-                html =
-                    `<div>Nicknames created: ${localStorage.getItem('created_nicknames') || 0}</div>` +
-                    `<div>Descriptions created: ${localStorage.getItem('created_descriptions') || 0}</div>` +
-                    `<div>Avatars created: ${localStorage.getItem('created_profiles') || 0}</div>` +
-                    `<div>Lego created: ${localStorage.getItem('created_lego') || 0}</div>` +
-                    `<div>Fonts created: ${localStorage.getItem('created_fonts') || 0}</div>` +
-                    `<div>ASCII arts created: ${localStorage.getItem('created_ascii_arts') || 0}</div>` +
-                    `<div>QR codes created: ${localStorage.getItem('created_qr_codes') || 0}</div>` +
-                    `<div>Music created: ${localStorage.getItem('created_musics') || 0}</div>` +
-                    `<div>Color codes copied: ${localStorage.getItem('copied_color_codes') || 0}</div>` +
-                    `<div>Nicknames copied: ${localStorage.getItem('copied_nicknames') || 0}</div>` +
-                    `<div>Descriptions copied: ${localStorage.getItem('copied_descriptions') || 0}</div>` +
-                    `<div>Nicknames sent: ${localStorage.getItem('shared_nicknames') || 0}</div>` +
-                    `<div>Descriptions sent: ${localStorage.getItem('shared_descriptions') || 0}</div>`;
-                html += topHtml;
-                document.getElementById('stat').innerHTML = html;
-            }
-        }
-
-        function calculateUsageDuration() {
-            const firstDateStr = localStorage.getItem('first_use_date');
-            if (!firstDateStr) return {days: 0, months: 0, years: 0};
-
-            const first = new Date(firstDateStr);
-            const now = new Date();
-            let delta = new Date(now - first);
-
-            let years = delta.getUTCFullYear() - 1970;
-            let months = delta.getUTCMonth();
-            let days = delta.getUTCDate() - 1;
-
-            return {days, months, years};
-        }
-
-        function getPluralForm(number, forms) {
-            if (number % 10 === 1 && number % 100 !== 11) return forms[0];
-            if (number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20)) return forms[1];
-            return forms[2];
-        }
-
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear().toString().slice(-2);
-            return `${day}.${month}.${year}`;
-        }
-
-        function showUserInfo() {
-            const histElem = document.getElementById('histories');
-            const usageElem = document.getElementById('usageTimes');
-            const firstDate = localStorage.getItem('first_use_date');
-            const firstEntryText = lang === 'ru' ? 'Первый вход: ' : 'First entry: ';
-            const usageText = lang === 'ru' ? 'Вы пользуетесь приложением уже ' : 'You have been using the app for ';
-            const {days, months, years} = calculateUsageDuration();
-            let duration = '';
-            if (lang === 'ru') {
-                const yearForm = getPluralForm(years, ['год', 'года', 'лет']);
-                const monthForm = getPluralForm(months, ['месяц', 'месяца', 'месяцев']);
-                const dayForm = getPluralForm(days, ['день', 'дня', 'дней']);
-                duration = `${days} ${dayForm} ${months} ${monthForm} ${years} ${yearForm}`;
-                histElem.innerHTML = 
-                    `<div>История никнеймов: ${localStorage.getItem('nick_story') || 'Нет'}</div>` +
-                    `<div>История описаний: ${localStorage.getItem('desc_story') || 'Нет'}</div>`;
-                usageElem.innerHTML = 
-                    `<ul><li>${firstEntryText}${formatDate(firstDate)}</li>` +
-                    `<li>${usageText}${duration}</li></ul>`;
-            } else {
-                const yearForm = years === 1 ? 'year' : 'years';
-                const monthForm = months === 1 ? 'month' : 'months';
-                const dayForm = days === 1 ? 'day' : 'days';
-                duration = `${days} ${dayForm} ${months} ${monthForm} ${years} ${yearForm}`;
-                histElem.innerHTML = 
-                    `<div>Nicknames history: ${localStorage.getItem('nick_story') || 'None'}</div>` +
-                    `<div>Descriptions history: ${localStorage.getItem('desc_story') || 'None'}</div>`;
-                usageElem.innerHTML = 
-                    `<ul><li>${firstEntryText}${formatDate(firstDate)}</li>` +
-                    `<li>${usageText}${duration}</li></ul>`;
-            }
-        }
-
         function clearAllStatistic() {
             let confirmed;
-            if (localStorage.getItem('lang') === 'ru') {
+            if (lang === 'ru') {
                 confirmed = confirm(
                     `Вы уверены, что хотите очистить всю свою статистику?\n` +
                     `Это действие нельзя будет отменить!\n` +
@@ -836,17 +996,8 @@
                 'desc_story'
             ];
             keys.forEach(key => localStorage.removeItem(key));
-            showUserStatistics();
-            showUserInfo();
         }
 
-        function checkStatSelectValueToStatButtonShowing(){
-            const isDisabled = localStorage.getItem('statistic_turn') === 'no';
-            document.getElementById('statsBtn').disabled = isDisabled;
-            document.getElementById('statsBtn').style.background = isDisabled ? 'gray' : '';
-            document.getElementById('userBtn').disabled = isDisabled;
-            document.getElementById('userBtn').style.background = isDisabled ? 'gray' : '';
-        }
         const statSelect = document.getElementById('statSelect');
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -855,26 +1006,21 @@
                 statSelect.value = savedValue;
             }
             saveStatValue();
-            checkStatSelectValueToStatButtonShowing();
         });
 
         function saveStatValue() {
             const value = statSelect.value === 'yes' ? 'yes' : 'no';
             localStorage.setItem('statistic_turn', value);
-            checkStatSelectValueToStatButtonShowing();
         }
 
         statSelect.addEventListener('change', saveStatValue);
-
-        showUserStatistics();
-        showUserInfo();
 
         const dataKeys = [
             'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
             'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
             'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
             'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story',
-            'first_use_date', 'statistic_turn', 'lang'
+            'first_use_date', 'statistic_turn', 'lang', 'avatar_visibility', 'loved', 'loved_descs', 'liked_users', 'userName', 'userAvatar'
         ];
 
         const statKeys = [
@@ -884,7 +1030,33 @@
             'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story'
         ];
 
-        function saveUserData() {
+        async function uploadAvatarToDrive(base64) {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'upload_avatar',
+                        base64: base64,
+                        token: localStorage.getItem('userToken') || ''
+                    }),
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    redirect: 'follow'
+                });
+                const result = await response.json();
+                if (result.success && result.fileId) {
+                    return `https://drive.google.com/file/d/${result.fileId}/view`;
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (err) {
+                console.error('Upload avatar error:', err);
+                throw err;
+            }
+        }
+
+        async function saveUserData() {
             const data = {};
             const statTurn = localStorage.getItem('statistic_turn') || 'yes';
 
@@ -897,9 +1069,11 @@
                 data[key] = value;
             });
 
+            delete data.userAvatar;
+
             const dataString = JSON.stringify(data);
             localStorage.setItem('user_data_string', dataString);
-            alert(lang === 'ru' ? 'Данные сохранены! Теперь вы можете показать QR-код.' : 'Data saved! Now you can show the QR code.');
+            alert(lang === 'ru' ? 'Данные сохранены!' : 'Data saved!');
             applyTranslations();
         }
 
@@ -922,6 +1096,7 @@
             out.__statsIncluded = includeStats;
             out.__exportedAt = new Date().toISOString();
             out.__formatVersion = 2;
+            delete out.userAvatar;
             return out;
         }
 
@@ -953,7 +1128,8 @@
 
         async function copyUserData() {
             try {
-                const exportObj = buildExportObject();
+                let exportObj = buildExportObject();
+
                 const preferredOrder = [
                     'lang','userToken','statistic_turn','first_use_date',
                     'created_nicknames','created_descriptions','created_profiles','created_lego',
@@ -986,7 +1162,6 @@
             }).catch(err => {
                 alert(lang === 'ru' ? 'Не удалось прочитать из буфера обмена.' : 'Failed to read from clipboard.');
             });
-            location.reload();
         }
 
         function showQrMenu() {
@@ -1204,6 +1379,7 @@
                 Object.keys(data).forEach(key => {
                     if (!dataKeys.includes(key)) return;
                     if (key === 'userToken') return;
+                    if (key === 'userAvatar') return;
                     const raw = data[key];
                     if (statKeys.includes(key)) {
                         const n = parseInt(raw);
@@ -1221,13 +1397,108 @@
                     }
                 });
                 alert(lang === 'ru' ? 'Данные успешно загружены!' : 'Data successfully loaded!');
-                showUserStatistics();
-                showUserInfo();
-                applyTranslations();
                 location.reload();
             } catch (err) {
                 console.error('JSON parse error:', err, 'raw:', payload);
                 alert(lang === 'ru' ? 'Ошибка: Некорректные данные в QR-коде.' : 'Error: Invalid data in QR code.');
+            }
+        }
+
+        async function saveUserDataToGoogleSheets() {
+            const SPREADSHEET_ID = '145dg5-KwMTiz3dVWTjLzXtHOQ5z9Gufm47LgLKsXHWU';
+            console.log('Запуск сохранения данных в Google Sheets...');
+            try {
+                const now = new Date();
+                const dateStr = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear().toString().slice(-2)} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+                
+                const userToken = localStorage.getItem('userToken') || '';
+                const username = localStorage.getItem('userName') || '';
+
+                // Аватар → ссылка или base64
+                let avatarFromStorage = localStorage.getItem('userAvatar');
+                let avatar = 'user_profile_photo.png'; // по умолчанию
+
+                if (avatarFromStorage && avatarFromStorage.trim() !== '') {
+                    if (avatarFromStorage.startsWith("http")) {
+                        // Уже ссылка
+                        avatar = avatarFromStorage;
+                    } else if (avatarFromStorage.startsWith("data:image")) {
+                        // Base64 картинка → отправляем как есть
+                        avatar = avatarFromStorage;
+                    } else {
+                        // Любое другое значение (например имя файла)
+                        avatar = avatarFromStorage;
+                    }
+                }
+
+
+                const avatarVisibility = localStorage.getItem('avatar_visibility') || 'all';
+                
+                const firstUseDate = localStorage.getItem('first_use_date');
+                let usageTime = '';
+                if (firstUseDate) {
+                    const firstDate = new Date(firstUseDate);
+                    const diffMs = now - firstDate;
+                    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    const diffHrs = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    usageTime = `${diffDays}d ${diffHrs}h ${diffMins}m`;
+                }
+
+                const statTurn = localStorage.getItem('statistic_turn') || 'yes';
+                const stats = {};
+                statKeys.forEach(key => {
+                    const raw = localStorage.getItem(key);
+                    const n = parseInt(raw, 10);
+                    stats[key] = (raw === null || raw === undefined || isNaN(n)) ? '0' : String(n);
+                });
+                const statsStr = statTurn === 'yes' ? JSON.stringify(stats) : `(Отключено)${JSON.stringify(stats)}`;
+
+                const likedUsers = localStorage.getItem('liked_users') || '';
+
+                const data = {
+                    date: dateStr,
+                    token: userToken,
+                    username: username,
+                    avatar: avatar,
+                    avatarVisibility: avatarVisibility,
+                    usageTime: usageTime,
+                    statistics: statsStr,
+                    liked_users: likedUsers
+                };
+
+                console.log('Данные для отправки:', data);
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    redirect: 'follow'
+                });
+
+                const responseText = await response.text();
+                console.log('Ответ от сервера:', response.status, responseText);
+
+                if (!response.ok) {
+                    console.error('Ошибка при сохранении:', response.status, responseText);
+                }
+            } catch (err) {
+                console.error('Ошибка в saveUserDataToGoogleSheets:', err);
+            }
+        }
+
+
+        function incrementCoins() {
+            if (Math.random() < 0.07) {
+                let amount = 1;
+                if (Math.random() < 0.3) amount += 200;
+                if (Math.random() < 0.05) amount += 100;
+                let coins = parseInt(localStorage.getItem('coins') || '0');
+                coins += amount;
+                localStorage.setItem('coins', coins.toString());
+                document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + coins;
             }
         }
 
@@ -1252,6 +1523,172 @@
                 });
             });
         });
+
+        // Side Menu Functionality
+        const sideMenu = document.getElementById('sideMenu');
+        const overlay = document.getElementById('overlay');
+        const sideButtons = document.getElementById('sideButtons');
+
+        function showSideMenu() {
+            applyTranslations(); // Ensure translations are up to date
+            applySideButtons();
+            sideMenu.style.display = 'block';
+            overlay.style.display = 'block';
+            setTimeout(() => {
+                sideMenu.classList.add('open');
+            }, 10);
+        }
+
+        function hideSideMenu() {
+            sideMenu.classList.remove('open');
+            setTimeout(() => {
+                sideMenu.style.display = 'none';
+                overlay.style.display = 'none';
+            }, 500);
+        }
+
+        document.getElementById('sideMenuBtn').onclick = showSideMenu;
+        document.getElementById('sideCloseBtn').onclick = hideSideMenu;
+        overlay.onclick = hideSideMenu;
+
+        function showSettings() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('mainTopBar').style.display = 'none';
+            document.getElementById('settingsMenu').style.display = 'block';
+            applyTranslations();
+        }
+        function applySideButtons() {
+            sideButtons.innerHTML = '';
+            const files = lang === 'ru' ? filesRu : filesEn;
+            const isStatsDisabled = localStorage.getItem('statistic_turn') === 'no';
+            const items = [
+                { textKey: 'home', icon: 'fa-solid fa-house', onClick: hideSideMenu },
+                { textKey: 'stats', icon: 'fa-solid fa-chart-simple', href: 'statistics.html', disabled: isStatsDisabled },
+                { textKey: 'profile', icon: 'fa-solid fa-user', href: 'user_profile.html' },
+                { textKey: 'popular', icon: 'fa-solid fa-square-poll-vertical', href: files.popular },
+                { textKey: 'wishlist', icon: 'fa-solid fa-clipboard-list', href: 'izbr.html' },
+                { textKey: 'task', icon: 'fa-solid fa-list-check', href: files.tasks },
+                { textKey: 'myshop', icon: 'fa-solid fa-shop', href: files.myshop },
+                { textKey: 'shop', icon: 'fa-solid fa-cart-shopping', href: files.shop },
+                { textKey: 'premium', icon: 'fa-solid fa-crown', href: 'premium.screen.html' },
+                { textKey: 'settings', icon: 'fa-solid fa-gear', onClick: () => { hideSideMenu(); showSettings(); } }
+            ];
+            items.forEach(item => {
+                const btn = createButton({
+                    text: translations[lang][item.textKey],
+                    icon: item.icon,
+                    onClick: item.onClick,
+                    href: item.href,
+                    duplicateIcon: true
+                });
+                if (item.disabled !== undefined) {
+                    btn.disabled = item.disabled;
+                    btn.style.background = item.disabled ? 'gray' : '';
+                }
+                sideButtons.appendChild(btn);
+            });
+        }
+        function checkUserID(){
+            if (localStorage.getItem('userID')){
+                document.getElementById('my_idHeader').style.color = 'white';
+
+                if (localStorage.getItem('lang') === 'ru'){
+                    document.getElementById('my_idHeader').textContent = 'Показать мой Telegram ID';
+                    document.getElementById('myID').textContent = localStorage.getItem('userID') + ' (Нажмите чтобы скопировать)'
+                }
+                else{
+                    document.getElementById('my_idHeader').textContent = 'Show my Telegram ID';
+                    document.getElementById('myID').textContent = localStorage.getItem('userID') + ' (Click to copy)'
+                }
+                document.getElementById('my_idBox').style.display = 'block'
+            }
+            else{
+                document.getElementById('my_idBox').style.display = 'none'
+            }
+        }
+        checkUserID();
+
+        document.getElementById('myID').addEventListener('click', (e) => {
+            const textToCopy = localStorage.getItem('userID'); // берём текст из элемента
+            navigator.clipboard.writeText(textToCopy) // копируем в буфер обмена
+                .then(() => {
+                    const lang = localStorage.getItem('lang');
+                    const originalText = e.target.textContent;
+                    e.target.textContent = lang === 'ru' ? 'Скопировано!' : 'Copied!';
+
+                    // через 1.5 сек вернуть исходный текст
+                    setTimeout(() => {
+                        e.target.textContent = originalText;
+                    }, 2500);
+                })
+                .catch(() => {
+                    alert(lang === 'ru' ? 'Ошибка копирования' : 'Copy error');
+                });
+        });
+
+
+        async function checkTokenAndRedirect() {
+            try {
+                // Получаем токен из localStorage
+                const userToken = localStorage.getItem('userToken');
+                
+                if (!userToken) {
+                    console.error('Токен пользователя не найден в localStorage');
+                    return;
+                }
+                
+                // Отправляем POST-запрос с токеном
+                const response = await fetch(gasUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `userToken=${encodeURIComponent(userToken)}`
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Перенаправляем на URL из B2
+                    window.location.href = result.redirectUrl;
+                } else {
+                    console.error('Ошибка:', result.error);
+                }
+            } catch (error) {
+                console.error('Ошибка при проверке токена:', error);
+            }
+        }
+
+        document.addEventListener("click", function (event) {
+        const t = event.target;
+
+        if (
+            t.tagName !== "INPUT" &&
+            t.tagName !== "TEXTAREA" &&
+            t.tagName !== "SELECT" &&
+            !t.isContentEditable
+        ) {
+            if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
+            }
+        }
+        });
+
+        async function securityChecker(){
+            const { blockedTokens } = await import('./security.js');
+            // Use blockedTokens here as needed
+            if(blockedTokens.includes(localStorage.getItem('userToken'))){
+                window.location.href = 'blocked.html'
+            }
+        }
+        setInterval(() => {
+            securityChecker();
+        }, 1000);
+        securityChecker();
+        saveUserDataToGoogleSheets();
+        setInterval(() => {
+            checkTokenAndRedirect()
+        }, 6500);
     </script>
 </body>
 </html>
