@@ -29,8 +29,8 @@
         
         .minifigure {
             position: relative;
-            width: 300px;
-            height: 485px;
+            width: 100px;
+            height: 162px;
             margin: auto;
             perspective: 200;
             transform-style: preserve-3d;
@@ -39,6 +39,13 @@
         
         .minifigure.explode {
             transform: scale(0.75) translateZ(0);
+        }
+
+        @media (max-width: 600px) {
+            .minifigure {
+                width: 100px;
+                height: 162px;
+            }
         }
         
         /* Variables for colors */
@@ -1062,7 +1069,6 @@
         
         /* Expression 91: sneezing-face */
         .sneezing-face .mouth::before {
-            content: 'achoo';
             font-size: 0.5em;
         }
         
@@ -1091,6 +1097,1437 @@
             content: '';
             top: -2em;
             background: #ff0;
+        }
+
+        /* New added expressions */
+        .joyful .mouth {
+            width: 3.5em;
+            height: 2em;
+            border-bottom: 0.5em solid var(--mouth-color);
+        }
+        .joyful .eye {
+            top: 1.8em;
+        }
+
+        .evil .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .evil .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .evil .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+
+        .fear .eye {
+            width: 1.2em;
+            height: 1.2em;
+            box-shadow: inset 0 -0.1em 0 0.4em var(--eye-pupil);
+        }
+        .fear .mouth {
+            top: 4.2em;
+            width: 1.5em;
+            height: 1.5em;
+            border-radius: 50%;
+            background: var(--mouth-color);
+        }
+
+        .madness .eye {
+            transform: rotate(30deg);
+        }
+        .madness .mouth {
+            transform: rotate(15deg);
+            width: 3em;
+        }
+
+        .shyness .face::before {
+            content: '';
+            top: 3em;
+            left: 0.5em;
+            width: 1.5em;
+            height: 1.5em;
+            background: rgba(255,0,0,0.4);
+            border-radius: 50%;
+        }
+        .shyness .mouth {
+            width: 1.5em;
+            height: 0.8em;
+            border-bottom: 0.2em solid var(--mouth-color);
+        }
+
+        .lostness .eye {
+            top: 2.8em;
+            box-shadow: inset 0 0.2em 0 0.3em var(--eye-pupil);
+        }
+        .lostness .brow {
+            transform: rotate(10deg) translateX(-50%);
+        }
+
+        .joyful-scream .mouth {
+            width: 3em;
+            height: 2.5em;
+            background: var(--mouth-color);
+            border-radius: 50%;
+        }
+        .joyful-scream .eye {
+            top: 1.5em;
+        }
+
+        .playful .mouth {
+            transform: skew(10deg);
+        }
+        .playful .eye.left {
+            transform: scale(1.2);
+        }
+
+        .sarcastic .brow.left {
+            bottom: 1.5em;
+        }
+        .sarcastic .mouth {
+            transform: translateX(-20%);
+        }
+
+        .ecstatic .mouth {
+            width: 4em;
+            height: 2.5em;
+            border-bottom: 1em solid var(--mouth-color);
+        }
+
+        /* Additional 50 evil expressions */
+
+        .evil-grin1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .evil-grin1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .evil-grin1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .evil-grin1 .mouth {
+            border-top-color: var(--mouth-color);
+            border-bottom: none;
+            width: 3em;
+            transform: skew(-10deg);
+        }
+
+        .evil-grin2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .evil-grin2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .evil-grin2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .evil-grin2 .mouth {
+            border-top-color: var(--mouth-color);
+            border-bottom: none;
+            width: 2.5em;
+            transform: skew(10deg);
+        }
+
+        .malicious-smirk1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .malicious-smirk1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .malicious-smirk1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .malicious-smirk1 .mouth {
+            transform: translateX(-30%) rotate(10deg);
+            width: 2.2em;
+            border-top-color: var(--mouth-color);
+        }
+        .malicious-smirk1 .eye {
+            box-shadow: inset 0 -0.15em 0 0.35em var(--eye-pupil);
+        }
+
+        .malicious-smirk2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .malicious-smirk2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .malicious-smirk2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .malicious-smirk2 .mouth {
+            transform: translateX(-25%) rotate(15deg);
+            width: 2.4em;
+            border-top-color: var(--mouth-color);
+        }
+        .malicious-smirk2 .brow {
+            transform: rotate(-25deg) translateX(-50%);
+        }
+
+        .sinister-stare1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .sinister-stare1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .sinister-stare1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .sinister-stare1 .eye {
+            width: 1.1em;
+            height: 1.1em;
+            box-shadow: inset 0 -0.1em 0 0.4em #f00;
+        }
+        .sinister-stare1 .mouth {
+            height: 0.3em;
+            background: var(--mouth-color);
+        }
+
+        .sinister-stare2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .sinister-stare2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .sinister-stare2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .sinister-stare2 .eye {
+            width: 1.3em;
+            height: 1.3em;
+            box-shadow: inset 0 -0.2em 0 0.5em #f00;
+        }
+        .sinister-stare2 .brow {
+            bottom: 1.4em;
+            transform: rotate(-35deg) translateX(-50%);
+        }
+
+        .villainous-laugh1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .villainous-laugh1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .villainous-laugh1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .villainous-laugh1 .mouth {
+            width: 3.2em;
+            height: 2.2em;
+            border-bottom: 0.6em solid var(--mouth-color);
+            transform: rotate(-5deg);
+        }
+        .villainous-laugh1 .eye {
+            top: 1.7em;
+        }
+
+        .villainous-laugh2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .villainous-laugh2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .villainous-laugh2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .villainous-laugh2 .mouth {
+            width: 3.4em;
+            height: 2.4em;
+            border-bottom: 0.7em solid var(--mouth-color);
+            transform: rotate(5deg);
+        }
+        .villainous-laugh2 .brow {
+            transform: skewY(-15deg) translateX(-50%);
+        }
+
+        .demonic-glare1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .demonic-glare1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .demonic-glare1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .demonic-glare1 .eye {
+            background: radial-gradient(circle, #f00 0.3em, transparent 0.4em);
+        }
+        .demonic-glare1 .mouth {
+            border-top-color: #f00;
+        }
+
+        .demonic-glare2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .demonic-glare2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .demonic-glare2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .demonic-glare2 .eye {
+            background: radial-gradient(circle, #900 0.25em, transparent 0.35em);
+        }
+        .demonic-glare2 .brow {
+            color: #f00;
+            bottom: 1.5em;
+        }
+
+        .wicked-sneer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .wicked-sneer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .wicked-sneer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .wicked-sneer1 .mouth {
+            transform: translateX(-35%) rotate(20deg);
+            width: 2em;
+            border-top: 0.3em solid var(--mouth-color);
+        }
+        .wicked-sneer1 .eye.right {
+            transform: scale(1.1);
+        }
+
+        .wicked-sneer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .wicked-sneer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .wicked-sneer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .wicked-sneer2 .mouth {
+            transform: translateX(-40%) rotate(25deg);
+            width: 1.8em;
+            border-top: 0.4em solid var(--mouth-color);
+        }
+        .wicked-sneer2 .eye.left {
+            transform: scale(1.1);
+        }
+
+        .fiendish-frown1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .fiendish-frown1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .fiendish-frown1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .fiendish-frown1 .mouth {
+            border-top-color: var(--mouth-color);
+            height: 1.8em;
+        }
+
+        .fiendish-frown2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .fiendish-frown2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .fiendish-frown2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .fiendish-frown2 .mouth {
+            border-top-color: var(--mouth-color);
+            height: 2.2em;
+        }
+
+        .malevolent-grimace1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .malevolent-grimace1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .malevolent-grimace1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .malevolent-grimace1 .mouth {
+            width: 2.8em;
+            height: 1.8em;
+            background: var(--mouth-color);
+            border-radius: 30%;
+            transform: skew(15deg);
+        }
+        .malevolent-grimace1 .eye {
+            box-shadow: inset 0 -0.15em 0 0.4em #900;
+        }
+
+        .malevolent-grimace2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .malevolent-grimace2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .malevolent-grimace2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .malevolent-grimace2 .mouth {
+            width: 3em;
+            height: 2em;
+            background: var(--mouth-color);
+            border-radius: 40%;
+            transform: skew(-15deg);
+        }
+        .malevolent-grimace2 .brow {
+            transform: rotate(10deg) translateX(-50%);
+        }
+
+        .diabolical-snarl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .diabolical-snarl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .diabolical-snarl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .diabolical-snarl1 .mouth {
+            transform: rotate(15deg);
+            width: 2.6em;
+            border-bottom: 0.4em solid #f00;
+        }
+        .diabolical-snarl1 .eye {
+            transform: rotate(-10deg);
+        }
+
+        .diabolical-snarl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .diabolical-snarl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .diabolical-snarl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .diabolical-snarl2 .mouth {
+            transform: rotate(-15deg);
+            width: 2.7em;
+            border-bottom: 0.5em solid #f00;
+        }
+        .diabolical-snarl2 .eye {
+            transform: rotate(10deg);
+        }
+
+        .vicious-scowl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .vicious-scowl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .vicious-scowl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .vicious-scowl1 .mouth {
+            border-top-color: var(--mouth-color);
+            transform: rotate(10deg);
+        }
+
+        .vicious-scowl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .vicious-scowl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .vicious-scowl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .vicious-scowl2 .mouth {
+            border-top-color: var(--mouth-color);
+            transform: rotate(-10deg);
+        }
+
+        .nefarious-leer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .nefarious-leer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .nefarious-leer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .nefarious-leer1 .eye.left {
+            height: 0.8em;
+            box-shadow: none;
+        }
+        .nefarious-leer1 .mouth {
+            width: 2.3em;
+            transform: translateX(-20%);
+        }
+
+        .nefarious-leer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .nefarious-leer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .nefarious-leer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .nefarious-leer2 .eye.right {
+            height: 0.8em;
+            box-shadow: none;
+        }
+        .nefarious-leer2 .mouth {
+            width: 2.4em;
+            transform: translateX(20%);
+        }
+
+        .baleful-glower1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .baleful-glower1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .baleful-glower1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .baleful-glower1 .eye {
+            box-shadow: inset 0 0 0 0.35em #900;
+        }
+
+        .baleful-glower2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .baleful-glower2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .baleful-glower2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .baleful-glower2 .eye {
+            box-shadow: inset 0 0 0 0.4em #900;
+        }
+        .baleful-glower2 .mouth {
+            height: 1.2em;
+            border-top: 0.3em solid #900;
+        }
+
+        .heinous-grit1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .heinous-grit1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .heinous-grit1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .heinous-grit1 .mouth::before {
+            top: -0.4em;
+            width: 0.6em;
+            height: 0.9em;
+            background: #fff;
+            left: 35%;
+        }
+        .heinous-grit1 .mouth::after {
+            top: -0.4em;
+            width: 0.6em;
+            height: 0.9em;
+            background: #fff;
+            left: 65%;
+        }
+
+        .heinous-grit2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .heinous-grit2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .heinous-grit2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .heinous-grit2 .mouth::before {
+            top: -0.5em;
+            width: 0.7em;
+            height: 1em;
+            background: #fff;
+            left: 30%;
+        }
+        .heinous-grit2 .mouth::after {
+            top: -0.5em;
+            width: 0.7em;
+            height: 1em;
+            background: #fff;
+            left: 70%;
+        }
+
+        .infernal-rage1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .infernal-rage1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .infernal-rage1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .infernal-rage1 .mouth {
+            background: #f00;
+            height: 2.5em;
+        }
+
+        .infernal-rage2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .infernal-rage2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .infernal-rage2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .infernal-rage2 .eye {
+            box-shadow: inset 0 -0.2em 0 0.5em #f00;
+        }
+
+        .atrocious-glint1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .atrocious-glint1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .atrocious-glint1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .atrocious-glint1 .eye {
+            background: radial-gradient(circle, #600 0.2em, transparent 0.3em);
+        }
+        .atrocious-glint1 .mouth {
+            border-bottom-color: #600;
+        }
+
+        .atrocious-glint2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .atrocious-glint2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .atrocious-glint2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .atrocious-glint2 .eye {
+            background: radial-gradient(circle, #300 0.25em, transparent 0.35em);
+        }
+        .atrocious-glint2 .brow {
+            color: #600;
+        }
+
+        .depraved-snarl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .depraved-snarl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .depraved-snarl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .depraved-snarl1 .mouth {
+            transform: rotate(20deg);
+            border-bottom: 0.6em solid var(--mouth-color);
+        }
+        .depraved-snarl1 .eye {
+            transform: skew(15deg);
+        }
+
+        .depraved-snarl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .depraved-snarl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .depraved-snarl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .depraved-snarl2 .mouth {
+            transform: rotate(-20deg);
+            border-bottom: 0.7em solid var(--mouth-color);
+        }
+        .depraved-snarl2 .brow {
+            transform: skewY(15deg) translateX(-50%);
+        }
+
+        .odious-frown1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .odious-frown1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .odious-frown1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .odious-frown1 .mouth {
+            height: 2.3em;
+            border-top-color: var(--mouth-color);
+        }
+
+        .odious-frown2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .odious-frown2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .odious-frown2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .odious-frown2 .eye {
+            top: 2.8em;
+        }
+
+        .reprehensible-leer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .reprehensible-leer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .reprehensible-leer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .reprehensible-leer1 .eye.left {
+            height: 0.7em;
+        }
+        .reprehensible-leer1 .mouth {
+            transform: translateX(25%);
+        }
+
+        .reprehensible-leer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .reprehensible-leer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .reprehensible-leer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .reprehensible-leer2 .eye.right {
+            height: 0.7em;
+        }
+        .reprehensible-leer2 .mouth {
+            transform: translateX(-25%);
+        }
+
+        .abominable-glower1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .abominable-glower1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .abominable-glower1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .abominable-glower1 .eye {
+            box-shadow: inset 0 0 0 0.45em #300;
+        }
+        .abominable-glower1 .mouth {
+            background: #300;
+        }
+
+        .abominable-glower2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .abominable-glower2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .abominable-glower2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .abominable-glower2 .eye {
+            box-shadow: inset 0 0 0 0.5em #300;
+        }
+        .abominable-glower2 .brow {
+            bottom: 2.4em;
+        }
+
+        .execrable-grit1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .execrable-grit1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .execrable-grit1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .execrable-grit1 .mouth::before {
+            top: -0.6em;
+            width: 0.8em;
+            height: 1.1em;
+            background: #ddd;
+            left: 25%;
+        }
+        .execrable-grit1 .mouth::after {
+            top: -0.6em;
+            width: 0.8em;
+            height: 1.1em;
+            background: #ddd;
+            left: 75%;
+        }
+
+        .execrable-grit2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .execrable-grit2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .execrable-grit2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .execrable-grit2 .mouth::before {
+            top: -0.7em;
+            width: 0.9em;
+            height: 1.2em;
+            background: #ddd;
+            left: 20%;
+        }
+        .execrable-grit2 .mouth::after {
+            top: -0.7em;
+            width: 0.9em;
+            height: 1.2em;
+            background: #ddd;
+            left: 80%;
+        }
+
+        .loathsome-rage1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .loathsome-rage1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .loathsome-rage1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .loathsome-rage1 .mouth {
+            height: 2.8em;
+            background: #900;
+        }
+
+        .loathsome-rage2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .loathsome-rage2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .loathsome-rage2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .loathsome-rage2 .eye {
+            box-shadow: inset 0 -0.25em 0 0.6em #900;
+        }
+
+        .detestable-sneer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .detestable-sneer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .detestable-sneer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .detestable-sneer1 .mouth {
+            transform: translateX(-55%) rotate(40deg);
+            width: 1.7em;
+        }
+
+        .detestable-sneer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .detestable-sneer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .detestable-sneer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .detestable-sneer2 .eye {
+            transform: rotate(-5deg);
+        }
+
+        .repugnant-glint1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .repugnant-glint1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .repugnant-glint1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .repugnant-glint1 .eye {
+            background: radial-gradient(circle, #000 0.3em, transparent 0.4em);
+        }
+        .repugnant-glint1 .mouth {
+            border-bottom-color: #000;
+        }
+
+        .repugnant-glint2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .repugnant-glint2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .repugnant-glint2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .repugnant-glint2 .eye {
+            background: radial-gradient(circle, #111 0.35em, transparent 0.45em);
+        }
+        .repugnant-glint2 .brow {
+            color: #111;
+        }
+
+        .abhorrent-snarl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .abhorrent-snarl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .abhorrent-snarl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .abhorrent-snarl1 .mouth {
+            transform: rotate(25deg);
+            border-bottom: 0.8em solid var(--mouth-color);
+        }
+        .abhorrent-snarl1 .eye {
+            transform: skew(-20deg);
+        }
+
+        .abhorrent-snarl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .abhorrent-snarl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .abhorrent-snarl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .abhorrent-snarl2 .mouth {
+            transform: rotate(-25deg);
+            border-bottom: 0.9em solid var(--mouth-color);
+        }
+        .abhorrent-snarl2 .brow {
+            transform: skewY(-20deg) translateX(-50%);
+        }
+
+        .despicable-frown1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .despicable-frown1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .despicable-frown1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .despicable-frown1 .mouth {
+            height: 2.6em;
+            border-top-color: var(--mouth-color);
+        }
+
+        .despicable-frown2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .despicable-frown2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .despicable-frown2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .despicable-frown2 .eye {
+            top: 3em;
+        }
+
+        .vile-leer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .vile-leer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .vile-leer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .vile-leer1 .eye.left {
+            height: 0.6em;
+        }
+        .vile-leer1 .mouth {
+            transform: translateX(30%);
+        }
+
+        .vile-leer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .vile-leer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .vile-leer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .vile-leer2 .eye.right {
+            height: 0.6em;
+        }
+        .vile-leer2 .mouth {
+            transform: translateX(-30%);
+        }
+
+        .wretched-glower1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .wretched-glower1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .wretched-glower1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .wretched-glower1 .eye {
+            box-shadow: inset 0 0 0 0.55em #111;
+        }
+        .wretched-glower1 .mouth {
+            background: #111;
+        }
+
+        .wretched-glower2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .wretched-glower2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .wretched-glower2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .wretched-glower2 .eye {
+            box-shadow: inset 0 0 0 0.6em #111;
+        }
+        .wretched-glower2 .brow {
+            bottom: 2.9em;
+        }
+
+        /* Additional 10 evil expressions */
+        
+        .ruthless-glare1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .ruthless-glare1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .ruthless-glare1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .ruthless-glare1 .eye {
+            box-shadow: inset 0 -0.1em 0 0.4em #b00;
+        }
+
+        .ruthless-glare2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .ruthless-glare2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .ruthless-glare2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .ruthless-glare2 .eye {
+            box-shadow: inset 0 -0.15em 0 0.45em #b00;
+        }
+        .ruthless-glare2 .mouth {
+            border-top-color: #b00;
+            transform: skew(5deg);
+        }
+        
+        .savage-snarl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .savage-snarl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .savage-snarl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .savage-snarl1 .mouth {
+            transform: rotate(10deg);
+            width: 3em;
+            border-bottom: 0.6em solid #c00;
+        }
+        .savage-snarl1 .eye {
+            transform: skew(-10deg);
+        }
+        
+        .savage-snarl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .savage-snarl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .savage-snarl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .savage-snarl2 .mouth {
+            transform: rotate(-10deg);
+            width: 3.2em;
+            border-bottom: 0.7em solid #c00;
+        }
+        .savage-snarl2 .brow {
+            transform: skewY(10deg) translateX(-50%);
+        }
+        
+        .cruel-grimace1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .cruel-grimace1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .cruel-grimace1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .cruel-grimace1 .mouth {
+            width: 2.5em;
+            height: 1.5em;
+            background: #a00;
+            border-radius: 20%;
+            transform: skew(20deg);
+        }
+        .cruel-grimace1 .eye {
+            box-shadow: inset 0 -0.2em 0 0.5em #a00;
+        }
+        
+        .cruel-grimace2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .cruel-grimace2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .cruel-grimace2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .cruel-grimace2 .mouth {
+            width: 2.7em;
+            height: 1.7em;
+            background: #a00;
+            border-radius: 30%;
+            transform: skew(-20deg);
+        }
+        .cruel-grimace2 .brow {
+            bottom: 1.9em;
+            transform: rotate(15deg) translateX(-50%);
+        }
+        
+        .brutal-scowl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .brutal-scowl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .brutal-scowl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .brutal-scowl1 .mouth {
+            border-top-color: #900;
+            transform: rotate(15deg);
+        }
+        
+        .brutal-scowl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .brutal-scowl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .brutal-scowl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .brutal-scowl2 .mouth {
+            border-top-color: #900;
+            transform: rotate(-15deg);
+        }
+        
+        .ferocious-leer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .ferocious-leer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .ferocious-leer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .ferocious-leer1 .eye.left {
+            height: 0.9em;
+            box-shadow: none;
+        }
+        .ferocious-leer1 .mouth {
+            width: 2.5em;
+            transform: translateX(-25%);
+        }
+        
+        .ferocious-leer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .ferocious-leer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .ferocious-leer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .ferocious-leer2 .eye.right {
+            height: 0.9em;
+            box-shadow: none;
+        }
+        .ferocious-leer2 .mouth {
+            width: 2.6em;
+            transform: translateX(25%);
         }
         
         /* Upper Body */
@@ -1472,10 +2909,10 @@
         }
         
         .controls label {
-            display: inline-block;
+            display: block;
             font-size: x-small;
             letter-spacing: 0.0625em;
-            margin-right: 0.5em;
+            margin-bottom: 0.5em;
         }
         
         .controls input[type="range"] {
@@ -1518,10 +2955,23 @@
             background-color: transparent;
         }
         
+        .controls select {
+            position: relative;
+            width: 70%;
+            height: 2em;
+            padding: 0.375em;
+            margin: 0.25rem 0 1rem;
+            color: #fff;
+            background-color: currentColor;
+            border-radius: 1em;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        
         .form-element {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5em;
+            display: block;
+            margin-bottom: 1em;
         }
         
         .form-element input[type="color"] {
@@ -2143,6 +3593,453 @@
             <div class="eye left"></div>
             <div class="mouth"></div>
           </div>
+
+          <!-- New added faces -->
+          <div class="face joyful">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face evil">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face fear">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face madness">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face shyness">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face lostness">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face joyful-scream">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face playful">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face sarcastic">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face ecstatic">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <!-- Additional 50 evil faces -->
+          <div class="face evil-grin1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face evil-grin2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face malicious-smirk1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face malicious-smirk2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face sinister-stare1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face sinister-stare2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face villainous-laugh1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face villainous-laugh2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face demonic-glare1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face demonic-glare2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face wicked-sneer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face wicked-sneer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face fiendish-frown1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face fiendish-frown2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face malevolent-grimace1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face malevolent-grimace2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face diabolical-snarl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face diabolical-snarl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face vicious-scowl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face vicious-scowl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face nefarious-leer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face nefarious-leer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face baleful-glower1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face baleful-glower2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face heinous-grit1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face heinous-grit2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face infernal-rage1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face infernal-rage2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face atrocious-glint1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face atrocious-glint2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face depraved-snarl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face depraved-snarl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face odious-frown1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face odious-frown2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face reprehensible-leer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face reprehensible-leer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face abominable-glower1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face abominable-glower2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face execrable-grit1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face execrable-grit2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face loathsome-rage1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face loathsome-rage2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face detestable-sneer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face detestable-sneer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face repugnant-glint1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face repugnant-glint2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face abhorrent-snarl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face abhorrent-snarl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face despicable-frown1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face despicable-frown2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face vile-leer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face vile-leer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face wretched-glower1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face wretched-glower2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <!-- Additional 10 evil faces -->
+          <div class="face ruthless-glare1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face ruthless-glare2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face savage-snarl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face savage-snarl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face cruel-grimace1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face cruel-grimace2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face brutal-scowl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face brutal-scowl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face ferocious-leer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face ferocious-leer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2175,7 +4072,155 @@
       
       <div class="form-element">
         <label for="expression">Выражение:</label>
-        <input id="expression" class="expression-range expression" name="expression" type="range" min="0" max="9500" step="100" value="0">
+        <input id="expression" class="expression-range expression" name="expression" type="range" min="0" max="14100" step="100" value="0">
+      </div>
+
+      <div class="form-element">
+        <label for="expression-select">Выберите выражение:</label>
+        <select id="expression-select" style="background-color: black;">
+          <option value="0">classic</option>
+          <option value="100">smile</option>
+          <option value="200">large-smile</option>
+          <option value="300">worried</option>
+          <option value="400">frown</option>
+          <option value="500">surprised</option>
+          <option value="600">cross-eyed</option>
+          <option value="700">tongue-out</option>
+          <option value="800">dizzy</option>
+          <option value="900">goofy-grin</option>
+          <option value="1000">winking-tongue</option>
+          <option value="1100">laughing-hard</option>
+          <option value="1200">silly</option>
+          <option value="1300">cheeky</option>
+          <option value="1400">toothy</option>
+          <option value="1500">derp</option>
+          <option value="1600">exaggerated-smile</option>
+          <option value="1700">bug-eyed</option>
+          <option value="1800">squished-face</option>
+          <option value="1900">puffed-cheeks</option>
+          <option value="2000">zombie</option>
+          <option value="2100">vampire-grin</option>
+          <option value="2200">pirate-snarl</option>
+          <option value="2300">clown</option>
+          <option value="2400">alien</option>
+          <option value="2500">robot-blank</option>
+          <option value="2600">upside-down-smile</option>
+          <option value="2700">heart-eyes</option>
+          <option value="2800">stars-eyes</option>
+          <option value="2900">sweat-drop-worried</option>
+          <option value="3000">squint</option>
+          <option value="3100">angry</option>
+          <option value="3200">sad</option>
+          <option value="3300">happy</option>
+          <option value="3400">neutral</option>
+          <option value="3500">sleeping</option>
+          <option value="3600">confused</option>
+          <option value="3700">excited</option>
+          <option value="3800">scared</option>
+          <option value="3900">determined</option>
+          <option value="4000">smug</option>
+          <option value="4100">crying</option>
+          <option value="4200">blushing</option>
+          <option value="4300">yawning</option>
+          <option value="4400">singing</option>
+          <option value="4500">whispering</option>
+          <option value="4600">shouting</option>
+          <option value="4700">thinking</option>
+          <option value="4800">winking</option>
+          <option value="4900">raised-eyebrow</option>
+          <option value="5000">frowning-deep</option>
+          <option value="5100">surprised-open</option>
+          <option value="5200">content</option>
+          <option value="5300">mischievous</option>
+          <option value="5400">pained</option>
+          <option value="5500">relieved</option>
+          <option value="5600">grinning</option>
+          <option value="5700">smirking</option>
+          <option value="5800">pleading</option>
+          <option value="5900">rolling-eyes</option>
+          <option value="6000">relieved-smile</option>
+          <option value="6100">partying</option>
+          <option value="6200">woozy</option>
+          <option value="6300">shushing</option>
+          <option value="6400">money-mouth</option>
+          <option value="6500">zipper-mouth</option>
+          <option value="6600">nauseated</option>
+          <option value="6700">vomiting</option>
+          <option value="6800">sneezing</option>
+          <option value="6900">masked</option>
+          <option value="7000">thermometer</option>
+          <option value="7100">head-bandage</option>
+          <option value="7200">exploding-head</option>
+          <option value="7300">cowboy</option>
+          <option value="7400">partying-face</option>
+          <option value="7500">disguised</option>
+          <option value="7600">sunglasses</option>
+          <option value="7700">nerd</option>
+          <option value="7800">monocle</option>
+          <option value="7900">astonished</option>
+          <option value="8000">flushed</option>
+          <option value="8100">pleading-face</option>
+          <option value="8200">slightly-frowning</option>
+          <option value="8300">open-mouth</option>
+          <option value="8400">zipper-mouth-face</option>
+          <option value="8500">money-mouth-face</option>
+          <option value="8600">face-with-thermometer</option>
+          <option value="8700">face-with-head-bandage</option>
+          <option value="8800">nauseated-face</option>
+          <option value="8900">face-vomiting</option>
+          <option value="9000">sneezing-face</option>
+          <option value="9100">hot-face</option>
+          <option value="9200">cold-face</option>
+          <option value="9300">woozy-face</option>
+          <option value="9400">dizzy-face</option>
+          <option value="9500">exploding-head-face</option>
+          <option value="9600">joyful</option>
+          <option value="9700">evil</option>
+          <option value="9800">fear</option>
+          <option value="9900">madness</option>
+          <option value="10000">shyness</option>
+          <option value="10100">lostness</option>
+          <option value="10200">joyful-scream</option>
+          <option value="10300">playful</option>
+          <option value="10400">sarcastic</option>
+          <option value="10500">ecstatic</option>
+          <option value="10600">evil-grin1</option>
+          <option value="10700">evil-grin2</option>
+          <option value="10800">malicious-smirk1</option>
+          <option value="10900">malicious-smirk2</option>
+          <option value="11000">sinister-stare1</option>
+          <option value="11100">sinister-stare2</option>
+          <option value="11200">villainous-laugh1</option>
+          <option value="11300">villainous-laugh2</option>
+          <option value="11400">demonic-glare1</option>
+          <option value="11500">demonic-glare2</option>
+          <option value="11600">wicked-sneer1</option>
+          <option value="11700">wicked-sneer2</option>
+          <option value="11800">fiendish-frown1</option>
+          <option value="11900">fiendish-frown2</option>
+          <option value="12000">malevolent-grimace1</option>
+          <option value="12100">malevolent-grimace2</option>
+          <option value="12200">diabolical-snarl1</option>
+          <option value="12300">diabolical-snarl2</option>
+          <option value="12400">vicious-scowl1</option>
+          <option value="12500">vicious-scowl2</option>
+          <option value="12600">nefarious-leer1</option>
+          <option value="12700">nefarious-leer2</option>
+          <option value="12800">baleful-glower1</option>
+          <option value="12900">baleful-glower2</option>
+          <option value="13000">heinous-grit1</option>
+          <option value="13100">heinous-grit2</option>
+          <option value="13200">infernal-rage1</option>
+          <option value="13300">infernal-rage2</option>
+          <option value="13400">atrocious-glint1</option>
+          <option value="13500">atrocious-glint2</option>
+          <option value="13600">depraved-snarl1</option>
+          <option value="13700">depraved-snarl2</option>
+          <option value="13800">odious-frown1</option>
+          <option value="13900">odious-frown2</option>
+          <option value="14000">reprehensible-leer1</option>
+          <option value="14100">reprehensible-leer2</option>
+        </select>
       </div>
     </fieldset>
     
@@ -2204,6 +4249,12 @@
         <label for="brow-color">Цвет бровей:</label>
         <input id="brow-color" type="color" value="#000000">
         <button class="button reset" data-for="brow-color">Сброс</button>
+      </div>
+      
+      <div class="form-element">
+        <label for="arm-color">Цвет рук:</label>
+        <input id="arm-color" type="color" value="#ffd700">
+        <button class="button reset" data-for="arm-color">Сброс</button>
       </div>
     </fieldset>
     
@@ -2245,17 +4296,27 @@
       </div>
     </fieldset>
     
-    <fieldset class="arm-rotation">
-      <legend>Поворот рук</legend>
+    <fieldset class="hand-settings">
+      <legend>НАСТРОЙКА РУКИ</legend>
       
       <div class="form-element">
-        <label for="arm-right-rotation">Правая рука:</label>
+        <label for="arm-right-rotation">ПОВОРОТ ПРАВОЙ РУКИ:</label>
         <input id="arm-right-rotation" type="range" min="-90" max="90" value="12">
       </div>
       
       <div class="form-element">
-        <label for="arm-left-rotation">Левая рука:</label>
+        <label for="arm-left-rotation">ПОВОРОТ ЛЕВОЙ РУКИ:</label>
         <input id="arm-left-rotation" type="range" min="-90" max="90" value="-12">
+      </div>
+      
+      <div class="form-element">
+        <label for="arm-length">Длина рук:</label>
+        <input id="arm-length" type="range" min="0.5" max="1.5" step="0.1" value="1">
+      </div>
+      
+      <div class="form-element">
+        <label for="hand-size">Размер рук:</label>
+        <input id="hand-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
       </div>
     </fieldset>
     
@@ -2278,16 +4339,6 @@
       </div>
       
       <div class="form-element">
-        <label for="arm-length">Длина рук:</label>
-        <input id="arm-length" type="range" min="0.5" max="1.5" step="0.1" value="1">
-      </div>
-      
-      <div class="form-element">
-        <label for="hand-size">Размер рук:</label>
-        <input id="hand-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
-      </div>
-      
-      <div class="form-element">
         <label for="eye-size">Размер глаз:</label>
         <input id="eye-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
       </div>
@@ -2295,6 +4346,27 @@
       <div class="form-element">
         <label for="mouth-size">Размер рта:</label>
         <input id="mouth-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
+      </div>
+
+      <!-- New funny parameters -->
+      <div class="form-element">
+        <label for="head-rotation">Поворот головы:</label>
+        <input id="head-rotation" type="range" min="-45" max="45" value="0">
+      </div>
+
+      <div class="form-element">
+        <label for="eye-spacing">Расстояние между глазами:</label>
+        <input id="eye-spacing" type="range" min="1" max="3" step="0.1" value="2.25">
+      </div>
+
+      <div class="form-element">
+        <label for="mouth-position">Позиция рта:</label>
+        <input id="mouth-position" type="range" min="2" max="5" step="0.1" value="3.125">
+      </div>
+
+      <div class="form-element">
+        <label for="brow-position">Позиция бровей:</label>
+        <input id="brow-position" type="range" min="0" max="2" step="0.1" value="0.625">
       </div>
     </fieldset>
   </div>
@@ -2316,6 +4388,7 @@
       var randomize = document.querySelector('.randomize');
       var share = document.querySelector('.share');
       var expressionRangeInput = document.querySelector('.expression-range');
+      var expressionSelect = document.querySelector('#expression-select');
       var colorRangeInput = document.querySelectorAll('.color-range');
       var upperHue = document.getElementById('upper-hue');
       var upperSaturation = document.getElementById('upper-saturation');
@@ -2336,6 +4409,11 @@
       var handSize = document.getElementById('hand-size');
       var eyeSize = document.getElementById('eye-size');
       var mouthSize = document.getElementById('mouth-size');
+      var headRotation = document.getElementById('head-rotation');
+      var eyeSpacing = document.getElementById('eye-spacing');
+      var mouthPosition = document.getElementById('mouth-position');
+      var browPosition = document.getElementById('brow-position');
+      var armColor = document.getElementById('arm-color');
       var armRight = document.querySelector('.arm.right');
       var armLeft = document.querySelector('.arm.left');
       var head = document.querySelector('.head');
@@ -2345,12 +4423,14 @@
       var hands = document.querySelectorAll('.hand');
       var eyes = document.querySelectorAll('.eye');
       var mouths = document.querySelectorAll('.mouth');
+      var brows = document.querySelectorAll('.brow');
       var resets = document.querySelectorAll('.reset');
   
       explode.addEventListener('click', explodeMinifigure);
       randomize.addEventListener('click', randomizeInputs);
       share.addEventListener('click', shareConfig);
       expressionRangeInput.addEventListener('input', setExpression);
+      expressionSelect.addEventListener('change', setExpressionFromSelect);
       armRightRotation.addEventListener('input', setArmRotations);
       armLeftRotation.addEventListener('input', setArmRotations);
       headSize.addEventListener('input', setNewParams);
@@ -2360,6 +4440,11 @@
       handSize.addEventListener('input', setNewParams);
       eyeSize.addEventListener('input', setNewParams);
       mouthSize.addEventListener('input', setNewParams);
+      headRotation.addEventListener('input', setNewParams);
+      eyeSpacing.addEventListener('input', setNewParams);
+      mouthPosition.addEventListener('input', setNewParams);
+      browPosition.addEventListener('input', setNewParams);
+      armColor.addEventListener('input', setNewParams);
   
       for (var i = 0; i < colorRangeInput.length; i++) {
         colorRangeInput[i].addEventListener('input', setColors);
@@ -2389,7 +4474,7 @@
       };
   
       function randomizeInputs() {
-        var randomExpression = getRandomNum(0, 95);
+        var randomExpression = getRandomNum(0, 141);
         var randomUpperHue = getRandomNum(0, 360);
         var randomUpperSaturation = getRandomNum(0, 100);
         var randomUpperLightness = getRandomNum(0, 90);
@@ -2405,6 +4490,10 @@
         var randomHandSize = getRandomNum(0.5, 1.5);
         var randomEyeSize = getRandomNum(0.5, 1.5);
         var randomMouthSize = getRandomNum(0.5, 1.5);
+        var randomHeadRotation = getRandomNum(-45, 45);
+        var randomEyeSpacing = getRandomNum(1, 3);
+        var randomMouthPosition = getRandomNum(2, 5);
+        var randomBrowPosition = getRandomNum(0, 2);
         
         expressionRangeInput.value = randomExpression * 100;
         upperHue.value = randomUpperHue;
@@ -2422,9 +4511,14 @@
         handSize.value = randomHandSize;
         eyeSize.value = randomEyeSize;
         mouthSize.value = randomMouthSize;
+        headRotation.value = randomHeadRotation;
+        eyeSpacing.value = randomEyeSpacing;
+        mouthPosition.value = randomMouthPosition;
+        browPosition.value = randomBrowPosition;
         
         setExpression();
         setColors();
+        setFaceColors();
         setArmRotations();
         setNewParams();
       };
@@ -2432,6 +4526,12 @@
       function setExpression() {
         var expressionVal = parseInt(expressionRangeInput.value);
         faces.style.transform = 'translateX(-' + expressionVal + '%)';
+        expressionSelect.value = expressionVal;
+      };
+
+      function setExpressionFromSelect() {
+        expressionRangeInput.value = expressionSelect.value;
+        setExpression();
       };
   
       function setColors() {
@@ -2461,6 +4561,7 @@
         else if (id === 'eye-color') input.value = '#000000';
         else if (id === 'mouth-color') input.value = '#000000';
         else if (id === 'brow-color') input.value = '#000000';
+        else if (id === 'arm-color') input.value = '#ffd700';
         setFaceColors();
       }
       
@@ -2470,22 +4571,32 @@
       }
       
       function setNewParams() {
-        head.style.transform = `translateX(-50%) scale(${headSize.value})`;
+        head.style.transform = `translateX(-50%) scale(${headSize.value}) rotate(${headRotation.value}deg)`;
         torso.style.transform = `translateX(-50%) rotateX(45deg) scale(${torsoSize.value})`;
         legs.forEach(leg => {
           leg.style.height = `${10.75 * legLength.value}em`;
         });
         arms.forEach(arm => {
           arm.style.height = `${5.5 * armLength.value}em`;
+          arm.style.color = armColor.value;
         });
         hands.forEach(hand => {
           hand.style.transform = `translateX(-50%) scale(${handSize.value})`;
         });
-        eyes.forEach(eye => {
+        eyes.forEach((eye, index) => {
           eye.style.transform = `scale(${eyeSize.value})`;
+          if (eye.classList.contains('right')) {
+            eye.style.left = `${eyeSpacing.value}em`;
+          } else if (eye.classList.contains('left')) {
+            eye.style.right = `${eyeSpacing.value}em`;
+          }
         });
         mouths.forEach(mouth => {
           mouth.style.transform = `translateX(-50%) scale(${mouthSize.value})`;
+          mouth.style.top = `${mouthPosition.value}em`;
+        });
+        brows.forEach(brow => {
+          brow.style.bottom = `${browPosition.value}em`;
         });
       }
       
@@ -2527,6 +4638,10 @@
       handSize.value = urlParams.get('handSize') || 1;
       eyeSize.value = urlParams.get('eyeSize') || 1;
       mouthSize.value = urlParams.get('mouthSize') || 1;
+      headRotation.value = urlParams.get('headRotation') || 0;
+      eyeSpacing.value = urlParams.get('eyeSpacing') || 2.25;
+      mouthPosition.value = urlParams.get('mouthPosition') || 3.125;
+      browPosition.value = urlParams.get('browPosition') || 0.625;
       
       setExpression();
       setColors();
