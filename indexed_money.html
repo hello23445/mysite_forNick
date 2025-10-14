@@ -857,7 +857,7 @@ async function showLeaderboard() {
           </div>
           <div id="winner" class="hidden">
             <h2>Выпало число: <span id="randomNumber"></span></h2>
-            <h3 id="winnerNameH3">Победитель: <span id="winnerName"></span></h3>
+            <h3 id="winnerNameH3"></h3>
             <p id="winnerBetText" class="hidden">Число победителя: <span id="winnerBet"></span></p>
             <p id="winnerTotalText" class="hidden">Выиграно: <span id="winnerTotal"></span></p>
             <p id="receivedText" class="hidden" style="color: #90EE90; font-weight: bold; font-size: 1.8em; text-shadow: none;">ПОЛУЧЕНО!</p>
@@ -971,7 +971,7 @@ async function showLoadingAndRandom() {
           </div>
           <div id="winner" class="hidden">
             <h2>Выпало число: <span id="randomNumber"></span></h2>
-            <h3 id="winnerNameH3">Победитель: <span id="winnerName"></span></h3>
+            <h3 id="winnerNameH3"></h3>
             <p id="winnerBetText" class="hidden">Число победителя: <span id="winnerBet"></span></p>
             <p id="winnerTotalText" class="hidden">Выиграно: <span id="winnerTotal"></span></p>
             <p id="receivedText" class="hidden" style="color: #90EE90; font-weight: bold; font-size: 1.8em; text-shadow: none;">ПОЛУЧЕНО!</p>
@@ -1052,7 +1052,6 @@ async function pickWinner(random, data) {
     isLoadingWinner = true;
     const randomNumberElement = document.getElementById('randomNumber');
     const winnerNameH3 = document.getElementById('winnerNameH3');
-    const winnerNameElement = document.getElementById('winnerName');
     const winnerBetElement = document.getElementById('winnerBet');
     const winnerTotalElement = document.getElementById('winnerTotal');
     const winnerBetTextEl = document.getElementById('winnerBetText');
@@ -1065,12 +1064,8 @@ async function pickWinner(random, data) {
 
     if (data.length === 0) {
       if (winnerNameH3) {
-        winnerNameH3.innerHTML = 'Победителей нет';
+        winnerNameH3.innerHTML = 'Победителей нет <span class="no-winners">Никто не попал в диапазон ±20,000</span>';
         winnerNameH3.classList.remove('hidden');
-      }
-      if (winnerNameElement) {
-        winnerNameElement.innerHTML = '<span class="no-winners">Никто не попал в диапазон ±20,000</span>';
-        winnerNameElement.classList.remove('hidden');
       }
       if (winnerBetTextEl) winnerBetTextEl.classList.add('hidden');
       if (winnerTotalTextEl) winnerTotalTextEl.classList.add('hidden');
@@ -1088,21 +1083,17 @@ async function pickWinner(random, data) {
     const prizePerWinner = numWinners > 0 ? Math.floor(totalBet / numWinners) : 0; // Evenly divide prize among winners
 
     const isPlural = numWinners > 1;
-    const winnerLabel = isPlural ? 'Победители:' : numWinners === 0 ? 'Победителей нет' : 'Победитель:';
+    const winnerLabel = isPlural ? 'Победители: ' : 'Победитель: ';
     const names = numWinners > 0 ? closest.map(w => {
       const place = getWinnerPlace(data, w);
       return `${place} ${w.name}${w.isCurrentUser ? ' (Вы)' : ''}`;
-    }).join(', ') : '<span class="no-winners">Никто не попал в диапазон ±20,000</span>';
+    }).join(', ') : '';
     const bets = numWinners > 0 ? closest.map(w => formatNumberWithSpaces(w.bet)).join(', ') : '';
     const currentUserWins = closest.some(w => w.isCurrentUser);
 
     if (winnerNameH3) {
-      winnerNameH3.innerHTML = winnerLabel;
+      winnerNameH3.innerHTML = winnerLabel + (numWinners > 0 ? names : 'Нет победителей');
       winnerNameH3.classList.remove('hidden');
-    }
-    if (winnerNameElement) {
-      winnerNameElement.innerHTML = names;
-      winnerNameElement.classList.remove('hidden');
     }
     if (winnerBetElement) winnerBetElement.textContent = bets;
     if (winnerTotalElement) winnerTotalElement.textContent = formatNumberWithSpaces(prizePerWinner);
