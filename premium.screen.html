@@ -1,301 +1,351 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Возможности Премиума</title>
-    <style>
-        body {
-            background-color: darkblue;
-            font-family: Arial, sans-serif;
-            color: white;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 30px 20px;
-            max-width: 600px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-        h2 {
-            font-size: 2em;
-            margin-bottom: 20px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-        li {
-            font-size: 1em;
-            margin: 10px 0;
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 12px;
-            border-radius: 10px;
-        }
-        button {
-            background-color: #FFD700;
-            color: darkblue;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1em;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #FFA500;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: rgba(0, 0, 139, 0.95);
-            color: white;
-            margin: auto;
-            padding: 20px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-        .close {
-            color: rgba(255, 255, 255, 0.7);
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1em;
-        }
-        input[type="text"]::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        a {
-            color: #FFD700;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Возможности Премиума</title>
+  <style>
+    body {
+      background-color: darkblue;
+      font-family: Arial, sans-serif;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-        @media (max-width: 480px) {
-            h2 {
-                font-size: 1.5em;
-            }
-            li {
-                font-size: 0.9em;
-                padding: 10px;
-            }
-            button {
-                font-size: 0.9em;
-                padding: 8px 16px;
-            }
-            input[type="text"] {
-                width: 95%;
-            }
-            .modal-content {
-                padding: 15px;
-            }
-        }
-    </style>
+    .container {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 30px 20px;
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      font-size: 2em;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      line-height: 1.3;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      font-size: 1em;
+      margin: 10px 0;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 12px;
+      border-radius: 10px;
+      line-height: 1.4;
+    }
+
+    button {
+      background-color: #FFD700;
+      color: darkblue;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:hover {
+      background-color: #FFA500;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .modal-content {
+      background-color: rgba(0, 0, 139, 0.95);
+      color: white;
+      margin: auto;
+      padding: 25px 20px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.9);}
+      to {opacity: 1; transform: scale(1);}
+    }
+
+    .close {
+      color: rgba(255, 255, 255, 0.7);
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: -5px;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin: 15px 0;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    input[type="text"]::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    a {
+      color: #FFD700;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+        align-items: flex-start;
+      }
+
+      .container {
+        padding: 20px 15px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      h2 {
+        font-size: 1.6em;
+      }
+
+      li {
+        font-size: 0.95em;
+        padding: 10px;
+      }
+
+      button {
+        font-size: 1em;
+        padding: 10px 18px;
+      }
+
+      .modal-content {
+        padding: 20px;
+        width: 95%;
+      }
+
+      input[type="text"] {
+        font-size: 0.95em;
+      }
+    }
+
+    @media (max-width: 360px) {
+      h2 {
+        font-size: 1.4em;
+      }
+      li {
+        font-size: 0.85em;
+      }
+      button {
+        font-size: 0.9em;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <button id="backToMain" style="margin-bottom: 20px;">Вернуться в главное меню</button>
+  <div class="container">
+    <button id="backToMain" style="margin-bottom: 20px;">Вернуться в главное меню</button>
 
-        <h2>Возможности премиума</h2>
-        <ul>
-            <li>1. Максимальное количество символов в генераторе "Описание" увеличевается с 200 до 1 000</li>
-            <li>2. Максимальное количество символов в генераторе "Никнейм" увеличевается с 18 до 60</li>
-            <li>3. Возможность делиться созданной музыкой в генераторе "Музыка"</li>
-            <li>4. Возможность делиться созданной аватаркой в генераторе "Аватарка"</li>
-            <li>5. Возможность загружать свой шрифт в генераторе "Аватарка"</li>
-            <li>6. Возможность рисовать свою форму аватарки в генераторе "Аватарка"</li>
-            <li>7. Обновление магазина будет происходить не каждые 2 минуты, а каждую 1 минуту в "Магазин"</li>
-            <li>8. Возможность собирать пропущенные награды в разделе "Задания и награды"</li>
-            <li id="premiumAction"><button id="buyPremium">Купить Премиум</button></li>
-        </ul>
+    <h2>Возможности премиума</h2>
+    <ul>
+      <li>1. Максимальное количество символов в генераторе "Описание" увеличевается с 200 до 1 000</li>
+      <li>2. Максимальное количество символов в генераторе "Никнейм" увеличевается с 18 до 60</li>
+      <li>3. Возможность делиться созданной музыкой в генераторе "Музыка"</li>
+      <li>4. Возможность делиться созданной аватаркой в генераторе "Аватарка"</li>
+      <li>5. Возможность загружать свой шрифт в генераторе "Аватарка"</li>
+      <li>6. Возможность рисовать свою форму аватарки в генераторе "Аватарка"</li>
+      <li>7. Обновление магазина будет происходить не каждые 2 минуты, а каждую 1 минуту в "Магазин"</li>
+      <li>8. Возможность собирать пропущенные награды в разделе "Задания и награды"</li>
+      <li id="premiumAction"><button id="buyPremium">Купить Премиум</button></li>
+    </ul>
+  </div>
+
+  <div id="promoModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <h3 id="modalTitle">Введите промокод</h3>
+      <p id="buyInfo">Его можно купить у @Clickerstart_bot <a href="https://t.me/Clickerstart_bot">https://t.me/Clickerstart_bot</a></p>
+      <input type="text" id="promoInput" placeholder="Промокод">
+      <button id="submitPromo">Отправить</button>
     </div>
+  </div>
 
-    <div id="promoModal" class="modal">
-        <div class="modal-content">
-            <span id="closeModal" class="close">&times;</span>
-            <h3 id="modalTitle">Введите промокод</h3>
-            <p id="buyInfo">Его можно купить у @Clickerstart_bot <a href="https://t.me/Clickerstart_bot">https://t.me/Clickerstart_bot</a></p>
-            <input type="text" id="promoInput" placeholder="Промокод">
-            <button id="submitPromo">Отправить</button>
-        </div>
-    </div>
+  <script>
+    const translations = {
+      en: {
+        title: "Premium Features",
+        heading: "Premium Features",
+        backButton: "Return to Main Menu",
+        items: [
+          '1. The maximum number of characters in the "Description" generator increases from 200 to 1,000.',
+          '2. The maximum number of characters in the "Nickname" generator increases from 18 to 60.',
+          '3. Ability to share created music in the "Music" generator.',
+          '4. Ability to share created avatar in the "Avatar" generator.',
+          '5. Ability to upload your own font in the "Avatar" generator.',
+          '6. Ability to draw your own avatar shape in the "Avatar" generator.',
+          '7. The shop will update every 1 minute instead of every 2 minutes in the "Shop".',
+          '8. Ability to collect missed rewards in the "Tasks and Rewards" section.'
+        ],
+        buyButton: "Buy Premium",
+        removePremiumButton: "Remove Premium",
+        confirmRemovePrompt: "Type REMOVE to confirm removing Premium",
+        removeSuccess: "Premium removed",
+        removeCancelled: "Action cancelled",
+        modalTitle: "Enter Promo Code",
+        buyInfo: "You can buy it from @Clickerstart_bot https://t.me/Clickerstart_bot",
+        inputPlaceholder: "Promo Code",
+        submitButton: "Submit",
+        success: "Premium activated!",
+        error: "Invalid promo code",
+        premiumMessage: "You are a Premium user!"
+      },
+      ru: {
+        title: "Возможности Премиума",
+        heading: "Возможности премиума",
+        backButton: "Вернуться в главное меню",
+        items: [
+          '1. Максимальное количество символов в генераторе "Описание" увеличевается с 200 до 1 000',
+          '2. Максимальное количество символов в генераторе "Никнейм" увеличевается с 18 до 60',
+          '3. Возможность делиться созданной музыкой в генераторе "Музыка"',
+          '4. Возможность делиться созданной аватаркой в генераторе "Аватарка"',
+          '5. Возможность загружать свой шрифт в генераторе "Аватарка"',
+          '6. Возможность рисовать свою форму аватарки в генераторе "Аватарка"',
+          '7. Обновление магазина будет происходить не каждые 2 минуты, а каждую 1 минуту в "Магазин"',
+          '8. Возможность собирать пропущенные награды в разделе "Задания и награды"'
+        ],
+        buyButton: "Купить Премиум",
+        removePremiumButton: "Убрать Премиум",
+        confirmRemovePrompt: "Введите УБРАТЬ чтобы подтвердить удаление премиума",
+        removeSuccess: "Премиум удалён",
+        removeCancelled: "Действие отменено",
+        modalTitle: "Введите промокод",
+        buyInfo: "Его можно купить у @Clickerstart_bot https://t.me/Clickerstart_bot",
+        inputPlaceholder: "Промокод",
+        submitButton: "Отправить",
+        success: "Премиум активирован!",
+        error: "Неверный промокод",
+        premiumMessage: "Вы Премиум-пользователь!"
+      }
+    };
 
-    <script>
-        const translations = {
-            en: {
-                title: "Premium Features",
-                heading: "Premium Features",
-                backButton: "Return to Main Menu",
-                items: [
-                    '1. The maximum number of characters in the "Description" generator increases from 200 to 1,000.',
-                    '2. The maximum number of characters in the "Nickname" generator increases from 18 to 60.',
-                    '3. Ability to share created music in the "Music" generator.',
-                    '4. Ability to share created avatar in the "Avatar" generator.',
-                    '5. Ability to upload your own font in the "Avatar" generator.',
-                    '6. Ability to draw your own avatar shape in the "Avatar" generator.',
-                    '7. The shop will update every 1 minute instead of every 2 minutes in the "Shop"',
-                    '8. Ability to collect missed rewards in the "Tasks and Rewards" section.'
+    document.addEventListener('DOMContentLoaded', () => {
+      const lang = localStorage.getItem('lang') || 'ru';
+      const trans = translations[lang];
+      document.title = trans.title;
+      document.querySelector('h2').textContent = trans.heading;
+      document.getElementById('backToMain').textContent = trans.backButton;
 
-                ],
-                buyButton: "Buy Premium",
-                removePremiumButton: "Remove Premium",
-                confirmRemovePrompt: "Type REMOVE or Remove to confirm removing Premium",
-                removeSuccess: "Premium removed",
-                removeCancelled: "Action cancelled",
-                modalTitle: "Enter Promo Code",
-                buyInfo: "You can buy it from @Clickerstart_bot https://t.me/Clickerstart_bot",
-                inputPlaceholder: "Promo Code",
-                submitButton: "Submit",
-                success: "Premium activated!",
-                error: "Invalid promo code",
-                premiumMessage: "You are a Premium user!"
-            },
-            ru: {
-                title: "Возможности Премиума",
-                heading: "Возможности премиума",
-                backButton: "Вернуться в главное меню",
-                items: [
-                    '1. Максимальное количество символов в генераторе "Описание" увеличевается с 200 до 1 000',
-                    '2. Максимальное количество символов в генераторе "Никнейм" увеличевается с 18 до 60',
-                    '3. Возможность делиться созданной музыкой в генераторе "Музыка"',
-                    '4. Возможность делиться созданной аватаркой в генераторе "Аватарка"',
-                    '5. Возможность загружать свой шрифт в генераторе "Аватарка"',
-                    '6. Возможность рисовать свою форму аватарки в генераторе "Аватарка"',
-                    '7. Обновление магазина будет происходить не каждые 2 минуты, а каждую 1 минуту в "Магазин"',
-                    '8. Возможность собирать пропущенные награды в разделе "Задания и награды"'
-                ],
-                buyButton: "Купить Премиум",
-                removePremiumButton: "Убрать Премиум",
-                confirmRemovePrompt: "Введите Убрать или УБРАТЬ чтобы подтвердить удаление премиума",
-                removeSuccess: "Премиум удалён",
-                removeCancelled: "Действие отменено",
-                modalTitle: "Введите промокод",
-                buyInfo: "Его можно купить у @Clickerstart_bot https://t.me/Clickerstart_bot",
-                inputPlaceholder: "Промокод",
-                submitButton: "Отправить",
-                success: "Премиум активирован!",
-                error: "Неверный промокод",
-                premiumMessage: "Вы Премиум-пользователь!"
-            }
-        };
+      const lis = document.querySelectorAll('ul li:not(:last-child)');
+      trans.items.forEach((item, i) => { if (lis[i]) lis[i].textContent = item; });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const lang = localStorage.getItem('lang') || 'ru';
-            const trans = translations[lang] || translations['ru'];
-            document.documentElement.lang = lang;
+      const modal = document.getElementById('promoModal');
+      const closeModal = document.getElementById('closeModal');
+      const promoInput = document.getElementById('promoInput');
+      const submitPromo = document.getElementById('submitPromo');
+      const buyInfo = document.getElementById('buyInfo');
+      const modalTitle = document.getElementById('modalTitle');
 
-            document.title = trans.title;
-            document.querySelector('h2').textContent = trans.heading;
-            document.getElementById('backToMain').textContent = trans.backButton;
+      buyInfo.innerHTML = trans.buyInfo.replace('https://t.me/Clickerstart_bot', '<a href="https://t.me/Clickerstart_bot">https://t.me/Clickerstart_bot</a>');
+      modalTitle.textContent = trans.modalTitle;
+      promoInput.placeholder = trans.inputPlaceholder;
+      submitPromo.textContent = trans.submitButton;
 
-            const lis = document.querySelectorAll('ul li:not(:last-child)');
-            trans.items.forEach((item, index) => {
-                if (lis[index]) lis[index].textContent = item;
-            });
+      document.getElementById('backToMain').addEventListener('click', () => window.location.href = 'main.html');
 
-            const modal = document.getElementById('promoModal');
-            const closeModal = document.getElementById('closeModal');
-            const promoInput = document.getElementById('promoInput');
-            const submitPromo = document.getElementById('submitPromo');
-            const buyInfo = document.getElementById('buyInfo');
-            const modalTitle = document.getElementById('modalTitle');
+      const updatePremiumStatus = () => {
+        const isPremium = localStorage.getItem('premium') === 'yes';
+        const premiumLi = document.getElementById('premiumAction');
+        if (isPremium) {
+          premiumLi.innerHTML = `<button id="removePremium">${trans.removePremiumButton}</button>`;
+          document.getElementById('removePremium').addEventListener('click', () => {
+            const confirmInput = prompt(trans.confirmRemovePrompt);
+            const requiredWord = lang === 'ru' ? 'УБРАТЬ' : 'REMOVE';
+            if (confirmInput && confirmInput.toUpperCase() === requiredWord) {
+              localStorage.removeItem('premium');
+              alert(trans.removeSuccess);
+              updatePremiumStatus();
+            } else alert(trans.removeCancelled);
+          });
+        } else {
+          premiumLi.innerHTML = `<button id="buyPremium">${trans.buyButton}</button>`;
+          document.getElementById('buyPremium').addEventListener('click', () => {
+            modal.style.display = 'flex';
+            promoInput.value = '';
+            promoInput.focus();
+          });
+        }
+      };
 
-            buyInfo.innerHTML = trans.buyInfo.replace('https://t.me/Clickerstart_bot', '<a href="https://t.me/Clickerstart_bot">https://t.me/Clickerstart_bot</a>');
-            modalTitle.textContent = trans.modalTitle;
-            promoInput.placeholder = trans.inputPlaceholder;
-            submitPromo.textContent = trans.submitButton;
+      updatePremiumStatus();
 
-            document.getElementById('backToMain').addEventListener('click', () => {
-                window.location.href = 'main.html';
-            });
+      closeModal.addEventListener('click', () => modal.style.display = 'none');
+      window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
 
-            const updatePremiumStatus = () => {
-                const isPremium = localStorage.getItem('premium') === 'yes';
-                const premiumLi = document.getElementById('premiumAction');
-                if (isPremium) {
-                    premiumLi.innerHTML = `<button id="removePremium">${trans.removePremiumButton}</button>`;
-                    document.getElementById('removePremium').addEventListener('click', () => {
-                        const confirmInput = prompt(trans.confirmRemovePrompt);
-                        const requiredWord = lang === 'ru' ? 'УБРАТЬ' : 'REMOVE';
-                        if (confirmInput && confirmInput.toUpperCase() === requiredWord) {
-                            localStorage.removeItem('premium');
-                            alert(trans.removeSuccess);
-                            updatePremiumStatus();
-                        } else {
-                            alert(trans.removeCancelled);
-                        }
-                    });
-                } else {
-                    premiumLi.innerHTML = `<button id="buyPremium">${trans.buyButton}</button>`;
-                    document.getElementById('buyPremium').addEventListener('click', () => {
-                        modal.style.display = 'flex';
-                        promoInput.value = '';
-                        promoInput.focus();
-                    });
-                }
-            };
-
+      submitPromo.addEventListener('click', () => {
+        const code = promoInput.value.trim();
+        promoInput.value = '';
+        setTimeout(() => {
+          if (code === "QWERTY") {
+            localStorage.setItem('premium', 'yes');
+            alert(trans.success);
+            modal.style.display = 'none';
             updatePremiumStatus();
-
-            closeModal.addEventListener('click', () => modal.style.display = 'none');
-            window.addEventListener('click', (e) => { if(e.target === modal) modal.style.display = 'none'; });
-
-            submitPromo.addEventListener('click', () => {
-                const code = promoInput.value.trim();
-                promoInput.value = '';
-                setTimeout(() => {
-                    if (code === "QWERTY") {
-                        localStorage.setItem('premium', 'yes');
-                        alert(trans.success);
-                        modal.style.display = 'none';
-                        updatePremiumStatus();
-                    } else {
-                        alert(trans.error);
-                    }
-                }, 1500);
-            });
-        });
-    </script>
+          } else alert(trans.error);
+        }, 1000);
+      });
+    });
+  </script>
 </body>
 </html>

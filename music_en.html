@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Music Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Musical Studio</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
     /* General style */
@@ -17,33 +17,38 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+      overflow-y: auto; /* Vertical scroll */
+      overflow-x: hidden; /* Disable horizontal scroll */
+      touch-action: manipulation; /* Improves responsiveness on mobile */
     }
     .container {
-      width: 90%;
+      width: 100%;
       max-width: 800px;
-      margin: 20px;
+      margin: 20px auto;
       background: rgba(255,255,255,0.9);
       border-radius: 10px;
-      padding: 20px;
+      padding: 15px; /* Reduced padding for mobile */
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-sizing: border-box;
     }
     section {
-      margin-bottom: 30px;
+      margin-bottom: 25px; /* Reduced margins */
     }
     section h2 {
       margin-top: 0;
       color: #444;
       display: inline-block;
       vertical-align: middle;
+      font-size: 1.2em; /* Reduced font size for mobile */
     }
-    /* "?" button – alignment */
+    /* "?" Button – alignment */
     .info-btn {
       background: #4CAF50;
       border: none;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
+      width: 20px; /* Reduced size */
+      height: 20px;
+      font-size: 12px;
       font-weight: bold;
       margin-left: 5px;
       cursor: pointer;
@@ -51,17 +56,19 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      touch-action: manipulation;
     }
     button, input[type="file"] {
-      padding: 10px 20px;
-      font-size: 1em;
+      padding: 8px 16px; /* Reduced padding */
+      font-size: 0.9em;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      margin-right: 10px;
+      margin-right: 8px;
       background: #66a6ff;
       color: #fff;
       transition: background 0.2s;
+      touch-action: manipulation;
     }
     button:hover {
       background: #5594e6;
@@ -71,25 +78,27 @@
       cursor: not-allowed;
     }
     .control-group {
-      margin-bottom: 15px;
+      margin-bottom: 12px; /* Reduced margins */
     }
     label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       font-weight: bold;
+      font-size: 0.9em;
     }
     input[type="range"] {
       width: 100%;
       -webkit-appearance: none;
       background: #ddd;
-      height: 8px;
+      height: 6px; /* Reduced height */
       border-radius: 4px;
       outline: none;
+      touch-action: manipulation;
     }
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
+      width: 18px; /* Reduced size */
+      height: 18px;
       border-radius: 50%;
       background: #66a6ff;
       cursor: pointer;
@@ -100,30 +109,31 @@
     }
     .value-display {
       text-align: right;
-      font-size: 0.9em;
-      margin-top: 5px;
+      font-size: 0.8em;
+      margin-top: 4px;
     }
     audio {
       width: 100%;
-      margin-top: 10px;
+      margin-top: 8px;
       outline: none;
     }
     /* Additional settings block */
     .extra-tools-section {
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
     #toggleExtra {
       background: #ffb74d;
       color: #fff;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      width: 100%; /* Full width on mobile */
     }
     #extraTools {
       display: none;
       border-top: 1px solid #ccc;
-      padding-top: 15px;
+      padding-top: 12px;
     }
     .extra-control {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     /* Modal window */
     .modal-overlay {
@@ -137,20 +147,22 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      overflow-y: auto; /* Scroll in modal window */
     }
     .modal-content {
       background: #fff;
       color: #333;
-      padding: 20px;
+      padding: 15px;
       border-radius: 10px;
       text-align: center;
-      max-width: 600px;
-      width: 90%;
-      max-height: 90vh;
+      max-width: 90%;
+      width: auto;
+      max-height: 80vh;
       overflow-y: auto;
+      box-sizing: border-box;
     }
     .modal-content p {
-      margin: 10px 0;
+      margin: 8px 0;
     }
     .modal-content ul {
       list-style: none;
@@ -158,11 +170,11 @@
       text-align: left;
     }
     .modal-content li {
-      margin: 5px 0;
+      margin: 4px 0;
     }
     .modal-content button {
-      margin-top: 10px;
-      padding: 5px 10px;
+      margin-top: 8px;
+      padding: 4px 8px;
       border: none;
       border-radius: 5px;
       background: #66a6ff;
@@ -171,17 +183,15 @@
     }
     /* Reset button */
     #resetBaseBtn {
-      margin-top: 15px;
+      margin-top: 12px;
       background: #e57373;
     }
     /* File upload section */
     .upload-section input[type="file"] {
       display: block;
-      margin-top: 10px;
+      margin-top: 8px;
+      width: 100%;
     }
-    /* Spacing for "Share Music" button */
-    /* Button removed according to instructions */
-
     /* New style for background visualizer */
     canvas#visualizerBackground {
       position: fixed;
@@ -192,20 +202,71 @@
       z-index: -1;
       display: none;
     }
+    /* Style for "Return to Main Menu" button */
+    #backBtn {
+      padding: 8px 16px;
+      font-size: 14px;
+      z-index: 999;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+    }
+    /* Media queries for mobile devices */
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px;
+        padding: 10px;
+      }
+      section h2 {
+        font-size: 1.1em;
+      }
+      button, input[type="file"] {
+        padding: 6px 12px;
+        font-size: 0.8em;
+      }
+      .info-btn {
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+      }
+      input[type="range"] {
+        height: 5px;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        width: 16px;
+        height: 16px;
+      }
+      .value-display {
+        font-size: 0.75em;
+      }
+      .modal-content {
+        padding: 10px;
+        max-height: 70vh;
+      }
+      /* On mobile, button is above the label, not fixed */
+      #backBtn {
+        position: static;
+        display: block;
+        margin: 0 auto 20px auto;
+        width: fit-content;
+      }
+      .play-section {
+        margin-top: 0; /* Remove top margin for section */
+      }
+    }
+    /* Right scroll (default on mobile is right) */
+    /* No need to add anything extra, as default scroll is on the right */
   </style>
 </head>
 <body>
-    <button 
-    onclick="window.location.href = 'main.html'" 
-    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
->
-    RETURN TO MAIN MENU
-    </button>
-
   <!-- Background with visualizer -->
   <canvas id="visualizerBackground"></canvas>
   
   <div class="container">
+    <button id="backBtn" onclick="window.location.href = 'main.html'">
+      RETURN TO MAIN MENU
+    </button>
+
     <!-- File upload -->
     <section class="upload-section">
       <h2>Upload your song</h2>
@@ -241,13 +302,13 @@
       <button id="toggleExtra">Expand⬇️</button>
       <div id="extraTools">
         <h2>Additional settings</h2>
-        <div id="extraControls"><!-- Controls generated automatically --></div>
+        <div id="extraControls"><!-- Controls are generated automatically --></div>
       </div>
     </section>
 
     <!-- Share button -->
     <section class="share-section">
-      <button id="shareMusicBtn" disabled>Share Music (Premium)</button>
+      <button id="shareMusicBtn" disabled>Share music (Premium)</button>
     </section>
   </div>
   
@@ -264,13 +325,13 @@
   <!-- Modal window for settings -->
   <div id="infoModal" class="modal-overlay">
     <div class="modal-content" id="infoModalContent">
-      <!-- Content generated dynamically -->
+      <!-- Content is generated dynamically -->
       <button id="closeInfoModal">Close</button>
     </div>
   </div>
   
   <script>
-    // First part of code (memorized)
+    // First part of code (remembered)
     let originalFileName = '';
     let audioFile = null; // selected file for sharing
     const audioPlayer = document.getElementById('audioPlayer');
@@ -281,7 +342,7 @@
     const delayControl = document.getElementById('delayControl');
     const delayValue = document.getElementById('delayValue');
     
-    // Second part of code (memorized)
+    // Second part of code (remembered)
     const extraTools = document.getElementById('extraTools');
     const extraControlsContainer = document.getElementById('extraControls');
     const closeOverlay = document.getElementById('closeOverlay');
@@ -296,14 +357,14 @@
     let extraControlsGenerated = false;
     let bypassExtraEffects = true; // Flag: if all extra sliders are at neutral level – effects are not applied
     
-    // Check premium
+    // Premium check
     const premium = localStorage.getItem('premium');
     if (premium) {
       shareMusicBtn.disabled = false;
-      shareMusicBtn.textContent = 'Share Music';
+      shareMusicBtn.textContent = 'Share music';
     }
 
-    // Handler for "Share Music" button
+    // Handler for "Share music" button
     shareMusicBtn.addEventListener('click', async () => {
       if (!audioFile) {
         alert("Please select a song file.");
@@ -323,12 +384,12 @@
       if (navigator.canShare && navigator.canShare({ files: [processedFile] })) {
         try {
           await navigator.share({
-            title: 'My Music',
+            title: 'My music',
             text: settingsText,
             files: [processedFile]
           });
         } catch (error) {
-          alert("Error trying to share: " + error);
+          alert("Error attempting to share: " + error);
         }
       } else {
         alert("Your browser does not support file sharing.");
@@ -367,35 +428,35 @@
       }
     }
     
-    // Called when additional settings slider changes
+    // Called when changing additional settings slider
     function extraSliderChanged() {
       rebuildExtraEffectsChain();
     }
     
     // List of additional settings with updated descriptions (info)
     const extraEffectsConfig = [
-      { name: 'Lowshelf (Bass, Low Frequency Control)', type: 'lowshelf', min: -20, max: 20, step: 1, value: 0, info: 'This filter allows control of low frequencies. At value 0, the sound does not change, positive values boost bass, negative values reduce it.' },
-      { name: 'Distortion (Distortion)', type: 'distortion', min: 0, max: 1000, step: 1, value: 0, info: 'Distortion effect adds overdrive, creating a characteristic "dirty" sound. Value 0 means no distortion.' },
+      { name: 'Lowshelf (Bass, Low Frequency Control)', type: 'lowshelf', min: -20, max: 20, step: 1, value: 0, info: 'This filter allows you to control low frequencies. At value 0, the sound does not change, positive values boost bass, negative values reduce it.' },
+      { name: 'Distortion (Distortion)', type: 'distortion', min: 0, max: 1000, step: 1, value: 0, info: 'The distortion effect adds overdrive, creating a characteristic "dirty" sound. Value 0 means no distortion.' },
       { name: 'Highpass (Removes Low Frequencies)', type: 'highpass', min: 20, max: 2000, step: 1, value: 20, info: 'Highpass filter cuts off low frequencies below the set threshold. Value 20 Hz – minimal cutoff.' },
       { name: 'Lowpass (Removes High Frequencies)', type: 'lowpass', min: 1000, max: 22050, step: 1, value: 22050, info: 'Lowpass filter cuts off high frequencies above the set value. At 22050 Hz, the effect is not applied.' },
-      { name: 'Panner (Stereo Positioning)', type: 'panner', min: -1, max: 1, step: 0.01, value: 0, info: 'Panning allows control of the sound position in stereo space. Value 0 means the sound is centered.' },
-      { name: 'Compressor (Dynamic Range Compression)', type: 'compressor', min: -100, max: 0, step: 1, value: -100, info: 'Compressor reduces dynamic range, making sound peaks less sharp. Value -100 means no compression.' },
+      { name: 'Panner (Stereo Positioning)', type: 'panner', min: -1, max: 1, step: 0.01, value: 0, info: 'Panning allows you to control the sound position in stereo space. Value 0 means the sound is in the center.' },
+      { name: 'Compressor (Dynamic Range Compression)', type: 'compressor', min: -100, max: 0, step: 1, value: -100, info: 'Compressor reduces the dynamic range, making sound peaks less sharp. Value -100 means no compression.' },
       { name: 'Delay (Secondary Delay)', type: 'delay', min: 0, max: 0.5, step: 0.01, value: 0, info: 'Delay effect adds echo. Value 0 means no delay.' },
-      { name: 'Notch (Notch Filter)', type: 'notch', min: 0, max: 2000, step: 1, value: 0, info: 'Notch filter removes a narrow frequency range to eliminate unwanted resonances.' },
-      { name: 'Peaking (Equalizer)', type: 'peaking', min: -20, max: 20, step: 1, value: 0, info: 'Peaking filter allows boosting or attenuating a specific frequency range. Value 0 – no changes.' },
+      { name: 'Notch (Notch Filter)', type: 'notch', min: 0, max: 2000, step: 1, value: 0, info: 'Notch filter removes a narrow range of frequencies to eliminate unwanted resonances.' },
+      { name: 'Peaking (Equalizer)', type: 'peaking', min: -20, max: 20, step: 1, value: 0, info: 'Peaking filter allows you to boost or cut a specific frequency range. Value 0 – no changes.' },
       { name: 'Gain Booster (Gain)', type: 'gain', min: 1, max: 3, step: 0.01, value: 1, info: 'This amplifier increases the overall signal level. Value 1 means no gain.' },
-      { name: 'Tremolo (Amplitude Modulation)', type: 'tremolo', min: 0, max: 1, step: 0.01, value: 0, info: 'Tremolo creates a pulsing sound effect through periodic amplitude modulation. At 0, no effect.' },
-      { name: 'Bandpass (Passes Narrow Range)', type: 'bandpass', min: 0, max: 3000, step: 1, value: 0, info: 'Bandpass filter passes only a specific frequency range. At 0, effect not applied.' },
-      { name: 'Allpass (Phase Shift)', type: 'allpass', min: 300, max: 3000, step: 1, value: 1000, info: 'Allpass filter changes the signal phase without affecting amplitude. This allows creating interesting spatial effects.' },
-      { name: 'Highshelf (High Frequency Control)', type: 'highshelf', min: -20, max: 20, step: 1, value: 0, info: 'This filter allows adjusting high frequencies, affecting brightness and clarity of sound. Value 0 – no changes.' },
-      { name: 'Reverb (Reverberation)', type: 'reverb', min: 0, max: 1, step: 0.01, value: 0, info: 'Reverberation simulates room acoustics, adding depth and volume to sound. Value 0 means no reverberation.' },
-      { name: 'Flanger (Flanger Effect)', type: 'flanger', min: 0, max: 0.005, step: 0.0001, value: 0, info: 'Flanger creates a "rotating" sound effect by changing delay. At 0, effect not applied.' },
+      { name: 'Tremolo (Amplitude Modulation)', type: 'tremolo', min: 0, max: 1, step: 0.01, value: 0, info: 'Tremolo creates a sound pulsation effect through periodic amplitude modulation. At 0, no effect.' },
+      { name: 'Bandpass (Passes Narrow Range)', type: 'bandpass', min: 0, max: 3000, step: 1, value: 0, info: 'Bandpass filter passes only a specific frequency range. At 0, the effect is not applied.' },
+      { name: 'Allpass (Phase Shift)', type: 'allpass', min: 300, max: 3000, step: 1, value: 1000, info: 'Allpass filter changes the signal phase without affecting the amplitude. This allows creating interesting spatial effects.' },
+      { name: 'Highshelf (High Frequency Control)', type: 'highshelf', min: -20, max: 20, step: 1, value: 0, info: 'This filter allows you to adjust high frequencies, affecting the brightness and clarity of the sound. Value 0 – no changes.' },
+      { name: 'Reverb (Reverberation)', type: 'reverb', min: 0, max: 1, step: 0.01, value: 0, info: 'Reverberation simulates room acoustics, adding depth and volume to the sound. Value 0 means no reverberation.' },
+      { name: 'Flanger (Flanger Effect)', type: 'flanger', min: 0, max: 0.005, step: 0.0001, value: 0, info: 'Flanger creates a "rotating" sound effect by changing the delay. At 0, the effect is not applied.' },
       { name: 'Chorus (Chorus Effect)', type: 'chorus', min: 0, max: 0.03, step: 0.001, value: 0, info: 'Chorus adds slightly offset copies of the signal, making the sound wider and richer. Value 0 – no effect.' },
-      { name: 'Vibrato (Pitch Modulation)', type: 'vibrato', min: 0, max: 1, step: 0.01, value: 0, info: 'Vibrato changes the pitch of the sound, creating a vibration effect. At 0, effect absent.' },
+      { name: 'Vibrato (Pitch Modulation)', type: 'vibrato', min: 0, max: 1, step: 0.01, value: 0, info: 'Vibrato changes the pitch of the sound, creating an oscillation effect. At 0, no effect.' },
       { name: 'Phaser (Phaser Effect)', type: 'phaser', min: 0, max: 1, step: 0.01, value: 0, info: 'Phaser effect creates a characteristic "rotating" sound through periodic phase changes of the signal. At 0, no changes.' },
       { name: 'AutoWah (Wah Effect)', type: 'autowah', min: 0, max: 1, step: 0.01, value: 0, info: 'AutoWah automatically changes signal filtering based on its dynamics, creating a "wah-wah" effect. At 0, no effect.' },
       { name: 'Playback Rate (Playback Speed)', type: 'playbackRate', min: 0.5, max: 2.0, step: 0.01, value: 1, info: 'Changing playback speed alters the tempo and pitch of the sound. Value 1 – normal speed.' },
-      { name: 'Bitcrusher (Lo-fi Effect)', type: 'bitcrusher', min: 1, max: 16, step: 1, value: 16, info: 'Bitcrusher reduces bit depth of the signal, creating a lo-fi effect. Value 16 means maximum quality sound (no effect).' }
+      { name: 'Bitcrusher (Lo-fi Effect)', type: 'bitcrusher', min: 1, max: 16, step: 1, value: 16, info: 'Bitcrusher reduces the bit depth of the signal, creating a lo-fi effect. Value 16 means maximum quality sound (no effect).' }
     ];
 
     function createImpulseResponse(ctx, duration, decay) {
@@ -411,7 +472,7 @@
       return impulse;
     }
     
-    // Function to create extra effect with bypass logic
+    // Function to create extra-effect with bypass logic
     function createExtraEffect(cfg, ctx = audioContext) {
       let node;
       let extraData = { config: cfg };
@@ -670,7 +731,7 @@
       return curve;
     }
     
-    // AudioContext initialization and node chain
+    // Initialization of AudioContext and node chain
     function initAudioContext() {
       if (audioContext) {
         audioContext.close();
@@ -678,7 +739,7 @@
       }
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
       audioContext.resume();
-      // Audio element remains muted – sound output through AudioContext
+      // Audio element remains muted – sound is output through AudioContext
       audioPlayer.muted = true;
       
       sourceNode = audioContext.createMediaElementSource(audioPlayer);
@@ -689,7 +750,7 @@
       
       sourceNode.connect(gainNode);
       gainNode.connect(delayNode);
-      // If all extra sliders are at neutral level, chain not applied
+      // If all extra sliders are at neutral level, chain is not applied
       bypassExtraEffects = true;
       delayNode.connect(audioContext.destination);
       
@@ -699,7 +760,7 @@
       }
     }
     
-    // Generate UI for additional settings
+    // Generation of UI for additional settings
     function generateExtraControls() {
       extraEffects.forEach((effectData, index) => {
         const cfg = effectData.config;
@@ -960,7 +1021,7 @@
       document.getElementById('overlay').style.display = 'none';
     });
     
-    // AudioContext initialization – autoplay not performed
+    // Initialization of AudioContext – no auto-playback
     function initAudioContext() {
       if (audioContext) {
         audioContext.close();
@@ -968,7 +1029,7 @@
       }
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
       audioContext.resume();
-      // Audio element remains muted – sound output through AudioContext
+      // Audio element remains muted – sound is output through AudioContext
       audioPlayer.muted = true;
       
       sourceNode = audioContext.createMediaElementSource(audioPlayer);
@@ -1029,7 +1090,7 @@
     }
     /* --- End of visualizer code --- */
 
-    // Function to render processed audio
+    // Function for rendering processed audio
     async function renderProcessedAudio() {
       if (!audioPlayer.src) return null;
       try {

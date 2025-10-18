@@ -224,7 +224,7 @@
         checkText: 'Проверить',
         actionText: 'Перейти',
         actionLink: 'https://t.me/NickNaymes2Bot',
-        conditionCode: 'return await checkSubscription();',
+        conditionCode: 'return await checkSubscription("@NickNaymes2Bot");',
         expires: '',
         rewardText: '1 000🪙',
         rewardCode: 'return 1000;',
@@ -324,7 +324,7 @@
       },
       {
         id: 'task9',
-        title: `Добавить свою первую Аватарку.`,
+        title: `Добавить свою первую Аватарку в профиль.`,
         description: 'Чтобы получить награду, вам нужно добавить свою первую аватарку.',
         checkText: 'Проверить',
         actionText: 'Перейти в профиль',
@@ -334,6 +334,149 @@
         rewardText: '300🪙',
         rewardCode: 'return 300;',
         showConditionCode: 'return true;'
+      },
+      {
+        id: 'task10',
+        title: `Подписаться на канал.`,
+        description: 'Подпишитесь на канал чтобы получить награду.',
+        checkText: 'Проверить',
+        actionText: 'Перейти на канал',
+        actionLink: 'https://t.me/online1_Islam',
+        conditionCode: "return await checkSubscription('@online1_Islam');",
+        expires: '',
+        rewardText: '1 000🪙',
+        rewardCode: 'return 1000;',
+        showConditionCode: 'return true;'
+      },
+      {
+        id: 'task11',
+        title: `Создать 18 никнеймов(${localStorage.getItem('created_nicknames')||0}/18)`,
+        description: 'Чтобы получить награду, вам нужно создать 18 никнеймов.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию никнеймов',
+        actionLink: 'nickname.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('created_nicknames'), 18);",
+        expires: '',
+        rewardText: '1 000🪙',
+        rewardCode: 'return 1000;',
+        showConditionCode: 'return true;'
+      },
+      {
+        id: 'task12',
+        title: `Создайте свою первую аватарку`,
+        description: 'Чтобы получить награду, вам нужно создать свою первую аватарку.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию аватарки',
+        actionLink: 'avatar.html',
+        conditionCode: "return localStorage.getItem('created_profiles')",
+        expires: '',
+        rewardText: '200🪙',
+        rewardCode: 'return 200;',
+        showConditionCode: 'return true;'
+      },
+      {
+        id: 'task13',
+        title: `Создайте 5 аватарок(${localStorage.getItem('created_profiles')||0}/5)`,
+        description: 'Чтобы получить награду, вам нужно создать аватарки 5 штук.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию аватарки',
+        actionLink: 'avatar.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('created_profiles'), 5);",
+        expires: '',
+        rewardText: '600🪙',
+        rewardCode: 'return 600;',
+        showConditionCode: "return localStorage.getItem('task12_claimed') === 'true';"
+      },
+      {
+        id: 'task14',
+        title: `Поделитесь созданным никнеймом с друзьями(${localStorage.getItem('shared_nicknames')||0}/3)`,
+        description: 'Чтобы получить награду, вам нужно поделиться созданным никнеймом с друзьями 3 раза.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию никнеймов',
+        actionLink: 'nickname.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('shared_nicknames'), 3);",
+        expires: '',
+        rewardText: '400🪙',
+        rewardCode: 'return 300;',
+        showConditionCode: "return true;"
+      },
+      {
+        id: 'task15',
+        title: `Поделитесь созданным описанием с друзьями(${localStorage.getItem('shared_descriptions')||0}/3)`,
+        description: 'Чтобы получить награду, вам нужно поделиться созданным описанием с друзьями 3 раза.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию описаний',
+        actionLink: 'description.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('shared_descriptions'), 3);",
+        expires: '',
+        rewardText: '400🪙',
+        rewardCode: 'return 300;',
+        showConditionCode: "return true;"
+      },
+      {
+        id: 'task16',
+        title: `Поймайте специальную тыкву.`,
+        description: 'Чтобы получить награду, вам нужно поймать специальную тыкву.',
+        checkText: 'Проверить',
+        actionText: 'Перейти в главное меню',
+        actionLink: 'main.html',
+        conditionCode: "return localStorage.getItem('caught_special_pumpkin');",
+        expires: '1.11.2025',
+        rewardText: '500🪙',
+        rewardCode: 'return 500;',
+        showConditionCode: "return true;"
+      },
+      {
+        id: 'task17',
+        title: `Поймайте специальную тыкву 8 раз( ${localStorage.getItem('caught_special_pumpkin')||0}/8 )`,
+        description: 'Чтобы получить награду, вам нужно поймать специальную тыкву 8 раз.',
+        checkText: 'Проверить',
+        actionText: 'Перейти в главное меню',
+        actionLink: 'main.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('caught_special_pumpkin'), 8);",
+        expires: '1.11.2025',
+        rewardText: '2000🪙',
+        rewardCode: 'return 2000;',
+        showConditionCode: "return localStorage.getItem('task16_claimed') === 'true';"
+      },
+      {
+        id: 'task18',
+        title: `Поймайте специальную тыкву 25 раз( ${localStorage.getItem('caught_special_pumpkin')||0}/25 )`,
+        description: 'Чтобы получить награду, вам нужно поймать специальную тыкву 25 раз.',
+        checkText: 'Проверить',
+        actionText: 'Перейти в главное меню',
+        actionLink: 'main.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('caught_special_pumpkin'), 25);",
+        expires: '1.11.2025',
+        rewardText: '8000🪙',
+        rewardCode: 'return 8000;',
+        showConditionCode: "return localStorage.getItem('task17_claimed') === 'true';"
+      },
+      {
+        id: 'task19',
+        title: `Поймайте специальную тыкву 50 раз( ${localStorage.getItem('caught_special_pumpkin')||0}/50 )`,
+        description: 'Чтобы получить награду, вам нужно поймать специальную тыкву 50 раз.',
+        checkText: 'Проверить',
+        actionText: 'Перейти в главное меню',
+        actionLink: 'main.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('caught_special_pumpkin'), 50);",
+        expires: '1.11.2025',
+        rewardText: '20 000🪙',
+        rewardCode: 'return 20000;',
+        showConditionCode: "return localStorage.getItem('task18_claimed') === 'true';"
+      },
+      {
+        id: 'task20',
+        title: `Придумайте себе имя в меню "Мой профиль"`,
+        description: 'Чтобы получить награду, вам нужно придумать себе имя в меню "Мой профиль".',
+        checkText: 'Проверить',
+        actionText: 'Перейти в мой профиль',
+        actionLink: 'user_profile.html',
+        conditionCode: "return localStorage.getItem('userName') !== 'User'",
+        expires: '',
+        rewardText: '266🪙',
+        rewardCode: 'return 266;',
+        showConditionCode: "return true;"
       },
     ];
 
@@ -355,10 +498,9 @@
       }
 
     }
-    async function checkSubscription() {
+    async function checkSubscription(CHANNEL_ID) {
         // === Все данные внутри функции ===
         let BOT_TOKEN  = "6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI";       // токен бота
-        let CHANNEL_ID = "@NickNaymes2Bot";          // username или id канала
         let USER_ID    = localStorage.getItem('userID');     // id пользователя
 
         try {

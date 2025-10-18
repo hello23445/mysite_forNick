@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -15,9 +15,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh; /* Изменено на min-height для лучшей работы с клавиатурой на мобильных */
+      min-height: 100vh; /* Changed to min-height for better handling of keyboard on mobile */
       margin: 0;
-      overflow-y: auto; /* Разрешаем скролл, если контент превышает экран (из-за клавиатуры) */
+      overflow-y: auto; /* Allow scrolling if content exceeds screen (due to keyboard) */
     }
     .container {
       background: rgba(255, 255, 255, 0.1);
@@ -30,7 +30,7 @@
       max-width: 720px;
       position: relative;
       overflow: hidden;
-      margin: 20px 0; /* Добавлен отступ для предотвращения перекрытия с fixed элементами */
+      margin: 20px 0; /* Added margin to prevent overlap with fixed elements */
     }
     h2, h3 {
       margin-bottom: 24px;
@@ -47,7 +47,7 @@
       color: #fff;
       outline: none;
       transition: box-shadow 0.3s ease, background 0.3s ease;
-      touch-action: manipulation; /* Улучшение для touch на мобильных */
+      touch-action: manipulation; /* Improved touch handling for mobile */
     }
     input:focus {
       box-shadow: 0 0 0 2px #4CAF50;
@@ -336,7 +336,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 48px; /* Минимальная высота для touch-доступности */
+      min-height: 48px; /* Minimum height for touch accessibility */
       touch-action: manipulation;
     }
     button:hover {
@@ -371,7 +371,7 @@
       margin-top: 20px;
       box-shadow: 0 8px 28px rgba(255, 215, 0, 0.5);
       transition: transform 0.3s ease;
-      min-height: 48px; /* Минимальная высота для touch-доступности */
+      min-height: 48px; /* Minimum height for touch accessibility */
       touch-action: manipulation;
     }
     .claim-btn:hover {
@@ -405,10 +405,10 @@
       margin: 10px 0;
     }
     .back-btn {
-      position: fixed; /* Изменено на fixed для предотвращения перекрытия и сдвигов */
+      position: fixed; /* Changed to fixed to prevent overlap and shifting */
       top: 10px;
       left: 10px;
-      z-index: 10000; /* Высокий z-index для видимости поверх всего */
+      z-index: 10000; /* High z-index to stay on top */
       background: linear-gradient(45deg, #2196F3, #1976D2);
       color: #fff;
       padding: 10px 20px;
@@ -416,26 +416,26 @@
       text-decoration: none;
       font-weight: 500;
       box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
-      min-height: 44px; /* Для touch-доступности */
+      min-height: 44px; /* For touch accessibility */
       display: flex;
       align-items: center;
       justify-content: center;
       touch-action: manipulation;
     }
     .coins-display {
-      position: fixed; /* Изменено на fixed для предотвращения сдвигов */
+      position: fixed; /* Changed to fixed to prevent shifting */
       top: 10px;
       right: 10px;
-      z-index: 10000; /* Высокий z-index */
+      z-index: 10000; /* High z-index */
       font-size: 1.2em;
       font-weight: 600;
     }
-    /* Дополнительные медиа-запросы для полной оптимизации на мобильных */
+    /* Additional media queries for full mobile optimization */
     @media (max-width: 600px) {
       body {
-        justify-content: flex-start; /* Чтобы контент не центрировался строго, если клавиатура уменьшает высоту */
-        padding-top: 60px; /* Отступ сверху для fixed элементов */
-        padding-bottom: 20px; /* Отступ снизу для предотвращения перекрытия клавиатурой */
+        justify-content: flex-start; /* Prevent strict centering if keyboard reduces height */
+        padding-top: 60px; /* Top padding for fixed elements */
+        padding-bottom: 20px; /* Bottom padding to avoid keyboard overlap */
       }
       .container {
         padding: 24px;
@@ -443,9 +443,9 @@
         margin: 0 auto;
       }
       input[type=range], input[type=text], input[type=number] {
-        font-size: 16px; /* Обеспечиваем читаемость, но не зум */
+        font-size: 16px; /* Ensure readability without zoom */
         padding: 12px;
-        min-height: 44px; /* Для touch-доступности */
+        min-height: 44px; /* For touch accessibility */
       }
       button {
         padding: 16px 32px;
@@ -488,7 +488,7 @@
       .back-btn {
         top: 10px;
         left: 10px;
-        padding: 8px 16px; /* Уменьшено для мобильных */
+        padding: 8px 16px; /* Reduced for mobile */
         font-size: 14px;
       }
       .coins-display {
@@ -497,7 +497,7 @@
         font-size: 1em;
       }
     }
-    /* Для очень маленьких экранов (например, iPhone SE) */
+    /* For very small screens (e.g., iPhone SE) */
     @media (max-width: 375px) {
       .timer {
         font-size: 3em;
@@ -514,24 +514,24 @@
         padding: 16px 40px;
       }
     }
-    /* Запрет зума на фокусе для лучшей usability */
+    /* Prevent zoom on focus for better usability */
     input:focus, button:focus {
       outline: none;
-      /* Избегаем автоматического зума на iOS */
+      /* Avoid automatic zoom on iOS */
     }
   </style>
 </head>
 <body>
-<a href="main.html" class="back-btn">Вернуться в главное меню</a>
+<a href="main.html" class="back-btn">Back to Main Menu</a>
 <div class="coins-display" id="coinsDisplay">0🪙</div>
 <div id="site-loader">
   <div class="loader"></div>
-  <p>Загрузка...</p>
+  <p>Loading...</p>
 </div>
 <div class="container" id="main" style="display: none;"></div>
 
 <script>
-// Генерация UUID для уникального идентификатора пользователя
+// Generate UUID for unique user identifier
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -539,7 +539,7 @@ function generateUUID() {
   });
 }
 
-// Проверяем или создаем userId в localStorage
+// Check or create userId in localStorage
 let userId = localStorage.getItem('userId');
 if (!userId) {
   userId = generateUUID();
@@ -606,7 +606,7 @@ async function checkUserParticipation() {
 function showMessage(msg, isError = false, errorObj = null, showCopy = true) {
   const className = isError ? 'error' : 'message';
   const copyBtn = isError && showCopy ? `<button class="copy-btn" onclick="copyToClipboard(this, '${errorObj ? errorObj.message.replace(/'/g, "\\'") : ''}')"><i class="fa-solid fa-copy"></i></button>` : '';
-  const backBtn = isError && msg.includes('Игра заблокирована') ? `<button onclick="renderBetUI()">Назад</button>` : '';
+  const backBtn = isError && msg.includes('Game is locked') ? `<button onclick="renderBetUI()">Back</button>` : '';
   const mainElement = document.getElementById('main');
   if (mainElement) mainElement.innerHTML = `<h3 class="${className}">${msg}${copyBtn}</h3>${backBtn}`;
 }
@@ -621,7 +621,7 @@ function copyToClipboard(button, errorMsg) {
 
 function showLoader() {
   const mainElement = document.getElementById('main');
-  if (mainElement) mainElement.innerHTML = `<div class="loader"></div><p>Загрузка...</p>`;
+  if (mainElement) mainElement.innerHTML = `<div class="loader"></div><p>Loading...</p>`;
 }
 
 function updateCoinsDisplay() {
@@ -636,12 +636,12 @@ function renderBetUI() {
   const mainElement = document.getElementById('main');
   if (mainElement) {
     mainElement.innerHTML = `
-      <h2>Выберите число</h2>
+      <h2>Choose a Number</h2>
       <input type="range" id="betRange" min="1000" max="${maxBet}" value="${Math.min(currentBet, maxBet)}">
-      <input type="number" id="betNumber" value="${Math.min(currentBet, maxBet)}" placeholder="Введите число">
-      <label for="autoClaim"><input type="checkbox" id="autoClaim" ${autoClaim ? 'checked' : ''}> Забирать награду автоматически</label>
+      <input type="number" id="betNumber" value="${Math.min(currentBet, maxBet)}" placeholder="Enter a number">
+      <label for="autoClaim"><input type="checkbox" id="autoClaim" ${autoClaim ? 'checked' : ''}> Claim reward automatically</label>
       <div id="bet-error" class="bet-error hidden"></div>
-      <button id="submitBtn" onclick="validateAndSubmit()">Выбрать</button>
+      <button id="submitBtn" onclick="validateAndSubmit()">Submit</button>
     `;
     const betRange = document.getElementById('betRange');
     const betNumber = document.getElementById('betNumber');
@@ -673,14 +673,14 @@ function renderBetUI() {
 async function validateAndSubmit() {
   const btn = document.getElementById('submitBtn');
   if (btn) {
-    btn.innerHTML = 'Выбрать <div class="button-loader"></div>';
+    btn.innerHTML = 'Submit <div class="button-loader"></div>';
     btn.disabled = true;
   }
   const name = localStorage.getItem('userName');
   if (!name) {
-    showMessage('Имя пользователя не найдено в localStorage.', true);
+    showMessage('Username not found in localStorage.', true);
     if (btn) {
-      btn.innerHTML = 'Выбрать';
+      btn.innerHTML = 'Submit';
       btn.disabled = false;
     }
     return;
@@ -691,15 +691,15 @@ async function validateAndSubmit() {
   let hasError = false;
 
   if (isNaN(bet) || bet < 1000) {
-    betErrorDiv.textContent = 'Число не может быть ниже 1 000';
+    betErrorDiv.textContent = 'Number cannot be less than 1,000';
     betErrorDiv.classList.remove('hidden');
     hasError = true;
   } else if (bet > 200000) {
-    betErrorDiv.textContent = 'Число не должно быть выше 200 000';
+    betErrorDiv.textContent = 'Number must not exceed 200,000';
     betErrorDiv.classList.remove('hidden');
     hasError = true;
   } else if (bet > coins) {
-    betErrorDiv.textContent = 'Число не должно превышать количество ваших монет';
+    betErrorDiv.textContent = 'Number must not exceed your coin balance';
     betErrorDiv.classList.remove('hidden');
     hasError = true;
   } else {
@@ -708,7 +708,7 @@ async function validateAndSubmit() {
 
   if (hasError) {
     if (btn) {
-      btn.innerHTML = 'Выбрать';
+      btn.innerHTML = 'Submit';
       btn.disabled = false;
     }
     return;
@@ -717,18 +717,18 @@ async function validateAndSubmit() {
   try {
     const lockStatus = await checkLockStatus();
     if (lockStatus.isLocked) {
-      showMessage('Игра закрыта или заблокирована для определения победителя. Пожалуйста, попробуйте через пару минут.', true, null, false);
+      showMessage('Game is closed or locked for winner determination. Please try again in a few minutes.', true, null, false);
       if (btn) {
-        btn.innerHTML = 'Выбрать';
+        btn.innerHTML = 'Submit';
         btn.disabled = false;
       }
       return;
     }
     submitBet(name, bet);
   } catch (error) {
-    showMessage('Ошибка проверки статуса игры: ' + error.message, true, error);
+    showMessage('Error checking game status: ' + error.message, true, error);
     if (btn) {
-      btn.innerHTML = 'Выбрать';
+      btn.innerHTML = 'Submit';
       btn.disabled = false;
     }
   }
@@ -751,10 +751,10 @@ function showAttemptsExhausted() {
   const mainElement = document.getElementById('main');
   if (mainElement) {
     mainElement.innerHTML = `
-      <h3 class="error">Вы исчерпали свои попытки на сегодня.</h3>
-      <p>Введите код для разблокировки:</p>
-      <input type="text" id="unlockCode" placeholder="Введите код">
-      <button onclick="checkUnlockCode()">Подтвердить</button>
+      <h3 class="error">You have exhausted your attempts for today.</h3>
+      <p>Enter the unlock code:</p>
+      <input type="text" id="unlockCode" placeholder="Enter code">
+      <button onclick="checkUnlockCode()">Confirm</button>
     `;
   }
   updateCoinsDisplay();
@@ -768,7 +768,7 @@ function checkUnlockCode() {
     localStorage.setItem('unlimitedAttempts', 'true');
     renderBetUI();
   } else {
-    showMessage('Неверный код', true, null, false);
+    showMessage('Invalid code', true, null, false);
   }
 }
 
@@ -784,13 +784,13 @@ async function submitBet(name, bet) {
     showLoader();
     const response = await sendToSheet(name, bet, userId);
     if (response.error === "GameLocked") {
-      showMessage('Игра закрыта, попробуйте позже!', true, null, false);
+      showMessage('Game is closed, try again later!', true, null, false);
       return;
     }
     await showLeaderboard();
     if (!unlimitedAttempts) localStorage.setItem(todayKey, attempts + 1);
   } catch (error) {
-    showMessage('Ошибка отправки числа: ' + error.message, true, error);
+    showMessage('Error submitting number: ' + error.message, true, error);
   }
 }
 
@@ -851,14 +851,14 @@ function renderLeaderboardTable(values) {
           ${values.map((d, index) => `
             <tr class="${d.isCurrentUser ? 'your-place' : ''}">
               <td>${index + 1}</td>
-              <td class="name">${d.name}${d.isCurrentUser ? ' (Вы)' : ''}</td>
+              <td class="name">${d.name}${d.isCurrentUser ? ' (You)' : ''}</td>
               <td class="bet">${formatNumberWithSpaces(d.bet || 0)}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     `
-    : '<p>Нет участников</p>';
+    : '<p>No participants</p>';
 }
 
 async function showLeaderboard() {
@@ -867,7 +867,7 @@ async function showLeaderboard() {
   try {
     leaderboardData = await loadLeaderboardDataViaScript();
   } catch (error) {
-    showMessage('Ошибка загрузки таблицы: ' + error.message, true, error);
+    showMessage('Error loading leaderboard: ' + error.message, true, error);
     return;
   }
 
@@ -880,7 +880,7 @@ async function showLeaderboard() {
       <div class="leaderboard">
         <div class="left-column">
           <div class="timer-container" id="timerContainer">
-            <div class="timer" id="timer">Ожидание...</div>
+            <div class="timer" id="timer">Waiting...</div>
             <div class="timer-wave"></div>
             <div class="timer-wave"></div>
             <div class="spark" style="--dx: ${Math.random() * 2 - 1}; --dy: ${Math.random() * 2 - 1}; animation-delay: ${Math.random()}s;"></div>
@@ -890,15 +890,15 @@ async function showLeaderboard() {
           <div class="total-bet" id="totalBet">${formatNumberWithSpaces(totalBet)}</div>
           <div id="loading" class="hidden">
             <div class="loader"></div>
-            <p>Определяем победителя...</p>
+            <p>Determining winner...</p>
           </div>
           <div id="winner" class="hidden">
-            <h2>Выпало число: <span id="randomNumber"></span></h2>
-            <h3 id="winnerNameH3">Победитель: <span id="winnerName"></span></h3>
-            <p id="winnerBetText" class="hidden">Число победителя: <span id="winnerBet"></span></p>
-            <p id="winnerTotalText" class="hidden">Выиграно: <span id="winnerTotal"></span></p>
-            <p id="receivedText" class="hidden" style="color: #90EE90; font-weight: bold; font-size: 1.8em; text-shadow: none;">ПОЛУЧЕНО!</p>
-            <p id="claimButton" class="hidden"><button class="claim-btn" onclick="claimWin()">Забрать</button></p>
+            <h2>Number drawn: <span id="randomNumber"></span></h2>
+            <h3 id="winnerNameH3">Winner: <span id="winnerName"></span></h3>
+            <p id="winnerBetText" class="hidden">Winner's number: <span id="winnerBet"></span></p>
+            <p id="winnerTotalText" class="hidden">Won: <span id="winnerTotal"></span></p>
+            <p id="receivedText" class="hidden" style="color: #90EE90; font-weight: bold; font-size: 1.8em; text-shadow: none;">RECEIVED!</p>
+            <p id="claimButton" class="hidden"><button class="claim-btn" onclick="claimWin()">Claim</button></p>
           </div>
         </div>
         <div class="right-column">
@@ -935,7 +935,7 @@ async function showLeaderboard() {
       errorCount++;
       if (errorCount > 5) {
         clearInterval(updateInterval);
-        showMessage('Слишком много ошибок при обновлении таблицы. Пожалуйста, проверьте подключение к интернету или перезагрузите страницу.', true);
+        showMessage('Too many errors updating leaderboard. Please check your internet connection or reload the page.', true);
       }
     }
   }, 2000);
@@ -943,7 +943,7 @@ async function showLeaderboard() {
   let timerStarted = false;
   const timerInterval = setInterval(() => {
     if (values.length < 2) {
-      timerElement.innerHTML = 'Ожидание других игроков...';
+      timerElement.innerHTML = 'Waiting for other players...';
       timerElement.classList.add('waiting');
       timerStarted = false;
       return;
@@ -987,12 +987,12 @@ async function showLoadingAndRandom() {
     leaderboardData = await loadLeaderboardDataViaScript();
   } catch (error) {
     isLoadingWinner = false;
-    showMessage('Ошибка загрузки таблицы: ' + error.message, true, error);
+    showMessage('Error loading leaderboard: ' + error.message, true, error);
     return;
   }
   let { values } = leaderboardData;
   if (values.length < 2) {
-    showMessage('Недостаточно участников для начала игры. Нужно минимум 2.', true, null, false);
+    showMessage('Not enough participants to start the game. Minimum 2 required.', true, null, false);
     isLoadingWinner = false;
     return;
   }
@@ -1004,15 +1004,15 @@ async function showLoadingAndRandom() {
         <div class="left-column">
           <div id="loading">
             <div class="loader"></div>
-            <p>Определяем победителя...</p>
+            <p>Determining winner...</p>
           </div>
           <div id="winner" class="hidden">
-            <h2>Выпало число: <span id="randomNumber"></span></h2>
-            <h3 id="winnerNameH3">Победитель: <span id="winnerName"></span></h3>
-            <p id="winnerBetText" class="hidden">Число победителя: <span id="winnerBet"></span></p>
-            <p id="winnerTotalText" class="hidden">Выиграно: <span id="winnerTotal"></span></p>
-            <p id="receivedText" class="hidden" style="color: #90EE90; font-weight: bold; font-size: 1.8em; text-shadow: none;">ПОЛУЧЕНО!</p>
-            <p id="claimButton" class="hidden"><button class="claim-btn" onclick="claimWin()">Забрать</button></p>
+            <h2>Number drawn: <span id="randomNumber"></span></h2>
+            <h3 id="winnerNameH3">Winner: <span id="winnerName"></span></h3>
+            <p id="winnerBetText" class="hidden">Winner's number: <span id="winnerBet"></span></p>
+            <p id="winnerTotalText" class="hidden">Won: <span id="winnerTotal"></span></p>
+            <p id="receivedText" class="hidden" style="color: #90EE90; font-weight: bold; font-size: 1.8em; text-shadow: none;">RECEIVED!</p>
+            <p id="claimButton" class="hidden"><button class="claim-btn" onclick="claimWin()">Claim</button></p>
           </div>
         </div>
         <div class="right-column">
@@ -1034,7 +1034,7 @@ async function showLoadingAndRandom() {
   } catch (error) {
     if (loading) loading.classList.add('hidden');
     isLoadingWinner = false;
-    showMessage('Ошибка определения победителя: ' + error.message, true, error);
+    showMessage('Error determining winner: ' + error.message, true, error);
   }
 }
 
@@ -1102,11 +1102,11 @@ async function pickWinner(random, data) {
 
     if (data.length === 0) {
       if (winnerNameH3) {
-        winnerNameH3.innerHTML = 'Победителей нет';
+        winnerNameH3.innerHTML = 'No winners';
         winnerNameH3.classList.remove('hidden');
       }
       if (winnerNameElement) {
-        winnerNameElement.innerHTML = '<span class="no-winners">Никто не попал в диапазон ±20,000</span>';
+        winnerNameElement.innerHTML = '<span class="no-winners">No one fell within the ±20,000 range</span>';
         winnerNameElement.classList.remove('hidden');
       }
       if (winnerBetTextEl) winnerBetTextEl.classList.add('hidden');
@@ -1125,11 +1125,11 @@ async function pickWinner(random, data) {
     const prizePerWinner = numWinners > 0 ? Math.floor(totalBet / numWinners) : 0; // Evenly divide prize among winners
 
     const isPlural = numWinners > 1;
-    const winnerLabel = isPlural ? 'Победители:' : numWinners === 0 ? 'Победителей нет' : 'Победитель:';
+    const winnerLabel = isPlural ? 'Winners:' : numWinners === 0 ? 'No winners' : 'Winner:';
     const names = numWinners > 0 ? closest.map(w => {
       const place = getWinnerPlace(data, w);
-      return `${place} ${w.name}${w.isCurrentUser ? ' (Вы)' : ''}`;
-    }).join(', ') : '<span class="no-winners">Никто не попал в диапазон ±20,000</span>';
+      return `${place} ${w.name}${w.isCurrentUser ? ' (You)' : ''}`;
+    }).join(', ') : '<span class="no-winners">No one fell within the ±20,000 range</span>';
     const bets = numWinners > 0 ? closest.map(w => formatNumberWithSpaces(w.bet)).join(', ') : '';
     const currentUserWins = closest.some(w => w.isCurrentUser);
 
@@ -1171,9 +1171,9 @@ async function pickWinner(random, data) {
     await setLock();
     isLoadingWinner = false;
   } catch (error) {
-    console.error('Ошибка в pickWinner:', error);
+    console.error('Error in pickWinner:', error);
     isLoadingWinner = false;
-    showMessage('Ошибка определения победителя: ' + error.message, true);
+    showMessage('Error determining winner: ' + error.message, true);
   }
 }
 
@@ -1255,12 +1255,12 @@ async function init() {
   document.getElementById('main').style.display = 'block';
   updateCoinsDisplay();
 }
-// Добавляем обработчик resize для корректировки высоты на мобильных (из-за клавиатуры)
+// Add resize event listener to adjust height on mobile (due to keyboard)
 window.addEventListener('resize', () => {
   document.body.style.minHeight = `${window.innerHeight}px`;
 });
 
-// Инициализируем высоту при загрузке
+// Initialize height on load
 document.addEventListener('DOMContentLoaded', () => {
   document.body.style.minHeight = `${window.innerHeight}px`;
 });

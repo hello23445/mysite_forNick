@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Color Picker</title>
   <!-- Font Awesome для иконки копирования -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,6 +17,7 @@
       align-items: center;
       transition: background 0.2s ease;
       padding: 1em;
+      overflow: auto;
     }
     .picker {
       width: 100%;
@@ -39,6 +40,7 @@
       font-size: 0.9em;
       border-radius: 5px;
       cursor: pointer;
+      touch-action: manipulation;
     }
     .format-buttons button.active {
       background: #fff;
@@ -64,6 +66,7 @@
       cursor: pointer;
       font-size: 1.5em;
       color: #fff;
+      touch-action: manipulation;
     }
     .copy-btn:hover {
       color: #eee;
@@ -92,6 +95,22 @@
     #alphaCanvas {
       position: relative;
       z-index: 2;
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 0.5em;
+      }
+      .format-buttons button {
+        padding: 0.3em 0.6em;
+        font-size: 0.8em;
+      }
+      .hex {
+        padding: 0.4em 0.6em;
+        font-size: 0.9em;
+      }
+      .copy-btn {
+        font-size: 1.2em;
+      }
     }
   </style>
 </head>
@@ -353,20 +372,50 @@
       }
     }
     copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(hexInput.value)
-        .then(() => {
-          copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-          func();
-        })
-        .catch(() => {
+      const textToCopy = hexInput.value;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => {
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            func();
+          })
+          .catch(() => {
+            // Fallback for older browsers or when clipboard API fails
+            hexInput.select();
+            hexInput.setSelectionRange(0, 99999); // For mobile devices
+            try {
+              const successful = document.execCommand('copy');
+              if (successful) {
+                copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                func();
+              } else {
+                copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+              }
+            } catch (err) {
+              copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            }
+          });
+      } else {
+        // Fallback if clipboard API not available
+        hexInput.select();
+        hexInput.setSelectionRange(0, 99999); // For mobile devices
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            func();
+          } else {
+            copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+          }
+        } catch (err) {
           copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-        });
+        }
+      }
 
       setTimeout(() => {
         copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
       }, 1500);
     });
-
 
     formatButtons.forEach(btn => {
       btn.addEventListener('click', () => {

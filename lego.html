@@ -30,7 +30,8 @@
         .minifigure {
             position: relative;
             width: 100px;
-            height: 162px;
+            height: auto; /* Изменено для вмещения всего содержимого */
+            min-height: 500px; /* Увеличено для захвата всего тела в html2canvas */
             margin: auto;
             perspective: 200;
             transform-style: preserve-3d;
@@ -41,10 +42,25 @@
             transform: scale(0.75) translateZ(0);
         }
 
+        /* Оптимизация для мобильных устройств */
         @media (max-width: 600px) {
+            body {
+                flex-direction: column; /* Панель инструментов под фигуркой */
+                height: auto; /* Автоматическая высота для скролла */
+            }
+
             .minifigure {
-                width: 100px;
-                height: 162px;
+                width: 80px; /* Уменьшено для мобильных */
+                min-height: 400px; /* Уменьшено для мобильных */
+                margin: 1em auto;
+                transform: scale(0.8); /* Уменьшить масштаб фигурки для полного отображения */
+                transform-origin: top center;
+            }
+
+            .controls {
+                width: 100% !important; /* Полная ширина на мобильных */
+                max-height: none; /* Без ограничения высоты */
+                padding: 1em;
             }
         }
         
@@ -863,7 +879,6 @@
             border-top-color: var(--mouth-color);
         }
         
-        /* Additional 40 expressions */
         /* Expression 57: grinning */
         .grinning .mouth {
             width: 3em;
@@ -1893,8 +1908,8 @@
             transform: rotate(-30deg) translateX(-50%) translateZ(0);
         }
         .odious-frown1 .mouth {
-            height: 2.3em;
             border-top-color: var(--mouth-color);
+            height: 2.3em;
         }
 
         .odious-frown2 .brow {
@@ -2620,7 +2635,7 @@
         }
         
         .arm.right {
-            margin-left: -6.25rem;
+            margin-left: -6.25em;
             transform: translateX(-50%) rotate(12deg);
             box-shadow:
             inset 0.5em 0.25em 0.375em -0.25em rgba(255,255,255,0.4),
@@ -2629,7 +2644,7 @@
         }
         
         .arm.left {
-            margin-left: 6.25rem;
+            margin-left: 6.25em;
             transform: translateX(-50%) rotate(-12deg);
             box-shadow:
             inset -0.5em 0.25em 0.375em -0.25em rgba(255,255,255,0.4),
@@ -2856,7 +2871,7 @@
         .controls {
             position: relative;
             z-index: 1;
-            width: 300px;
+            width: 250px; /* Уменьшена ширина для мобильных */
             padding: 1.5em;
             color: #333;
             text-transform: uppercase;
@@ -4601,7 +4616,32 @@
       }
       
       async function shareConfig() {
-        const canvas = await html2canvas(minifigure);
+        // Временно отключаем 3D-трансформы для правильного захвата
+        const originalPerspective = minifigure.style.perspective;
+        const originalTransformStyle = minifigure.style.transformStyle;
+        const originalTorsoTransform = torso.style.transform;
+        const originalWidth = minifigure.style.width;
+        const originalUpperPerspective = upperBody.style.perspective;
+
+        minifigure.style.perspective = 'none';
+        minifigure.style.transformStyle = 'flat';
+        minifigure.style.width = '300px'; // Расширяем контейнер, чтобы руки поместились без отрицательных позиций
+        upperBody.style.perspective = 'none';
+        torso.style.transform = `translateX(-50%) scale(${torsoSize.value})`; // Убираем rotateX
+
+        const canvas = await html2canvas(minifigure, {
+          allowTaint: true,
+          useCORS: true,
+          scale: 2 // Увеличиваем разрешение для лучшего качества
+        });
+
+        // Восстанавливаем трансформы после захвата
+        minifigure.style.perspective = originalPerspective;
+        minifigure.style.transformStyle = originalTransformStyle;
+        minifigure.style.width = originalWidth;
+        upperBody.style.perspective = originalUpperPerspective;
+        torso.style.transform = originalTorsoTransform;
+
         canvas.toBlob(async (blob) => {
           const file = new File([blob], 'minifigure.png', { type: 'image/png' });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {

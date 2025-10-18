@@ -18,6 +18,7 @@
             --accent-2: #8f87ff;
             --btn: #251897;
             --shadow: rgba(0,0,0,.35);
+            --disabled: #4a4a4a;
         }
         * { box-sizing: border-box; }
         html, body { height: 100%; }
@@ -41,8 +42,6 @@
         #mainTopBar { justify-content: flex-end; }
         #settingsTopBar { justify-content: space-between; gap: 6px; }
         #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
-        #qrTopBar { justify-content: space-between; gap: 6px; }
-        #qrTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
         #sideTopBar { justify-content: space-between; gap: 6px; }
         #sideTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
         .icon-btn {
@@ -67,11 +66,14 @@
             transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
         }
         .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--shadow); }
-        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .btn:disabled { 
+            opacity: .6; 
+            cursor: not-allowed; 
+            background: var(--disabled);
+        }
         .btn .left-icon { margin-right: 6px; }
         .btn .right-icon { margin-left: 6px; }
         #settingsMenu { display: none; padding: 16px 12px 24px; }
-        #qrMenu { display: none; padding: 16px 12px 24px; text-align: center; }
         .settings-wrap { max-width: 860px; margin: 0 auto; }
         .card {
             background: linear-gradient(180deg, var(--card), #0b0862);
@@ -160,20 +162,15 @@
             font-weight: 600;
             color: var(--muted);
         }
-
-        /* Хеллоуин */
         body {
             margin: 0;
             padding: 0;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
             color: #ff6600;
-            /* font-family: 'Creepster', cursive; */
             overflow-x: hidden;
             height: 100vh;
             position: relative;
         }
-
-        /* ===== Жуткий туман ===== */
         .fog {
             position: fixed;
             top: 0;
@@ -184,14 +181,12 @@
             opacity: 0.08;
             animation: fogmove 90s linear infinite;
             pointer-events: none;
-            z-index: 1; /* ниже контента */
+            z-index: 1;
         }
         @keyframes fogmove {
             from { transform: translateX(0); }
             to { transform: translateX(-50%); }
         }
-
-        /* ===== CSS облака ===== */
         .cloud {
             position: fixed;
             top: 10%;
@@ -202,7 +197,6 @@
             z-index: 2;
             animation: cloudmove 120s linear infinite;
         }
-
         .cloud::before,
         .cloud::after {
             content: '';
@@ -214,7 +208,6 @@
             left: -50px;
             border-radius: 50%;
         }
-
         .cloud::after {
             width: 120px;
             height: 60px;
@@ -222,7 +215,6 @@
             left: 50px;
             border-radius: 50%;
         }
-
         .cloud2 {
             top: 25%;
             width: 300px;
@@ -230,13 +222,10 @@
             animation-duration: 160s;
             animation-delay: 30s;
         }
-
         @keyframes cloudmove {
             from { left: -250px; }
             to { left: 410%; }
         }
-
-        /* ===== Заголовок ===== */
         h1 {
             text-align: center;
             margin-top: 80px;
@@ -246,34 +235,27 @@
             z-index: 10;
             position: relative;
         }
-
         @keyframes flicker {
             0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
             20%, 24%, 55% { opacity: 0.4; }
         }
-
-        /* Падающие тыквы */
         .pumpkin {
             position: fixed;
             top: -10%;
             width: 50px;
             height: auto;
-            z-index: 0; /* под контентом */
+            z-index: 0;
             animation: fall linear infinite;
-            pointer-events: none; /* чтобы не мешали кликам */
+            pointer-events: none;
         }
-
         @keyframes fall {
             from { top: -10%; transform: rotate(0deg); }
             to { top: 110%; transform: rotate(360deg); }
         }
-
-        /* Контент всегда поверх */
         .content, h1, p, button {
             position: relative;
             z-index: 10;
         }
-        /* 20 уникальных тыкв */
         .p1  { left: 20%;  animation-duration: 12s; animation-delay: 0s; }
         .p2  { left: 10%; animation-duration: 15s; animation-delay: 2s; }
         .p3  { left: 15%; animation-duration: 18s; animation-delay: 4s; }
@@ -294,64 +276,37 @@
         .p18 { left: 90%; animation-duration: 18s; animation-delay: 10s; }
         .p19 { left: 95%; animation-duration: 11s; animation-delay: 6s; }
         .p20 { left: 100%;animation-duration: 23s; animation-delay: 8s; }
-
-        /* Контент всегда поверх */
-        .content {
-            text-align: center;
-            z-index: 10;
-            position: relative;
+        @keyframes roll {
+            0% { left: -150%; transform: rotate(0deg); }
+            100% { left: 100%; transform: rotate(360deg); }
         }
-
-
-@keyframes roll {
-  0% { left: -150%; transform: rotate(0deg); }
-  100% { left: 100%; transform: rotate(360deg); }
-}
-
     </style>
 </head>
 <body>
-    <!-- хеллоуин -->
-<!-- Жуткий туман -->
-<!-- <div class="fog"></div> -->
-
-<!-- CSS облака -->
-<div class="cloud"></div>
-<div class="cloud cloud2"></div>
-
-<!-- Падающие тыквы -->
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p1" onclick="secret()" style="width: 60px; pointer-events: all;" id="p1">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p3">
-
-
-
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p4">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p5">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p6">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p7">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p8">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p9">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p10">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p11">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p12">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p13">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p14">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p15">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p16">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p17">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p18">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p19">
-<img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p20">
-
-
-
-
-
-    <!-- Техническое обслуживание -->
+    <div class="cloud"></div>
+    <div class="cloud cloud2"></div>
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p1" onclick="secret()" style="width: 60px; pointer-events: all;" id="p1">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p3">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p4">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p5">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p6">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p7">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p8">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p9">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p10">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p11">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p12">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p13">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p14">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p15">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p16">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p17">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p18">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p19">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p20">
     <div id="maintenance">
         <h2 data-translate="maintenance" id="maintenanceM"></h2>
     </div>
-    <!-- Главное меню -->
     <div class="top-bar" id="mainTopBar">
         <h4 class="coins" id="coins"><i style="user-select: none;">🪙</i>0</h4>
         <button class="icon-btn" id="sideMenuBtn" title="Menu"><i class="fa-solid fa-bars"></i></button>
@@ -360,8 +315,6 @@
         <h2 data-translate="main" id="mainM"></h2>
         <div class="buttons-container" id="featureButtons"></div>
     </div>
-
-    <!-- Меню настроек -->
     <div id="settingsMenu">
         <div class="top-bar" id="settingsTopBar">
             <button class="icon-btn" id="backBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
@@ -384,7 +337,7 @@
                             <div class="card" style="width: 100%;">
                                 <div class="card-header">
                                     <h3 id="showmytokentext">Показать мой токен пользователя</h3>
-                                    <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-up"></i></button>
+                                    <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                                 </div>
                                 <div style="display: none; margin-top: 1%;">
                                     <button class="btn" id="tok"><i class="fa-solid fa-key left-icon"></i><span>Token</span></button>
@@ -400,6 +353,11 @@
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
                     <div class="collapsible-content" style="display: none;" id="stat_setting">
+                        <select id="statSelect" onchange="localStorage.setItem('statistic_turn', this.value === 'yes' ? 'yes' : 'no')">
+                            <option value="yes">Собирать данные для статистики</option>
+                            <option value="no">Не собирать данные для статистики</option>
+                        </select>
+                        <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">Очистить все данные статистики</button>
                     </div>
                 </div>
                 <div class="card">
@@ -436,7 +394,6 @@
                                 <button id="myID" class="btn">Ваш Telegram ID</button>
                             </div>
                         </div>
-                        
                         <button class="btn" id="userID-confirming" onclick="window.location.href = 'set_telegram_id.html'">Привязать или изменить свой Telegram ID</button>
                     </div>
                 </div>
@@ -446,8 +403,7 @@
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
                     <div class="collapsible-content" style="display: none;">
-                        <div class="settings-buttons" id="userDataButtons"></div>
-                        <button class="btn" style="margin-top: 2%;" id="LoadDatasFromUserToken" onclick='window.location.href = "https://t.me/Clickerstart_bot"''>Загрузить данные по токену(Через службу поддержки)</button>
+                        <button class="btn" style="margin-top: 2%;" id="LoadDatasFromUserToken" onclick='window.location.href = "https://t.me/Clickerstart_bot"'>Загрузить данные по токену(Через службу поддержки)</button>
                     </div>
                 </div>
                 <div class="card">
@@ -462,24 +418,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Меню QR-кода -->
-    <div id="qrMenu">
-        <div class="top-bar" id="qrTopBar">
-            <button class="icon-btn" id="qrBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
-            <span class="title" data-translate="qrTitle" id="qrTitle"></span>
-            <span style="width:36px; height:36px;"></span>
-        </div>
-        <div class="settings-wrap">
-            <div class="row">
-                <div class="card">
-                    <div id="qrCodeContainer" style="display: flex; justify-content: center;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Overlay and Side Menu -->
     <div id="overlay"></div>
     <div id="sideMenu">
         <div class="top-bar" id="sideTopBar">
@@ -491,60 +429,37 @@
             <div class="side-buttons" id="sideButtons"></div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script>
-
         if (!localStorage.getItem('userName')) {
             localStorage.setItem('userName', 'User');
         }
         function secret() {
+          localStorage.getItem('caught_special_pumpkin') ? localStorage.setItem('caught_special_pumpkin', String(parseInt(localStorage.getItem('caught_special_pumpkin')) + 1)) : localStorage.setItem('caught_special_pumpkin', '1');
             const a1 = Math.floor(Math.random() * 6) + 1;
             if (a1 === 4 || a1 === 5) {
-                const a = localStorage.getItem('coins') || '0'
+                const a = localStorage.getItem('coins') || '0';
                 localStorage.setItem('coins', String(parseInt(a) + 100));
                 alert('+100🪙');
-                document.getElementById('coins').textContent = '🪙' + localStorage.getItem('coins' || 100)
+                document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + formatNumber(localStorage.getItem('coins'));
             }
             document.getElementById("p1").style.display = "none";
             setTimeout(function() {
+                document.getElementById("p1").style.left = Math.floor(Math.random() * 90 + 5) + '%';
                 document.getElementById("p1").style.display = "block";
             }, 4000);
-            document.getElementById("p1").style.display = "none";
         }
 
-                // URL вашего развернутого веб-приложения GAS
-        const gasUrl = 'https://script.google.com/macros/s/AKfycbxkvAXAMckjNcVYGh3BmSmMI608TbUAwrmohywdKoVCMbmCz69Y0dKb3r9OP89NlH8s/exec'; // Замените на URL из шага 6 выше
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbxkvAXAMckjNcVYGh3BmSmMI608TbUAwrmohywdKoVCMbmCz69Y0dKb3r9OP89NlH8s/exec';
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbr9H0F70BHo2js1tKD_P1MVChn-9NKr8av1p0ZtJj6h9845b3dB2xDarr_B1zpFwR/exec';
-        /*
-        Инструкция по добавлению кнопок:
-
-        1. Добавление кнопок-генераторов в главное меню (featureButtons):
-           - В массиве translations.ru.featureButtons и translations.en.featureButtons добавьте новый текст кнопки.
-           - В массиве featureKeys добавьте ключ для файла (например, 'new_generator').
-           - В объектах filesRu и filesEn добавьте соответствующую запись: new_generator: 'new_generator.html' (или URL).
-           - Кнопка автоматически создастся в applyTranslations() с href на указанный файл/URL.
-           - Если URL внешний (начинается с http/https), откроется в новой вкладке.
-
-        2. Добавление кнопок в настройки (settingsButtons или userDataButtons):
-           - Для supportSection (settingsButtons): Добавьте в translations[lang].settingsButtons новый текст.
-           - Добавьте в settingsKeys новый ключ, в settingsIcons новый иконку.
-           - В filesRu/filesEn добавьте соответствующий файл/URL.
-           - Для userDataButtons: Добавьте вручную в applyTranslations(), создав кнопку с createButton и appendChild к userDataContainer.
-
-        3. Добавление кнопок в боковое меню (sideButtons):
-           - В функции applySideButtons() в массиве items добавьте новый объект:
-             { textKey: 'new_item', icon: 'fa-solid fa-icon', href: 'url.html', onClick: function() {...}, disabled: false }
-           - Добавьте перевод в translations[lang].new_item.
-           - Кнопка создастся с указанным href или onClick.
-        */
 
         const LINKS = {
             complaintRU: "https://t.me/NickNaymesBot/submit_complaints",
-            supportRU:   "https://t.me/Clickerstart_bot",
-            supportEN:   "https://t.me/Clickerstart_bot"
+            supportRU: "https://t.me/Clickerstart_bot",
+            supportEN: "https://t.me/Clickerstart_bot"
         };
         const filesRu = {
+            indexed_money: 'indexed_money.html',
             shop: 'shop_ru.html',
             nickname: 'nickname.html',
             description: 'description.html',
@@ -563,8 +478,8 @@
             myshop: 'myshop_ru.html',
             tasks: 'tasks.html'
         };
-
         const filesEn = {
+            indexed_money: 'indexed_money_en.html',
             tasks: 'tasks_en.html',
             shop: 'shop_en.html',
             nickname: 'nickname_en.html',
@@ -585,12 +500,10 @@
         };
 
         let storedCoins = parseInt(localStorage.getItem('coins'));
-
         if (!localStorage.getItem('coins') || storedCoins < 0) {
             localStorage.setItem('coins', '0');
-        }
-        else{
-            document.getElementById('coins').textContent = '🪙' + localStorage.getItem('coins' || 0)
+        } else {
+            document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + formatNumber(localStorage.getItem('coins'));
         }
 
         const tok = document.getElementById("tok");
@@ -603,6 +516,9 @@
         tok.style.cursor = "pointer";
 
         let lang = localStorage.getItem('lang') || 'ru';
+        if (!localStorage.getItem('statistic_turn')) {
+            localStorage.setItem('statistic_turn', 'yes');
+        }
 
         let translations = {
             ru: {
@@ -630,12 +546,6 @@
                 historySectionTitle: "История",
                 tokenSectionTitle: "Токен",
                 usageTimeTitle: "Время использования",
-                qrTitle: "QR-код данных",
-                saveData: "Сохранить мои данные для QR-кода",
-                loadData: "Загрузить данные из QR-кода",
-                showQr: "Показать QR-код моих данных",
-                copyData: "Скопировать мои данные в буфер обмена",
-                loadClipboard: "Загрузить данные из буфера обмена",
                 menuTitle: "Меню",
                 home: "Вернуться в главное меню",
                 stats: "Статистика",
@@ -676,12 +586,6 @@
                 historySectionTitle: "History",
                 tokenSectionTitle: "Token",
                 usageTimeTitle: "Usage Time",
-                qrTitle: "Data QR Code",
-                saveData: "Save my data for QR code",
-                loadData: "Load data from QR code",
-                showQr: "Show QR code of my data",
-                copyData: "Copy my datas to clipboard",
-                loadClipboard: "Load datas from clipboard",
                 menuTitle: "Menu",
                 home: "Return to main menu",
                 stats: "Statistics",
@@ -698,6 +602,10 @@
                 userIDButton: "Link or change my Telegram ID"
             }
         };
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
 
         function createButton({ text, icon, onClick, href, newTab=false, disabled=false, id, duplicateIcon=false }) {
             const btn = document.createElement('button');
@@ -728,7 +636,8 @@
             }
             if (disabled) {
                 btn.disabled = true;
-                btn.title = 'Укажите ссылку в объекте LINKS';
+                btn.style.background = 'var(--disabled)';
+                btn.title = lang === 'ru' ? 'Укажите ссылку в объекте LINKS' : 'Specify a link in the LINKS object';
             }
             return btn;
         }
@@ -736,15 +645,14 @@
         function applyTranslations() {
             checkUserID();
             document.getElementById('showmytokentext').style.color = 'white';
-            if (localStorage.getItem('lang') === 'ru'){
+            if (lang === 'ru') {
                 document.getElementById('LoadDatasFromUserToken').textContent = 'Загрузить данные по токену(Через службу поддержки)';
                 document.getElementById('userTokenWarning').textContent = 'Токен необходим для работы со службой поддержки и загрузки ваших данных в этом приложении. Будьте внимательны перед тем как показывать свой токен другим.';
                 document.getElementById('showmytokentext').textContent = 'Показать мой токен пользователя';
-            }
-            else{
+            } else {
                 document.getElementById('LoadDatasFromUserToken').textContent = 'Load data by token (via support service)';
                 document.getElementById('userTokenWarning').textContent = 'The token is required to work with the support service and to load your data in this application. Be careful before sharing your token with others.';
-                document.getElementById('showmytokentext').textContent = 'Show my user token'
+                document.getElementById('showmytokentext').textContent = 'Show my user token';
             }
             const files = lang === 'ru' ? filesRu : filesEn;
 
@@ -779,12 +687,14 @@
             document.getElementById('userID-confirming').textContent = translations[lang].userIDButton;
             document.getElementById('stat_setting_text').textContent = translations[lang].statSectionTitle;
             document.getElementById('stat_setting').innerHTML = `
-                <select id="statSelect">
+                <select id="statSelect" onchange="localStorage.setItem('statistic_turn', this.value === 'yes' ? 'yes' : 'no')">
                     <option value="yes">${translations[lang].statCollectYes}</option>
                     <option value="no">${translations[lang].statCollectNo}</option>
                 </select>
                 <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">${translations[lang].statClear}</button>
             `;
+            const statSelect = document.getElementById('statSelect');
+            statSelect.value = localStorage.getItem('statistic_turn') || 'yes';
 
             if (lang === 'ru') {
                 const hasLink = !!LINKS.complaintRU && /^https?:\/\//i.test(LINKS.complaintRU);
@@ -808,46 +718,6 @@
                 disabled: !supportOk
             });
             settingsContainer.appendChild(writeSupportBtn);
-
-            const userDataContainer = document.getElementById('userDataButtons');
-            userDataContainer.innerHTML = '';
-
-            const saveDataBtn = createButton({
-                text: translations[lang].saveData,
-                icon: 'fa-solid fa-save',
-                onClick: saveUserData
-            });
-            userDataContainer.appendChild(saveDataBtn);
-
-            if (localStorage.getItem('user_data_string')) {
-                const showQrBtn = createButton({
-                    text: translations[lang].showQr,
-                    icon: 'fa-solid fa-qrcode',
-                    onClick: showQrMenu
-                });
-                userDataContainer.appendChild(showQrBtn);
-            }
-
-            const loadDataBtn = createButton({
-                text: translations[lang].loadData,
-                icon: 'fa-solid fa-upload',
-                onClick: loadUserData
-            });
-            userDataContainer.appendChild(loadDataBtn);
-
-            const copyDataBtn = createButton({
-                text: translations[lang].copyData,
-                icon: 'fa-solid fa-copy',
-                onClick: copyUserData
-            });
-            userDataContainer.appendChild(copyDataBtn);
-
-            const loadClipboardBtn = createButton({
-                text: translations[lang].loadClipboard,
-                icon: 'fa-solid fa-paste',
-                onClick: loadFromClipboard
-            });
-            userDataContainer.appendChild(loadClipboardBtn);
 
             const langSelect = document.getElementById('langSelect');
             langSelect.innerHTML = '';
@@ -916,16 +786,10 @@
         initTokenButton('tok');
 
         document.getElementById('backBtn').onclick = () => {
-            console.log('Клик на кнопку Назад - запуск сохранения...');
             document.getElementById('settingsMenu').style.display = 'none';
             document.getElementById('mainMenu').style.display = 'block';
             document.getElementById('mainTopBar').style.display = 'flex';
             saveUserDataToGoogleSheets();
-        };
-
-        document.getElementById('qrBackBtn').onclick = () => {
-            document.getElementById('qrMenu').style.display = 'none';
-            document.getElementById('settingsMenu').style.display = 'block';
         };
 
         document.getElementById('langSelect').onchange = function() {
@@ -937,6 +801,13 @@
 
         document.getElementById('avatarVisibilitySelect').onchange = function() {
             localStorage.setItem('avatar_visibility', this.value);
+        };
+
+        document.getElementById('statSelect').onchange = function() {
+            const selectedOption = this.options[this.selectedIndex].text;
+            const statTurn = selectedOption === translations[lang].statCollectYes ? 'yes' : 'no';
+            localStorage.setItem('statistic_turn', statTurn);
+            applySideButtons();
         };
 
         const m = localStorage.getItem('m');
@@ -971,7 +842,7 @@
                 );
             }
             if (!confirmed) return;
-            if (confirmed){
+            if (confirmed) {
                 alert('✅');
             }
             const keys = [
@@ -998,24 +869,9 @@
                 'desc_story'
             ];
             keys.forEach(key => localStorage.removeItem(key));
+            localStorage.setItem('statistic_turn', 'yes');
+            applyTranslations();
         }
-
-        const statSelect = document.getElementById('statSelect');
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedValue = localStorage.getItem('statistic_turn');
-            if (savedValue) {
-                statSelect.value = savedValue;
-            }
-            saveStatValue();
-        });
-
-        function saveStatValue() {
-            const value = statSelect.value === 'yes' ? 'yes' : 'no';
-            localStorage.setItem('statistic_turn', value);
-        }
-
-        statSelect.addEventListener('change', saveStatValue);
 
         const dataKeys = [
             'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
@@ -1058,384 +914,25 @@
             }
         }
 
-        async function saveUserData() {
-            const data = {};
-            const statTurn = localStorage.getItem('statistic_turn') || 'yes';
-
-            dataKeys.forEach(key => {
-                const value = localStorage.getItem(key);
-                if (value === null || value === undefined) return;
-                if (key === 'userToken') return;
-                if (statKeys.includes(key) && statTurn === 'no') return;
-                if (statKeys.includes(key) && (value === '0' || value.trim() === '')) return;
-                data[key] = value;
-            });
-
-            delete data.userAvatar;
-
-            const dataString = JSON.stringify(data);
-            localStorage.setItem('user_data_string', dataString);
-            alert(lang === 'ru' ? 'Данные сохранены!' : 'Data saved!');
-            applyTranslations();
-        }
-
-        function buildExportObject() {
-            const includeStats = (localStorage.getItem('statistic_turn') === 'yes');
-            const out = {};
-            (dataKeys || []).forEach(k => {
-                if (k === 'user_data_string') return;
-                out[k] = localStorage.getItem(k);
-            });
-            if (includeStats) {
-                const stats = {};
-                statKeys.forEach(k => {
-                    const raw = localStorage.getItem(k);
-                    const n = parseInt(raw, 10);
-                    stats[k] = (raw === null || raw === undefined || isNaN(n)) ? '0' : String(n);
-                });
-                out.statistics = stats;
-            }
-            out.__statsIncluded = includeStats;
-            out.__exportedAt = new Date().toISOString();
-            out.__formatVersion = 2;
-            delete out.userAvatar;
-            return out;
-        }
-
-        async function writeToClipboardSafe(text) {
-            try {
-                if (navigator.clipboard && window.isSecureContext) {
-                    await navigator.clipboard.writeText(text);
-                    return true;
-                }
-            } catch (e) {
-                console.warn('navigator.clipboard failed:', e);
-            }
-            try {
-                const ta = document.createElement('textarea');
-                ta.value = text;
-                ta.style.position = 'fixed';
-                ta.style.left = '-9999px';
-                ta.setAttribute('readonly', '');
-                document.body.appendChild(ta);
-                ta.select();
-                const ok = document.execCommand('copy');
-                document.body.removeChild(ta);
-                return ok;
-            } catch (e) {
-                console.warn('execCommand copy failed:', e);
-                return false;
-            }
-        }
-
-        async function copyUserData() {
-            try {
-                let exportObj = buildExportObject();
-
-                const preferredOrder = [
-                    'lang','userToken','statistic_turn','first_use_date',
-                    'created_nicknames','created_descriptions','created_profiles','created_lego',
-                    'created_fonts','created_ascii_arts','created_qr_codes','created_musics',
-                    'copied_color_codes','copied_nicknames','copied_descriptions',
-                    'shared_nicknames','shared_descriptions','nick_story','desc_story',
-                    '__statsIncluded','statistics','__exportedAt','__formatVersion'
-                ];
-                const ordered = {};
-                preferredOrder.forEach(k => { if (k in exportObj) ordered[k] = exportObj[k]; });
-                Object.keys(exportObj).sort().forEach(k => {
-                    if (!(k in ordered)) ordered[k] = exportObj[k];
-                });
-                const json = JSON.stringify(ordered, null, 2);
-                const ok = await writeToClipboardSafe(json);
-                if (ok) {
-                    alert(lang === 'ru' ? 'Данные скопированы.' : 'Data copied.');
-                } else {
-                    alert(lang === 'ru' ? 'Не удалось скопировать данные.' : 'Failed to copy data.');
-                }
-            } catch (err) {
-                console.error('copyUserData error:', err);
-                alert(lang === 'ru' ? 'Ошибка при подготовке данных.' : 'Error preparing data.');
-            }
-        }
-
-        function loadFromClipboard() {
-            navigator.clipboard.readText().then(payload => {
-                processLoadedData(payload.trim());
-            }).catch(err => {
-                alert(lang === 'ru' ? 'Не удалось прочитать из буфера обмена.' : 'Failed to read from clipboard.');
-            });
-        }
-
-        function showQrMenu() {
-            const dataString = localStorage.getItem('user_data_string');
-            if (!dataString) return;
-            document.getElementById('settingsMenu').style.display = 'none';
-            document.getElementById('qrMenu').style.display = 'block';
-            const qrContainer = document.getElementById('qrCodeContainer');
-            qrContainer.innerHTML = '';
-            const qrDiv = document.createElement('div');
-            qrContainer.appendChild(qrDiv);
-            try {
-                new QRCode(qrDiv, {
-                    text: dataString,
-                    width: 256,
-                    height: 256,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            } catch (err) {
-                console.error("QR generation error:", err);
-                qrDiv.innerHTML = lang === 'ru'
-                    ? "Данные не вмещаются в QR-код, попробуйте другой способ сохранения/загрузки данных."
-                    : "Data does not fit in QR code, please try another way to save/load data.";
-            }
-        }
-
-        function loadUserData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = event => {
-                    const img = new Image();
-                    img.onload = async () => {
-                        try {
-                            const MAX_DIM = 1200;
-                            const scales = [1, 1.5, 2, 3, 4];
-                            let code = null;
-                            const toGrayscale = (imageData) => {
-                                const { data, width, height } = imageData;
-                                const gray = new Uint8ClampedArray(width * height);
-                                for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-                                    const y = (0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2]);
-                                    gray[j] = y;
-                                }
-                                return { gray, width, height };
-                            };
-                            const histogramEqualize = (gray) => {
-                                const hist = new Uint32Array(256);
-                                for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
-                                const cdf = new Uint32Array(256);
-                                cdf[0] = hist[0];
-                                for (let i = 1; i < 256; i++) cdf[i] = cdf[i-1] + hist[i];
-                                const cdfMin = cdf.find(v => v > 0) || 0;
-                                const total = gray.length;
-                                const lut = new Uint8ClampedArray(256);
-                                for (let i = 0; i < 256; i++) {
-                                    lut[i] = Math.round((cdf[i] - cdfMin) / (total - cdfMin) * 255);
-                                }
-                                const out = new Uint8ClampedArray(gray.length);
-                                for (let i = 0; i < gray.length; i++) out[i] = lut[gray[i]];
-                                return out;
-                            };
-                            const otsuThreshold = (gray) => {
-                                const hist = new Uint32Array(256);
-                                for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
-                                const total = gray.length;
-                                let sum = 0;
-                                for (let t = 0; t < 256; t++) sum += t * hist[t];
-                                let sumB = 0, wB = 0, max = 0, threshold = 0;
-                                for (let t = 0; t < 256; t++) {
-                                    wB += hist[t];
-                                    if (wB === 0) continue;
-                                    const wF = total - wB;
-                                    if (wF === 0) break;
-                                    sumB += t * hist[t];
-                                    const mB = sumB / wB;
-                                    const mF = (sum - sumB) / wF;
-                                    const between = wB * wF * (mB - mF) * (mB - mF);
-                                    if (between > max) { max = between; threshold = t; }
-                                }
-                                return threshold;
-                            };
-                            const binarize = (gray, thresh) => {
-                                const bin = new Uint8ClampedArray(gray.length);
-                                for (let i = 0; i < gray.length; i++) bin[i] = gray[i] >= thresh ? 255 : 0;
-                                return bin;
-                            };
-                            const dilateBinary = (bin, w, h, iter = 1) => {
-                                let cur = bin.slice();
-                                const next = new Uint8ClampedArray(bin.length);
-                                for (let it = 0; it < iter; it++) {
-                                    next.set(cur);
-                                    for (let y = 1; y < h - 1; y++) {
-                                        for (let x = 1; x < w - 1; x++) {
-                                            const i = y * w + x;
-                                            if (cur[i] === 255) {
-                                                const n1 = cur[i-1], n2 = cur[i+1], n3 = cur[i-w], n4 = cur[i+w];
-                                                if (n1 === 0 || n2 === 0 || n3 === 0 || n4 === 0) next[i] = 0;
-                                            }
-                                        }
-                                    }
-                                    cur.set(next);
-                                }
-                                return cur;
-                            };
-                            const binaryToImageData = (bin, w, h) => {
-                                const out = new Uint8ClampedArray(w * h * 4);
-                                for (let i = 0, j = 0; i < bin.length; i++, j += 4) {
-                                    out[j] = out[j+1] = out[j+2] = bin[i];
-                                    out[j+3] = 255;
-                                }
-                                return new ImageData(out, w, h);
-                            };
-                            const imageDataToImageDataObj = (ctx, w, h) => ctx.getImageData(0, 0, w, h);
-                            const tryDecodeImageData = (imageData) => {
-                                try {
-                                    return jsQR(imageData.data, imageData.width, imageData.height);
-                                } catch (err) {
-                                    console.warn('jsQR exception:', err);
-                                    return null;
-                                }
-                            };
-                            for (let scale of scales) {
-                                let w = Math.round(img.width * scale);
-                                let h = Math.round(img.height * scale);
-                                if (w > MAX_DIM || h > MAX_DIM) {
-                                    const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
-                                    w = Math.max(16, Math.round(w * ratio));
-                                    h = Math.max(16, Math.round(h * ratio));
-                                }
-                                if (w < 16 || h < 16) continue;
-                                const canvas = document.createElement('canvas');
-                                canvas.width = w;
-                                canvas.height = h;
-                                const ctx = canvas.getContext('2d');
-                                for (const smoothing of [false, true]) {
-                                    ctx.imageSmoothingEnabled = smoothing;
-                                    ctx.clearRect(0, 0, w, h);
-                                    ctx.drawImage(img, 0, 0, w, h);
-                                    console.log(`Try scale=${scale}, smoothing=${smoothing}, canvas=${w}x${h}`);
-                                    let id = imageDataToImageDataObj(ctx, w, h);
-                                    code = tryDecodeImageData(id);
-                                    if (code && code.data) { console.log('Found (raw) at', scale, smoothing); break; }
-                                    const { gray } = toGrayscale(id);
-                                    const he = histogramEqualize(gray);
-                                    const heImage = binaryToImageData(he.map(v => v), w, h);
-                                    code = tryDecodeImageData(heImage);
-                                    if (code && code.data) { console.log('Found (hist eq) at', scale, smoothing); break; }
-                                    const thresh = otsuThreshold(he);
-                                    const bin = binarize(he, thresh);
-                                    const dil = dilateBinary(bin, w, h, 1);
-                                    const dilImage = binaryToImageData(dil, w, h);
-                                    code = tryDecodeImageData(dilImage);
-                                    if (code && code.data) { console.log('Found (binary+dilate) at', scale, smoothing); break; }
-                                    const invBin = new Uint8ClampedArray(bin.length);
-                                    for (let i = 0; i < bin.length; i++) invBin[i] = 255 - bin[i];
-                                    const invDil = dilateBinary(invBin, w, h, 1);
-                                    const invImage = binaryToImageData(invDil, w, h);
-                                    code = tryDecodeImageData(invImage);
-                                    if (code && code.data) { console.log('Found (inv binary+dilate) at', scale, smoothing); break; }
-                                }
-                                if (code && code.data) break;
-                            }
-                            if (!code) {
-                                alert(lang === 'ru' ? 'Ошибка: QR-код не найден или некорректен.' : 'Error: QR code not found or invalid.');
-                                return;
-                            }
-                            processLoadedData(code.data.trim());
-                        } catch (err) {
-                            console.error('Processing error:', err);
-                            alert(lang === 'ru' ? 'Ошибка при обработке изображения.' : 'Error while processing the image.');
-                        }
-                    };
-                    img.onerror = () => {
-                        alert(lang === 'ru' ? 'Не удалось загрузить изображение.' : 'Could not load the image.');
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            };
-            input.click();
-        }
-
-        function processLoadedData(payload) {
-            try {
-                const data = JSON.parse(payload);
-                let confirmed;
-                if (lang === 'ru') {
-                    confirmed = confirm(
-                        "Вы точно хотите загрузить эти данные из QR-кода?\n" +
-                        "Предыдущие данные будут заменены на те что из QR-кода.\n" +
-                        "ОК - Подтвердить\nОтмена - Отменить"
-                    );
-                } else {
-                    confirmed = confirm(
-                        "Are you sure you want to load these data from QR code?\n" +
-                        "Previous data will be replaced with those from the QR code.\n" +
-                        "OK - Confirm\nCancel - Cancel"
-                    );
-                }
-                if (!confirmed) return;
-                const statKeys = [
-                    'created_nicknames','created_descriptions','created_profiles','created_lego',
-                    'created_fonts','created_ascii_arts','created_qr_codes','created_musics',
-                    'copied_color_codes','copied_nicknames','copied_descriptions',
-                    'shared_nicknames','shared_descriptions',
-                    'usage_day','usage_week','usage_month','last_day','last_week','last_month'
-                ];
-                Object.keys(data).forEach(key => {
-                    if (!dataKeys.includes(key)) return;
-                    if (key === 'userToken') return;
-                    if (key === 'userAvatar') return;
-                    const raw = data[key];
-                    if (statKeys.includes(key)) {
-                        const n = parseInt(raw);
-                        if (raw === null || raw === undefined || isNaN(n)) {
-                            localStorage.setItem(key, '0');
-                        } else {
-                            localStorage.setItem(key, String(n));
-                        }
-                    } else {
-                        if (raw === null || raw === undefined) {
-                            localStorage.setItem(key, '');
-                        } else {
-                            localStorage.setItem(key, String(raw));
-                        }
-                    }
-                });
-                alert(lang === 'ru' ? 'Данные успешно загружены!' : 'Data successfully loaded!');
-                location.reload();
-            } catch (err) {
-                console.error('JSON parse error:', err, 'raw:', payload);
-                alert(lang === 'ru' ? 'Ошибка: Некорректные данные в QR-коде.' : 'Error: Invalid data in QR code.');
-            }
-        }
-
         async function saveUserDataToGoogleSheets() {
             const SPREADSHEET_ID = '145dg5-KwMTiz3dVWTjLzXtHOQ5z9Gufm47LgLKsXHWU';
-            console.log('Запуск сохранения данных в Google Sheets...');
             try {
                 const now = new Date();
                 const dateStr = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear().toString().slice(-2)} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-                
                 const userToken = localStorage.getItem('userToken') || '';
                 const username = localStorage.getItem('userName') || '';
-
-                // Аватар → ссылка или base64
                 let avatarFromStorage = localStorage.getItem('userAvatar');
-                let avatar = 'user_profile_photo.png'; // по умолчанию
-
+                let avatar = 'user_profile_photo.png';
                 if (avatarFromStorage && avatarFromStorage.trim() !== '') {
                     if (avatarFromStorage.startsWith("http")) {
-                        // Уже ссылка
                         avatar = avatarFromStorage;
                     } else if (avatarFromStorage.startsWith("data:image")) {
-                        // Base64 картинка → отправляем как есть
                         avatar = avatarFromStorage;
                     } else {
-                        // Любое другое значение (например имя файла)
                         avatar = avatarFromStorage;
                     }
                 }
-
-
                 const avatarVisibility = localStorage.getItem('avatar_visibility') || 'all';
-                
                 const firstUseDate = localStorage.getItem('first_use_date');
                 let usageTime = '';
                 if (firstUseDate) {
@@ -1446,7 +943,6 @@
                     const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
                     usageTime = `${diffDays}d ${diffHrs}h ${diffMins}m`;
                 }
-
                 const statTurn = localStorage.getItem('statistic_turn') || 'yes';
                 const stats = {};
                 statKeys.forEach(key => {
@@ -1455,9 +951,7 @@
                     stats[key] = (raw === null || raw === undefined || isNaN(n)) ? '0' : String(n);
                 });
                 const statsStr = statTurn === 'yes' ? JSON.stringify(stats) : `(Отключено)${JSON.stringify(stats)}`;
-
                 const likedUsers = localStorage.getItem('liked_users') || '';
-
                 const data = {
                     date: dateStr,
                     token: userToken,
@@ -1468,9 +962,6 @@
                     statistics: statsStr,
                     liked_users: likedUsers
                 };
-
-                console.log('Данные для отправки:', data);
-
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(data),
@@ -1479,10 +970,7 @@
                     },
                     redirect: 'follow'
                 });
-
                 const responseText = await response.text();
-                console.log('Ответ от сервера:', response.status, responseText);
-
                 if (!response.ok) {
                     console.error('Ошибка при сохранении:', response.status, responseText);
                 }
@@ -1490,7 +978,6 @@
                 console.error('Ошибка в saveUserDataToGoogleSheets:', err);
             }
         }
-
 
         function incrementCoins() {
             if (Math.random() < 0.07) {
@@ -1500,7 +987,7 @@
                 let coins = parseInt(localStorage.getItem('coins') || '0');
                 coins += amount;
                 localStorage.setItem('coins', coins.toString());
-                document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + coins;
+                document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + formatNumber(coins);
             }
         }
 
@@ -1524,15 +1011,16 @@
                     }
                 });
             });
+            const statSelect = document.getElementById('statSelect');
+            statSelect.value = localStorage.getItem('statistic_turn') || 'yes';
         });
 
-        // Side Menu Functionality
         const sideMenu = document.getElementById('sideMenu');
         const overlay = document.getElementById('overlay');
         const sideButtons = document.getElementById('sideButtons');
 
         function showSideMenu() {
-            applyTranslations(); // Ensure translations are up to date
+            applyTranslations();
             applySideButtons();
             sideMenu.style.display = 'block';
             overlay.style.display = 'block';
@@ -1559,6 +1047,7 @@
             document.getElementById('settingsMenu').style.display = 'block';
             applyTranslations();
         }
+
         function applySideButtons() {
             sideButtons.innerHTML = '';
             const files = lang === 'ru' ? filesRu : filesEn;
@@ -1570,7 +1059,7 @@
                 { textKey: 'popular', icon: 'fa-solid fa-square-poll-vertical', href: files.popular },
                 { textKey: 'wishlist', icon: 'fa-solid fa-clipboard-list', href: 'izbr.html' },
                 { textKey: 'task', icon: 'fa-solid fa-list-check', href: files.tasks },
-                { textKey: 'money', icon: 'fa-solid fa-coins', href: 'indexed_money.html' },
+                { textKey: 'money', icon: 'fa-solid fa-coins', href: files.indexed_money },
                 { textKey: 'myshop', icon: 'fa-solid fa-shop', href: files.myshop },
                 { textKey: 'shop', icon: 'fa-solid fa-cart-shopping', href: files.shop },
                 { textKey: 'premium', icon: 'fa-solid fa-crown', href: 'premium.screen.html' },
@@ -1582,44 +1071,36 @@
                     icon: item.icon,
                     onClick: item.onClick,
                     href: item.href,
-                    duplicateIcon: true
+                    duplicateIcon: true,
+                    disabled: item.disabled
                 });
-                if (item.disabled !== undefined) {
-                    btn.disabled = item.disabled;
-                    btn.style.background = item.disabled ? 'gray' : '';
-                }
                 sideButtons.appendChild(btn);
             });
         }
-        function checkUserID(){
-            if (localStorage.getItem('userID')){
-                document.getElementById('my_idHeader').style.color = 'white';
 
-                if (localStorage.getItem('lang') === 'ru'){
+        function checkUserID() {
+            if (localStorage.getItem('userID')) {
+                document.getElementById('my_idHeader').style.color = 'white';
+                if (lang === 'ru') {
                     document.getElementById('my_idHeader').textContent = 'Показать мой Telegram ID';
-                    document.getElementById('myID').textContent = localStorage.getItem('userID') + ' (Нажмите чтобы скопировать)'
-                }
-                else{
+                    document.getElementById('myID').textContent = localStorage.getItem('userID') + ' (Нажмите чтобы скопировать)';
+                } else {
                     document.getElementById('my_idHeader').textContent = 'Show my Telegram ID';
-                    document.getElementById('myID').textContent = localStorage.getItem('userID') + ' (Click to copy)'
+                    document.getElementById('myID').textContent = localStorage.getItem('userID') + ' (Click to copy)';
                 }
-                document.getElementById('my_idBox').style.display = 'block'
-            }
-            else{
-                document.getElementById('my_idBox').style.display = 'none'
+                document.getElementById('my_idBox').style.display = 'block';
+            } else {
+                document.getElementById('my_idBox').style.display = 'none';
             }
         }
-        checkUserID();
 
         document.getElementById('myID').addEventListener('click', (e) => {
-            const textToCopy = localStorage.getItem('userID'); // берём текст из элемента
-            navigator.clipboard.writeText(textToCopy) // копируем в буфер обмена
+            const textToCopy = localStorage.getItem('userID');
+            navigator.clipboard.writeText(textToCopy)
                 .then(() => {
                     const lang = localStorage.getItem('lang');
                     const originalText = e.target.textContent;
                     e.target.textContent = lang === 'ru' ? 'Скопировано!' : 'Copied!';
-
-                    // через 1.5 сек вернуть исходный текст
                     setTimeout(() => {
                         e.target.textContent = originalText;
                     }, 2500);
@@ -1629,30 +1110,22 @@
                 });
         });
 
-
         async function checkTokenAndRedirect() {
             try {
-                // Получаем токен из localStorage
                 const userToken = localStorage.getItem('userToken');
-                
                 if (!userToken) {
                     console.error('Токен пользователя не найден в localStorage');
                     return;
                 }
-                
-                // Отправляем POST-запрос с токеном
                 const response = await fetch(gasUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `userToken=${encodeURIComponent(userToken)}`
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `userToken=${encodeURIComponent(userToken)}`
                 });
-                
                 const result = await response.json();
-                
                 if (result.success) {
-                    // Перенаправляем на URL из B2
                     window.location.href = result.redirectUrl;
                 } else {
                     console.error('Ошибка:', result.error);
@@ -1663,25 +1136,23 @@
         }
 
         document.addEventListener("click", function (event) {
-        const t = event.target;
-
-        if (
-            t.tagName !== "INPUT" &&
-            t.tagName !== "TEXTAREA" &&
-            t.tagName !== "SELECT" &&
-            !t.isContentEditable
-        ) {
-            if (document.activeElement && document.activeElement.blur) {
-            document.activeElement.blur();
+            const t = event.target;
+            if (
+                t.tagName !== "INPUT" &&
+                t.tagName !== "TEXTAREA" &&
+                t.tagName !== "SELECT" &&
+                !t.isContentEditable
+            ) {
+                if (document.activeElement && document.activeElement.blur) {
+                    document.activeElement.blur();
+                }
             }
-        }
         });
 
-        async function securityChecker(){
+        async function securityChecker() {
             const { blockedTokens } = await import('./security.js');
-            // Use blockedTokens here as needed
-            if(blockedTokens.includes(localStorage.getItem('userToken'))){
-                window.location.href = 'blocked.html'
+            if (blockedTokens.includes(localStorage.getItem('userToken'))) {
+                window.location.href = 'blocked.html';
             }
         }
         setInterval(() => {
@@ -1690,8 +1161,9 @@
         securityChecker();
         saveUserDataToGoogleSheets();
         setInterval(() => {
-            checkTokenAndRedirect()
+            checkTokenAndRedirect();
         }, 6500);
+        document.getElementById("p1").style.left = Math.floor(Math.random() * 90 + 5) + '%';
     </script>
 </body>
 </html>

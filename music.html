@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Музыкальная Студия</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
@@ -17,33 +17,38 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+      overflow-y: auto; /* Вертикальная прокрутка */
+      overflow-x: hidden; /* Запрещаем горизонтальную прокрутку */
+      touch-action: manipulation; /* Улучшает отзывчивость на мобильных */
     }
     .container {
-      width: 90%;
+      width: 100%;
       max-width: 800px;
-      margin: 20px;
+      margin: 20px auto;
       background: rgba(255,255,255,0.9);
       border-radius: 10px;
-      padding: 20px;
+      padding: 15px; /* Уменьшили отступы для мобильных */
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-sizing: border-box;
     }
     section {
-      margin-bottom: 30px;
+      margin-bottom: 25px; /* Уменьшили отступы */
     }
     section h2 {
       margin-top: 0;
       color: #444;
       display: inline-block;
       vertical-align: middle;
+      font-size: 1.2em; /* Уменьшили размер шрифта для мобильных */
     }
     /* Кнопка "?" – выравнивание */
     .info-btn {
       background: #4CAF50;
       border: none;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
+      width: 20px; /* Уменьшили размер */
+      height: 20px;
+      font-size: 12px;
       font-weight: bold;
       margin-left: 5px;
       cursor: pointer;
@@ -51,17 +56,19 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      touch-action: manipulation;
     }
     button, input[type="file"] {
-      padding: 10px 20px;
-      font-size: 1em;
+      padding: 8px 16px; /* Уменьшили отступы */
+      font-size: 0.9em;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      margin-right: 10px;
+      margin-right: 8px;
       background: #66a6ff;
       color: #fff;
       transition: background 0.2s;
+      touch-action: manipulation;
     }
     button:hover {
       background: #5594e6;
@@ -71,25 +78,27 @@
       cursor: not-allowed;
     }
     .control-group {
-      margin-bottom: 15px;
+      margin-bottom: 12px; /* Уменьшили отступы */
     }
     label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       font-weight: bold;
+      font-size: 0.9em;
     }
     input[type="range"] {
       width: 100%;
       -webkit-appearance: none;
       background: #ddd;
-      height: 8px;
+      height: 6px; /* Уменьшили высоту */
       border-radius: 4px;
       outline: none;
+      touch-action: manipulation;
     }
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
+      width: 18px; /* Уменьшили размер */
+      height: 18px;
       border-radius: 50%;
       background: #66a6ff;
       cursor: pointer;
@@ -100,30 +109,31 @@
     }
     .value-display {
       text-align: right;
-      font-size: 0.9em;
-      margin-top: 5px;
+      font-size: 0.8em;
+      margin-top: 4px;
     }
     audio {
       width: 100%;
-      margin-top: 10px;
+      margin-top: 8px;
       outline: none;
     }
     /* Блок дополнительных настроек */
     .extra-tools-section {
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
     #toggleExtra {
       background: #ffb74d;
       color: #fff;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      width: 100%; /* Полная ширина на мобильных */
     }
     #extraTools {
       display: none;
       border-top: 1px solid #ccc;
-      padding-top: 15px;
+      padding-top: 12px;
     }
     .extra-control {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     /* Модальное окно */
     .modal-overlay {
@@ -137,20 +147,22 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      overflow-y: auto; /* Прокрутка в модальном окне */
     }
     .modal-content {
       background: #fff;
       color: #333;
-      padding: 20px;
+      padding: 15px;
       border-radius: 10px;
       text-align: center;
-      max-width: 600px;
-      width: 90%;
-      max-height: 90vh;
+      max-width: 90%;
+      width: auto;
+      max-height: 80vh;
       overflow-y: auto;
+      box-sizing: border-box;
     }
     .modal-content p {
-      margin: 10px 0;
+      margin: 8px 0;
     }
     .modal-content ul {
       list-style: none;
@@ -158,11 +170,11 @@
       text-align: left;
     }
     .modal-content li {
-      margin: 5px 0;
+      margin: 4px 0;
     }
     .modal-content button {
-      margin-top: 10px;
-      padding: 5px 10px;
+      margin-top: 8px;
+      padding: 4px 8px;
       border: none;
       border-radius: 5px;
       background: #66a6ff;
@@ -171,17 +183,15 @@
     }
     /* Кнопка сброса */
     #resetBaseBtn {
-      margin-top: 15px;
+      margin-top: 12px;
       background: #e57373;
     }
     /* Секция загрузки файла */
     .upload-section input[type="file"] {
       display: block;
-      margin-top: 10px;
+      margin-top: 8px;
+      width: 100%;
     }
-    /* Отступ для кнопки "Поделиться музыкой" */
-    /* Кнопка удалена согласно инструкции */
-
     /* Новый стиль для визуализатора на фоне */
     canvas#visualizerBackground {
       position: fixed;
@@ -192,20 +202,71 @@
       z-index: -1;
       display: none;
     }
+    /* Стиль для кнопки "Вернуться в главное меню" */
+    #backBtn {
+      padding: 8px 16px;
+      font-size: 14px;
+      z-index: 999;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+    }
+    /* Медиа-запросы для мобильных устройств */
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px;
+        padding: 10px;
+      }
+      section h2 {
+        font-size: 1.1em;
+      }
+      button, input[type="file"] {
+        padding: 6px 12px;
+        font-size: 0.8em;
+      }
+      .info-btn {
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+      }
+      input[type="range"] {
+        height: 5px;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        width: 16px;
+        height: 16px;
+      }
+      .value-display {
+        font-size: 0.75em;
+      }
+      .modal-content {
+        padding: 10px;
+        max-height: 70vh;
+      }
+      /* На мобильных кнопка сверху надписи, не фиксированная */
+      #backBtn {
+        position: static;
+        display: block;
+        margin: 0 auto 20px auto;
+        width: fit-content;
+      }
+      .play-section {
+        margin-top: 0; /* Убираем отступ сверху для секции */
+      }
+    }
+    /* Прокрутка справа (по умолчанию на мобильных она справа) */
+    /* Нет нужды добавлять что-то дополнительно, так как по умолчанию прокрутка справа */
   </style>
 </head>
 <body>
-    <button 
-    onclick="window.location.href = 'main.html'" 
-    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
->
-    ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ
-    </button>
-
   <!-- Фон с визуализатором -->
   <canvas id="visualizerBackground"></canvas>
   
   <div class="container">
+    <button id="backBtn" onclick="window.location.href = 'main.html'">
+      ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ
+    </button>
+
     <!-- Загрузка файла -->
     <section class="upload-section">
       <h2>Загрузите свою песню</h2>

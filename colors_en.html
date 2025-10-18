@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Color Picker</title>
-  <!-- Font Awesome для иконки копирования -->
+  <!-- Font Awesome for copy icon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,6 +17,7 @@
       align-items: center;
       transition: background 0.2s ease;
       padding: 1em;
+      overflow: auto;
     }
     .picker {
       width: 100%;
@@ -39,6 +40,7 @@
       font-size: 0.9em;
       border-radius: 5px;
       cursor: pointer;
+      touch-action: manipulation;
     }
     .format-buttons button.active {
       background: #fff;
@@ -64,6 +66,7 @@
       cursor: pointer;
       font-size: 1.5em;
       color: #fff;
+      touch-action: manipulation;
     }
     .copy-btn:hover {
       color: #eee;
@@ -93,7 +96,22 @@
       position: relative;
       z-index: 2;
     }
-
+    @media (max-width: 480px) {
+      body {
+        padding: 0.5em;
+      }
+      .format-buttons button {
+        padding: 0.3em 0.6em;
+        font-size: 0.8em;
+      }
+      .hex {
+        padding: 0.4em 0.6em;
+        font-size: 0.9em;
+      }
+      .copy-btn {
+        font-size: 1.2em;
+      }
+    }
   </style>
 </head>
 <body>
@@ -101,7 +119,7 @@
     onclick="window.location.href = 'main.html'" 
     style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
 >
-    BACK TO MAIN MENU
+    RETURN TO MAIN MENU
     </button>
 
   <div class="picker">
@@ -112,7 +130,7 @@
     </div>
     <div class="input-group">
       <input type="text" class="hex" value="#ff1717" maxlength="30">
-      <button class="copy-btn" title="Копировать"><i class="fa-solid fa-copy"></i></button>
+      <button class="copy-btn" title="Copy"><i class="fa-solid fa-copy"></i></button>
     </div>
     <div class="alpha-overlay">
       <div class="checkerboard"></div>
@@ -301,7 +319,7 @@
       drawAlphaSlider(); updateInput();
     });
 
-    // Парсинг вручную введённого кода
+    // Parsing manually entered code
     function parseInput() {
       const v = hexInput.value.trim();
       let m;
@@ -319,8 +337,8 @@
         hue = hsv.h; sat = hsv.s; val = hsv.v; alpha = hsv.a;
       } else if (m = /^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*([\d.]+))?\)$/i.exec(v)) {
         const h = +m[1], s = +m[2], l = +m[3], a = m[4]?+m[4]:1;
-        // конвертация HSL->HSV
-        // сначала HSL->RGB через rgbToHsl обратное, но проще: HSL->RGB->HSV
+        // HSL to HSV conversion
+        // First HSL to RGB via reverse of rgbToHsl, but simpler: HSL->RGB->HSV
         const { r, g, b } = (() => {
           l /= 100; s /= 100;
           const c = (1 - Math.abs(2*l-1))*s;
@@ -354,20 +372,50 @@
       }
     }
     copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(hexInput.value)
-        .then(() => {
-          copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-          func();
-        })
-        .catch(() => {
+      const textToCopy = hexInput.value;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => {
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            func();
+          })
+          .catch(() => {
+            // Fallback for older browsers or when clipboard API fails
+            hexInput.select();
+            hexInput.setSelectionRange(0, 99999); // For mobile devices
+            try {
+              const successful = document.execCommand('copy');
+              if (successful) {
+                copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                func();
+              } else {
+                copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+              }
+            } catch (err) {
+              copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            }
+          });
+      } else {
+        // Fallback if clipboard API not available
+        hexInput.select();
+        hexInput.setSelectionRange(0, 99999); // For mobile devices
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            func();
+          } else {
+            copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+          }
+        } catch (err) {
           copyBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-        });
+        }
+      }
 
       setTimeout(() => {
         copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
       }, 1500);
     });
-
 
     formatButtons.forEach(btn => {
       btn.addEventListener('click', () => {
