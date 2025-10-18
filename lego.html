@@ -19,7 +19,10 @@
             padding: 0;
             margin: 0;
         }
-        
+        html, body {
+            overscroll-behavior-y: contain; /* Предотвращает нежелательное поведение прокрутки */
+            -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS */
+        }
         body {
             display: flex;
             height: 100vh;
@@ -2998,6 +3001,42 @@
             width: auto;
             padding: 0.25em 0.5em;
         }
+        .controls {
+            position: relative;
+            z-index: 1;
+            width: 250px; /* Уменьшена ширина для мобильных */
+            padding: 1.5em;
+            color: #333;
+            text-transform: uppercase;
+            background-color: rgba(220,220,220,0.5);
+            overflow-y: auto; /* Оставляем прокрутку по вертикали */
+            min-height: 100%; /* Устанавливаем минимальную высоту */
+            box-sizing: border-box; /* Учитываем padding в размерах */
+        }
+
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column; /* Панель инструментов под фигуркой */
+                height: auto; /* Автоматическая высота для скролла */
+                min-height: 100vh; /* Минимальная высота для всего экрана */
+            }
+
+            .minifigure {
+                width: 80px; /* Уменьшено для мобильных */
+                min-height: 400px; /* Уменьшено для мобильных */
+                margin: 1em auto;
+                transform: scale(0.8); /* Уменьшить масштаб фигурки для полного отображения */
+                transform-origin: top center;
+            }
+
+            .controls {
+                width: 100% !important; /* Полная ширина на мобильных */
+                padding: 1em;
+                max-height: none; /* Убираем ограничение высоты */
+                overflow-y: auto; /* Обеспечиваем прокрутку */
+                -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS */
+            }
+        }
     </style>
 <button 
     onclick="window.location.href = 'main.html'" 
@@ -4656,6 +4695,29 @@
         });
       }
       
+
+    function setFaceColors() {
+        document.documentElement.style.setProperty('--skin-color', skinColor.value);
+        document.documentElement.style.setProperty('--eye-pupil', eyeColor.value);
+        document.documentElement.style.setProperty('--mouth-color', mouthColor.value);
+        document.documentElement.style.setProperty('--brow-color', browColor.value);
+        // Обновляем цвет рук
+        arms.forEach(arm => {
+            arm.style.color = armColor.value;
+        });
+    }
+
+    function resetColor(e) {
+        var btn = e.target;
+        var id = btn.dataset.for;
+        var input = document.getElementById(id);
+        if (id === 'skin-color') input.value = '#ffd700';
+        else if (id === 'eye-color') input.value = '#000000';
+        else if (id === 'mouth-color') input.value = '#000000';
+        else if (id === 'brow-color') input.value = '#000000';
+        else if (id === 'arm-color') input.value = '#ffd700'; // Добавляем сброс для arm-color
+        setFaceColors();
+    }
       // Load from URL params
       const urlParams = new URLSearchParams(window.location.search);
       expressionRangeInput.value = urlParams.get('expression') || 0;
