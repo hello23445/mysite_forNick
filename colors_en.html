@@ -394,7 +394,7 @@
     }
     hexInput.addEventListener('blur', parseInput);
     hexInput.addEventListener('keydown', e => { if (e.key === 'Enter') parseInput(); });
-    hexInput.addEventListener('input', () => {
+    hexInput.addEventListener('focus', () => {
       // Hide all elements except input and show Next button
       formatButtons.forEach(btn => btn.classList.add('hidden'));
       copyBtn.classList.add('hidden');
