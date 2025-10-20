@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #060039;
+      --bg-soft: #0b0660;
+      --card: #0d0870;
+      --text: #e6e6ff;
+      --muted: #a7a7c7;
+      --accent: #6a5cff;
+      --accent-2: #8f87ff;
+      --shadow: rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 80% -10%, #100a7a 0%, var(--bg) 60%);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Верхняя панель */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    #userTopBar { justify-content: space-between; }
+    #userTopBar .title {
+      flex: 1;
+      text-align: center;
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: .3px;
+      color: var(--accent-2);
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #090975;
+      border: 1px solid rgba(255,255,255,.08);
+      color: var(--text);
+      font-size: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all .25s ease;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    .icon-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(95, 87, 255, 0.45);
+    }
+
+    /* Контент */
+    .settings-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    /* Профиль */
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: linear-gradient(180deg, var(--card), #0b0862);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 12px 32px var(--shadow);
+      margin-bottom: 24px;
+    }
+    .avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    #avatarImg {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--accent);
+      box-shadow: 0 8px 24px rgba(95, 87, 255, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    #avatarImg:hover {
+      transform: scale(1.07);
+      box-shadow: 0 12px 32px rgba(95, 87, 255, 0.5);
+    }
+    .avatar-upload-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(95, 87, 255, 0.5);
+      transition: all 0.25s ease;
+    }
+    .avatar-upload-btn:hover {
+      background: var(--accent-2);
+      transform: scale(1.1);
+    }
+    #avatarInput { display: none; }
+
+    .profile-info {
+      flex: 1;
+    }
+    #nameInput {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-soft);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      font-size: 16px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    #nameInput:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(95, 87, 255, 0.25);
+    }
+    .name-save-btn, .avatar-delete-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all .25s ease;
+      margin-right: 8px;
+    }
+    .name-save-btn:hover, .avatar-delete-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(95, 87, 255, 0.35);
+    }
+    .avatar-delete-btn {
+      background: linear-gradient(135deg, #ff4d4d, #ff7878);
+    }
+    .avatar-delete-btn:hover {
+      box-shadow: 0 6px 18px rgba(255, 77, 77, 0.35);
+    }
+
+    /* Карточки секций */
+    .card {
+      background: linear-gradient(180deg, var(--card), #0b0862);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 12px 32px var(--shadow);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .card-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .collapsible-content {
+      padding: 12px 0 0;
+      display: none;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--muted);
+      animation: fadeIn .3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #usageTimes ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #usageTimes li {
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 560px) {
+      .profile-card { flex-direction: column; align-items: center; text-align: center; }
+      .profile-info { width: 100%; }
+      #avatarImg { width: 100px; height: 100px; }
+      .avatar-delete-btn{margin-top: 2.5%}
+    }
+  </style>
+</head>
+<body>
+  <div id="userMenu">
+    <div class="top-bar" id="userTopBar">
+      <button class="icon-btn" id="userBackBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+      <span class="title" data-translate="userTitle" id="userTitle"></span>
+      <span style="width:40px; height:40px;"></span>
+    </div>
+
+    <div class="settings-wrap">
+      <!-- Современный профиль -->
+      <div class="profile-card">
+        <div class="avatar-wrap">
+          <img id="avatarImg" src="" alt="Profile Avatar" />
+          <label for="avatarInput" class="avatar-upload-btn" title="Change Avatar">
+            <i class="fa-solid fa-camera"></i>
+          </label>
+          <input type="file" id="avatarInput" accept="image/*" />
+        </div>
+        <div class="profile-info">
+          <input type="text" id="nameInput" placeholder="Enter your name" maxlength="20" />
+          <button class="name-save-btn" onclick="saveName()">
+            <i class="fa-solid fa-save"></i> <span id="save">Save</span>
+          </button>
+          <button class="avatar-delete-btn" onclick="deleteAvatar()">
+            <i class="fa-solid fa-trash"></i> <span id="deleteAvatar">Delete Avatar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- История -->
+      <div class="card">
+        <div class="card-header">
+          <h3 data-translate="historySectionTitle"><i class="fa-solid fa-clock-rotate-left"></i> History</h3>
+          <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+        </div>
+        <div class="collapsible-content">
+          <!-- Подкарточка: История никнеймов -->
+          <div class="card" style="margin-bottom: 12px; box-shadow: 0 6px 16px var(--shadow);">
+            <div class="card-header">
+              <h3 data-translate="nickHistoryTitle"><i class="fa-solid fa-user"></i> Nicknames History</h3>
+              <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+            </div>
+            <div class="collapsible-content">
+              <div id="nickHistories"></div>
+            </div>
+          </div>
+          <!-- Подкарточка: История описаний -->
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
+              <h3 data-translate="descHistoryTitle"><i class="fa-solid fa-file-alt"></i> Descriptions History</h3>
+              <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+            </div>
+            <div class="collapsible-content">
+              <div id="descHistories"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Время использования -->
+      <div class="card">
+        <div class="card-header">
+          <h3 data-translate="usageTimeTitle"><i class="fa-solid fa-hourglass-half"></i> Usage Time</h3>
+          <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+        </div>
+        <div class="collapsible-content">
+          <div id="usageTimes"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+    document.addEventListener("click", function (event) {
+    const t = event.target;
+
+    if (
+        t.tagName !== "INPUT" &&
+        t.tagName !== "TEXTAREA" &&
+        t.tagName !== "SELECT" &&
+        !t.isContentEditable
+    ) {
+        if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+        }
+    }
+    });
+    document.getElementById("nameInput").addEventListener("input", function () {
+        this.value = this.value.replace(/[^a-zA-Zа-яА-ЯёЁ0-9\-\_\s]/g, "");
+    });
+
+    let lang = localStorage.getItem('lang') || 'en';
+
+    if (lang === 'ru') {
+      document.getElementById('save').textContent = 'Сохранить имя';
+      document.getElementById('deleteAvatar').textContent = 'Удалить аватарку';
+    } else {
+      document.getElementById('save').textContent = 'Save name';
+      document.getElementById('deleteAvatar').textContent = 'Delete Avatar';
+    }
+    let translations = {
+      ru: {
+        userTitle: "Ваш профиль",
+        historySectionTitle: "История",
+        nickHistoryTitle: "История никнеймов",
+        descHistoryTitle: "История описаний",
+        usageTimeTitle: "Время использования"
+      },
+      en: {
+        userTitle: "Profile",
+        historySectionTitle: "History",
+        nickHistoryTitle: "Nicknames History",
+        descHistoryTitle: "Descriptions History",
+        usageTimeTitle: "Usage Time"
+      }
+    };
+
+    const DEFAULT_AVATAR = 'user_profile_photo.png';
+
+    function initProfile() {
+      let avatarSrc = localStorage.getItem('userAvatar');
+      if (!avatarSrc) {
+        avatarSrc = DEFAULT_AVATAR;
+        localStorage.setItem('userAvatar', avatarSrc);
+      }
+      document.getElementById('avatarImg').src = avatarSrc;
+
+      let userName = localStorage.getItem('userName');
+      if (!userName) {
+        userName = lang === 'ru' ? 'Пользователь' : 'User';
+        localStorage.setItem('userName', userName);
+      }
+      document.getElementById('nameInput').value = userName;
+      document.getElementById('userTitle').textContent = userName;
+    }
+
+    function calculateUsageDuration() {
+      const firstDateStr = localStorage.getItem('first_use_date');
+      if (!firstDateStr) return {days: 0, months: 0, years: 0};
+
+      const first = new Date(firstDateStr);
+      const now = new Date();
+      let delta = new Date(now - first);
+
+      let years = delta.getUTCFullYear() - 1970;
+      let months = delta.getUTCMonth();
+      let days = delta.getUTCDate() - 1;
+
+      return {days, months, years};
+    }
+
+    function getPluralForm(number, forms) {
+      if (number % 10 === 1 && number % 100 !== 11) return forms[0];
+      if (number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20)) return forms[1];
+      return forms[2];
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear().toString().slice(-2);
+      return `${day}.${month}.${year}`;
+    }
+
+    function showUserInfo() {
+      const nickHistElem = document.getElementById('nickHistories');
+      const descHistElem = document.getElementById('descHistories');
+      const usageElem = document.getElementById('usageTimes');
+      const firstDate = localStorage.getItem('first_use_date');
+      const firstEntryText = lang === 'ru' ? 'Первый вход: ' : 'First entry: ';
+      const usageText = lang === 'ru' ? 'Вы пользуетесь приложением уже ' : 'You have been using the app for ';
+      const {days, months, years} = calculateUsageDuration();
+      let duration = '';
+      if (lang === 'ru') {
+        const yearForm = getPluralForm(years, ['год', 'года', 'лет']);
+        const monthForm = getPluralForm(months, ['месяц', 'месяца', 'месяцев']);
+        const dayForm = getPluralForm(days, ['день', 'дня', 'дней']);
+        duration = `${days} ${dayForm} ${months} ${monthForm} ${years} ${yearForm}`;
+        nickHistElem.innerHTML = localStorage.getItem('nick_story') || 'Нет';
+        descHistElem.innerHTML = localStorage.getItem('desc_story') || 'Нет';
+        usageElem.innerHTML =
+          `<ul><li>${firstEntryText}${formatDate(firstDate)}</li>` +
+          `<li>${usageText}${duration}</li></ul>`;
+      } else {
+        const yearForm = years === 1 ? 'year' : 'years';
+        const monthForm = months === 1 ? 'month' : 'months';
+        const dayForm = days === 1 ? 'day' : 'days';
+        duration = `${days} ${dayForm} ${months} ${monthForm} ${years} ${yearForm}`;
+        nickHistElem.innerHTML = localStorage.getItem('nick_story') || 'None';
+        descHistElem.innerHTML = localStorage.getItem('desc_story') || 'None';
+        usageElem.innerHTML =
+          `<ul><li>${firstEntryText}${formatDate(firstDate)}</li>` +
+          `<li>${usageText}${duration}</li></ul>`;
+      }
+    }
+
+    function saveName() {
+      const nameInput = document.getElementById('nameInput');
+      const newName = nameInput.value.trim();
+      if (newName) {
+        localStorage.setItem('userName', newName);
+        alert(lang === 'ru' ? 'Имя сохранено!' : 'Name saved!');
+        document.getElementById('userTitle').textContent = newName;
+      } else {
+        alert(lang === 'ru' ? 'Введите имя!' : 'Enter a name!');
+      }
+    }
+
+    function deleteAvatar() {
+      const confirmMessage = lang === 'ru' ? 'Вы уверены, что хотите удалить аватарку?' : 'Are you sure you want to delete your avatar?';
+      if (confirm(confirmMessage)) {
+        localStorage.setItem('userAvatar', DEFAULT_AVATAR);
+        document.getElementById('avatarImg').src = DEFAULT_AVATAR;
+        alert(lang === 'ru' ? 'Аватарка удалена!' : 'Avatar deleted!');
+      }
+    }
+
+    document.getElementById('avatarInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const dataURL = e.target.result;
+          document.getElementById('avatarImg').src = dataURL;
+          localStorage.setItem('userAvatar', dataURL);
+          alert(lang === 'ru' ? 'Аватарка обновлена!' : 'Avatar updated!');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.querySelectorAll('[data-translate]').forEach(el => {
+      const key = el.getAttribute('data-translate');
+      if (translations[lang][key] !== undefined) {
+        el.textContent = translations[lang][key];
+      }
+    });
+
+    initProfile();
+    showUserInfo();
+
+    document.getElementById('userBackBtn').onclick = () => {
+      window.location.href = 'main.html';
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.card-header').forEach(header => {
+        header.addEventListener('click', () => {
+          const content = header.nextElementSibling;
+          const icon = header.querySelector('.toggle-btn i');
+          if (content.style.display === 'none' || content.style.display === '') {
+            content.style.display = 'block';
+            icon.classList.remove('fa-caret-down');
+            icon.classList.add('fa-caret-up');
+          } else {
+            content.style.display = 'none';
+            icon.classList.remove('fa-caret-up');
+            icon.classList.add('fa-caret-down');
+          }
+        });
+      });
+    });
+    if (localStorage.getItem('lang') === 'ru' && localStorage.getItem('bage1') === 'yes' && localStorage.getItem('premium') === 'yes'){
+      document.getElementById('userTitle').textContent = ' 👑Премиум👑\n' + localStorage.getItem('userName');
+      document.getElementById('userTitle').style.whiteSpace = 'pre-line';
+    }
+    else if (localStorage.getItem('lang') === 'en' && localStorage.getItem('bage1') === 'yes' && localStorage.getItem('premium') === 'yes'){
+      document.getElementById('userTitle').textContent = ' 👑Premium👑\n' + localStorage.getItem('userName');
+      document.getElementById('userTitle').style.whiteSpace = 'pre-line';
+    }
+    else{
+      document.getElementById('userTitle').textContent = localStorage.getItem('userName');
+    }
+  </script>
+  <script type="text/javascript">
+      document.ondragstart = noselect;
+      document.onselectstart = noselect;
+      document.oncontextmenu = noselect;
+
+      function noselect() {
+          return false;
+      }
+  </script>
+
+</body>
+</html>

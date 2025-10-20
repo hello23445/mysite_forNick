@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favorites</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #060039;
+      color: #d9d9d9;
+      margin: 0;
+      padding: 15px;
+    }
+
+    #backBtn {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: 10px auto;
+      text-align: center;
+      background: #251897;
+      color: #d9d9d9;
+      padding: 12px 15px;
+      border-radius: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 16px;
+    }
+    #backBtn:hover {
+      background: #3a28c0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      margin-top: 20px;
+      margin-bottom: 8px;
+      font-size: 18px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 4px;
+    }
+
+    .item {
+      display: block;
+      background: #251897;
+      border-radius: 12px;
+      padding: 10px;
+      margin: 6px 0;
+      cursor: pointer;
+      transition: 0.3s;
+      word-break: break-word;
+      font-size: 16px;
+      text-decoration: none;
+      color: #d9d9d9;
+    }
+    .item:hover {
+      background: #3a28c0;
+    }
+
+    #names, #descs {
+      max-height: 300px; /* Ограничение высоты для прокрутки */
+      overflow-y: auto; /* Вертикальная прокрутка */
+      padding-right: 10px; /* Отступ для скроллбара справа */
+      -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS */
+    }
+
+    /* Стили для постоянного отображения скроллбара в WebKit (Chrome, Safari) */
+    #names::-webkit-scrollbar,
+    #descs::-webkit-scrollbar {
+      width: 10px;
+      background: transparent;
+    }
+
+    #names::-webkit-scrollbar-track,
+    #descs::-webkit-scrollbar-track {
+      background: #060039; /* Цвет трека, matching body background */
+      border-radius: 10px;
+    }
+
+    #names::-webkit-scrollbar-thumb,
+    #descs::-webkit-scrollbar-thumb {
+      background: #888; /* Цвет ползунка */
+      border-radius: 10px;
+      border: 2px solid #060039; /* Граница для лучшего вида */
+    }
+
+    #names::-webkit-scrollbar-thumb:hover,
+    #descs::-webkit-scrollbar-thumb:hover {
+      background: #555; /* Цвет при hover */
+    }
+
+    /* Для Firefox */
+    #names,
+    #descs {
+      scrollbar-width: thin; /* Тонкий скроллбар */
+      scrollbar-color: #888 #060039; /* Цвет ползунка и трека */
+    }
+
+    /* Мобильная адаптация */
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      #backBtn {
+        font-size: 14px;
+        padding: 10px;
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 15px;
+      }
+      h2 {
+        font-size: 16px;
+        margin-top: 15px;
+      }
+      .item {
+        font-size: 14px;
+        padding: 8px;
+      }
+      #names, #descs {
+        max-height: 200px; /* Меньшая высота для мобильных */
+      }
+    }
+
+    /* Preloader styles */
+    #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <a id="backBtn" href="main.html"></a>
+
+  <h1 id="title"></h1>
+  
+  <h2 id="namesTitle"></h2>
+  <div id="names"></div>
+
+  <h2 id="descsTitle"></h2>
+  <div id="descs"></div>
+
+  <!-- Preloader -->
+  <div id="preloader">
+    <div class="loader"></div>
+  </div>
+
+  <script>
+    // Замените на URL вашего развернутого Google Apps Script Web App
+    const gasUrl = 'https://script.google.com/macros/s/AKfycbxsL9OlfXqONf_j3tlrZ9KsBzDzIuDAsxzQWVgzL-Nu8M1DtLoYNTr-0dyfIuSrNBhOjw/exec';
+
+    // Определяем язык
+    const lang = localStorage.getItem('lang') === 'ru' ? 'ru' : 'en';
+
+    // Тексты
+    const texts = {
+      ru: {
+        title: "Избранное",
+        namesTitle: "Избранные никнеймы:",
+        descsTitle: "Избранные описания:",
+        noNames: "Нет избранных никнеймов.",
+        noDescs: "Нет избранных описаний.",
+        backBtn: "ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ"
+      },
+      en: {
+        title: "Favorites",
+        namesTitle: "Favorite nicknames:",
+        descsTitle: "Favorite descriptions:",
+        noNames: "No favorite nicknames.",
+        noDescs: "No favorite descriptions.",
+        backBtn: "BACK TO MAIN MENU"
+      }
+    };
+
+    // Устанавливаем тексты на страницу
+    document.getElementById("title").textContent = texts[lang].title;
+    document.getElementById("namesTitle").textContent = texts[lang].namesTitle;
+    document.getElementById("descsTitle").textContent = texts[lang].descsTitle;
+
+    const backBtn = document.getElementById("backBtn");
+    backBtn.textContent = texts[lang].backBtn;
+
+    // Функция очистки лишних символов
+    function cleanText(text) {
+      return text
+        .replace(/[\[\]\{\}\\\/"'`]/g, "") // убираем [ ] { } \ / " ' `
+        .replace(/\s+/g, " ")              // двойные пробелы → один
+        .trim();
+    }
+
+    // Получаем данные из localStorage
+    const names = (localStorage.getItem('loved') || "")
+      .split(",")
+      .map(cleanText)
+      .filter(Boolean);
+
+    const descs = (localStorage.getItem('loved_descs') || "")
+      .split(",")
+      .map(cleanText)
+      .filter(Boolean);
+
+    const namesBlock = document.getElementById("names");
+    const descsBlock = document.getElementById("descs");
+
+    const preloader = document.getElementById("preloader");
+
+    // Функция для отправки данных в Google Sheet и перенаправления после
+    async function logToSheetAndRedirect(product, targetUrl) {
+      preloader.style.display = "flex"; // Показываем прелоадер
+
+      const token = localStorage.getItem('userToken') || '';
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const formattedTime = `${day}.${month}.${year} ${hours}.${minutes}.${seconds}`;
+
+      try {
+        const response = await fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `time=${encodeURIComponent(formattedTime)}&token=${encodeURIComponent(token)}&name=${encodeURIComponent(product)}`
+        });
+        // Поскольку mode: 'no-cors', мы не можем проверить статус, но предполагаем успех, если fetch завершился без ошибок
+        preloader.style.display = "none"; // Скрываем прелоадер
+        window.open(targetUrl, '_blank'); // Перенаправляем (открываем в новой вкладке)
+      } catch (error) {
+        console.error('Error logging to sheet:', error);
+        preloader.style.display = "none"; // Скрываем прелоадер даже при ошибке
+        // Опционально: обработка ошибки, но по инструкции перенаправляем только после успеха, так что здесь не перенаправляем
+      }
+    }
+
+    // Никнеймы
+    if (names.length === 0) {
+      namesBlock.innerHTML = `<p>${texts[lang].noNames}</p>`;
+    } else {
+      names.forEach(name => {
+        const item = document.createElement("a");
+        item.className = "item";
+        item.textContent = name;
+        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}`;
+        item.href = "#"; // Убираем оригинальный href, чтобы предотвратить немедленный переход
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          logToSheetAndRedirect(name, targetUrl);
+        });
+        namesBlock.appendChild(item);
+      });
+    }
+
+    // Описания
+    if (descs.length === 0) {
+      descsBlock.innerHTML = `<p>${texts[lang].noDescs}</p>`;
+    } else {
+      descs.forEach(desc => {
+        const item = document.createElement("a");
+        item.className = "item";
+        item.textContent = desc;
+        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}`;
+        item.href = "#"; // Убираем оригинальный href, чтобы предотвратить немедленный переход
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          logToSheetAndRedirect(desc, targetUrl);
+        });
+        descsBlock.appendChild(item);
+      });
+    }
+  </script>
+</body>
+</html>

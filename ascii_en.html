@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASCII Art Generator</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: flex-start;
+      margin-top: 1%;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+    }
+    .container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 600px;
+      padding: 20px;
+      /* Allows full display of the art */
+      overflow-y: auto;
+      position: relative;
+    }
+    /* Screen fade-in animation */
+    .screen {
+      display: none;
+    }
+    .screen.active {
+      display: block;
+      animation: fadeInScreen 0.5s ease;
+    }
+    @keyframes fadeInScreen {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    /* Art fade-in animation */
+    .ascii-art {
+      white-space: pre;
+      background-color: #f0f0f0;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+      margin-bottom: 10px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInArt 0.7s ease-out forwards;
+      animation-delay: 0.2s;
+      text-align: center; /* Center the art */
+    }
+    @keyframes fadeInArt {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    .button-group {
+      text-align: center;
+      margin-top: 10px;
+    }
+    button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:disabled,
+    button.next:disabled {
+      background-color: #ccc !important;
+      cursor: not-allowed;
+    }
+    button.random, button.next, button.copy-btn, button.back, button.variant-btn {
+      background-color: #007BFF;
+      color: white;
+      font-weight: bold;
+    }
+    button.copy-btn {
+      background-color: #28a745;
+    }
+    /* Close menu button – red */
+    button.close-menu {
+      background-color: #dc3545;
+      color: white;
+      font-weight: bold;
+    }
+    .message {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .message.success {
+      color: green;
+    }
+    .message.error {
+      color: red;
+    }
+    .error-header {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .art-header h2, .art-header h4 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    /* Sidebar menu styles */
+    #variantMenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 100%;
+      background-color: #fff;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #variantMenu.active {
+      transform: translateX(0);
+    }
+    /* Hide default heading */
+    #variantMenu h3 {
+      display: none;
+    }
+    /* Filters – search and selects in one row */
+    .filter-group {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .filter-group input {
+      flex-grow: 1;
+      padding: 5px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .filter-group select {
+      height: 4vh;
+      font-size: 14px;
+    }
+    /* Reset pages setting container (below selects) */
+    .reset-setting {
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    /* Variant list container */
+    #variantList {
+      margin-bottom: 15px;
+    }
+    /* Variant buttons in the menu */
+    .variant-item {
+      display: block;
+      margin: 8px 0;
+      padding: 8px 12px;
+      background-color: #007BFF;
+      color: white;
+      text-align: center;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .variant-item:hover {
+      background-color: #0056b3;
+    }
+    /* Pagination container */
+    #variantPagination {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #variantPagination button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+    #pageIndicator {
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 10px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<button 
+    onclick="window.location.href = 'main.html'" 
+    style="position: absolute; bottom: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
+>
+    BACK TO MAIN MENU
+</button>
+
+
+  <!-- Sidebar menu for variants -->
+  <div id="variantMenu">
+    <h3></h3>
+    <!-- Search field and filters -->
+    <div class="filter-group">
+      <input type="text" id="variantSearch" placeholder="Search...">
+      <select id="filterCategory" style="width: 35%;">
+        <option value="All">CATEGORY</option>
+        <option value="Nature">Nature</option>
+        <option value="Animal">Animal</option>
+        <option value="Building">Building</option>
+        <option value="Transport">Transport</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="People">People</option>
+        <option value="Music">Music</option>
+        <option value="Object">Object</option>
+        <option value="Food">Food</option>
+        <option value="Uno">Uno</option>
+        <option value="Other">Other</option>
+      </select>
+      <!-- New select for page navigation -->
+      <select id="pageSelect" style="width: 30%;">
+        <!-- Options will be added dynamically -->
+      </select>
+    </div>
+    <!-- Reset pages setting (checkbox enabled by default) -->
+    <div class="reset-setting">
+      <label>
+        <input type="checkbox" id="resetPages" checked>
+        Reset pages
+      </label>
+    </div>
+    <span id="pageIndicator"></span>
+    <div id="variantList">
+      <!-- Variants will be added dynamically -->
+    </div>
+    <div id="variantPagination">
+      <!-- Pagination buttons -->
+      <button id="prevPageBtn" class="variant-btn"><b>←</b></button>
+      <button id="nextPageBtn" class="variant-btn"><b>→</b></button>
+    </div>
+    <button class="close-menu"><b>Close menu</b></button>
+  </div>
+
+  <div class="container">
+    <!-- Screen 1: Description input -->
+    <div id="screen1" class="screen active">
+      <div class="input-group">
+        <label for="description">Describe your desired drawing:</label>
+        <textarea id="description" placeholder="For example: sunset over the sea, smiling cat, starry sky, mountains under the moon, funny clown, abstract patterns, etc."></textarea>
+      </div>
+      <div class="button-group">
+        <button id="variantsBtn" class="variant-btn"><b>Variants</b></button>
+        <button id="randomBtn" class="random"><b>Random</b></button>
+        <button id="nextBtn" class="next" disabled><b>Next</b></button>
+      </div>
+    </div>
+
+    <!-- Screen 2: Display drawing -->
+    <div id="screen2" class="screen">
+      <div id="errorHeader"></div>
+      <div class="art-header" id="artHeader"></div>
+      <div class="ascii-art" id="asciiArt"></div>
+      <div class="button-group">
+        <button id="backBtn" class="back"><b>Back</b></button>
+        <button id="copyBtn" class="copy-btn"><b>Copy</b></button>
+      </div>
+      <div id="copyMessage" class="message"></div>
+    </div>
+  </div>
+
+  <script>
+    // Elements for screens and controls
+    const screen1 = document.getElementById("screen1");
+    const screen2 = document.getElementById("screen2");
+    const descriptionInput = document.getElementById("description");
+    const nextBtn = document.getElementById("nextBtn");
+    const randomBtn = document.getElementById("randomBtn");
+    const variantsBtn = document.getElementById("variantsBtn");
+    const asciiArtDiv = document.getElementById("asciiArt");
+    const artHeader = document.getElementById("artHeader");
+    const errorHeader = document.getElementById("errorHeader");
+    const copyBtn = document.getElementById("copyBtn");
+    const backBtn = document.getElementById("backBtn");
+    const copyMessage = document.getElementById("copyMessage");
+    const variantMenu = document.getElementById("variantMenu");
+    const closeMenuBtn = document.querySelector("#variantMenu .close-menu");
+    const prevPageBtn = document.getElementById("prevPageBtn");
+    const nextPageBtn = document.getElementById("nextPageBtn");
+    const variantListDiv = document.getElementById("variantList");
+    const pageIndicator = document.getElementById("pageIndicator");
+    const variantSearch = document.getElementById("variantSearch");
+    const filterCategory = document.getElementById("filterCategory");
+    const pageSelect = document.getElementById("pageSelect");
+    const resetPagesCheckbox = document.getElementById("resetPages");
+
+    // Mapping of descriptions to ASCII art (translated)
+    const asciiArtMapping = {
+      "sunset over the sea": 
+`        \\   /
+         .-.
+      ― (   ) ―
+         \`-’
+        /   \\
+ ~~~~~~  Sea  ~~~~~~`,
+      "smiling cat": 
+` /\\_/\\  
+( o.o )
+ > ^ <`,
+      "starry sky": 
+`     .     .     .
+   .   *     .  *   .
+  *   .  *     .   *
+    .     .  *    .`,
+      "mountains under the moon": 
+`       /\\        /\\
+      /  \\  /\\  /  \\
+     /    \\/  \\/    \\
+    /              \\`,
+      "funny clown": 
+`   .-""""-.
+  / -   -  \\
+ |  .-. .-. |
+ |  | | | | |
+  \\  '-'  /
+   '-....-'`,
+      "abstract patterns": 
+` .   .   .   .
+  . .   . .  
+ .   .   .   .`,
+      "tree": 
+`    ccee88oo
+  C8O8O8Q8PoOb o8oo
+ dOB69QO8PdUOpugoO9bD
+CgggbU8OU qOp qOdoUOdcb
+    6OuU  /p u gcoUodpP
+       \\//  /douUP
+         \\////
+          |||/\\
+          |||\\/ 
+          |||||  
+   .....//||||\\....`,
+      "dog": 
+`  /^-----^\\
+ V  o o  V
+  |  Y  |
+   \\ Q /
+   / - \\
+   |    \\
+   |     \\     )
+   || (___\\====`,
+      "house": 
+`    /\\
+   /  \\
+  /____\\
+  |  _  |
+  | | | |
+  |_| |_|`,
+      "fish": 
+`   /\\
+  /  \\
+ <    >
+  \\  /
+   \\/`,
+      "sun": 
+`   \\   |   /
+    .-'-.-'-.
+--  (   )  --
+    '-.-'-.-'
+   /   |   \\`,
+      "moon": 
+`    .-.
+   (   ).
+    \\ /
+     '`,
+      "snake": 
+`  /^\\/^\\
+ _|__|  O|
+\\/     /
+ \\____/`,
+      "flower": 
+`   _ _ 
+  (_)_)
+   / \\
+  '   '`,
+      "airplane": 
+`     __|__
+--@--@--(_)--@--@--`,
+      "ship": 
+`       |    |    |
+      )_)  )_)  )_)
+     )___))___))___)
+    )____)____)_____)
+  _____|____|____|____\\__
+---------\\____________/---------`,
+      "robot": 
+`   [::::]
+   |    |
+  (|    |)
+   |____|
+   | || |
+   |_||_|`,
+      "elephant": 
+`  /  \\~~~/  \\
+(    ..     )
+ \\__-__-__/
+    /  \\ `,
+      "tiger": 
+`   /\\     /\\
+ {  \`---'  }
+ {  O   O  }
+  ~~>  V  <~~
+   \\  \\|/  //
+    \`-----'____
+    /     \\    \\_
+   {       }\\  )_\\_   _
+   |  \\_/  |/ /  \\_\\_/ )
+    \\__/  /(_/     \\__/
+      (__/)`,
+      "owl": 
+`  ,_,       
+ (o,o)      
+ (   )      
+  " "`,
+      "whale": 
+`       __    __
+      /  \\~~/  \\
+     (    ..    )
+      \\__-__-__/
+         || ||`,
+      "cloud": 
+`      .-~~~-.
+  .- ~ ~-(       )_ _
+ /                     ~ -.
+|                          |
+ \\                         .'
+   ~- ._ ,. ,.,.,., ,.. -~`,
+      "guitar": 
+`     ___
+    |   |
+    |   |
+    |   |__
+    |      )
+    |     /
+    |____/`,
+      "bottle": 
+`    __
+   |  |
+   |  |
+   |  |
+   |  |
+   |  |
+   |  |
+   |__|`,
+      "cup": 
+`   ( (
+    ) )
+  ........
+  |      |]
+  \\      /
+   \`----'`,
+      "heart": 
+`  **   **
+ ****** 
+********
+ ****** 
+  ****  
+   **   `,
+      "star": 
+`   *
+  * *
+ *   *
+*     *
+ *   *
+  * *
+   *`,
+      "smiling face": 
+`  _____
+ |     |
+ | ^ ^ |
+ |  ~  |
+ | \\_/ |
+  -----`,
+      "sad face": 
+`  _____
+ |     |
+ | - - |
+ |  _  |
+ | / \\ |
+  -----`,
+      "fox": 
+`  /\\   /\\
+ {  \`---'  }
+ {  O   O  }
+  ~~>  V  <~~
+   \\  \\|/  //
+    \`-----'`,
+      "bird": 
+`  ,_
+ (o>
+ //)
+ V_/_ `,
+      "butterfly": 
+`  .==-.                   .-.==
+   \\()8\`-._  \`.   .'  _.-'8()/
+   (88"   ::.  \\./  .::   "88)
+    \\_.'\`-::::.(#).::::-' \`._/
+      \`._... .q(_)p. ..._.'
+        ""-..-'|=| \`-..-"" 
+        .""' .'|=| \`. \`"".
+      ,':8(o)./|=|\\.(o)8:\`.
+     (O:-::(-)|=|-(:::-O)
+      \\_::(_)|=|(_)::_/
+       \`"\'--' \`-" \`--"\'`,
+      "teddy bear": 
+`  ʕ·ᴥ·ʔ`,
+      "panda": 
+`   ʕ •ᴥ•ʔ`,
+      "rabbit": 
+` (\\_/)
+ ( . .)
+ c(")(")`,
+      "walrus": 
+`  .---.
+ (     )
+(  O O  )
+ \\_=_/
+ /   \\`,
+      "horse": 
+`   ,--,_
+  (  /  )
+   \\(__)`,
+      "flamingo": 
+`   _    
+  ( \\   
+   \\ \\  
+    \\ \\ 
+     \\( )
+      \\/`,
+      "dinosaur": 
+`           __
+          / _)
+ .-^^^-/ /
+(___  ((
+    \\_\\ `,
+      "mouse": 
+`   ()___
+  /      \\
+ |  o  o  |
+  \\__==__/`,
+      "bunny": 
+` (\\_/)
+ ( •_•)
+ (  > <)`,
+      "snail": 
+`    __@__
+   /     \\
+  |  o o  |
+   \\_____/`,
+      "lightning": 
+`   /\\
+  /  \\
+  \\  /
+   \\/`,
+      "compass": 
+`    N
+W ← + → E
+    S`,
+      "key": 
+`    __
+   / o)
+  /  /
+ |  |
+  \\_\\`,
+      "treehouse": 
+`     /\\
+    /  \\
+   /____\\
+  |  __  |
+  ||  || |
+  ||__||_|`,
+      "castle": 
+`    |~~|
+    |  |
+  __|  |__
+ |  |  |  |
+ |__|__|__|`,
+      "tank": 
+`     ___
+ ___|[_]|___
+/-----------\\
+\\-----------/
+  O       O`,
+      "bicycle": 
+`   __o
+ _ \<_
+(_)/(_)`,
+      "scooter": 
+`   __
+  /o \\__ 
+  \\__/  \\`,
+      "headphones": 
+`   ______
+  /      \\
+ |  () () |
+  \\  __  /
+   \\____/`,
+      "fruits": 
+`  ,--./,-.
+ / #      \\
+|          |
+ \\        /
+  \`._,._,'`,
+      "blocks": 
+`  ______
+ /\\     \\
+/  \\_____\\
+\\  /_____/
+ \\/_____/`,
+      "book": 
+`     ______
+    /     /,
+   /     //
+  /____ //
+ (____(/`,
+      "phone": 
+`   .-""""-.
+  / -   -  \\
+ |  .-. .- |
+ |  \\o| |o/
+  \\     /
+   '-..-'`,
+      "planet": 
+`    _.-.
+  .'     '.
+ /  o   o  \\
+:           :
+|           |
+:           :
+ \\         /
+  '.     .'
+    '-.-'`,
+      "rocket": 
+`    /\\
+   /  \\
+  |    |
+  |    |
+  |____|
+   |  |
+   |  |
+   |  |
+  /____\\`,
+      "flying ship": 
+`      |\\
+     /| \\
+    /_|__\\
+   /_/  \\_\\
+   \\ \\__/ /
+    \\____/`,
+      "maze": 
+`+---+---+---+
+|   |       |
++   +   +   +
+|   |   |   |
++---+---+---+`,
+      "landscape": 
+`   /\\      /\\
+  /  \\____/  \\
+ /             \\
+/_______________\\`,
+      "window": 
+`+-----+
+|     |
+|     |
+|     |
++-----+`,
+      "street": 
+`  ||  ||  ||
+==||==||==||
+  ||  ||  ||`,
+      "city": 
+`  ||  ||  || 
+ [__][__][__]
+  ||  ||  ||`,
+      "bridge": 
+`  _________
+ /         \\
+/___________\\
+|  _   _   |
+| | | | | | |`,
+      "fountain": 
+`    ~ ~ ~
+  ~       ~
+ ~  O   O  ~
+  ~       ~
+    ~ ~ ~`,
+      "octopus": 
+`    .--.
+   (    )
+  (      )
+   (      )
+    '--'
+   /|\\ /|\\`,
+      "shark": 
+`      /""-._ 
+     .      '-.
+    :          :
+    |          |
+    :          ;
+     '-.____.-'`,
+      "cactus": 
+`   _  _
+  | || |
+  | || |
+  | || |
+  |_|  |_|
+   ||  ||`,
+      "cookie": 
+`  .-''''-.
+ /        \\
+|  .--.  .-|
+| (    )(  |
+ \\        /
+  '-....-'`,
+      "pie": 
+`   _______
+  /       \\
+ /  PIE!   \\
+/___________\\`,
+      "person": 
+`   O
+  /|\\
+  / \\`,
+      "dancer": 
+`  \\o/
+   |
+  / \\`,
+      // New variants:
+      "uno card": 
+`⁣⣿⣿⡿⠋⠄⡀⣿⣿⣿⣿⣿⣿⣿⠿⠛⠋⣉⣉⣉⡉⠙⠻
+⣿⣿⣇⠔⠈⣿⣿⣿⣿⡿⠛⢉⣤⣶⣾⣿⣿⣿⣿⣿⣿⣦
+⣿⠃⠄⢠⣾⣿⣿⠟⢁⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⠟⢁⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⡟⠁⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⠋⢠⣾⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⣿⣿⣿⣿⣿⣿
+⡿⠁⣰⣿⣿⣿⣿⣿⣿⣿⣿⠗⠄⠄⠄⠄⣿⣿⣿⣿⣿⣿
+⠁⣼⣿⣿⣿⣿⣿⣿⡿⠋⠄⠄⠄⣠⣄⢰⣿⣿⣿⣿⣿⣿
+⣼⣿⣿⣿⣿⣿⣿⡇⠄⢀⡴⠚⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⢰⣿⣿⣿⣿⣿⡿⣿⣿⠴⠋⠄⠄⢸⣿⣿⣿⣿⣿⣿⣿⡟
+⣿⣿⣿⣿⣿⣿⠃⠈⠁⠄⠄⢀⣴⣿⣿⣿⣿⣿⣿⣿⡟⢀
+⣿⣿⣿⣿⣿⣿⠄⠄⠄⠄⢶⣿⣿⣿⣿⣿⣿⣿⠏⢀⣾
+⣿⣿⣿⣿⣿⣷⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⠋⣠⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⢁⣼⣿⣿⣿`,
+      "kiss": 
+`💨💨💨💨💨💨
+💨💋💋💨💋💋
+💨💋💋💋💋💨
+💨💋💋💋💨💨
+💨💋💋💋💋💨
+💨💋💋💨💋💋
+💨💨💨💨💨💨
+💨💋💋💋💋💨
+💨💨💋💋💨💨
+💨💨💋💋💨💨
+💨💨💋💋💨💨
+💨💋💋💋💋💨
+💨💨💨💨💨💨
+💨💨💋💋💋💨
+💨💋💋💨💨💨
+💨💋💋💋💋💨
+💨💨💨💋💋💨
+💨💋💋💋💨💨
+💨💨💨💨💨💨
+💨💨💋💋💋💨
+💨💋💋💨💨💨
+💨💋💋💋💋💨
+💨💨💨💋💋💨
+💨💋💋💋💨💨
+💨💨💨💨💨💨`,
+      "TikTok logo": 
+`███████▀▀▀████
+████████────▀██
+████████──█▄──█
+███▀▀▀██──█████
+█▀──▄▄██──█████
+█──█████──█████
+█▄──▀▀▀──▄█████
+███▄▄██████`,
+      "Steve from Minecraft": 
+`🏿🏿🏿🏿🏿🏿🏿🏿
+🏿🏿🏽🏽🏽🏽🏿🏿
+🏽🏽🏽🏽🏽🏽🏽🏽
+🏽⬜️⬛️🏽🏽⬛️⬜️🏽
+🏽🏽🏽🏿🏿🏽🏽🏽
+🏽🏽🏿🏽🏽🏿🏽🏽
+🏽🏽🏿🏿🏿🏿🏽🏽‍‍`,
+      "smile": 
+`▒▒▒▒▒▒▒▒▒▒▒▒
+ ▒▒▒▒▓▒▒▓▒▒▒▒
+ ▒▒▒▒▓▒▒▓▒▒▒▒
+ ▒▒▒▒▒▒▒▒▒▒▒▒
+ ▒▓▒▒▒▒▒▒▒▒▓▒
+ ▒▒▓▓▓▓▓▓▓▓▒▒
+ ▒▒▒▒▒▒▒▒▒▒▒▒`,
+      "like": 
+`╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱
+╱╱┏╮╱╱╱╱╱╱╱╱╱╱╱
+╱╱┃┃╱╱╱┳╱┓┳╭┫┳┓
+▉━╯┗━╮╱┃╱┃┣┻╮┣╱
+▉┈┈┈┈┃╱┻┛┛┻╱┻┻┛
+▉╮┈┈┈┃╱╱╱╱╱╱╱╱╱
+╱╰━━━╯╱╱╱╱╱╱╱╱╱`
+    };
+
+    // Function to determine filters based on variant name.
+    // Returns an object with a category matching the select values.
+    function getFilters(name) {
+      const lower = name.toLowerCase();
+      let category = "Other"; // default value
+      if (lower.includes("uno")) {
+        category = "Uno";
+      } else if (lower.includes("kiss") ||
+                 lower.includes("tiktok") ||
+                 lower.includes("steve from minecraft") ||
+                 lower.includes("smile") ||
+                 lower.includes("like") ||
+                 lower.includes("hand") ) {
+        category = "Other";
+      } else if (lower.includes("cat") || lower.includes("dog") || lower.includes("fish") ||
+                 lower.includes("tiger") || lower.includes("owl") || lower.includes("elephant") ||
+                 lower.includes("fox") || lower.includes("bird") || lower.includes("butterfly") ||
+                 lower.includes("teddy bear") || lower.includes("panda") || lower.includes("rabbit") ||
+                 lower.includes("walrus") || lower.includes("horse") || lower.includes("flamingo") ||
+                 lower.includes("wolf") || lower.includes("mouse") || lower.includes("bunny") ||
+                 lower.includes("snail") || lower.includes("octopus") || lower.includes("shark") ||
+                 lower.includes("dinosaur")) {
+        if (lower.includes("dragon")) {
+          category = "Fantasy";
+        } else {
+          category = "Animal";
+        }
+      } else if (lower.includes("tree") || lower.includes("mountain") || lower.includes("sun") ||
+                 lower.includes("moon") || lower.includes("cloud") || lower.includes("starry sky") ||
+                 lower.includes("landscape") || lower.includes("planet")) {
+        category = "Nature";
+      } else if (lower.includes("house") || lower.includes("castle") || lower.includes("pyramid") ||
+                 lower.includes("maze") || lower.includes("city") || lower.includes("bridge") ) {
+        if (lower.includes("maze")) {
+          category = "Other";
+        } else {
+          category = "Building";
+        }
+      } else if (lower.includes("airplane") || lower.includes("ship") || lower.includes("tank") ||
+                 lower.includes("car") || lower.includes("bicycle") || lower.includes("scooter") ||
+                 lower.includes("rocket") || lower.includes("flying ship")) {
+        category = "Transport";
+      } else if (lower.includes("robot") || lower.includes("dragon")) {
+        category = "Fantasy";
+      } else if (lower.includes("face") || lower.includes("person") || lower.includes("dancer")) {
+        category = "People";
+      } else if (lower.includes("guitar") || lower.includes("flute")) {
+        category = "Music";
+      } else if (lower.includes("bottle") || lower.includes("cup") || lower.includes("compass") ||
+                 lower.includes("key") || lower.includes("headphones") || lower.includes("phone") ||
+                 lower.includes("blocks") || lower.includes("book")) {
+        category = "Object";
+      } else if (lower.includes("cookie") || lower.includes("pie") || lower.includes("fruits")) {
+        category = "Food";
+      }
+      return { size: "Standard", category };
+    }
+
+    // Create an array of variant objects with additional filters.
+    const variantsList = Object.keys(asciiArtMapping).map(name => {
+      const filters = getFilters(name);
+      return { name, art: asciiArtMapping[name], size: filters.size, category: filters.category };
+    });
+
+    // Function to generate art from description.
+    function generateArtFromDescription(description) {
+      const desc = description.toLowerCase();
+      for (const key in asciiArtMapping) {
+        if (desc.includes(key)) {
+          return asciiArtMapping[key];
+        }
+      }
+      return null;
+    }
+
+    /**
+     * Function to display Screen 2.
+     * artText: ASCII art.
+     * description: original description.
+     * error: if true – generation failed.
+     */
+    function showScreen2(artText, description = "", error = false) {
+      asciiArtDiv.textContent = artText || "";
+      copyMessage.textContent = "";
+      
+      // Always remove the "reduced" class so the art displays fully
+      asciiArtDiv.classList.remove("reduced");
+
+      if (error) {
+        errorHeader.innerHTML = '<h3 class="error-header"><b>Could not generate art!</b></h3>';
+        artHeader.textContent = "";
+      } else {
+        errorHeader.textContent = "";
+        if (description) {
+          artHeader.innerHTML = `<h4><b>Drawing for description: "${description}"\n(Some drawings may not display, but you can copy them)</b></h4>`;
+        } else {
+          artHeader.textContent = "";
+        }
+      }
+      screen1.classList.remove("active");
+      screen2.classList.add("active");
+    }
+
+    // Enable/disable the "Next" button based on input
+    descriptionInput.addEventListener("input", function() {
+      nextBtn.disabled = descriptionInput.value.trim() === "";
+    });
+
+    // "Random" button: select a random variant and display its name.
+    randomBtn.addEventListener("click", function() {
+      const keys = Object.keys(asciiArtMapping);
+      const randomIndex = Math.floor(Math.random() * keys.length);
+      const randomKey = keys[randomIndex];
+      showScreen2(asciiArtMapping[randomKey], randomKey);
+    });
+
+    // "Next" button: try to generate art from the description.
+    nextBtn.addEventListener("click", function() {
+      if (localStorage.getItem('created_ascii_arts')){
+        localStorage.setItem('created_ascii_arts', String(Number(localStorage.getItem('created_ascii_arts')) + 1));
+      }
+      else{
+          localStorage.setItem('created_ascii_arts', '1');
+      }
+      const description = descriptionInput.value.trim();
+      if (!description) return;
+      const art = generateArtFromDescription(description);
+      if (art === null) {
+        const keys = Object.keys(asciiArtMapping);
+        const randomIndex = Math.floor(Math.random() * keys.length);
+        showScreen2(asciiArtMapping[keys[randomIndex]], description, true);
+      } else {
+        showScreen2(art, description);
+      }
+    });
+
+    // "Copy" button handler
+    copyBtn.addEventListener("click", function() {
+      const artText = asciiArtDiv.textContent;
+      navigator.clipboard.writeText(artText)
+        .then(() => {
+          copyMessage.textContent = "Copied!";
+          copyMessage.classList.remove("error");
+          copyMessage.classList.add("success");
+        })
+        .catch(() => {
+          copyMessage.textContent = "Copy error!";
+          copyMessage.classList.remove("success");
+          copyMessage.classList.add("error");
+        });
+    });
+
+    // "Back" button: return to Screen 1 (filters remain unchanged)
+    backBtn.addEventListener("click", function() {
+      errorHeader.textContent = "";
+      artHeader.textContent = "";
+      asciiArtDiv.textContent = "";
+      screen2.classList.remove("active");
+      screen1.classList.add("active");
+    });
+
+    // --------------- Sidebar menu pagination and filters functionality ---------------
+    let currentPage = 1;
+    const pageSize = 10;
+
+    // Function to render a page of variants with search and filters.
+    function renderVariantMenuPage() {
+      const searchText = variantSearch.value.trim().toLowerCase();
+      // Filter only by category (size filter removed)
+      const selectedCategory = filterCategory.value;
+
+      let filtered = variantsList.filter(variant => {
+        const nameLower = variant.name.toLowerCase();
+        const matchesSearch = nameLower.includes(searchText);
+        const matchesCategory = (selectedCategory === "All") || (variant.category === selectedCategory);
+        return matchesSearch && matchesCategory;
+      });
+
+      const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageItems = filtered.slice(start, end);
+
+      // Update the page select for navigation
+      pageSelect.innerHTML = "";
+      for (let i = 1; i <= totalPages; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = `Page ${i}`;
+        if (i === currentPage) {
+          option.selected = true;
+        }
+        pageSelect.appendChild(option);
+      }
+
+      variantListDiv.innerHTML = "";
+      pageItems.forEach(function(item) {
+        const btn = document.createElement("button");
+        btn.className = "variant-item";
+        // Make button text bold
+        btn.innerHTML = `<b>${item.name}</b>`;
+        btn.addEventListener("click", function() {
+          descriptionInput.value = item.name;
+          nextBtn.disabled = descriptionInput.value.trim() === "";
+          // On variant selection, close the menu.
+          // If reset pages is checked, reset currentPage.
+          if (resetPagesCheckbox.checked) {
+            currentPage = 1;
+          }
+          variantMenu.classList.remove("active");
+        });
+        variantListDiv.appendChild(btn);
+      });
+
+      prevPageBtn.style.display = currentPage > 1 ? "inline-block" : "none";
+      nextPageBtn.style.display = end < filtered.length ? "inline-block" : "none";
+      pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
+    }
+
+    // Handler for page select changes
+    pageSelect.addEventListener("change", function() {
+      currentPage = Number(pageSelect.value);
+      renderVariantMenuPage();
+    });
+
+    variantSearch.addEventListener("input", function() {
+      currentPage = 1;
+      renderVariantMenuPage();
+    });
+    filterCategory.addEventListener("change", function() {
+      currentPage = 1;
+      renderVariantMenuPage();
+    });
+
+    variantsBtn.addEventListener("click", function() {
+      variantMenu.classList.add("active");
+      // Do not reset currentPage when opening if reset is not active
+      renderVariantMenuPage();
+    });
+    closeMenuBtn.addEventListener("click", function() {
+      // On closing the menu, if the checkbox is checked, reset currentPage.
+      if (resetPagesCheckbox.checked) {
+        currentPage = 1;
+      }
+      variantMenu.classList.remove("active");
+    });
+    nextPageBtn.addEventListener("click", function() {
+      currentPage++;
+      renderVariantMenuPage();
+    });
+    prevPageBtn.addEventListener("click", function() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderVariantMenuPage();
+      }
+    });
+    async function securityChecker(){
+        const { blockedTokens } = await import('./security.js');
+        // Use blockedTokens here as needed
+        if(blockedTokens.includes(localStorage.getItem('userToken'))){
+            window.location.href = 'blocked.html'
+        }
+    }
+    securityChecker()
+  </script>
+</body>
+</html>

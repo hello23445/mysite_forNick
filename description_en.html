@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Description Generator</title>
+  <!-- Link to Google Fonts (new fonts will work if available) -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Lato&family=Oswald&family=Merriweather&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      /* Background changed to light blue gradient */
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      display: flex;
+      justify-content: center;
+      /* Screen shifted upwards */
+      align-items: flex-start;
+      padding-top: 30px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .screen {
+      display: none;
+      flex-direction: column;
+      width: 90%;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .screen.active {
+      display: flex;
+    }
+    h1 {
+      text-align: center;
+    }
+    textarea, select {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    #preview {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e8f5e9;
+      text-align: center;
+      border-radius: 5px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .buttons, .inline-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+    }
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .btn-green {
+      background: #28a745;
+      color: white;
+    }
+    /* Spacing between select and "Random" button */
+    #randomEmojiBtn {
+      margin-left: 10px;
+    }
+    #decorationSettings {
+      display: none;
+      margin-top: 10px;
+    }
+    /* Arrange decoration checkboxes vertically with small spacing */
+    #decorationSettings label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    /* Spacing between decoration block and formatting settings */
+    .formatting-container {
+      margin-top: 20px;
+    }
+    /* Container for shadow slider */
+    #shadowRangeContainer {
+      margin-top: 10px;
+      display: none;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0f8ff;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .copy-message {
+      color: darkgreen;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .action-buttons {
+      display: flex;          /* Включаем flex-контейнер */
+      flex-wrap: wrap;        /* Разрешаем перенос на новую строку */
+      gap: 10px;              /* Расстояние между кнопками */
+    }
+
+    .action-buttons button {
+      flex: 1 1 calc(50% - 10px); /* Каждая кнопка занимает половину ряда минус отступ */
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+  </style>
+</head>
+<body>
+<button 
+    onclick="window.location.href = 'main.html'" 
+    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
+>
+    BACK TO MAIN MENU
+</button>
+
+<div id="screen1" class="screen active">
+  <h1><b>Create Description</b></h1>
+  <textarea id="description" rows="4" placeholder="Enter description..." maxlength="290"></textarea>
+  <div class="inline-buttons">
+    <button id="generateBtn" class="btn-green"><b>Generate</b></button>
+    <button id="next1" class="btn-green" disabled><b>Next</b></button>
+  </div>
+</div>
+
+<div id="screen2" class="screen">
+  <h1><b>Formatting Settings</b></h1>
+  <label for="fontSelect"><b>Select Font:</b></label>
+  <select id="fontSelect">
+    <option value="">None</option>
+    <option value="Arial">Arial</option>
+    <option value="Courier New">Courier New</option>
+    <option value="Times New Roman">Times New Roman</option>
+    <option value="Verdana">Verdana</option>
+    <option value="Georgia">Georgia</option>
+    <option value="Comic Sans MS">Comic Sans MS</option>
+    <option value="Trebuchet MS">Trebuchet MS</option>
+    <option value="Impact">Impact</option>
+    <option value="Lucida Console">Lucida Console</option>
+    <option value="Tahoma">Tahoma</option>
+    <!-- 20 new fonts -->
+    <option value="Calibri">Calibri</option>
+    <option value="Cambria">Cambria</option>
+    <option value="Garamond">Garamond</option>
+    <option value="Helvetica">Helvetica</option>
+    <option value="Optima">Optima</option>
+    <option value="Baskerville">Baskerville</option>
+    <option value="Futura">Futura</option>
+    <option value="Franklin Gothic Medium">Franklin Gothic Medium</option>
+    <option value="Gill Sans">Gill Sans</option>
+    <option value="Century Gothic">Century Gothic</option>
+    <option value="Bookman Old Style">Bookman Old Style</option>
+    <option value="Palatino">Palatino</option>
+    <option value="Didot">Didot</option>
+    <option value="Monaco">Monaco</option>
+    <option value="Consolas">Consolas</option>
+    <option value="Segoe UI">Segoe UI</option>
+    <option value="Roboto">Roboto</option>
+    <option value="Lato">Lato</option>
+    <option value="Oswald">Oswald</option>
+    <option value="Merriweather">Merriweather</option>
+  </select>
+
+  <div>
+    <label for="emojiSelect"><b>Select Decoration:</b></label>
+    <select id="emojiSelect">
+      <option value="">No Decoration</option>
+      <option value="✨">✨</option>
+      <option value="⭐">⭐</option>
+      <option value="🔥">🔥</option>
+      <option value="🎉">🎉</option>
+      <option value="🌸">🌸</option>
+      <option value="💎">💎</option>
+      <option value="🌟">🌟</option>
+      <option value="🌈">🌈</option>
+      <option value="⚡">⚡</option>
+      <option value="💥">💥</option>
+      <option value="💖">💖</option>
+      <option value="🌺">🌺</option>
+      <option value="💫">💫</option>
+      <option value="🎶">🎶</option>
+      <option value="🎁">🎁</option>
+      <option value="👑">👑</option>
+      <option value="🌞">🌞</option>
+      <option value="🍀">🍀</option>
+      <option value="🦄">🦄</option>
+      <option value="🍒">🍒</option>
+      <option value="💎">💎</option>
+      <option value="✨">✨</option>
+      <option value="🦋">🦋</option>
+      <option value="🌷">🌷</option>
+      <option value="💐">💐</option>
+      <option value="🔥">🔥</option>
+      <option value="💫">💫</option>
+      <option value="🍉">🍉</option>
+      <option value="⚡">⚡</option>
+      <option value="🎈">🎈</option>
+      <option value="🎀">🎀</option>
+      <option value="🍓">🍓</option>
+      <option value="🌹">🌹</option>
+      <option value="🎀">🎀</option>
+      <!-- 68 новых эмодзи -->
+      <option value="😁">😁</option>
+      <option value="😂">😂</option>
+      <option value="🤣">🤣</option>
+      <option value="😃">😃</option>
+      <option value="😄">😄</option>
+      <option value="😅">😅</option>
+      <option value="😆">😆</option>
+      <option value="😉">😉</option>
+      <option value="😊">😊</option>
+      <option value="😋">😋</option>
+      <option value="😎">😎</option>
+      <option value="😍">😍</option>
+      <option value="😘">😘</option>
+      <option value="😗">😗</option>
+      <option value="😙">😙</option>
+      <option value="😚">😚</option>
+      <option value="🙂">🙂</option>
+      <option value="🤗">🤗</option>
+      <option value="🤩">🤩</option>
+      <option value="🤔">🤔</option>
+      <option value="🤨">🤨</option>
+      <option value="😐">😐</option>
+      <option value="😑">😑</option>
+      <option value="😶">😶</option>
+      <option value="🙄">🙄</option>
+      <option value="😏">😏</option>
+      <option value="😣">😣</option>
+      <option value="😥">😥</option>
+      <option value="😮">😮</option>
+      <option value="🤐">🤐</option>
+      <option value="😯">😯</option>
+      <option value="😪">😪</option>
+      <option value="😫">😫</option>
+      <option value="😴">😴</option>
+      <option value="😌">😌</option>
+      <option value="😛">😛</option>
+      <option value="😜">😜</option>
+      <option value="😝">😝</option>
+      <option value="🤤">🤤</option>
+      <option value="😒">😒</option>
+      <option value="😓">😓</option>
+      <option value="😔">😔</option>
+      <option value="😕">😕</option>
+      <option value="🙃">🙃</option>
+      <option value="🤑">🤑</option>
+      <option value="😲">😲</option>
+      <option value="☹️">☹️</option>
+      <option value="🙁">🙁</option>
+      <option value="😖">😖</option>
+      <option value="😞">😞</option>
+      <option value="😟">😟</option>
+      <option value="😤">😤</option>
+      <option value="😢">😢</option>
+      <option value="😭">😭</option>
+      <option value="😦">😦</option>
+      <option value="😧">😧</option>
+      <option value="😨">😨</option>
+      <option value="😩">😩</option>
+      <option value="🤯">🤯</option>
+      <option value="😬">😬</option>
+      <option value="😰">😰</option>
+      <option value="😱">😱</option>
+      <option value="🥵">🥵</option>
+      <option value="🥶">🥶</option>
+      <option value="😳">😳</option>
+      <option value="🤪">🤪</option>
+      <option value="😵">😵</option>
+      <option value="😡">😡</option>
+      <option value="😠">😠</option>
+      <option value="🤬">🤬</option>
+      <option value="😷">😷</option>
+      <option value="🤒">🤒</option>
+      <option value="🤕">🤕</option>
+      <option value="🤑">🤑</option>
+      <option value="🤠">🤠</option>
+      <option value="★">★</option>
+      <option value="☆">☆</option>
+      <option value="✿">✿</option>
+      <option value="❀">❀</option>
+      <option value="☀">☀</option>
+      <option value="☁">☁</option>
+      <option value="☂">☂</option>
+      <option value="☃">☃</option>
+      <option value="♪">♪</option>
+      <option value="♫">♫</option>
+      <option value="❤">❤</option>
+      <option value="❣">❣</option>
+      <option value="✦">✦</option>
+      <option value="✧">✧</option>
+      <option value="✔">✔</option>
+      <option value="✘">✘</option>
+      <option value="⚡">⚡</option>
+      <option value="✨">✨</option>
+      <option value="⚝">⚝</option>
+      <option value="⚑">⚑</option>
+      <option value="☯">☯</option>
+      <option value="☮">☮</option>
+      <option value="☘">☘</option>
+      <option value="⚘">⚘</option>
+      <option value="✞">✞</option>
+      <option value="♛">♛</option>
+      <option value="♚">♚</option>
+      <option value="♕">♕</option>
+      <option value="♔">♔</option>
+      <option value="♖">♖</option>
+      <option value="♟">♟</option>
+      <option value="⚔">⚔</option>
+      <option value="✈">✈</option>
+      <option value="✉">✉</option>
+      <option value="☎">☎</option>
+      <option value="☏">☏</option>
+      <option value="⚓">⚓</option>
+      <option value="☠">☠</option>
+      <option value="☢">☢</option>
+      <option value="☣">☣</option>
+      <option value="☕">☕</option>
+      <option value="♨">♨</option>
+      <option value="⚙">⚙</option>
+      <option value="⚖">⚖</option>
+      <option value="♿">♿</option>
+      <option value="⚛">⚛</option>
+      <option value="🌀">🌀</option>
+      <option value="💠">💠</option>
+      <option value="🔆">🔆</option>
+      <option value="🔅">🔅</option>
+      <option value="🔔">🔔</option>
+      <option value="🔕">🔕</option>
+      <option value="🎵">🎵</option>
+      <option value="🎶">🎶</option>
+      <option value="🎼">🎼</option>
+      <option value="🎧">🎧</option>
+      <option value="🎤">🎤</option>
+      <option value="🎷">🎷</option>
+      <option value="🎸">🎸</option>
+      <option value="🥁">🥁</option>
+      <option value="🪘">🪘</option>
+      <option value="🎹">🎹</option>
+      <option value="🪇">🪇</option>
+      <option value="🌟">🌟</option>
+      <option value="🌠">🌠</option>
+      <option value="🌌">🌌</option>
+      <option value="🌈">🌈</option>
+      <option value="🔥">🔥</option>
+      <option value="💧">💧</option>
+      <option value="❄️">❄️</option>
+      <option value="🌊">🌊</option>
+      <option value="🍀">🍀</option>
+      <option value="🍁">🍁</option>
+      <option value="🌸">🌸</option>
+      <option value="🌼">🌼</option>
+      <option value="🌻">🌻</option>
+      <option value="🌹">🌹</option>
+      <option value="🌷">🌷</option>
+      <option value="🪷">🪷</option>
+      <option value="🌺">🌺</option>
+      <option value="💐">💐</option>
+      <option value="🎉">🎉</option>
+      <option value="🎊">🎊</option>
+      <option value="🎈">🎈</option>
+      <option value="🎀">🎀</option>
+      <option value="🧸">🧸</option>
+      <option value="🪅">🪅</option>
+      <option value="🎁">🎁</option>
+      <option value="🪄">🪄</option>
+      <option value="💎">💎</option>
+      <option value="💍">💍</option>
+      <option value="🪙">🪙</option>
+      <option value="💰">💰</option>
+      <option value="💵">💵</option>
+      <option value="🪙">🪙</option>
+      <option value="💳">💳</option>
+      <option value="📿">📿</option>
+      <option value="📘">📘</option>
+      <option value="📗">📗</option>
+      <option value="📕">📕</option>
+      <option value="📙">📙</option>
+      <option value="📓">📓</option>
+      <option value="📒">📒</option>
+      <option value="📖">📖</option>
+      <option value="📝">📝</option>
+      <option value="✏️">✏️</option>
+      <option value="✒️">✒️</option>
+      <option value="🖋">🖋</option>
+      <option value="🖊">🖊</option>
+      <option value="🖌">🖌</option>
+      <option value="🖍">🖍</option>
+      <option value="🧷">🧷</option>
+      <option value="📎">📎</option>
+      <option value="📌">📌</option>
+      <option value="📍">📍</option>
+      <option value="🔗">🔗</option>
+      <option value="📏">📏</option>
+      <option value="📐">📐</option>
+      <option value="📊">📊</option>
+      <option value="📈">📈</option>
+      <option value="📉">📉</option>
+      <option value="💡">💡</option>
+      <option value="🔦">🔦</option>
+      <option value="🏮">🏮</option>
+      <option value="🎇">🎇</option>
+      <option value="🎆">🎆</option>
+      <option value="🧨">🧨</option>
+      <option value="🎭">🎭</option>
+      <option value="🃏">🃏</option>
+      <option value="🎮">🎮</option>
+      <option value="🎲">🎲</option>
+      <option value="♠️">♠️</option>
+      <option value="♥️">♥️</option>
+      <option value="♦️">♦️</option>
+      <option value="♣️">♣️</option>
+      <option value="🀄">🀄</option>
+      <option value="🎯">🎯</option>
+      <option value="🎳">🎳</option>
+      <option value="🚀">🚀</option>
+      <option value="🛸">🛸</option>
+      <option value="✨">🌌</option>
+      <option value="💫">💫</option>
+      <option value="🔮">🔮</option>
+      <option value="🧿">🧿</option>
+      <option value="🕯">🕯</option>
+      <option value="🛍">🛍</option>
+      <option value="👑">👑</option>
+      <option value="🪻">🪻</option>
+      <option value="🥀">🥀</option>
+      <option value="🌃">🌃</option>
+      <option value="🦋">🦋</option>
+      <option value="🐚">🐚</option>
+      <option value="🐾">🐾</option>
+      <option value="🐝">🐝</option>
+      <option value="🦂">🦂</option>
+      <option value="🦄">🦄</option>
+      <option value="🐉">🐉</option>
+      <option value="🐲">🐲</option>
+      <option value="👼">👼</option>
+      <option value="😇">😇</option>
+      <option value="🤍">🤍</option>
+      <option value="🖤">🖤</option>
+      <option value="🧡">🧡</option>
+      <option value="💛">💛</option>
+      <option value="💚">💚</option>
+      <option value="💙">💙</option>
+      <option value="💜">💜</option>
+      <option value="🤎">🤎</option>
+      <option value="🌞">🌞</option>
+      <option value="🌛">🌛</option>
+      <option value="🌜">🌜</option>
+      <option value="🌙">🌙</option>
+      <option value="🌚">🌚</option>
+      <option value="☄️">☄️</option>
+      <option value="💥">💥</option>
+      <option value="🕊">🕊</option>
+      <option value="💌">💌</option>
+      <option value="🔱">🔱</option>
+      <option value="🧬">🧬</option>
+      <option value="🧠">🧠</option>
+      <option value="🦾">🦾</option>
+      <option value="🧪">🧪</option>
+      <option value="🧫">🧫</option>
+      <option value="🧹">🧹</option>
+      <option value="🪄">🪄</option>
+      <option value="🎨">🎨</option>
+      <option value="🖼">🖼</option>
+      <option value="🧵">🧵</option>
+      <option value="🧶">🧶</option>
+      <option value="✂️">✂️</option>
+      <option value="📐">📐</option>
+      <option value="🧩">🧩</option>
+      <option value="🛡">🛡</option>
+      <option value="💰">💰</option>
+      <option value="🪞">🪞</option>
+      <option value="🎩">🎩</option>
+      <option value="🪶">🪶</option>
+      <option value="🔊">🔊</option>
+      <option value="🗝">🗝</option>
+      <option value="🔓">🔓</option>
+      <option value="🔒">🔒</option>
+      <option value="🔐">🔐</option>
+      <option value="🪫">🪫</option>
+      <option value="🔋">🔋</option>
+      <option value="💻">💻</option>
+      <option value="🖥">🖥</option>
+      <option value="⌨">⌨</option>
+      <option value="📱">📱</option>
+      <option value="📷">📷</option>
+      <option value="📸">📸</option>
+      <option value="📹">📹</option>
+      <option value="🎥">🎥</option>
+      <option value="🧭">🧭</option>
+      <option value="🧱">🧱</option>
+      <option value="🪨">🪨</option>
+      <option value="🪵">🪵</option>
+      <option value="📦">📦</option>
+      <option value="📫">📫</option>
+      <option value="📮">📮</option>
+      <option value="💬">💬</option>
+      <option value="💭">💭</option>
+      <option value="🗨️">🗨️</option>
+      <option value="🗯️">🗯️</option>
+      <option value="💢">💢</option>
+      <option value="💣">💣</option>
+      <option value="🧨">🧨</option>
+      <option value="(❁´◡`❁)">(❁´◡`❁)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(✿╹◡╹)">(✿╹◡╹)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(o˘◡˘o)">(o˘◡˘o)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(•ө•)">(•ө•)</option>
+      <option value="(｡•̀ᴗ-)✧">(｡•̀ᴗ-)✧</option>
+      <option value="(´｡• ᵕ •｡`)">(´｡• ᵕ •｡`)</option>
+      <option value="(◕‿◕✿)">(◕‿◕✿)</option>
+      <option value="(☆▽☆)">(☆▽☆)</option>
+      <option value="ヽ(・∀・)ﾉ">ヽ(・∀・)ﾉ</option>
+      <option value="(´｡• ω •｡`)">(´｡• ω •｡`)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(╯°□°）╯︵ ┻━┻">(╯°□°）╯︵ ┻━┻</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(ʘ‿ʘ)">(ʘ‿ʘ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(ง'̀-'́)ง">(ง'̀-'́)ง</option>
+      <option value="(｡◕‿‿◕｡)">(｡◕‿‿◕｡)</option>
+      <option value="(☞ﾟ∀ﾟ)☞">(☞ﾟ∀ﾟ)☞</option>
+      <option value="(≧ω≦)">(≧ω≦)</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(▀̿Ĺ̯▀̿ ̿)">(▀̿Ĺ̯▀̿ ̿)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(ಥ_ಥ)">(ಥ_ಥ)</option>
+      <option value="(☉_☉)">(☉_☉)</option>
+      <option value="(◔̯◔)">(◔̯◔)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(•_•)">(•_•)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(◕‿-)">(◕‿-)</option>
+      <option value="(¬_¬)">(¬_¬)</option>
+      <option value="(╥﹏╥)">(╥﹏╥)</option>
+      <option value="(ᵔᴥᵔ)">(ᵔᴥᵔ)</option>
+      <option value="(•̀ᴗ•́)و ̑̑">(•̀ᴗ•́)و ̑̑</option>
+      <option value="(ಥ‿ಥ)">(ಥ‿ಥ)</option>
+      <option value="(ʘ‿ʘ)">(ʘ‿ʘ)</option>
+      <option value="(☞ ͡° ͜ʖ ͡°)☞">(☞ ͡° ͜ʖ ͡°)☞</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(●´ω｀●)">(●´ω｀●)</option>
+      <option value="(≧▽≦)">(≧▽≦)</option>
+      <option value="(≧ω≦)">(≧ω≦)</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(◕ᴥ◕)">(◕ᴥ◕)</option>
+      <option value="(❍ᴥ❍ʋ)">(❍ᴥ❍ʋ)</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(◕‿◕✿)">(◕‿◕✿)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(ಥ_ಥ)">(ಥ_ಥ)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(｡•́︿•̀｡)">(｡•́︿•̀｡)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(✿╹◡╹)">(✿╹◡╹)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(╥_╥)">(╥_╥)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧">(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(ᵔᴥᵔ)">(ᵔᴥᵔ)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(✿╹◡╹)">(✿╹◡╹)</option>
+      <option value="(⊙_☉)">(⊙_☉)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(─‿‿─)">(─‿‿─)</option>
+      <option value="(✖╭╮✖)">(✖╭╮✖)</option>
+      <option value="(◠﹏◠)">(◠﹏◠)</option>
+      <option value="(╥﹏╥)">(╥﹏╥)</option>
+      <option value="(⚆_⚆)">(⚆_⚆)</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(╯°□°）╯︵ ┻━┻">(╯°□°）╯︵ ┻━┻</option>
+      <option value="(>_<)">(>_<)</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(❁´◡`❁)">(❁´◡`❁)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(｡•́︿•̀｡)">(｡•́︿•̀｡)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(¬_¬)">(¬_¬)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(≧▽≦)">(≧▽≦)</option>
+      <option value="(◕‿◕✿)">(◕‿◕✿)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(｡◕‿‿◕｡)">(｡◕‿‿◕｡)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(☞ﾟ∀ﾟ)☞">(☞ﾟ∀ﾟ)☞</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(✿╹◡╹)">(✿╹◡╹)</option>
+      <option value="(╥_╥)">(╥_╥)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(｡•́︿•̀｡)">(｡•́︿•̀｡)</option>
+      <option value="(ಥ_ಥ)">(ಥ_ಥ)</option>
+      <option value="(ʘ‿ʘ)">(ʘ‿ʘ)</option>
+      <option value="(>_<)">(>_<)</option>
+      <option value="(╯°□°）╯︵ ┻━┻">(╯°□°）╯︵ ┻━┻</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(｀◕‸◕´+)">(｀◕‸◕´+)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(>_<)">(>_<)</option>
+      <option value="(╥﹏╥)">(╥﹏╥)</option>
+      <option value="( ͡° ͜ʖ ͡°)">( ͡° ͜ʖ ͡°)</option>
+      <option value="(╯°□°）╯">(╯°□°）╯</option>
+      <option value="(◕ᴥ◕)">(◕ᴥ◕)</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(ʘ‿ʘ)">(ʘ‿ʘ)</option>
+      <option value="(◠﹏◠)">(◠﹏◠)</option>
+      <option value="(☉_☉)">(☉_☉)</option>
+      <option value="(●´ω｀●)">(●´ω｀●)</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(❍ᴥ❍ʋ)">(❍ᴥ❍ʋ)</option>
+      <option value="(˘︶˘).｡*♡">(˘︶˘).｡*♡</option>
+      <option value="(。♥‿♥。)">(。♥‿♥。)</option>
+      <option value="(⊙‿⊙)">(⊙‿⊙)</option>
+      <option value="(╬ ಠ益ಠ)">(╬ ಠ益ಠ)</option>
+      <option value="(づ￣ ³￣)づ">(づ￣ ³￣)づ</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(╥﹏╥)">(╥﹏╥)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(｡•́︿•̀｡)">(｡•́︿•̀｡)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(ʘ‿ʘ)">(ʘ‿ʘ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(╯°□°）╯︵ ┻━┻">(╯°□°）╯︵ ┻━┻</option>
+      <option value="(｡◕‿‿◕｡)">(｡◕‿‿◕｡)</option>
+      <option value="(❁´◡`❁)">(❁´◡`❁)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(｀◕‸◕´+)">(｀◕‸◕´+)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(｡•́︿•̀｡)">(｡•́︿•̀｡)</option>
+      <option value="(｡◕‿‿◕｡)">(｡◕‿‿◕｡)</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(☞ﾟ∀ﾟ)☞">(☞ﾟ∀ﾟ)☞</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(╯°□°）╯">(╯°□°）╯</option>
+      <option value="(•_•)">(•_•)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(¬_¬)">(¬_¬)</option>
+      <option value="(╥﹏╥)">(╥﹏╥)</option>
+      <option value="(ᵔᴥᵔ)">(ᵔᴥᵔ)</option>
+      <option value="(ง'̀-'́)ง">(ง'̀-'́)ง</option>
+      <option value="(ʘ‿ʘ)">(ʘ‿ʘ)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(☉_☉)">(☉_☉)</option>
+      <option value="(◠﹏◠)">(◠﹏◠)</option>
+      <option value="(≧▽≦)">(≧▽≦)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(☞ﾟ∀ﾟ)☞">(☞ﾟ∀ﾟ)☞</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(≧ω≦)">(≧ω≦)</option>
+      <option value="(｡•́︿•̀｡)">(｡•́︿•̀｡)</option>
+      <option value="(✿╹◡╹)">(✿╹◡╹)</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(❁´◡`❁)">(❁´◡`❁)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(｡•̀ᴗ-)✧">(｡•̀ᴗ-)✧</option>
+      <option value="(◕‿◕✿)">(◕‿◕✿)</option>
+      <option value="(｡◕‿‿◕｡)">(｡◕‿‿◕｡)</option>
+      <option value="(╯°□°）╯︵ ┻━┻">(╯°□°）╯︵ ┻━┻</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(◕ᴥ◕)">(◕ᴥ◕)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(☞ﾟ∀ﾟ)☞">(☞ﾟ∀ﾟ)☞</option>
+      <option value="(ᵔᴥᵔ)">(ᵔᴥᵔ)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(╥﹏╥)">(╥﹏╥)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(❁´◡`❁)">(❁´◡`❁)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(⊙_☉)">(⊙_☉)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(˘︶˘).｡*♡">(˘︶˘).｡*♡</option>
+      <option value="(｡◕‿‿◕｡)">(｡◕‿‿◕｡)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(╯°□°）╯︵ ┻━┻">(╯°□°）╯︵ ┻━┻</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(◕‿◕✿)">(◕‿◕✿)</option>
+      <option value="(ง'̀-'́)ง">(ง'̀-'́)ง</option>
+      <option value="(❍ᴥ❍ʋ)">(❍ᴥ❍ʋ)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(｡•̀ᴗ-)✧">(｡•̀ᴗ-)✧</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(◠﹏◠)">(◠﹏◠)</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(｀◕‸◕´+)">(｀◕‸◕´+)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(◕ᴥ◕)">(◕ᴥ◕)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(≧▽≦)">(≧▽≦)</option>
+      <option value="(◕‿◕✿)">(◕‿◕✿)</option>
+      <option value="(╯°□°）╯︵ ┻━┻">(╯°□°）╯︵ ┻━┻</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(｡•́︿•̀｡)">(｡•́︿•̀｡)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(¬‿¬)">(¬‿¬)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(❁´◡`❁)">(❁´◡`❁)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(☞ﾟ∀ﾟ)☞">(☞ﾟ∀ﾟ)☞</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(｡◕‿‿◕｡)">(｡◕‿‿◕｡)</option>
+      <option value="(❍ᴥ❍ʋ)">(❍ᴥ❍ʋ)</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(≧▽≦)">(≧▽≦)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(☞ﾟ∀ﾟ)☞">(☞ﾟ∀ﾟ)☞</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(☉_☉)">(☉_☉)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(◠﹏◠)">(◠﹏◠)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(╯°□°）╯︵ ┻━┻">(╯°□°）╯︵ ┻━┻</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(╥﹏╥)">(╥﹏╥)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(❁´◡`❁)">(❁´◡`❁)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(☞ﾟ∀ﾟ)☞">(☞ﾟ∀ﾟ)☞</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(╥﹏╥)">(╥﹏╥)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(╯°□°）╯">(╯°□°）╯</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(◕ᴥ◕)">(◕ᴥ◕)</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(≧▽≦)">(≧▽≦)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(◠﹏◠)">(◠﹏◠)</option>
+      <option value="(☉_☉)">(☉_☉)</option>
+      <option value="(❁´◡`❁)">(❁´◡`❁)</option>
+      <option value="(｡◕‿‿◕｡)">(｡◕‿‿◕｡)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(｡♥‿♥｡)">(｡♥‿♥｡)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(◕‿◕)">(◕‿◕)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(ಥ_ಥ)">(ಥ_ಥ)</option>
+      <option value="(╯°□°）╯︵ ┻━┻">(╯°□°）╯︵ ┻━┻</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(✿◠‿◠)">(✿◠‿◠)</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(✧ω✧)">(✧ω✧)</option>
+      <option value="(づ｡◕‿‿◕｡)づ">(づ｡◕‿‿◕｡)づ</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(ღ˘⌣˘ღ)">(ღ˘⌣˘ღ)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+      <option value="(≧◡≦)">(≧◡≦)</option>
+      <option value="(⌒‿⌒)">(⌒‿⌒)</option>
+      <option value="(ಠ_ಠ)">(ಠ_ಠ)</option>
+      <option value="(╯︵╰,)">(╯︵╰,)</option>
+      <option value="(•ᴥ•)">(•ᴥ•)</option>
+      <option value="(ಠ‿ಠ)">(ಠ‿ಠ)</option>
+      <option value="(⌐■_■)">(⌐■_■)</option>
+      <option value="(☞ﾟヮﾟ)☞">(☞ﾟヮﾟ)☞</option>
+      <option value="(ಥ﹏ಥ)">(ಥ﹏ಥ)</option>
+    </select>
+    <button id="randomEmojiBtn"><b>Random</b></button>
+  </div>
+
+  <div id="decorationSettings">
+    <label>
+      <input type="checkbox" id="leftDecoration" checked>
+      <b>Add decoration on the left</b>
+    </label>
+    <label>
+      <input type="checkbox" id="rightDecoration" checked>
+      <b>Add decoration on the right</b>
+    </label>
+  </div>
+
+  <!-- Spacing between decoration block and formatting settings -->
+  <div class="formatting-container">
+    <label for="formatSelect"><b>Formatting Options:</b></label>
+    <select id="formatSelect">
+      <option value="normal">Normal</option>
+      <option value="italic">Italic</option>
+      <option value="bold">Bold</option>
+      <option value="underline">Underlined</option>
+      <option value="line-through">Strikethrough</option>
+      <option value="uppercase">All Caps</option>
+      <option value="shadow">Shadow</option>
+    </select>
+    <!-- Shadow slider appears only when "Shadow" is selected -->
+    <div id="shadowRangeContainer">
+      <label for="shadowRange"><b>Adjust shadow strength:</b></label>
+      <input type="range" id="shadowRange" min="0" max="10" step="0.5" value="2">
+    </div>
+  </div>
+
+  <div id="preview">Text Preview</div>
+
+  <div class="buttons">
+    <button id="back2"><b>Back</b></button>
+    <button id="next2" class="btn-green"><b>Next</b></button>
+  </div>
+</div>
+
+<div id="screen3" class="screen">
+  <h1><b>Result<br>(Tip: Select and copy manually)</b></h1>
+  <div id="result">Description will appear here.</div>
+  <div class="copy-message" id="copyMessage" style="display: none;">Copied!</div>
+  <div class="action-buttons">
+    <button id="copyBtn"><b>Copy</b></button>
+    <button id="s"><b>Save to wishlist</b></button>
+    <button id="shareBtn"><b>Share</b><br></button>
+    <button id="back3"><b>Back</b></button>
+  </div>
+</div>
+
+<script>
+const button = document.getElementById('s');
+button.style.fontWeight = 'bold';
+
+button.addEventListener('click', () => {
+    const fullDescription = document.getElementById('fullDescription');
+    let loved = localStorage.getItem('loved_descs');
+
+    const resetButton = () => {
+        setTimeout(() => {
+            button.textContent = 'В избранное';
+        }, 3500);
+    };
+
+    // функция очистки текста от запятых
+    function cleanDescFromCommas(text) {
+        if (!text) return '';
+        let res = '';
+        for (let i = 0; i < text.length; i++) {
+            const ch = text[i];
+            if (ch === ',') {
+                const next = text[i + 1];
+                if (next === ' ') {
+                    // убираем запятую перед пробелом
+                    continue;
+                } else {
+                    // одиночная запятая -> пробел (без дублей)
+                    if (res.length === 0 || res[res.length - 1] !== ' ') {
+                        res += ' ';
+                    }
+                }
+            } else {
+                res += ch;
+            }
+        }
+        return res.replace(/\s+/g, ' ').trim();
+    }
+
+    const cleanedDesc = cleanDescFromCommas(fullDescription.textContent);
+
+    if (!loved) {
+        // если ничего нет – создаём строку с первым элементом
+        loved = cleanedDesc;
+        localStorage.setItem('loved_descs', loved);
+        button.textContent = "✅";
+        resetButton();
+    } else {
+        // проверяем, есть ли уже
+        let lovedArray = loved.split(',').map(item => item.trim());
+        if (lovedArray.includes(cleanedDesc)) {
+            button.textContent = "Уже в избранном";
+            resetButton();
+        } else {
+            loved += `, ${cleanedDesc}`;
+            localStorage.setItem('loved_descs', loved);
+            button.textContent = "✅";
+            resetButton();
+        }
+    }
+});
+
+const descriptions = [
+    "A wonderful day for creativity!",
+    "Perfect text for any occasion!",
+    "Be better than you were yesterday!",
+    "Mood: Create masterpieces!",
+    "Every day is a new chance for success!",
+    "Think boldly, act decisively!",
+    "Beauty lies in details and inspiration!",
+    "One step closer to your dream!",
+    "Today is the best time to start!",
+    "Inspiration is nearby – just look around!",
+    "Bold ideas change the world!",
+    "Your voice is your strength!",
+    "The secret to success is persistence!",
+    "Small steps lead to big victories!",
+    "The world is full of opportunities – seize them!",
+    "Every mistake is experience, not failure!",
+    "Create, try, experiment!",
+    "Don't wait for inspiration – act!",
+    "The energy of change is in your hands!",
+    "Your story is just beginning!",
+    "The best time for creativity is now!",
+    "Be the one who inspires others!",
+    "Dream, plan, achieve!",
+    "Every day is a new opportunity!",
+    "Do what you love, and success will follow!",
+    "Look at the world with optimism!",
+    "Create without limits or doubts!",
+    "Strength lies in confidence and persistence!",
+    "Don't be afraid to be original!",
+    "Life is art – create it!",
+    "Mood: Create and inspire!",
+    "Today is your day for change!",
+    "The world awaits your ideas and talents!",
+    "You are capable of more than you think!",
+    "Don't miss your chance for success!",
+    "Your potential is limitless!",
+    "The brightest moments are ahead!",
+    "Live, dream, create!",
+    "All great things start with an idea!",
+    "Follow your dream and don't look back!",
+    "Believe in yourself – and it will work out!"
+];
+
+const descriptionInput = document.getElementById('description');
+const generateBtn = document.getElementById('generateBtn');
+const next1 = document.getElementById('next1');
+const emojiSelect = document.getElementById('emojiSelect');
+const randomEmojiBtn = document.getElementById('randomEmojiBtn');
+const decorationSettings = document.getElementById('decorationSettings');
+const leftDecoration = document.getElementById('leftDecoration');
+const rightDecoration = document.getElementById('rightDecoration');
+const formatSelect = document.getElementById('formatSelect');
+const shadowRangeContainer = document.getElementById('shadowRangeContainer');
+const shadowRange = document.getElementById('shadowRange');
+const preview = document.getElementById('preview');
+const fontSelect = document.getElementById('fontSelect');
+const screen1 = document.getElementById('screen1');
+const screen2 = document.getElementById('screen2');
+const screen3 = document.getElementById('screen3');
+const result = document.getElementById('result');
+const copyBtn = document.getElementById('copyBtn');
+const shareBtn = document.getElementById('shareBtn');
+const copyMessage = document.getElementById('copyMessage');
+const back2 = document.getElementById('back2');
+const back3 = document.getElementById('back3');
+
+let selectedFont = '';
+let selectedEmoji = '';
+let selectedDecorationLeft = true;
+let selectedDecorationRight = true;
+let selectedFormat = 'normal';
+let shadowStrength = shadowRange.value;
+
+descriptionInput.addEventListener('input', () => {
+  next1.disabled = descriptionInput.value.trim() === '';
+  updatePreview();
+});
+
+randomEmojiBtn.addEventListener('click', () => {
+  const randomEmojis = ['✨', '🌟', '🔥', '💖', '💥'];
+  const randomEmoji = randomEmojis[Math.floor(Math.random() * randomEmojis.length)];
+  emojiSelect.value = randomEmoji;
+  selectedEmoji = randomEmoji;
+  decorationSettings.style.display = 'block';
+  updatePreview();
+});
+
+emojiSelect.addEventListener('change', () => {
+  selectedEmoji = emojiSelect.value;
+  if (selectedEmoji === '') {
+    decorationSettings.style.display = 'none';
+  } else {
+    decorationSettings.style.display = 'block';
+  }
+  updatePreview();
+});
+
+fontSelect.addEventListener('change', () => {
+  selectedFont = fontSelect.value;
+  updatePreview();
+});
+
+formatSelect.addEventListener('change', () => {
+  selectedFormat = formatSelect.value;
+  if (selectedFormat === 'shadow') {
+    shadowRangeContainer.style.display = 'block';
+  } else {
+    shadowRangeContainer.style.display = 'none';
+  }
+  updatePreview();
+});
+
+shadowRange.addEventListener('input', () => {
+  shadowStrength = shadowRange.value;
+  updatePreview();
+});
+
+leftDecoration.addEventListener('change', () => {
+  selectedDecorationLeft = leftDecoration.checked;
+  updatePreview();
+});
+
+rightDecoration.addEventListener('change', () => {
+  selectedDecorationRight = rightDecoration.checked;
+  updatePreview();
+});
+
+generateBtn.addEventListener('click', () => {
+  const randomDescription = descriptions[Math.floor(Math.random() * descriptions.length)];
+  descriptionInput.value = randomDescription;
+  next1.disabled = false;
+  updatePreview();
+});
+
+next1.addEventListener('click', () => {
+  if (descriptionInput.value.includes('👑') || descriptionInput.value.includes('Premium') || descriptionInput.value.includes('Premium')) {
+    if (confirm('The description contains forbidden words. Please change the description by clicking "Cancel" or click "OK" to remove them automatically.')) {
+      descriptionInput.value = descriptionInput.value.replace(/👑/g, '').replace(/Premium/g, '').replace(/Premium/g, '');
+      next1.disabled = 'true';
+      return;
+    }
+    return;
+  }
+  else {
+    screen1.classList.remove('active');
+    screen2.classList.add('active');
+    updateResult();
+  }
+});
+
+document.getElementById('next2').addEventListener('click', () => {
+  screen2.classList.remove('active');
+  screen3.classList.add('active');
+  if (localStorage.getItem('created_descriptions')){
+    localStorage.setItem('created_descriptions', String(Number(localStorage.getItem('created_descriptions')) + 1));
+  }
+  else{
+      localStorage.setItem('created_descriptions', '1');
+  }
+  if (localStorage.getItem('desc_story')){
+    const desc_story = localStorage.getItem('desc_story') + ', ' + descriptionInput.value;
+    localStorage.setItem('desc_story', desc_story);
+  }
+  else{
+      localStorage.setItem('desc_story', descriptionInput.value)
+  }
+  updateResult();
+});
+
+function getFormatStyle() {
+  let style = "";
+  switch(selectedFormat) {
+    case 'italic':
+      style += "font-style: italic;";
+      break;
+    case 'bold':
+      style += "font-weight: bold;";
+      break;
+    case 'underline':
+      style += "text-decoration: underline;";
+      break;
+    case 'line-through':
+      style += "text-decoration: line-through;";
+      break;
+    case 'uppercase':
+      style += "text-transform: uppercase;";
+      break;
+    case 'shadow':
+      style += `text-shadow: ${shadowStrength}px ${shadowStrength}px ${shadowStrength}px rgba(0,0,0,0.3);`;
+      break;
+    default:
+      break;
+  }
+  return style;
+}
+
+function updatePreview() {
+  let text = descriptionInput.value;
+  if (selectedEmoji) {
+    text = `${selectedDecorationLeft ? selectedEmoji : ''} ${text} ${selectedDecorationRight ? selectedEmoji : ''}`;
+  }
+  preview.innerHTML = `<span style="font-family: ${selectedFont}; ${getFormatStyle()}" id='fullDescription'>${text}</span>`;
+}
+
+function updateResult() {
+
+  let text = descriptionInput.value;
+  if (selectedEmoji) {
+    text = `${selectedDecorationLeft ? selectedEmoji : ''} ${text} ${selectedDecorationRight ? selectedEmoji : ''}`;
+  }
+  result.innerHTML = `<span style="font-family: ${selectedFont}; ${getFormatStyle()}" id='fullDescription'>${text}</span>`;
+  
+  // Send request to Google Apps Script
+  fetch('https://script.google.com/macros/s/AKfycbyrkqKD2sDdSYyFhpRUoA0j_f84qi9VT9bI0hRuTu7QCJ07aiNhaQOOLbhV4g8Ilii4/exec', { method: 'POST' })
+      .then(response => response.text())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error updating spreadsheet:', error));
+}
+
+copyBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText(result.textContent);
+  if (localStorage.getItem('copied_descriptions')){
+    localStorage.setItem('copied_descriptions', String(Number(localStorage.getItem('copied_descriptions')) + 1));
+  }
+  else{
+    localStorage.setItem('copied_descriptions', '1');
+  }
+  copyBtn.textContent = 'Copied!';
+  copyBtn.style.background = 'lightgreen';
+  setTimeout(() => {
+    copyBtn.textContent = 'Copy\n(With decoration)';
+    copyBtn.style.background = '#e8f5e9';
+  }, 3000);
+});
+
+shareBtn.addEventListener('click', () => {
+  const url = `https://t.me/share/url?url=${encodeURIComponent(result.textContent)}`;
+  window.open(url, '_blank');
+  if (localStorage.getItem('shared_descriptions')){
+  localStorage.setItem('shared_descriptions', String(Number(localStorage.getItem('shared_descriptions')) + 1));
+  }
+  else{
+  localStorage.setItem('shared_descriptions', '1');
+  }
+});
+
+back2.addEventListener('click', () => {
+  screen2.classList.remove('active');
+  screen1.classList.add('active');
+});
+
+back3.addEventListener('click', () => {
+  screen3.classList.remove('active');
+  screen2.classList.add('active');
+});
+
+// Hide decoration settings on page load if "No Decoration" is selected
+if (emojiSelect.value === '') {
+  decorationSettings.style.display = 'none';
+}
+
+if (localStorage.getItem('premium') === 'yes'){
+  descriptionInput.maxLength = 1000;
+}
+else{
+  descriptionInput.maxLength = 200;
+}
+</script>
+
+</body>
+</html>

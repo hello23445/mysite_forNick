@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Indexed Money</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: darkblue;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh; /* Changed to min-height for better handling of keyboard on mobile */
+      margin: 0;
+      overflow-y: auto; /* Allow scrolling if content exceeds screen (due to keyboard) */
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      padding: 32px;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      width: 90%;
+      max-width: 720px;
+      position: relative;
+      overflow: hidden;
+      margin: 20px 0; /* Added margin to prevent overlap with fixed elements */
+    }
+    h2, h3 {
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+    input[type=range], input[type=text], input[type=number] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      outline: none;
+      transition: box-shadow 0.3s ease, background 0.3s ease;
+      touch-action: manipulation; /* Improved touch handling for mobile */
+    }
+    input:focus {
+      box-shadow: 0 0 0 2px #4CAF50;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      background: #4CAF50;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.5);
+      transition: transform 0.2s ease;
+    }
+    input[type=range]:active::-webkit-slider-thumb {
+      transform: scale(1.2);
+    }
+    .hidden { display: none; }
+    .loader {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 6px solid transparent;
+      border-top: 6px solid white;
+      border-right: 6px solid #ff4d00;
+      animation: spin 1s linear infinite;
+      margin: 24px auto;
+    }
+    .button-loader {
+      position: relative;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top: 3px solid white;
+      border-right: 3px solid #ff4d00;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #site-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: darkblue;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+    }
+    .leaderboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+      margin-top: 32px;
+    }
+    @media (min-width: 600px) {
+      .leaderboard {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .left-column, .right-column {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .timer-container {
+      position: relative;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      box-shadow: 0 0 28px rgba(0, 0, 0, 0.6);
+      margin-bottom: 32px;
+      overflow: hidden;
+    }
+    .timer {
+      font-size: 5.5em;
+      color: #ffeb3b;
+      text-shadow: 0 0 16px #ffeb3b;
+      display: inline-flex;
+      transition: all 0.5s ease;
+    }
+    .timer.waiting {
+      font-size: 2em;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.2;
+    }
+    .timer.active {
+      animation: pulse 1s infinite ease-in-out;
+    }
+    .timer.active.warning {
+      color: #ff3333;
+      text-shadow: 0 0 24px #ff3333, 0 0 40px #ff3333;
+      animation: pulse 0.5s infinite, flicker 0.1s infinite;
+    }
+    .timer span {
+      display: inline-block;
+      animation: bounce 0.8s infinite alternate;
+    }
+    .timer.active span {
+      animation: charRotate 1.2s infinite, bounce 0.6s infinite alternate;
+    }
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-8px); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes charRotate {
+      0% { transform: rotate(-6deg); }
+      50% { transform: rotate(6deg); }
+      100% { transform: rotate(-6deg); }
+    }
+    @keyframes flicker {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+    .timer-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(255, 235, 59, 0.4), transparent);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+      opacity: 0;
+      animation: wave 3s infinite ease-out;
+    }
+    .timer.active .timer-wave {
+      opacity: 0.6;
+    }
+    .timer-wave:nth-child(2) {
+      animation-delay: 0.8s;
+      width: 160px;
+      height: 160px;
+    }
+    @keyframes wave {
+      0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0.6; }
+      100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+    }
+    .spark {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #ffeb3b;
+      border-radius: 50%;
+      z-index: -1;
+      opacity: 0;
+      animation: spark 1s infinite ease-in-out;
+    }
+    .timer.active .spark {
+      opacity: 1;
+    }
+    .timer.active.warning .spark {
+      background: #ff3333;
+    }
+    @keyframes spark {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(calc(80px * var(--dx)), calc(80px * var(--dy))) scale(0); opacity: 0; }
+    }
+    .total-bet {
+      font-size: 3.2em;
+      color: #ffeb3b;
+      text-shadow: 0 0 16px #ffeb3b;
+      margin-top: 16px;
+    }
+    .leaderboard-scroll {
+      max-height: 360px;
+      overflow-y: auto;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.15);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+    .leaderboard-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .leaderboard-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .leaderboard-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      margin: 0;
+    }
+    .leaderboard-table th, .leaderboard-table td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .leaderboard-table th {
+      background: rgba(255, 255, 255, 0.1);
+      font-weight: 600;
+    }
+    .leaderboard-table tr.your-place {
+      background: rgba(76, 175, 80, 0.4);
+    }
+    .name {
+      font-weight: 500;
+    }
+    .bet {
+      text-align: right;
+    }
+    .error {
+      color: #ff4444;
+      font-weight: 500;
+      font-size: 1.4em;
+      background: rgba(255, 0, 0, 0.15);
+      padding: 20px;
+      border-radius: 16px;
+      margin: 16px 0;
+      text-shadow: 0 0 8px #ff4444;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .message {
+      color: #ffffff;
+      font-weight: 500;
+      font-size: 1.4em;
+      background: rgba(0, 255, 0, 0.15);
+      padding: 20px;
+      border-radius: 16px;
+      margin: 16px 0;
+      text-shadow: 0 0 8px #00ff00;
+    }
+    .no-winners {
+      color: #ff6666; /* Light red color for "No winners" */
+      font-weight: 500;
+      font-size: 1.4em;
+      margin: 10px 0;
+    }
+    .copy-btn {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2em;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .nickname-error, .bet-error {
+      color: #ff4444;
+      font-size: 1.2em;
+      margin-top: 8px;
+    }
+    button {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: #fff;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      margin: 16px 8px;
+      font-size: 18px;
+      font-weight: 500;
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px; /* Minimum height for touch accessibility */
+      touch-action: manipulation;
+    }
+    button:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(76, 175, 80, 0.6);
+    }
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.5s ease, height 0.5s ease;
+    }
+    button:active::after {
+      width: 300%;
+      height: 300%;
+    }
+    .claim-btn {
+      background: linear-gradient(45deg, #FFD700, #FF8C00);
+      color: #fff;
+      padding: 20px 52px;
+      border-radius: 16px;
+      font-size: 20px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 20px;
+      box-shadow: 0 8px 28px rgba(255, 215, 0, 0.5);
+      transition: transform 0.3s ease;
+      min-height: 48px; /* Minimum height for touch accessibility */
+      touch-action: manipulation;
+    }
+    .claim-btn:hover {
+      transform: scale(1.05);
+    }
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+    #winner {
+      position: relative;
+    }
+    #winner h2 {
+      font-size: 2.5em;
+      color: #FFD700;
+      text-shadow: 0 0 15px #FFD700;
+      margin-bottom: 15px;
+    }
+    #winner h3 {
+      font-size: 2em;
+      color: #4CAF50;
+      text-shadow: 0 0 10px #4CAF50;
+      margin-bottom: 10px;
+      white-space: pre-line;
+    }
+    #winner p {
+      font-size: 1.5em;
+      color: #ffeb3b;
+      text-shadow: 0 0 8px #ffeb3b;
+      margin: 10px 0;
+    }
+    .back-btn {
+      position: fixed; /* Changed to fixed to prevent overlap and shifting */
+      top: 10px;
+      left: 10px;
+      z-index: 10000; /* High z-index to stay on top */
+      background: linear-gradient(45deg, #2196F3, #1976D2);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+      min-height: 44px; /* For touch accessibility */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+    .coins-display {
+      position: fixed; /* Changed to fixed to prevent shifting */
+      top: 10px;
+      right: 10px;
+      z-index: 10000; /* High z-index */
+      font-size: 1.2em;
+      font-weight: 600;
+    }
+    /* Additional media queries for full mobile optimization */
+    @media (max-width: 600px) {
+      body {
+        justify-content: flex-start; /* Prevent strict centering if keyboard reduces height */
+        padding-top: 60px; /* Top padding for fixed elements */
+        padding-bottom: 20px; /* Bottom padding to avoid keyboard overlap */
+      }
+      .container {
+        padding: 24px;
+        width: 95%;
+        margin: 0 auto;
+      }
+      input[type=range], input[type=text], input[type=number] {
+        font-size: 16px; /* Ensure readability without zoom */
+        padding: 12px;
+        min-height: 44px; /* For touch accessibility */
+      }
+      button {
+        padding: 16px 32px;
+        font-size: 16px;
+        min-height: 48px;
+      }
+      .claim-btn {
+        padding: 18px 48px;
+        font-size: 18px;
+        min-height: 48px;
+      }
+      .leaderboard {
+        grid-template-columns: 1fr;
+      }
+      .leaderboard-scroll {
+        max-height: 200px;
+      }
+      .leaderboard-table td, .leaderboard-table th {
+        font-size: 14px;
+        padding: 10px;
+      }
+      .error, .message {
+        font-size: 1.2em;
+        padding: 16px;
+      }
+      .timer {
+        font-size: 3.5em;
+      }
+      .total-bet {
+        font-size: 2em;
+      }
+      .loader-bubble, .loader-circular, .loader-helix {
+        width: 60px;
+        height: 60px;
+      }
+      .button-loader-bubble, .button-loader-circular, .button-loader-helix {
+        width: 30px;
+        height: 30px;
+      }
+      .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 8px 16px; /* Reduced for mobile */
+        font-size: 14px;
+      }
+      .coins-display {
+        top: 10px;
+        right: 10px;
+        font-size: 1em;
+      }
+    }
+    /* For very small screens (e.g., iPhone SE) */
+    @media (max-width: 375px) {
+      .timer {
+        font-size: 3em;
+      }
+      .total-bet {
+        font-size: 1.8em;
+      }
+      button {
+        font-size: 14px;
+        padding: 14px 28px;
+      }
+      .claim-btn {
+        font-size: 16px;
+        padding: 16px 40px;
+      }
+    }
+    /* Prevent zoom on focus for better usability */
+    input:focus, button:focus {
+      outline: none;
+      /* Avoid automatic zoom on iOS */
+    }
+  </style>
+</head>
+<body>
+<a href="main.html" class="back-btn">Back to Main Menu</a>
+<div class="coins-display" id="coinsDisplay">0🪙</div>
+<div id="site-loader">
+  <div class="loader"></div>
+  <p>Loading...</p>
+</div>
+<div class="container" id="main" style="display: none;"></div>
+
+<script>
+// Generate UUID for unique user identifier
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+// Check or create userId in localStorage
+let userId = localStorage.getItem('userId');
+if (!userId) {
+  userId = generateUUID();
+  localStorage.setItem('userId', userId);
+}
+
+let lastErrorLog = '';
+let todayKey = '';
+let currentBet = 1000;
+let isLoadingWinner = false;
+
+function formatNumberWithSpaces(number) {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+const originalConsoleError = console.error;
+console.error = function (...args) {
+  lastErrorLog = args.join(' ');
+  originalConsoleError.apply(console, args);
+};
+
+const SHEET_ID = "1DT1Cj5KvJ3ECL2tb7IF-tGcvPxUA4y_69y9TJ8GwRBI";
+const scriptURL = 'https://script.google.com/macros/s/AKfycbxWDafVw5a6fHbUGsdFuTKHmbz_Pe1RCVP_cIgFhrgu8s89KtOlJH_RId3TFOxeFR24/exec';
+
+async function fetchWithRetry(url, options, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response;
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
+}
+
+async function fetchServerDate() {
+  const url = `${scriptURL}?action=getServerDate`;
+  try {
+    const response = await fetchWithRetry(url, { method: 'GET', mode: 'cors' });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    return data.serverDate;
+  } catch (error) {
+    console.error('Fetch server date error:', error.message);
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
+async function checkUserParticipation() {
+  const url = `${scriptURL}?action=checkParticipation&userId=${encodeURIComponent(userId)}`;
+  try {
+    const response = await fetchWithRetry(url, { method: 'GET', mode: 'cors' });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    return data.participates;
+  } catch (error) {
+    console.error('Check participation error:', error);
+    return false;
+  }
+}
+
+function showMessage(msg, isError = false, errorObj = null, showCopy = true) {
+  const className = isError ? 'error' : 'message';
+  const copyBtn = isError && showCopy ? `<button class="copy-btn" onclick="copyToClipboard(this, '${errorObj ? errorObj.message.replace(/'/g, "\\'") : ''}')"><i class="fa-solid fa-copy"></i></button>` : '';
+  const backBtn = isError && msg.includes('Game is locked') ? `<button onclick="renderBetUI()">Back</button>` : '';
+  const mainElement = document.getElementById('main');
+  if (mainElement) mainElement.innerHTML = `<h3 class="${className}">${msg}${copyBtn}</h3>${backBtn}`;
+}
+
+function copyToClipboard(button, errorMsg) {
+  const errorToCopy = errorMsg || lastErrorLog || 'No error logged';
+  navigator.clipboard.writeText(errorToCopy).then(() => {
+    button.innerHTML = '<i class="fa-solid fa-check"></i>';
+    setTimeout(() => button.innerHTML = '<i class="fa-solid fa-copy"></i>', 3000);
+  }).catch(err => console.error('Failed to copy:', err));
+}
+
+function showLoader() {
+  const mainElement = document.getElementById('main');
+  if (mainElement) mainElement.innerHTML = `<div class="loader"></div><p>Loading...</p>`;
+}
+
+function updateCoinsDisplay() {
+  const coins = localStorage.getItem('coins') || '0';
+  const coinsDisplay = document.getElementById('coinsDisplay');
+  if (coinsDisplay) coinsDisplay.textContent = `${formatNumberWithSpaces(coins)}🪙`;
+}
+
+function renderBetUI() {
+  const autoClaim = localStorage.getItem('autoClaim') === 'true';
+  const maxBet = Math.min(200000, parseInt(localStorage.getItem('coins') || '0'));
+  const mainElement = document.getElementById('main');
+  if (mainElement) {
+    mainElement.innerHTML = `
+      <h2>Choose a Number</h2>
+      <input type="range" id="betRange" min="1000" max="${maxBet}" value="${Math.min(currentBet, maxBet)}">
+      <input type="number" id="betNumber" value="${Math.min(currentBet, maxBet)}" placeholder="Enter a number">
+      <label for="autoClaim"><input type="checkbox" id="autoClaim" ${autoClaim ? 'checked' : ''}> Claim reward automatically</label>
+      <div id="bet-error" class="bet-error hidden"></div>
+      <button id="submitBtn" onclick="validateAndSubmit()">Submit</button>
+    `;
+    const betRange = document.getElementById('betRange');
+    const betNumber = document.getElementById('betNumber');
+    const autoClaimCheckbox = document.getElementById('autoClaim');
+    if (betRange) {
+      betRange.oninput = e => {
+        currentBet = parseInt(e.target.value);
+        betNumber.value = currentBet;
+      };
+    }
+    if (betNumber) {
+      betNumber.oninput = e => {
+        let value = e.target.value.replace(/^0+/, '') || '0';
+        if (value === '0') value = '';
+        e.target.value = value;
+        currentBet = parseInt(value) || 0;
+        betRange.value = currentBet;
+      };
+    }
+    if (autoClaimCheckbox) {
+      autoClaimCheckbox.addEventListener('change', e => {
+        localStorage.setItem('autoClaim', e.target.checked);
+      });
+    }
+  }
+  updateCoinsDisplay();
+}
+
+async function validateAndSubmit() {
+  const btn = document.getElementById('submitBtn');
+  if (btn) {
+    btn.innerHTML = 'Submit <div class="button-loader"></div>';
+    btn.disabled = true;
+  }
+  const name = localStorage.getItem('userName');
+  if (!name) {
+    showMessage('Username not found in localStorage.', true);
+    if (btn) {
+      btn.innerHTML = 'Submit';
+      btn.disabled = false;
+    }
+    return;
+  }
+  const bet = parseInt(currentBet);
+  const betErrorDiv = document.getElementById('bet-error');
+  const coins = parseInt(localStorage.getItem('coins') || '0');
+  let hasError = false;
+
+  if (isNaN(bet) || bet < 1000) {
+    betErrorDiv.textContent = 'Number cannot be less than 1,000';
+    betErrorDiv.classList.remove('hidden');
+    hasError = true;
+  } else if (bet > 200000) {
+    betErrorDiv.textContent = 'Number must not exceed 200,000';
+    betErrorDiv.classList.remove('hidden');
+    hasError = true;
+  } else if (bet > coins) {
+    betErrorDiv.textContent = 'Number must not exceed your coin balance';
+    betErrorDiv.classList.remove('hidden');
+    hasError = true;
+  } else {
+    betErrorDiv.classList.add('hidden');
+  }
+
+  if (hasError) {
+    if (btn) {
+      btn.innerHTML = 'Submit';
+      btn.disabled = false;
+    }
+    return;
+  }
+
+  try {
+    const lockStatus = await checkLockStatus();
+    if (lockStatus.isLocked) {
+      showMessage('Game is closed or locked for winner determination. Please try again in a few minutes.', true, null, false);
+      if (btn) {
+        btn.innerHTML = 'Submit';
+        btn.disabled = false;
+      }
+      return;
+    }
+    submitBet(name, bet);
+  } catch (error) {
+    showMessage('Error checking game status: ' + error.message, true, error);
+    if (btn) {
+      btn.innerHTML = 'Submit';
+      btn.disabled = false;
+    }
+  }
+}
+
+async function checkLockStatus() {
+  const url = `${scriptURL}?action=checkLock`;
+  try {
+    const response = await fetchWithRetry(url, { method: 'GET', mode: 'cors' });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    return { isLocked: data.isLocked };
+  } catch (error) {
+    console.error('Check lock error:', error);
+    throw error;
+  }
+}
+
+function showAttemptsExhausted() {
+  const mainElement = document.getElementById('main');
+  if (mainElement) {
+    mainElement.innerHTML = `
+      <h3 class="error">You have exhausted your attempts for today.</h3>
+      <p>Enter the unlock code:</p>
+      <input type="text" id="unlockCode" placeholder="Enter code">
+      <button onclick="checkUnlockCode()">Confirm</button>
+    `;
+  }
+  updateCoinsDisplay();
+}
+
+function checkUnlockCode() {
+  const unlockCodeElement = document.getElementById('unlockCode');
+  if (!unlockCodeElement) return;
+  const code = unlockCodeElement.value;
+  if (code === 'QWERTY') {
+    localStorage.setItem('unlimitedAttempts', 'true');
+    renderBetUI();
+  } else {
+    showMessage('Invalid code', true, null, false);
+  }
+}
+
+async function submitBet(name, bet) {
+  const unlimitedAttempts = localStorage.getItem('unlimitedAttempts') === 'true';
+  let attempts = parseInt(localStorage.getItem(todayKey) || 0);
+  if (!unlimitedAttempts && attempts >= 2) {
+    showAttemptsExhausted();
+    return;
+  }
+
+  try {
+    showLoader();
+    const response = await sendToSheet(name, bet, userId);
+    if (response.error === "GameLocked") {
+      showMessage('Game is closed, try again later!', true, null, false);
+      return;
+    }
+    await showLeaderboard();
+    if (!unlimitedAttempts) localStorage.setItem(todayKey, attempts + 1);
+  } catch (error) {
+    showMessage('Error submitting number: ' + error.message, true, error);
+  }
+}
+
+async function sendToSheet(name, bet, userId) {
+  const url = `${scriptURL}?name=${encodeURIComponent(name)}&bet=${bet}&userId=${encodeURIComponent(userId)}`;
+  try {
+    const response = await fetchWithRetry(url, { method: 'GET', mode: 'cors' });
+    const data = await response.json();
+    if (data.error) return data;
+    if (data.status !== "OK") throw new Error('Unexpected response');
+    return data;
+  } catch (error) {
+    console.error('Send to sheet error:', error);
+    throw error;
+  }
+}
+
+async function loadLeaderboardDataViaScript() {
+  const url = `${scriptURL}?action=getLeaderboard`;
+  try {
+    const response = await fetchWithRetry(url, { method: 'GET', mode: 'cors' });
+    const data = await response.json();
+    const values = data.values || [];
+    const startTime = data.startTime ? new Date(data.startTime) : null;
+    const serverTimeMs = data.currentTime;
+    const clientTimeMs = Date.now();
+    const offset = serverTimeMs - clientTimeMs;
+    const currentUser = localStorage.getItem('userName')?.trim() || '';
+    const currentUserId = localStorage.getItem('userId');
+    const seen = new Set();
+    const uniqueData = [];
+
+    for (let i = 0; i < values.length; i++) {
+      const [entryUserId, name, bet] = values[i];
+      if (entryUserId && name && bet !== undefined && !isNaN(bet) && name.trim() !== '') {
+        if (!seen.has(entryUserId)) {
+          seen.add(entryUserId);
+          const betValue = parseInt(bet) || 0;
+          const isCurrentUser = (name.trim() === currentUser && entryUserId === currentUserId);
+          uniqueData.push({ userId: entryUserId, name, bet: betValue, isCurrentUser });
+        }
+      }
+    }
+
+    return { values: uniqueData, startTime, offset };
+  } catch (error) {
+    console.error('Leaderboard load error:', error);
+    throw error;
+  }
+}
+
+function renderLeaderboardTable(values) {
+  values.sort((a, b) => (b.bet || 0) - (a.bet || 0));
+  return values.length > 0 
+    ? `
+      <table class="leaderboard-table">
+        <tbody>
+          ${values.map((d, index) => `
+            <tr class="${d.isCurrentUser ? 'your-place' : ''}">
+              <td>${index + 1}</td>
+              <td class="name">${d.name}${d.isCurrentUser ? ' (You)' : ''}</td>
+              <td class="bet">${formatNumberWithSpaces(d.bet || 0)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `
+    : '<p>No participants</p>';
+}
+
+async function showLeaderboard() {
+  showLoader();
+  let leaderboardData;
+  try {
+    leaderboardData = await loadLeaderboardDataViaScript();
+  } catch (error) {
+    showMessage('Error loading leaderboard: ' + error.message, true, error);
+    return;
+  }
+
+  let { values, startTime, offset } = leaderboardData;
+  const totalBet = values.reduce((sum, d) => sum + (d.bet || 0), 0);
+  const html = renderLeaderboardTable(values);
+  const mainElement = document.getElementById('main');
+  if (mainElement) {
+    mainElement.innerHTML = `
+      <div class="leaderboard">
+        <div class="left-column">
+          <div class="timer-container" id="timerContainer">
+            <div class="timer" id="timer">Waiting...</div>
+            <div class="timer-wave"></div>
+            <div class="timer-wave"></div>
+            <div class="spark" style="--dx: ${Math.random() * 2 - 1}; --dy: ${Math.random() * 2 - 1}; animation-delay: ${Math.random()}s;"></div>
+            <div class="spark" style="--dx: ${Math.random() * 2 - 1}; --dy: ${Math.random() * 2 - 1}; animation-delay: ${Math.random()}s;"></div>
+            <div class="spark" style="--dx: ${Math.random() * 2 - 1}; --dy: ${Math.random() * 2 - 1}; animation-delay: ${Math.random()}s;"></div>
+          </div>
+          <div class="total-bet" id="totalBet">${formatNumberWithSpaces(totalBet)}</div>
+          <div id="loading" class="hidden">
+            <div class="loader"></div>
+            <p>Determining winner...</p>
+          </div>
+          <div id="winner" class="hidden">
+            <h2>Number drawn: <span id="randomNumber"></span></h2>
+            <h3 id="winnerNameH3">Winner: <span id="winnerName"></span></h3>
+            <p id="winnerBetText" class="hidden">Winner's number: <span id="winnerBet"></span></p>
+            <p id="winnerTotalText" class="hidden">Won: <span id="winnerTotal"></span></p>
+            <p id="receivedText" class="hidden" style="color: #90EE90; font-weight: bold; font-size: 1.8em; text-shadow: none;">RECEIVED!</p>
+            <p id="claimButton" class="hidden"><button class="claim-btn" onclick="claimWin()">Claim</button></p>
+          </div>
+        </div>
+        <div class="right-column">
+          <div class="leaderboard-scroll">
+            ${html}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  updateCoinsDisplay();
+
+  const timerElement = document.getElementById('timer');
+  const timerContainer = document.getElementById('timerContainer');
+  const loadingElement = document.getElementById('loading');
+  if (!timerElement || !timerContainer || !loadingElement) return;
+
+  let errorCount = 0;
+  const updateInterval = setInterval(async () => {
+    try {
+      const data = await loadLeaderboardDataViaScript();
+      values = data.values;
+      startTime = data.startTime ? new Date(data.startTime) : null;
+      offset = data.offset;
+      const totalBet = values.reduce((sum, d) => sum + (d.bet || 0), 0);
+      const html = renderLeaderboardTable(values);
+      const leaderboardScroll = document.querySelector('.leaderboard-scroll');
+      const totalBetElement = document.getElementById('totalBet');
+      if (leaderboardScroll) leaderboardScroll.innerHTML = html;
+      if (totalBetElement) totalBetElement.textContent = formatNumberWithSpaces(totalBet);
+      errorCount = 0;
+    } catch (error) {
+      console.error('Leaderboard update error:', error);
+      errorCount++;
+      if (errorCount > 5) {
+        clearInterval(updateInterval);
+        showMessage('Too many errors updating leaderboard. Please check your internet connection or reload the page.', true);
+      }
+    }
+  }, 2000);
+
+  let timerStarted = false;
+  const timerInterval = setInterval(() => {
+    if (values.length < 2) {
+      timerElement.innerHTML = 'Waiting for other players...';
+      timerElement.classList.add('waiting');
+      timerStarted = false;
+      return;
+    }
+    if (!timerStarted) {
+      startTime = new Date(Date.now() + offset);
+      timerStarted = true;
+    }
+    const nowMs = Date.now();
+    const approxServerTimeMs = nowMs + offset;
+    const elapsedMs = approxServerTimeMs - startTime.getTime();
+    const remainingMs = Math.max(0, 59000 - elapsedMs); // 59 seconds
+    let remainingSec = Math.floor(remainingMs / 1000);
+    if (remainingSec > 59) remainingSec = 59;
+    if (remainingSec <= 10) {
+      timerElement.classList.add('warning');
+    }
+    if (remainingSec <= 5) {
+      timerElement.classList.add('active');
+    }
+    if (remainingSec <= 0) {
+      timerContainer.style.display = 'none';
+      loadingElement.classList.remove('hidden');
+      clearInterval(timerInterval);
+      clearInterval(updateInterval);
+      showLoadingAndRandom();
+    } else {
+      timerElement.innerHTML = `<span>${remainingSec}</span>`;
+      timerElement.classList.remove('waiting');
+    }
+  }, 100);
+}
+
+async function showLoadingAndRandom() {
+  if (isLoadingWinner) return;
+  isLoadingWinner = true;
+
+  await setLock();
+  let leaderboardData;
+  try {
+    leaderboardData = await loadLeaderboardDataViaScript();
+  } catch (error) {
+    isLoadingWinner = false;
+    showMessage('Error loading leaderboard: ' + error.message, true, error);
+    return;
+  }
+  let { values } = leaderboardData;
+  if (values.length < 2) {
+    showMessage('Not enough participants to start the game. Minimum 2 required.', true, null, false);
+    isLoadingWinner = false;
+    return;
+  }
+  const html = renderLeaderboardTable(values);
+  const mainElement = document.getElementById('main');
+  if (mainElement) {
+    mainElement.innerHTML = `
+      <div class="leaderboard">
+        <div class="left-column">
+          <div id="loading">
+            <div class="loader"></div>
+            <p>Determining winner...</p>
+          </div>
+          <div id="winner" class="hidden">
+            <h2>Number drawn: <span id="randomNumber"></span></h2>
+            <h3 id="winnerNameH3">Winner: <span id="winnerName"></span></h3>
+            <p id="winnerBetText" class="hidden">Winner's number: <span id="winnerBet"></span></p>
+            <p id="winnerTotalText" class="hidden">Won: <span id="winnerTotal"></span></p>
+            <p id="receivedText" class="hidden" style="color: #90EE90; font-weight: bold; font-size: 1.8em; text-shadow: none;">RECEIVED!</p>
+            <p id="claimButton" class="hidden"><button class="claim-btn" onclick="claimWin()">Claim</button></p>
+          </div>
+        </div>
+        <div class="right-column">
+          <div class="leaderboard-scroll">
+            ${html}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  updateCoinsDisplay();
+  const loading = document.getElementById('loading');
+  const winner = document.getElementById('winner');
+  try {
+    const random = await getRandomNumberFromServer();
+    if (loading) loading.classList.add('hidden');
+    if (winner) winner.classList.remove('hidden');
+    await pickWinner(random, values);
+  } catch (error) {
+    if (loading) loading.classList.add('hidden');
+    isLoadingWinner = false;
+    showMessage('Error determining winner: ' + error.message, true, error);
+  }
+}
+
+async function getRandomNumberFromServer() {
+  const url = `${scriptURL}?action=getRandomNumber`;
+  try {
+    const response = await fetchWithRetry(url, { method: 'GET', mode: 'cors' });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    return data.randomNumber;
+  } catch (error) {
+    console.error('Random number fetch error:', error);
+    throw error;
+  }
+}
+
+async function setLock() {
+  const url = `${scriptURL}?action=setLock`;
+  try {
+    const response = await fetchWithRetry(url, { method: 'GET', mode: 'cors' });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    if (data.status !== "OK") throw new Error('Unexpected response');
+  } catch (error) {
+    console.error('Set lock error:', error);
+    throw error;
+  }
+}
+
+function getWinnerPlace(data, winner) {
+  const sorted = [...data].sort((a, b) => b.bet - a.bet);
+  const index = sorted.findIndex(u => u.userId === winner.userId && u.name === winner.name);
+  return index !== -1 ? (index + 1) + '.' : '';
+}
+
+function claimWin() {
+  const winnerTotal = document.getElementById('winnerTotal');
+  if (!winnerTotal) return;
+  const prize = parseInt(winnerTotal.textContent.replace(/ /g, ''));
+  let coins = parseInt(localStorage.getItem('coins') || '0');
+  coins += prize;
+  localStorage.setItem('coins', coins);
+  updateCoinsDisplay();
+  const claimButton = document.getElementById('claimButton');
+  const receivedText = document.getElementById('receivedText');
+  if (claimButton) claimButton.classList.add('hidden');
+  if (receivedText) receivedText.classList.remove('hidden');
+}
+
+async function pickWinner(random, data) {
+  try {
+    isLoadingWinner = true;
+    const randomNumberElement = document.getElementById('randomNumber');
+    const winnerNameH3 = document.getElementById('winnerNameH3');
+    const winnerNameElement = document.getElementById('winnerName');
+    const winnerBetElement = document.getElementById('winnerBet');
+    const winnerTotalElement = document.getElementById('winnerTotal');
+    const winnerBetTextEl = document.getElementById('winnerBetText');
+    const winnerTotalTextEl = document.getElementById('winnerTotalText');
+    const claimBtnEl = document.getElementById('claimButton');
+    const receivedText = document.getElementById('receivedText');
+    const leaderboardScroll = document.querySelector('.leaderboard-scroll');
+
+    if (randomNumberElement) randomNumberElement.textContent = formatNumberWithSpaces(random);
+
+    if (data.length === 0) {
+      if (winnerNameH3) {
+        winnerNameH3.innerHTML = 'No winners';
+        winnerNameH3.classList.remove('hidden');
+      }
+      if (winnerNameElement) {
+        winnerNameElement.innerHTML = '<span class="no-winners">No one fell within the ±20,000 range</span>';
+        winnerNameElement.classList.remove('hidden');
+      }
+      if (winnerBetTextEl) winnerBetTextEl.classList.add('hidden');
+      if (winnerTotalTextEl) winnerTotalTextEl.classList.add('hidden');
+      if (claimBtnEl) claimBtnEl.classList.add('hidden');
+      isLoadingWinner = false;
+      return;
+    }
+
+    // Select winners within ±20,000 of the random number
+    const range = 20000;
+    const closest = data.filter(user => Math.abs(random - user.bet) <= range);
+
+    const totalBet = data.reduce((sum, d) => sum + (d.bet || 0), 0);
+    const numWinners = closest.length;
+    const prizePerWinner = numWinners > 0 ? Math.floor(totalBet / numWinners) : 0; // Evenly divide prize among winners
+
+    const isPlural = numWinners > 1;
+    const winnerLabel = isPlural ? 'Winners:' : numWinners === 0 ? 'No winners' : 'Winner:';
+    const names = numWinners > 0 ? closest.map(w => {
+      const place = getWinnerPlace(data, w);
+      return `${place} ${w.name}${w.isCurrentUser ? ' (You)' : ''}`;
+    }).join(', ') : '<span class="no-winners">No one fell within the ±20,000 range</span>';
+    const bets = numWinners > 0 ? closest.map(w => formatNumberWithSpaces(w.bet)).join(', ') : '';
+    const currentUserWins = closest.some(w => w.isCurrentUser);
+
+    if (winnerNameH3) {
+      winnerNameH3.innerHTML = winnerLabel;
+      winnerNameH3.classList.remove('hidden');
+    }
+    if (winnerNameElement) {
+      winnerNameElement.innerHTML = names;
+      winnerNameElement.classList.remove('hidden');
+    }
+    if (winnerBetElement) winnerBetElement.textContent = bets;
+    if (winnerTotalElement) winnerTotalElement.textContent = formatNumberWithSpaces(prizePerWinner);
+    
+    if (numWinners > 0) {
+      if (winnerBetTextEl) winnerBetTextEl.classList.remove('hidden');
+      if (winnerTotalTextEl) winnerTotalTextEl.classList.remove('hidden');
+    } else {
+      if (winnerBetTextEl) winnerBetTextEl.classList.add('hidden');
+      if (winnerTotalTextEl) winnerTotalTextEl.classList.add('hidden');
+    }
+
+    const autoClaim = localStorage.getItem('autoClaim') === 'true';
+    if (currentUserWins && numWinners > 0) {
+      if (autoClaim) {
+        claimWin();
+      } else {
+        if (claimBtnEl) claimBtnEl.classList.remove('hidden');
+      }
+    } else {
+      if (claimBtnEl) claimBtnEl.classList.add('hidden');
+    }
+
+    if (leaderboardScroll) {
+      leaderboardScroll.innerHTML = renderLeaderboardTable(data);
+    }
+
+    await sendWinnerToSheet(names, bets, random, prizePerWinner);
+    await setLock();
+    isLoadingWinner = false;
+  } catch (error) {
+    console.error('Error in pickWinner:', error);
+    isLoadingWinner = false;
+    showMessage('Error determining winner: ' + error.message, true);
+  }
+}
+
+async function sendWinnerToSheet(name, bet, random, winnerPrize) {
+  const url = `${scriptURL}?name=${encodeURIComponent(name)}&bet=${encodeURIComponent(bet)}&random=${encodeURIComponent(random)}&action=winner&totalBet=${encodeURIComponent(winnerPrize)}`;
+  try {
+    const response = await fetchWithRetry(url, { method: 'GET', mode: 'cors' });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    if (data.status !== "OK") throw new Error('Unexpected response');
+  } catch (error) {
+    console.error('Send winner error:', error);
+    throw error;
+  }
+}
+
+async function clearBetsSheet() {
+  const url = `${scriptURL}?action=clearBets`;
+  try {
+    const response = await fetchWithRetry(url, { method: 'GET', mode: 'cors' });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    if (data.status === "OK") console.log('Bets sheet cleared');
+  } catch (error) {
+    console.error('Clear bets error:', error);
+    throw error;
+  }
+}
+
+async function init() {
+  todayKey = await fetchServerDate();
+  let attempts = parseInt(localStorage.getItem(todayKey) || 0);
+  const unlimitedAttempts = localStorage.getItem('unlimitedAttempts') === 'true';
+
+  try {
+    const isParticipating = await checkUserParticipation();
+    if (isParticipating) {
+      const leaderboardData = await loadLeaderboardDataViaScript();
+      const { startTime, offset } = leaderboardData;
+      if (startTime) {
+        const nowMs = Date.now();
+        const approxServerTimeMs = nowMs + offset;
+        const elapsedMs = approxServerTimeMs - startTime.getTime();
+        const remainingMs = Math.max(0, 60000 - elapsedMs);
+        if (remainingMs > 10000) {
+          showLeaderboard();
+          document.getElementById('site-loader').style.display = 'none';
+          document.getElementById('main').style.display = 'block';
+          return;
+        }
+      }
+    }
+    if (!unlimitedAttempts && attempts >= 2) {
+      showAttemptsExhausted();
+    } else {
+      renderBetUI();
+    }
+  } catch (error) {
+    console.error('Error checking participation:', error);
+    if (!unlimitedAttempts && attempts >= 2) {
+      showAttemptsExhausted();
+    } else {
+      renderBetUI();
+    }
+  }
+
+  const container = document.querySelector('.container');
+  if (container) {
+    container.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!target.closest('input') && !target.closest('button') && !target.closest('a')) {
+        if (document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
+      }
+    });
+  }
+  document.getElementById('site-loader').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  updateCoinsDisplay();
+}
+// Add resize event listener to adjust height on mobile (due to keyboard)
+window.addEventListener('resize', () => {
+  document.body.style.minHeight = `${window.innerHeight}px`;
+});
+
+// Initialize height on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.body.style.minHeight = `${window.innerHeight}px`;
+});
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Загрузка</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #060039;
+      color: #d9d9d9;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+    }
+
+    .centered {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 20px;
+    }
+
+    button {
+      background-color: #251897;
+      color: #d9d9d9;
+      border: none;
+      padding: 14px 24px;
+      margin: 12px;
+      border-radius: 12px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #5d4ec8;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    .token-container {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #251897;
+      padding: 8px 12px;
+      border-radius: 12px;
+      user-select: all;
+      font-size: 16px;
+      max-width: 400px;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      background-color: #251897;
+      border: none;
+      color: #d9d9d9;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 8px 16px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      user-select: none;
+    }
+
+    .copy-btn:hover {
+      background-color: #5d4ec8;
+    }
+
+    .support-text {
+      margin-top: 25px;
+      font-size: 18px;
+    }
+
+    .support-text a {
+      color: #d9d9d9;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="centered">
+    <h1 id="message">Идет загрузка... || Loading...</h1>
+    <div id="buttons"></div>
+  </div>
+
+  <script type="module">
+    // --- security.js ---
+    import { texpereriv, blockedTokens } from './security.js';
+
+    const botToken = '6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI';
+    const channelUsername = '@Nicknaymes2bot';
+    const redirectUrl = 'main.html';
+
+    const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
+    const text = {
+      ru: {
+        loading: 'Идет загрузка...\n|| Loading...',
+        blocked: 'Ваш аккаунт заблокирован. || Your account is blocked.',
+        support: 'Служба поддержки || Support service: @',
+        supportBot: 'Clickerstart_bot',
+        maintenance: 'Ведется техническое обслуживание!\nTechnical maintenance',
+        soon: 'Скоро мы начнем техническое обслуживание\nTechnical maintenance will start soon.',
+        subscribe: 'Подпишитесь на канал для продолжения!\nSubscribe to the channel to continue!',
+        checkSubscription: 'Проверить подписку || Check subscription'
+      },
+      en: {
+        loading: 'Loading... || Идет загрузка...',
+        blocked: 'Your account is blocked. || Ваш аккаунт заблокирован.',
+        support: 'Support service || Служба поддержки: @',
+        supportBot: 'Clickerstart_bot',
+        maintenance: 'Technical maintenance!\nВедется техническое обслуживание!',
+        soon: 'Technical maintenance will start soon.\nСкоро мы начнем техническое обслуживание.',
+        subscribe: 'Subscribe to the channel to continue!\nПодпишитесь на канал для продолжения!',
+        checkSubscription: 'Check subscription || Проверить подписку'
+      }
+    };
+
+    const messageEl = document.getElementById('message');
+    const buttonsEl = document.getElementById('buttons');
+    let userToken = null;
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('Ваш токен скопирован!\nYour token copied!');
+          const copyBtn = document.querySelector('.copy-btn');
+          if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
+        }, () => {
+          alert('Не удалось скопировать токен.');
+        });
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          alert('Ваш токен скопирован!\nYour token copied!');
+          const copyBtn = document.querySelector('.copy-btn');
+          if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
+        } catch {
+          alert('Не удалось скопировать токен.');
+        }
+        document.body.removeChild(textArea);
+      }
+    }
+
+    function createTokenContainer() {
+      const tokenContainer = document.createElement('div');
+      tokenContainer.className = 'token-container';
+
+      const tokenText = document.createElement('span');
+      tokenText.textContent = userToken || 'нет токена';
+      tokenContainer.appendChild(tokenText);
+
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.textContent = 'Скопировать || Copy';
+      copyBtn.onclick = () => copyToClipboard(userToken);
+      tokenContainer.appendChild(copyBtn);
+
+      return tokenContainer;
+    }
+
+    function createSupportText() {
+      const supportDiv = document.createElement('div');
+      supportDiv.className = 'support-text';
+      supportDiv.innerHTML = `${text[userLang].support}<a href="https://t.me/${text[userLang].supportBot}" target="_blank">Clickerstart_bot</a>`;
+      return supportDiv;
+    }
+
+    function createSubscriptionScreen(isFake = false) {
+      messageEl.textContent = text[userLang].subscribe;
+      buttonsEl.innerHTML = '';
+      const subscribeButton = document.createElement('button');
+      subscribeButton.textContent = text[userLang].checkSubscription;
+      subscribeButton.onclick = isFake ? fakeCheckSubscription : checkSubscription;
+      buttonsEl.appendChild(subscribeButton);
+      buttonsEl.appendChild(createSupportText());
+    }
+
+    function showBlockedScreen() {
+      messageEl.textContent = text[userLang].blocked;
+      buttonsEl.innerHTML = '';
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
+    }
+
+    function showMaintenanceScreen() {
+      messageEl.textContent = text[userLang].maintenance;
+      buttonsEl.innerHTML = '';
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
+    }
+
+    function generateToken(length = 16) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let token = '';
+      for (let i = 0; i < length; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return token;
+    }
+
+    async function checkSubscription() {
+      try {
+        const userId = localStorage.getItem('userID');
+        if (!userId) {
+          console.log('User ID not available');
+          return false;
+        }
+
+        const response = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channelUsername}&user_id=${userId}`);
+        const data = await response.json();
+
+        if (data.ok && ['member', 'administrator', 'creator'].includes(data.result.status)) {
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+        return false;
+      }
+    }
+
+    async function fakeCheckSubscription() {
+      // Simulate a brief delay to mimic a real check
+      await new Promise(resolve => setTimeout(resolve, 500));
+      localStorage.setItem('hasVisited', 'true');
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
+      getSTARTAPP();
+      window.location.href = redirectUrl;
+    }
+
+    function getSTARTAPP() {
+      const charMap = { q:1, w:2, e:3, r:4, t:5, y:6, u:7, i:8, o:9, x:0 };
+
+      const startapp = Telegram.WebApp.initDataUnsafe.start_param;
+      if (startapp) {
+        const parts = startapp.split('_');
+        if (parts.length !== 2) {
+          console.log('Неверный формат startapp.');
+          return;
+        }
+        const encoded = parts[0].toLowerCase();
+        const purchaseId = parts[1];
+
+        let decoded = '';
+        for (let char of encoded) {
+          if (charMap.hasOwnProperty(char)) {
+            decoded += charMap[char];
+          }
+        }
+
+        const amount = parseInt(decoded) || 0;
+        let claimedIds = localStorage.getItem('claimedPurchases') ? localStorage.getItem('claimedPurchases').split(',') : [];
+
+        if (claimedIds.includes(purchaseId)) {
+          alert('Вы уже получили эту награду! || You already received this reward!');
+          return;
+        }
+
+        let coins = parseInt(localStorage.getItem('coins')) || 0;
+        coins += amount;
+        localStorage.setItem('coins', coins);
+
+        claimedIds.push(purchaseId);
+        localStorage.setItem('claimedPurchases', claimedIds.join(','));
+
+        alert(`Вы получили ${amount} монет! || You received ${amount} coins!`);
+      } else {
+        console.log('Параметр startapp отсутствует.');
+      }
+    }
+
+    async function main() {
+      if (localStorage.getItem('forever') === 'yes') {
+        window.location.href = 'blocked_forever.html';
+        return;
+      }
+
+      userToken = localStorage.getItem('userToken');
+      if (!userToken) {
+        userToken = generateToken(16);
+        localStorage.setItem('userToken', userToken);
+      }
+
+      if (blockedTokens.includes(userToken)) {
+        alert('Вы заблокированы!\nYou have been banned!');
+        showBlockedScreen();
+        return;
+      }
+
+      if (texpereriv.toLowerCase() === 'скоро') {
+        alert(text[userLang].soon);
+      } else if (texpereriv.toLowerCase() === 'уже') {
+        alert(text[userLang].maintenance);
+        showMaintenanceScreen();
+        return;
+      }
+
+      const userId = localStorage.getItem('userID');
+      const isFirstVisit = !localStorage.getItem('hasVisited');
+
+      if (userId && userId !== '') {
+        const isSubscribed = await checkSubscription();
+        if (!isSubscribed) {
+          createSubscriptionScreen();
+          return;
+        }
+      } else if (isFirstVisit) {
+        createSubscriptionScreen(true); // Show fake subscription screen
+        return;
+      }
+
+      buttonsEl.appendChild(createTokenContainer());
+      buttonsEl.appendChild(createSupportText());
+      getSTARTAPP();
+      window.location.href = redirectUrl;
+    }
+
+    main();
+  </script>
+</body>
+</html>

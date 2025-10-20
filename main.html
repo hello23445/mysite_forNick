@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsqr.min.js"></script>
+    <style>
+        :root {
+            --bg: #060039;
+            --bg-soft: #0b0660;
+            --card: #0d0870;
+            --text: #d9d9d9;
+            --muted: #a7a7c7;
+            --accent: #5f57ff;
+            --accent-2: #8f87ff;
+            --btn: #251897;
+            --shadow: rgba(0,0,0,.35);
+            --disabled: #4a4a4a;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+            background: radial-gradient(1200px 800px at 80% -10%, #100a7a 0%, var(--bg) 60%);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: linear-gradient(180deg, rgba(0,0,0,.35), transparent);
+            backdrop-filter: blur(6px);
+        }
+        #mainTopBar { justify-content: flex-end; }
+        #settingsTopBar { justify-content: space-between; gap: 6px; }
+        #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        #sideTopBar { justify-content: space-between; gap: 6px; }
+        #sideTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        .icon-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #090975; border: 1px solid rgba(255,255,255,.08);
+            color: var(--text); font-size: 16px; width: 36px; height: 36px; border-radius: 10px;
+            cursor: pointer; transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
+        .main { text-align: center; margin: 16px auto 0; padding: 0 12px; max-width: 860px; }
+        h2 { margin: 8px 0 6px; font-weight: 800; font-size: 18px; }
+        .buttons-container {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; justify-items: stretch; }
+        .settings-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
+        .btn {
+            --pad: 10px;
+            padding: var(--pad);
+            background: linear-gradient(180deg, var(--btn), #1b1280);
+            color: var(--text); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; cursor: pointer; width: 100%; font-size: 13px; font-weight: 600;
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--shadow); }
+        .btn:disabled { 
+            opacity: .6; 
+            cursor: not-allowed; 
+            background: var(--disabled);
+        }
+        .btn .left-icon { margin-right: 6px; }
+        .btn .right-icon { margin-left: 6px; }
+        #settingsMenu { display: none; padding: 16px 12px 24px; }
+        .settings-wrap { max-width: 860px; margin: 0 auto; }
+        .card {
+            background: linear-gradient(180deg, var(--card), #0b0862);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 14px; padding: 12px; box-shadow: 0 12px 32px var(--shadow); }
+        .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .card h3 { margin: 6px 4px 8px; font-size: 14px; color: var(--muted); font-weight: 700; letter-spacing: .2px; }
+        .field { display: flex; align-items: center; gap: 8px; flex-direction: column; }
+        .lang-field { display: flex; align-items: center; gap: 8px; width: 100%; }
+        select#langSelect { flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
+        #tok { margin-top: 6px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); width: 100%; }
+        #maintenance { display: none; text-align: center; margin-top: 16px; color: #ff6b6b; padding: 10px; }
+        #statSelect, #avatarVisibilitySelect {
+            flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
+        @media (max-width: 560px) {
+            .buttons-container { grid-template-columns: 1fr; }
+            .field { align-items: stretch; }
+            .lang-field { flex-direction: column; align-items: flex-start; }
+            #langSelect, #avatarVisibilitySelect { width: 100%; min-width: 100%; padding: 12px; font-size: 16px; min-height: 44px; }
+            #tok { width: 100%; }
+            .label { font-size: 16px; }
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .collapsible-content {
+            padding: 8px 0;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 40;
+        }
+        #sideMenu {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background: var(--bg);
+            z-index: 50;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.5s ease-in-out;
+        }
+        #sideMenu.open {
+            transform: translateX(0);
+        }
+        @media (max-width: 400px) {
+            #sideMenu { width: 100%; }
+        }
+        .side-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+        .coins {
+            background: linear-gradient(145deg, #060039, #0a004d);
+            border-radius: 12px;
+            padding: 10px 10px;
+            margin-right: 1%;
+            color: #e0e0ff;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(96, 75, 254, 0.3),
+                        inset 0 0 8px rgba(30, 20, 100, 0.5);
+        }
+        .coins i {
+            font-style: normal;
+            font-weight: normal;
+            color: inherit;
+            pointer-events: none;
+        }
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+            color: #ff6600;
+            overflow-x: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        .fog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300%;
+            height: 300%;
+            background: url("https://i.ibb.co/9n0xC1h/smoke.png") repeat;
+            opacity: 0.08;
+            animation: fogmove 90s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes fogmove {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .cloud {
+            position: fixed;
+            top: 10%;
+            width: 200px;
+            height: 60px;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 2;
+            animation: cloudmove 120s linear infinite;
+        }
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%);
+            width: 100px;
+            height: 50px;
+            top: -10px;
+            left: -50px;
+            border-radius: 50%;
+        }
+        .cloud::after {
+            width: 120px;
+            height: 60px;
+            top: 10px;
+            left: 50px;
+            border-radius: 50%;
+        }
+        .cloud2 {
+            top: 25%;
+            width: 300px;
+            height: 80px;
+            animation-duration: 160s;
+            animation-delay: 30s;
+        }
+        @keyframes cloudmove {
+            from { left: -250px; }
+            to { left: 410%; }
+        }
+        h1 {
+            text-align: center;
+            margin-top: 80px;
+            color: #cc0000;
+            text-shadow: 0 0 15px #ff0000, 0 0 30px #660000;
+            animation: flicker 2s infinite;
+            z-index: 10;
+            position: relative;
+        }
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.4; }
+        }
+        .pumpkin {
+            position: fixed;
+            top: -10%;
+            width: 50px;
+            height: auto;
+            z-index: 0;
+            animation: fall linear infinite;
+            pointer-events: none;
+        }
+        @keyframes fall {
+            from { top: -10%; transform: rotate(0deg); }
+            to { top: 110%; transform: rotate(360deg); }
+        }
+        .content, h1, p, button {
+            position: relative;
+            z-index: 10;
+        }
+        .p1  { left: 20%;  animation-duration: 12s; animation-delay: 0s; }
+        .p2  { left: 10%; animation-duration: 15s; animation-delay: 2s; }
+        .p3  { left: 15%; animation-duration: 18s; animation-delay: 4s; }
+        .p4  { left: 20%; animation-duration: 14s; animation-delay: 1s; }
+        .p5  { left: 25%; animation-duration: 20s; animation-delay: 3s; }
+        .p6  { left: 30%; animation-duration: 16s; animation-delay: 5s; }
+        .p7  { left: 35%; animation-duration: 18s; animation-delay: 7s; }
+        .p8  { left: 40%; animation-duration: 13s; animation-delay: 2s; }
+        .p9  { left: 45%; animation-duration: 21s; animation-delay: 6s; }
+        .p10 { left: 50%; animation-duration: 15s; animation-delay: 4s; }
+        .p11 { left: 55%; animation-duration: 19s; animation-delay: 8s; }
+        .p12 { left: 60%; animation-duration: 12s; animation-delay: 1s; }
+        .p13 { left: 65%; animation-duration: 22s; animation-delay: 5s; }
+        .p14 { left: 70%; animation-duration: 14s; animation-delay: 3s; }
+        .p15 { left: 75%; animation-duration: 17s; animation-delay: 7s; }
+        .p16 { left: 80%; animation-duration: 20s; animation-delay: 9s; }
+        .p17 { left: 85%; animation-duration: 16s; animation-delay: 2s; }
+        .p18 { left: 90%; animation-duration: 18s; animation-delay: 10s; }
+        .p19 { left: 95%; animation-duration: 11s; animation-delay: 6s; }
+        .p20 { left: 100%;animation-duration: 23s; animation-delay: 8s; }
+        @keyframes roll {
+            0% { left: -150%; transform: rotate(0deg); }
+            100% { left: 100%; transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="cloud"></div>
+    <div class="cloud cloud2"></div>
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p1" onclick="secret()" style="width: 60px; pointer-events: all;" id="p1">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p3">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p4">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p5">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p6">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p7">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p8">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p9">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p10">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p11">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p12">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p13">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p14">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p15">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p16">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p17">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p18">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p19">
+    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p20">
+    <div id="maintenance">
+        <h2 data-translate="maintenance" id="maintenanceM"></h2>
+    </div>
+    <div class="top-bar" id="mainTopBar">
+        <h4 class="coins" id="coins"><i style="user-select: none;">🪙</i>0</h4>
+        <button class="icon-btn" id="sideMenuBtn" title="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+    <div class="main" id="mainMenu">
+        <h2 data-translate="main" id="mainM"></h2>
+        <div class="buttons-container" id="featureButtons"></div>
+    </div>
+    <div id="settingsMenu">
+        <div class="top-bar" id="settingsTopBar">
+            <button class="icon-btn" id="backBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="settingsTitle" id="settingsTitle"></span>
+            <span style="width:36px; height:36px;"></span>
+        </div>
+        <div class="settings-wrap">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="langSectionTitle">Язык / Language</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-up"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: block;">
+                        <div class="field">
+                            <div class="lang-field">
+                                <i class="fa-solid fa-globe" style="font-size: 18px;"></i>
+                                <select id="langSelect"></select>
+                            </div>
+                            <div class="card" style="width: 100%;">
+                                <div class="card-header">
+                                    <h3 id="showmytokentext">Показать мой токен пользователя</h3>
+                                    <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                                </div>
+                                <div style="display: none; margin-top: 1%;">
+                                    <button class="btn" id="tok"><i class="fa-solid fa-key left-icon"></i><span>Token</span></button>
+                                    <p style="margin-top: 0%; margin-bottom: 0%; color: rgb(210, 209, 209);" id="userTokenWarning"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="statSectionTitle" id="stat_setting_text"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;" id="stat_setting">
+                        <select id="statSelect" onchange="localStorage.setItem('statistic_turn', this.value === 'yes' ? 'yes' : 'no')">
+                            <option value="yes">Собирать данные для статистики</option>
+                            <option value="no">Не собирать данные для статистики</option>
+                        </select>
+                        <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">Очистить все данные статистики</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="privacySectionTitle"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div class="field">
+                            <div class="lang-field">
+                                <label for="avatarVisibilitySelect" class="label" data-translate="privacyLabel" style="color: white;"></label>
+                                <select id="avatarVisibilitySelect">
+                                    <option value="all">Все</option>
+                                    <option value="verified">Проверенные</option>
+                                    <option value="liked">Те, на кого я поставил(-а) лайк</option>
+                                    <option value="nobody">Никто</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="accountSectionTitle" id="account-settings"></h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div style="display: none;">
+                        <div class="card" style="display: none;" id="my_idBox">
+                            <div class="card-header">
+                                <h3 id="my_idHeader">Мой Telegram ID</h3>
+                                <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                            </div>
+                            <div style="display: none;">
+                                <button id="myID" class="btn">Ваш Telegram ID</button>
+                            </div>
+                        </div>
+                        <button class="btn" id="userID-confirming" onclick="window.location.href = 'set_telegram_id.html'">Привязать или изменить свой Telegram ID</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="userDataSectionTitle">Данные пользователя</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <button class="btn" style="margin-top: 2%;" id="LoadDatasFromUserToken" onclick='window.location.href = "https://t.me/Clickerstart_bot"'>Загрузить данные по токену(Через службу поддержки)</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-translate="supportSectionTitle">Поддержка</h3>
+                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" style="display: none;">
+                        <div class="settings-buttons" id="settingsButtons"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="overlay"></div>
+    <div id="sideMenu">
+        <div class="top-bar" id="sideTopBar">
+            <button class="icon-btn" id="sideCloseBtn" title="Close"><i class="fa-solid fa-arrow-left"></i></button>
+            <span class="title" data-translate="menuTitle"></span>
+            <span style="width:36px; height:36px;"></span>
+        </div>
+        <div class="side-wrap" style="padding:16px 12px;">
+            <div class="side-buttons" id="sideButtons"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <script>
+        if (!localStorage.getItem('userName')) {
+            localStorage.setItem('userName', 'User');
+        }
+        function secret() {
+          localStorage.getItem('caught_special_pumpkin') ? localStorage.setItem('caught_special_pumpkin', String(parseInt(localStorage.getItem('caught_special_pumpkin')) + 1)) : localStorage.setItem('caught_special_pumpkin', '1');
+            const a1 = Math.floor(Math.random() * 6) + 1;
+            if (a1 === 4 || a1 === 5) {
+                const a = localStorage.getItem('coins') || '0';
+                localStorage.setItem('coins', String(parseInt(a) + 100));
+                alert('+100🪙');
+                document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + formatNumber(localStorage.getItem('coins'));
+            }
+            document.getElementById("p1").style.display = "none";
+            setTimeout(function() {
+                document.getElementById("p1").style.left = Math.floor(Math.random() * 90 + 5) + '%';
+                document.getElementById("p1").style.display = "block";
+            }, 4000);
+        }
+
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbxkvAXAMckjNcVYGh3BmSmMI608TbUAwrmohywdKoVCMbmCz69Y0dKb3r9OP89NlH8s/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbr9H0F70BHo2js1tKD_P1MVChn-9NKr8av1p0ZtJj6h9845b3dB2xDarr_B1zpFwR/exec';
+
+        const LINKS = {
+            complaintRU: "https://t.me/NickNaymesBot/submit_complaints",
+            supportRU: "https://t.me/Clickerstart_bot",
+            supportEN: "https://t.me/Clickerstart_bot"
+        };
+        const filesRu = {
+            indexed_money: 'indexed_money.html',
+            shop: 'shop_ru.html',
+            nickname: 'nickname.html',
+            description: 'description.html',
+            profile: 'avatar.html',
+            lego: 'lego.html',
+            font: 'font.html',
+            sites: 'https://sites.google.com/',
+            ascii: 'ascii.html',
+            qr: 'qr.html',
+            music: 'music.html',
+            colors: 'colors.html',
+            ai: 'ai.html',
+            support: 'support.html',
+            connection: 'connection.html',
+            popular: 'popular(ru).html',
+            myshop: 'myshop_ru.html',
+            tasks: 'tasks.html'
+        };
+        const filesEn = {
+            indexed_money: 'indexed_money_en.html',
+            tasks: 'tasks_en.html',
+            shop: 'shop_en.html',
+            nickname: 'nickname_en.html',
+            description: 'description_en.html',
+            profile: 'avatar_en.html',
+            lego: 'lego_en.html',
+            font: 'font_en.html',
+            sites: 'https://sites.google.com/',
+            ascii: 'ascii_en.html',
+            qr: 'qr_en.html',
+            music: 'music_en.html',
+            colors: 'colors_en.html',
+            ai: 'ai_en.html',
+            support: 'support_en.html',
+            connection: 'connection_en.html',
+            popular: 'popular(en).html',
+            myshop: 'myshop_ru.html'
+        };
+
+        let storedCoins = parseInt(localStorage.getItem('coins'));
+        if (!localStorage.getItem('coins') || storedCoins < 0) {
+            localStorage.setItem('coins', '0');
+        } else {
+            document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + formatNumber(localStorage.getItem('coins'));
+        }
+
+        const tok = document.getElementById("tok");
+        tok.style.background = "linear-gradient(180deg, var(--btn), #1b1280)";
+        tok.style.color = "#fff";
+        tok.style.border = "none";
+        tok.style.borderRadius = "12px";
+        tok.style.padding = "10px 16px";
+        tok.style.fontWeight = "600";
+        tok.style.cursor = "pointer";
+
+        let lang = localStorage.getItem('lang') || 'ru';
+        if (!localStorage.getItem('statistic_turn')) {
+            localStorage.setItem('statistic_turn', 'yes');
+        }
+
+        let translations = {
+            ru: {
+                money: 'Играть и зарабатывать монеты',
+                task: 'Задания и награды',
+                shop: "Магазин",
+                premium: 'Премиум',
+                main: "Что будем создавать?",
+                maintenance: "Проводится техническое обслуживание.",
+                settingsTitle: "Настройки",
+                statsTitle: "Ваша статистика за все время",
+                langSectionTitle: "Настройки языка и токена",
+                supportSectionTitle: "Поддержка и связь",
+                userDataSectionTitle: "Загрузка и сохранение данных",
+                privacySectionTitle: "Конфиденциальность",
+                privacyLabel: "Кто может видеть мою аватарку:",
+                featureButtons: [
+                    "Никнейм","Описание","Аватарка","Лeгo","Шрифт","Сайт",
+                    "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
+                ],
+                settingsButtons: ["Поддержка","Проверка соединения"],
+                langOptions: ["Русский","English"],
+                writeComplaint: "Написать жалобу",
+                writeSupport: "Написать в службу поддержки",
+                historySectionTitle: "История",
+                tokenSectionTitle: "Токен",
+                usageTimeTitle: "Время использования",
+                menuTitle: "Меню",
+                home: "Вернуться в главное меню",
+                stats: "Статистика",
+                profile: "Мой профиль",
+                popular: "Популярное",
+                settings: "Настройки",
+                wishlist: "Мой список избранного",
+                myshop: "Мой магазин",
+                statSectionTitle: "Настройки статистики",
+                statCollectYes: "Собирать данные для статистики",
+                statCollectNo: "Не собирать данные для статистики",
+                statClear: "Очистить все данные статистики",
+                accountSectionTitle: "Аккаунт",
+                userIDButton: "Привязать или изменить свой Telegram ID"
+            },
+            en: {
+                money: 'Play and earn coins',
+                task: 'Tasks and Rewards',
+                shop: "Shop",
+                premium: 'Premium',
+                main: "What do you want to create?",
+                maintenance: "Maintenance in progress.",
+                settingsTitle: "Settings",
+                statsTitle: "Your all-time statistics",
+                langSectionTitle: "Language & token",
+                supportSectionTitle: "Support",
+                userDataSectionTitle: "Save and load datas",
+                privacySectionTitle: "Privacy",
+                privacyLabel: "Who can see my avatar:",
+                featureButtons: [
+                    "Nickname","Description","Profile","Lego","Font","Sites",
+                    "ASCII-art","QR-code","Music","Colors","AI-Generator"
+                ],
+                settingsButtons: ["Support","Connection check"],
+                langOptions: ["Русский","English"],
+                writeComplaint: "",
+                writeSupport: "Contact Support",
+                historySectionTitle: "History",
+                tokenSectionTitle: "Token",
+                usageTimeTitle: "Usage Time",
+                menuTitle: "Menu",
+                home: "Return to main menu",
+                stats: "Statistics",
+                profile: "My profile",
+                popular: "Popular",
+                settings: "Settings",
+                wishlist: "My wishlist",
+                myshop: "My Shop",
+                statSectionTitle: "Statistics settings",
+                statCollectYes: "Collect data for statistics",
+                statCollectNo: "Do not collect data for statistics",
+                statClear: "Clear all statistics data",
+                accountSectionTitle: "Account",
+                userIDButton: "Link or change my Telegram ID"
+            }
+        };
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function createButton({ text, icon, onClick, href, newTab=false, disabled=false, id, duplicateIcon=false }) {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            if (id) btn.id = id;
+            if (icon) {
+                const i = document.createElement('i');
+                i.className = icon;
+                i.classList.add('left-icon');
+                btn.appendChild(i);
+            }
+            const span = document.createElement('span');
+            span.textContent = text;
+            btn.appendChild(span);
+            if (duplicateIcon && icon) {
+                const i2 = document.createElement('i');
+                i2.className = icon;
+                i2.classList.add('right-icon');
+                btn.appendChild(i2);
+            }
+            if (href) {
+                btn.onclick = () => { 
+                    incrementCoins(); 
+                    newTab ? window.open(href, '_blank') : window.location.href = href; 
+                };
+            } else if (onClick) {
+                btn.onclick = onClick;
+            }
+            if (disabled) {
+                btn.disabled = true;
+                btn.style.background = 'var(--disabled)';
+                btn.title = lang === 'ru' ? 'Укажите ссылку в объекте LINKS' : 'Specify a link in the LINKS object';
+            }
+            return btn;
+        }
+
+        function applyTranslations() {
+            checkUserID();
+            document.getElementById('showmytokentext').style.color = 'white';
+            if (lang === 'ru') {
+                document.getElementById('LoadDatasFromUserToken').textContent = 'Загрузить данные по токену(Через службу поддержки)';
+                document.getElementById('userTokenWarning').textContent = 'Токен необходим для работы со службой поддержки и загрузки ваших данных в этом приложении. Будьте внимательны перед тем как показывать свой токен другим.';
+                document.getElementById('showmytokentext').textContent = 'Показать мой токен пользователя';
+            } else {
+                document.getElementById('LoadDatasFromUserToken').textContent = 'Load data by token (via support service)';
+                document.getElementById('userTokenWarning').textContent = 'The token is required to work with the support service and to load your data in this application. Be careful before sharing your token with others.';
+                document.getElementById('showmytokentext').textContent = 'Show my user token';
+            }
+            const files = lang === 'ru' ? filesRu : filesEn;
+
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[lang][key] !== undefined) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            const featureContainer = document.getElementById('featureButtons');
+            featureContainer.innerHTML = '';
+            const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai'];
+            translations[lang].featureButtons.forEach((text, i) => {
+                const url = files[featureKeys[i]];
+                const isExternal = /^https?:\/\//i.test(url);
+                const btn = createButton({ text, icon: 'fa-solid fa-shapes', href: url, newTab: isExternal });
+                featureContainer.appendChild(btn);
+            });
+
+            const settingsContainer = document.getElementById('settingsButtons');
+            settingsContainer.innerHTML = '';
+            const settingsKeys = ['support','connection'];
+            const settingsIcons = ['fa-solid fa-circle-info','fa-solid fa-wifi'];
+            translations[lang].settingsButtons.forEach((text, i) => {
+                const url = files[settingsKeys[i]];
+                const btn = createButton({ text, icon: settingsIcons[i], href: url });
+                settingsContainer.appendChild(btn);
+            });
+
+            document.getElementById('account-settings').textContent = translations[lang].accountSectionTitle;
+            document.getElementById('userID-confirming').textContent = translations[lang].userIDButton;
+            document.getElementById('stat_setting_text').textContent = translations[lang].statSectionTitle;
+            document.getElementById('stat_setting').innerHTML = `
+                <select id="statSelect" onchange="localStorage.setItem('statistic_turn', this.value === 'yes' ? 'yes' : 'no')">
+                    <option value="yes">${translations[lang].statCollectYes}</option>
+                    <option value="no">${translations[lang].statCollectNo}</option>
+                </select>
+                <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">${translations[lang].statClear}</button>
+            `;
+            const statSelect = document.getElementById('statSelect');
+            statSelect.value = localStorage.getItem('statistic_turn') || 'yes';
+
+            if (lang === 'ru') {
+                const hasLink = !!LINKS.complaintRU && /^https?:\/\//i.test(LINKS.complaintRU);
+                const complaintBtn = createButton({
+                    text: translations.ru.writeComplaint,
+                    icon: 'fa-solid fa-pen-to-square',
+                    href: hasLink ? LINKS.complaintRU : undefined,
+                    newTab: true,
+                    disabled: !hasLink
+                });
+                settingsContainer.appendChild(complaintBtn);
+            }
+
+            const supportLink = lang === 'ru' ? LINKS.supportRU : LINKS.supportEN;
+            const supportOk = !!supportLink && /^https?:\/\//i.test(supportLink);
+            const writeSupportBtn = createButton({
+                text: translations[lang].writeSupport,
+                icon: 'fa-solid fa-headset',
+                href: supportOk ? supportLink : undefined,
+                newTab: true,
+                disabled: !supportOk
+            });
+            settingsContainer.appendChild(writeSupportBtn);
+
+            const langSelect = document.getElementById('langSelect');
+            langSelect.innerHTML = '';
+            translations[lang].langOptions.forEach((text, i) => {
+                const option = document.createElement('option');
+                option.value = i === 0 ? 'ru' : 'en';
+                option.textContent = text;
+                option.selected = (option.value === lang);
+                langSelect.appendChild(option);
+            });
+
+            const avatarVisibilitySelect = document.getElementById('avatarVisibilitySelect');
+            const visibilityOptions = lang === 'ru' ? ['Все', 'Проверенные на безопасность пользователи', 'Те, на кого я поставил(-а) лайк', 'Никто'] : ['All', 'Verified users', 'Those I liked', 'Nobody'];
+            const visibilityValues = ['all', 'verified', 'liked', 'nobody'];
+            avatarVisibilitySelect.innerHTML = '';
+            visibilityOptions.forEach((text, i) => {
+                const option = document.createElement('option');
+                option.value = visibilityValues[i];
+                option.textContent = text;
+                option.selected = (option.value === (localStorage.getItem('avatar_visibility') || 'all'));
+                avatarVisibilitySelect.appendChild(option);
+            });
+        }
+
+        function initTokenButton(btnId) {
+            let isVisible = false;
+            const updateLabel = () => {
+                const userToken = localStorage.getItem('userToken') || '';
+                const maskedToken = userToken ? '*'.repeat(userToken.length) : '';
+                const btn = document.getElementById(btnId);
+                if (isVisible) {
+                    btn.innerHTML = '<i class="fa-solid fa-key left-icon"></i><span>' + 
+                        (lang === 'ru' ? 'Ваш токен: ' + userToken + ' (Нажмите для копирования)' : 
+                        'Your token: ' + userToken + ' (Click to copy)') + '</span>';
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-key left-icon"></i><span>' + 
+                        (lang === 'ru' ? 'Ваш токен: ' + maskedToken + ' (Нажмите для показа)' : 
+                        'Your token: ' + maskedToken + ' (Click to show)') + '</span>';
+                }
+            };
+            updateLabel();
+            document.getElementById(btnId).onclick = () => {
+                const userToken = localStorage.getItem('userToken') || '';
+                if (!isVisible) {
+                    isVisible = true;
+                    updateLabel();
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = userToken;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+                    } catch (err) {
+                        alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+                    }
+                    document.body.removeChild(textArea);
+                    isVisible = false;
+                    updateLabel();
+                }
+            };
+        }
+
+        applyTranslations();
+        initTokenButton('tok');
+
+        document.getElementById('backBtn').onclick = () => {
+            document.getElementById('settingsMenu').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('mainTopBar').style.display = 'flex';
+            saveUserDataToGoogleSheets();
+        };
+
+        document.getElementById('langSelect').onchange = function() {
+            lang = this.value;
+            localStorage.setItem('lang', lang);
+            applyTranslations();
+            initTokenButton('tok');
+        };
+
+        document.getElementById('avatarVisibilitySelect').onchange = function() {
+            localStorage.setItem('avatar_visibility', this.value);
+        };
+
+        document.getElementById('statSelect').onchange = function() {
+            const selectedOption = this.options[this.selectedIndex].text;
+            const statTurn = selectedOption === translations[lang].statCollectYes ? 'yes' : 'no';
+            localStorage.setItem('statistic_turn', statTurn);
+            applySideButtons();
+        };
+
+        const m = localStorage.getItem('m');
+        if (m === 'Уже' || m === 'уже') {
+            document.querySelectorAll('div').forEach(el => el.style.display = 'none');
+            alert(lang === 'ru' ? 'Идет техническое обслуживание' : 'Maintenance in progress');
+            document.getElementById('maintenance').style.display = 'block';
+            document.getElementById('maintenanceM').textContent = translations[lang].maintenance;
+        } else if (m === 'Скоро' || m === 'скоро') {
+            alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
+        }
+
+        if (!localStorage.getItem('first_use_date')) {
+            localStorage.setItem('first_use_date', new Date().toISOString());
+        }
+
+        function clearAllStatistic() {
+            let confirmed;
+            if (lang === 'ru') {
+                confirmed = confirm(
+                    `Вы уверены, что хотите очистить всю свою статистику?\n` +
+                    `Это действие нельзя будет отменить!\n` +
+                    `Вся ваша статистика будет полностью обнулена, все значения станут равны нулю!\n` +
+                    `ОК - Подтвердить очистку\nОтмена - Отменить очистку.`
+                );
+            } else {
+                confirmed = confirm(
+                    `Are you sure you want to clear all your statistics?\n` +
+                    `This action cannot be undone!\n` +
+                    `All your statistics will be completely reset; all values will be set to zero!\n` +
+                    `OK - Confirm reset\nCancel - Cancel reset`
+                );
+            }
+            if (!confirmed) return;
+            if (confirmed) {
+                alert('✅');
+            }
+            const keys = [
+                'created_nicknames',
+                'created_descriptions',
+                'created_profiles',
+                'created_lego',
+                'created_fonts',
+                'created_ascii_arts',
+                'created_qr_codes',
+                'created_musics',
+                'copied_color_codes',
+                'copied_nicknames',
+                'copied_descriptions',
+                'shared_nicknames',
+                'shared_descriptions',
+                'usage_day',
+                'usage_week',
+                'usage_month',
+                'last_day',
+                'last_week',
+                'last_month',
+                'nick_story',
+                'desc_story'
+            ];
+            keys.forEach(key => localStorage.removeItem(key));
+            localStorage.setItem('statistic_turn', 'yes');
+            applyTranslations();
+        }
+
+        const dataKeys = [
+            'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
+            'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
+            'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
+            'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story',
+            'first_use_date', 'statistic_turn', 'lang', 'avatar_visibility', 'loved', 'loved_descs', 'liked_users', 'userName', 'userAvatar'
+        ];
+
+        const statKeys = [
+            'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
+            'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
+            'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
+            'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story'
+        ];
+
+        async function uploadAvatarToDrive(base64) {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'upload_avatar',
+                        base64: base64,
+                        token: localStorage.getItem('userToken') || ''
+                    }),
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    redirect: 'follow'
+                });
+                const result = await response.json();
+                if (result.success && result.fileId) {
+                    return `https://drive.google.com/file/d/${result.fileId}/view`;
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (err) {
+                console.error('Upload avatar error:', err);
+                throw err;
+            }
+        }
+
+        async function saveUserDataToGoogleSheets() {
+            const SPREADSHEET_ID = '145dg5-KwMTiz3dVWTjLzXtHOQ5z9Gufm47LgLKsXHWU';
+            try {
+                const now = new Date();
+                const dateStr = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear().toString().slice(-2)} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+                const userToken = localStorage.getItem('userToken') || '';
+                const username = localStorage.getItem('userName') || '';
+                let avatarFromStorage = localStorage.getItem('userAvatar');
+                let avatar = 'user_profile_photo.png';
+                if (avatarFromStorage && avatarFromStorage.trim() !== '') {
+                    if (avatarFromStorage.startsWith("http")) {
+                        avatar = avatarFromStorage;
+                    } else if (avatarFromStorage.startsWith("data:image")) {
+                        avatar = avatarFromStorage;
+                    } else {
+                        avatar = avatarFromStorage;
+                    }
+                }
+                const avatarVisibility = localStorage.getItem('avatar_visibility') || 'all';
+                const firstUseDate = localStorage.getItem('first_use_date');
+                let usageTime = '';
+                if (firstUseDate) {
+                    const firstDate = new Date(firstUseDate);
+                    const diffMs = now - firstDate;
+                    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    const diffHrs = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    usageTime = `${diffDays}d ${diffHrs}h ${diffMins}m`;
+                }
+                const statTurn = localStorage.getItem('statistic_turn') || 'yes';
+                const stats = {};
+                statKeys.forEach(key => {
+                    const raw = localStorage.getItem(key);
+                    const n = parseInt(raw, 10);
+                    stats[key] = (raw === null || raw === undefined || isNaN(n)) ? '0' : String(n);
+                });
+                const statsStr = statTurn === 'yes' ? JSON.stringify(stats) : `(Отключено)${JSON.stringify(stats)}`;
+                const likedUsers = localStorage.getItem('liked_users') || '';
+                const data = {
+                    date: dateStr,
+                    token: userToken,
+                    username: username,
+                    avatar: avatar,
+                    avatarVisibility: avatarVisibility,
+                    usageTime: usageTime,
+                    statistics: statsStr,
+                    liked_users: likedUsers
+                };
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    redirect: 'follow'
+                });
+                const responseText = await response.text();
+                if (!response.ok) {
+                    console.error('Ошибка при сохранении:', response.status, responseText);
+                }
+            } catch (err) {
+                console.error('Ошибка в saveUserDataToGoogleSheets:', err);
+            }
+        }
+
+        function incrementCoins() {
+            if (Math.random() < 0.07) {
+                let amount = 1;
+                if (Math.random() < 0.3) amount += 200;
+                if (Math.random() < 0.05) amount += 100;
+                let coins = parseInt(localStorage.getItem('coins') || '0');
+                coins += amount;
+                localStorage.setItem('coins', coins.toString());
+                document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + formatNumber(coins);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.card-header, .toggle-btn').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    if (e.target.closest('.toggle-btn') && e.currentTarget.classList.contains('card-header')) {
+                        return;
+                    }
+                    const header = element.closest('.card-header');
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('.toggle-btn i');
+                    if (content.style.display === 'none' || content.style.display === '') {
+                        content.style.display = 'block';
+                        icon.classList.remove('fa-caret-down');
+                        icon.classList.add('fa-caret-up');
+                    } else {
+                        content.style.display = 'none';
+                        icon.classList.remove('fa-caret-up');
+                        icon.classList.add('fa-caret-down');
+                    }
+                });
+            });
+            const statSelect = document.getElementById('statSelect');
+            statSelect.value = localStorage.getItem('statistic_turn') || 'yes';
+        });
+
+        const sideMenu = document.getElementById('sideMenu');
+        const overlay = document.getElementById('overlay');
+        const sideButtons = document.getElementById('sideButtons');
+
+        function showSideMenu() {
+            applyTranslations();
+            applySideButtons();
+            sideMenu.style.display = 'block';
+            overlay.style.display = 'block';
+            setTimeout(() => {
+                sideMenu.classList.add('open');
+            }, 10);
+        }
+
+        function hideSideMenu() {
+            sideMenu.classList.remove('open');
+            setTimeout(() => {
+                sideMenu.style.display = 'none';
+                overlay.style.display = 'none';
+            }, 500);
+        }
+
+        document.getElementById('sideMenuBtn').onclick = showSideMenu;
+        document.getElementById('sideCloseBtn').onclick = hideSideMenu;
+        overlay.onclick = hideSideMenu;
+
+        function showSettings() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('mainTopBar').style.display = 'none';
+            document.getElementById('settingsMenu').style.display = 'block';
+            applyTranslations();
+        }
+
+        function applySideButtons() {
+            sideButtons.innerHTML = '';
+            const files = lang === 'ru' ? filesRu : filesEn;
+            const isStatsDisabled = localStorage.getItem('statistic_turn') === 'no';
+            const items = [
+                { textKey: 'home', icon: 'fa-solid fa-house', onClick: hideSideMenu },
+                { textKey: 'stats', icon: 'fa-solid fa-chart-simple', href: 'statistics.html', disabled: isStatsDisabled },
+                { textKey: 'profile', icon: 'fa-solid fa-user', href: 'user_profile.html' },
+                { textKey: 'popular', icon: 'fa-solid fa-square-poll-vertical', href: files.popular },
+                { textKey: 'wishlist', icon: 'fa-solid fa-clipboard-list', href: 'izbr.html' },
+                { textKey: 'task', icon: 'fa-solid fa-list-check', href: files.tasks },
+                { textKey: 'money', icon: 'fa-solid fa-coins', href: files.indexed_money },
+                { textKey: 'myshop', icon: 'fa-solid fa-shop', href: files.myshop },
+                { textKey: 'shop', icon: 'fa-solid fa-cart-shopping', href: files.shop },
+                { textKey: 'premium', icon: 'fa-solid fa-crown', href: 'premium.screen.html' },
+                { textKey: 'settings', icon: 'fa-solid fa-gear', onClick: () => { hideSideMenu(); showSettings(); } }
+            ];
+            items.forEach(item => {
+                const btn = createButton({
+                    text: translations[lang][item.textKey],
+                    icon: item.icon,
+                    onClick: item.onClick,
+                    href: item.href,
+                    duplicateIcon: true,
+                    disabled: item.disabled
+                });
+                sideButtons.appendChild(btn);
+            });
+        }
+
+        function checkUserID() {
+            if (localStorage.getItem('userID')) {
+                document.getElementById('my_idHeader').style.color = 'white';
+                if (lang === 'ru') {
+                    document.getElementById('my_idHeader').textContent = 'Показать мой Telegram ID';
+                    document.getElementById('myID').textContent = localStorage.getItem('userID') + ' (Нажмите чтобы скопировать)';
+                } else {
+                    document.getElementById('my_idHeader').textContent = 'Show my Telegram ID';
+                    document.getElementById('myID').textContent = localStorage.getItem('userID') + ' (Click to copy)';
+                }
+                document.getElementById('my_idBox').style.display = 'block';
+            } else {
+                document.getElementById('my_idBox').style.display = 'none';
+            }
+        }
+
+        document.getElementById('myID').addEventListener('click', (e) => {
+            const textToCopy = localStorage.getItem('userID');
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    const lang = localStorage.getItem('lang');
+                    const originalText = e.target.textContent;
+                    e.target.textContent = lang === 'ru' ? 'Скопировано!' : 'Copied!';
+                    setTimeout(() => {
+                        e.target.textContent = originalText;
+                    }, 2500);
+                })
+                .catch(() => {
+                    alert(lang === 'ru' ? 'Ошибка копирования' : 'Copy error');
+                });
+        });
+
+        async function checkTokenAndRedirect() {
+            try {
+                const userToken = localStorage.getItem('userToken');
+                if (!userToken) {
+                    console.error('Токен пользователя не найден в localStorage');
+                    return;
+                }
+                const response = await fetch(gasUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `userToken=${encodeURIComponent(userToken)}`
+                });
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = result.redirectUrl;
+                } else {
+                    console.error('Ошибка:', result.error);
+                }
+            } catch (error) {
+                console.error('Ошибка при проверке токена:', error);
+            }
+        }
+
+        document.addEventListener("click", function (event) {
+            const t = event.target;
+            if (
+                t.tagName !== "INPUT" &&
+                t.tagName !== "TEXTAREA" &&
+                t.tagName !== "SELECT" &&
+                !t.isContentEditable
+            ) {
+                if (document.activeElement && document.activeElement.blur) {
+                    document.activeElement.blur();
+                }
+            }
+        });
+
+        async function securityChecker() {
+            const { blockedTokens } = await import('./security.js');
+            if (blockedTokens.includes(localStorage.getItem('userToken'))) {
+                window.location.href = 'blocked.html';
+            }
+        }
+        setInterval(() => {
+            securityChecker();
+        }, 1000);
+        securityChecker();
+        saveUserDataToGoogleSheets();
+        setInterval(() => {
+            checkTokenAndRedirect();
+        }, 6500);
+        document.getElementById("p1").style.left = Math.floor(Math.random() * 90 + 5) + '%';
+    </script>
+</body>
+</html>

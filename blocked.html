@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Blocked</title>
+  <style>
+    body {
+      background-color: #001f3f; /* darkblue */
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #004080, #0066cc);
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      margin: 10px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      width: 90%;
+      max-width: 400px;
+      word-wrap: break-word;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    select {
+      margin: 15px 0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #004080;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="blocktext"></h1>
+
+  <!-- селект выбора языка -->
+  <select id="langSelect">
+    <option value="en">English</option>
+    <option value="ru">Русский</option>
+  </select>
+
+  <button id="support"></button>
+  <button id="userToken"></button>
+  
+  <script>
+    // Устанавливаем селект в правильное состояние при загрузке
+    const currentLang = localStorage.getItem('lang') || 'en';
+    document.getElementById('langSelect').value = currentLang;
+
+    // При смене языка записываем в localStorage и перезагружаем
+    document.getElementById('langSelect').addEventListener('change', (e) => {
+      localStorage.setItem('lang', e.target.value);
+      location.reload();
+    });
+
+    document.getElementById('support').addEventListener('click', () => {
+      window.open('https://t.me/Clickerstart_bot');
+    });
+
+    const lang = localStorage.getItem('lang') || 'en';
+    const token = localStorage.getItem('userToken') || 'none';
+
+    // Тексты
+    document.getElementById('blocktext').textContent = 
+      lang === 'ru' ? 'Ваш аккаунт заблокирован' : 'Your account has been banned!';
+    document.getElementById('support').textContent = 
+      lang === 'ru' ? 'Нажмите чтобы написать в службу поддержки (@Clickerstart_bot)' 
+                    : 'Click here to contact support (@Clickerstart_bot)';
+
+    // Токен скрытый
+    const tokenBtn = document.getElementById('userToken');
+    let tokenRevealed = false;
+    const hiddenToken = '*'.repeat(token.length);
+
+    tokenBtn.textContent = 
+      lang === 'ru' 
+        ? `Ваш токен (нажмите чтобы открыть): ${hiddenToken}`
+        : `Your token (click to reveal): ${hiddenToken}`;
+
+    tokenBtn.addEventListener('click', () => {
+      if (token === 'none') {
+        alert(lang === 'ru' 
+          ? 'Ошибка: такого токена не существует.' 
+          : 'Error: token not found.');
+        return;
+      }
+
+      if (!tokenRevealed) {
+        tokenRevealed = true;
+        tokenBtn.textContent = 
+          lang === 'ru' 
+            ? `Ваш токен (нажмите чтобы скопировать): ${token}`
+            : `Your token (click to copy): ${token}`;
+      } else {
+        navigator.clipboard.writeText(token)
+          .then(() => {
+            alert(lang === 'ru' 
+              ? 'Токен скопирован!' 
+              : 'Token copied!');
+          })
+          .catch(err => {
+            console.error('Ошибка при копировании: ', err);
+          });
+      }
+    });
+
+    async function securityChecker(){
+
+      const { blockedTokens } = await import('./security.js');
+      // Use blockedTokens here as needed
+      if(!blockedTokens.includes(localStorage.getItem('userToken'))){
+        window.location.href = 'index.html'
+      }
+    }
+    setInterval(() => {
+      securityChecker();
+    }, 1000);
+    securityChecker()
+  </script>
+</body>
+</html>

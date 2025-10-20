@@ -1,0 +1,4806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+        
+        *,
+        *::before,
+        *::after {
+            box-sizing: inherit;
+            padding: 0;
+            margin: 0;
+        }
+        html, body {
+            overscroll-behavior-y: contain; /* Prevents unwanted scrolling behavior */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        body {
+            display: flex;
+            min-height: 100vh;
+            font-family: Montserrat, sans-serif;
+            background: linear-gradient(135deg, #74ABE2, #5563DE);
+        }
+        
+        .figure-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(135deg, #74ABE2, #5563DE);
+            flex: 1;
+            padding: 20px;
+        }
+
+        .minifigure {
+            position: relative;
+            width: 100px;
+            height: auto; /* Changed to fit all content */
+            min-height: 500px; /* Increased to capture the entire body in html2canvas */
+            margin: auto;
+            perspective: 200;
+            transform-style: preserve-3d;
+            transition: transform 400ms;
+        }
+        
+        .minifigure.explode {
+            transform: scale(0.75) translateZ(0);
+        }
+
+        /* Optimization for mobile devices */
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column; /* Toolbar under the figure */
+                height: auto; /* Automatic height for scrolling */
+            }
+
+            .figure-container {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                padding: 10px 0;
+            }
+
+            .minifigure {
+                width: 80px; /* Reduced for mobile */
+                min-height: 400px; /* Reduced for mobile */
+                margin: 1em auto;
+                transform: scale(0.8); /* Reduce figure scale for full display */
+                transform-origin: top center;
+            }
+
+            .controls {
+                width: 100% !important; /* Full width on mobile */
+                padding: 1em;
+                max-height: none; /* Remove height limit */
+                overflow-y: auto; /* Ensure scrolling */
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            }
+        }
+
+        @media (min-width: 601px) {
+            body {
+                flex-direction: row;
+            }
+
+            .figure-container {
+                order: 1;
+            }
+
+            .controls {
+                order: 2;
+                flex: 0 0 250px;
+            }
+        }
+        
+        /* Variables for colors */
+        :root {
+            --skin-color: hsla(50,90%,50%,1);
+            --skin-light: hsla(50,90%,60%,1);
+            --eye-sclera: #fff;
+            --eye-pupil: #000;
+            --mouth-color: #000;
+            --brow-color: #000;
+        }
+        
+        /* Head */
+        
+        .head {
+            position: absolute;
+            z-index: 2;
+            top: 2.25em;
+            left: 50%;
+            width: 7.25em;
+            height: 6.25em;
+            transform: translateX(-50%);
+            color: var(--skin-color);
+            background-color: currentColor;
+            background-image:
+            linear-gradient(
+                rgba(255,255,255,0.3),
+                rgba(255,255,255,0) 20%,
+                rgba(0,0,0,0) 80%,
+                rgba(0,0,0,0.15) 95%,
+                rgba(0,0,0,0.3)
+            ),
+            linear-gradient(
+                to right,
+                rgba(255,255,255,0) 50%,
+                rgba(255,255,255,0.2),
+                rgba(255,255,255,0)
+            );
+            border-radius: 1.5em;
+            transition: transform 400ms;
+        }
+        
+        .explode .head {
+            transform: translate(-50%, -8em);
+        }
+        
+        .head::before,
+        .head::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            height: 2em;
+            transform: translateX(-50%);
+            background-color: currentColor;
+        }
+        
+        .head::before {
+            top: -1.25em;
+            width: 3.5em;
+            height: 1.25em;
+            background-image:
+            linear-gradient(
+                rgba(255,255,255,0.5),
+                rgba(255,255,255,0) 30%
+            ),
+            linear-gradient(
+                to right,
+                rgba(255,255,255,0) 70%,
+                rgba(255,255,255,0.25) 80%,
+                rgba(255,255,255,0) 90%
+            );
+            border-radius: 0.25em 0.25em 0 0;
+        }
+        
+        .head::after {
+            bottom: -0.875em;
+            width: 4.5em;
+            height: 1em;
+            background-image:
+            linear-gradient(
+                rgba(0,0,0,0.2),
+                rgba(0,0,0,0.05) 50%
+            ),
+            linear-gradient(
+                to right,
+                rgba(255,255,255,0) 70%,
+                rgba(255,255,255,0.25) 80%,
+                rgba(255,255,255,0) 90%
+            );
+            border-radius: 0 0 0.125em 0.125em;
+        }
+        
+        /* Faces */
+        
+        .faces-wrap {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .faces {
+            display: flex;
+            transition: transform 400ms cubic-bezier(0,0,0,1.25);
+        }
+        
+        .explode .faces {
+            transform: translateX(-500%) !important;
+        }
+        
+        .face {
+            position: relative;
+            flex: 1 0 100%;
+        }
+        
+        /* Eyes */
+        
+        .eye {
+            position: absolute;
+            top: 2.25em;
+            width: 0.75em;
+            height: 0.9375em;
+            color: var(--eye-sclera);
+            background-color: currentColor;
+            border-radius: 50%;
+            box-shadow: inset 0 -0.125em 0 0.25em var(--eye-pupil);
+        }
+        
+        .eye::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            color: var(--eye-pupil);
+            transform: translateX(-50%);
+        }
+        
+        .eye.right {
+            left: 2.25em;
+        }
+        
+        .eye.left {
+            right: 2.25em;
+        }
+        
+        .classic .eye {
+            top: 2.4375em;
+            height: 0.75em;
+            color: var(--eye-pupil);
+            box-shadow: none;
+        }
+        
+        .large-smile .eye {
+            top: 2em;
+        }
+        
+        .worried .eye,
+        .surprised .eye {
+            top: 2.4375em;
+            width: 1em;
+            height: 1.125em;
+            box-shadow: inset 0 -0.125em 0 0.3125em var(--eye-pupil);
+        }
+        
+        .worried .eye.right {
+            left: 2.125em;
+        }
+        
+        .worried .eye.left {
+            right: 2.125em;
+        }
+        
+        .frown .eye {
+            top: 2.625em;
+        }
+        
+        .frown .eye::before {
+            bottom: 80%;
+            width: 1.25em;
+            height: 1em;
+            border: 0.1875em solid transparent;
+            border-bottom-color: currentColor;
+            border-radius: 50%;
+        }
+        
+        .frown .eye.right::before {
+            margin-left: -0.25em;
+            transform: translateX(-50%) rotate(-20deg);
+        }
+        
+        .frown .eye.left::before {
+            margin-left: 0.25em;
+            transform: translateX(-50%) rotate(20deg);
+        }
+        
+        
+        /* Brow */
+        
+        .brow {
+            position: absolute;
+            bottom: 0.625em;
+            left: 50%;
+            width: 1.75em;
+            height: 1em;
+            transform-origin: 0 0;
+            transform: translateX(-50%);
+            color: var(--brow-color);
+            border: 0.25em solid transparent;
+            border-top-color: currentColor;
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .right .brow {
+            border-left: none;
+        }
+        
+        .left .brow {
+            border-right: none;
+        }
+        
+        .large-smile .brow {
+            bottom: 0.375em;
+            width: 1.25em;
+            height: 1.375em;
+            border: none;
+            border-top: 0.25em solid;
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .large-smile .right .brow {
+            margin-left: -0.125em;
+            transform: skewY(-10deg) translateX(-50%) translateZ(0);
+        }
+        
+        .large-smile .left .brow {
+            margin-left: 0.125em;
+            transform: skewY(10deg) translateX(-50%) translateZ(0);
+        }
+        
+        .worried .brow {
+            width: 1.25em;
+            height: 0.875em;
+            bottom: 1.25em;
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        
+        .worried .right .brow {
+            margin-left: -0.25em;
+            transform: rotate(-20deg) translateX(-50%) translateZ(0);
+        }
+        
+        .worried .left .brow {
+            margin-left: 0.25em;
+            transform: rotate(20deg) translateX(-50%) translateZ(0);
+        }
+        
+        .frown .brow {
+            width: 1.5em;
+            bottom: 1.375em;
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        
+        .frown .right .brow {
+            margin-left: -0.625em;
+            transform: rotate(-35deg) translateX(-50%) translateZ(0);
+        }
+        
+        .frown .left .brow {
+            margin-left: 0.625em;
+            transform: rotate(35deg) translateX(-50%) translateZ(0);
+        }
+        
+        .surprised .brow {
+            bottom: 1em;
+            width: 1.5em;
+            border-right: none;
+            border-left: none;
+        }
+        
+        .surprised .right .brow {
+            margin-left: -0.5em;
+            transform: rotate(-15deg) translateX(-50%) translateZ(0);
+        }
+        
+        .surprised .left .brow {
+            margin-left: 0.5em;
+            transform: rotate(15deg) translateX(-50%) translateZ(0);
+        }
+        
+        /* Mouth */
+        
+        .mouth {
+            position: absolute;
+            top: 3.125em;
+            left: 50%;
+            width: 2.5em;
+            height: 1.5em;
+            transform: translateX(-50%);
+            color: var(--mouth-color);
+            border: 0.25em solid transparent;
+            border-bottom-color: currentColor;
+            border-radius: 50%;
+        }
+        
+        .mouth::before,
+        .mouth::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .classic .mouth {
+            top: 2.9375em;
+        }
+        
+        .large-smile .mouth {
+            top: 0.125em;
+            width: 3.125em;
+            height: 5em;
+            border: none;
+            border-bottom: 1.5em solid;
+            border-radius: 0 0 70% 70%/0 0 50% 50%;
+        }
+        
+        .large-smile .mouth::before {
+            top: 1.6875em;
+            width: 4.25em;
+            height: 2em;
+            color: var(--mouth-color);
+            border: 0.1875em solid transparent;
+            border-bottom-color: currentColor;
+            border-radius: 0 0 50% 50%;
+            box-shadow: 0 0.9375em 0 -0.75em #fff;
+        }
+        
+        .large-smile .mouth::after {
+            top: 4.4375em;
+            width: 1.25em;
+            height: 0.375em;
+            color: #c00;
+            background-color: currentColor;
+            border-radius: 70% 70% 70% 70%/50% 50% 100% 100%;
+        }
+        
+        .worried .mouth {
+            top: 4.5em;
+            width: 2em;
+            height: 1.25em;
+            transform: translateX(-50%) rotate(-10deg) translateZ(0);
+            border-top-color: currentColor;
+            border-right: none;
+            border-bottom-color: transparent;
+            border-right-width: 0.5em;
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .frown .mouth {
+            top: 4.25em;
+            width: 2.75em;
+            height: 2em;
+            margin-left: -0.125em;
+            transform: translateX(-50%) rotate(-15deg) translateZ(0);
+            border-top-color: currentColor;
+            border-right: none;
+            border-bottom-color: transparent;
+            border-right-width: 0.5em;
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .frown .mouth::before {
+            top: 0.375em;
+            width: 0.75em;
+            height: 0.625em;
+            margin-left: 0.125em;
+            color: var(--mouth-color);
+            border: 0.125em solid transparent;
+            border-top-color: currentColor;
+            border-right: none;
+            border-radius: 50%;
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .surprised .mouth {
+            top: 4em;
+            width: 3.125em;
+            height: 1.625em;
+            background-color: currentColor;
+            border: none;
+            border-radius: 70% 70% 60% 60%/100% 100% 50% 50%;
+        }
+        
+        .surprised .mouth::before,
+        .surprised .mouth::after {
+            color: #fff;
+            background-color: currentColor;
+        }
+        
+        .surprised .mouth::before {
+            top: 0.1875em;
+            width: 2em;
+            height: 0.375em;
+            border-radius: 70% 70% 60% 60%/100% 100% 50% 50%;
+        }
+        
+        .surprised .mouth::after {
+            bottom: 0.1875em;
+            width: 2.25em;
+            height: 0.375em;
+            border-radius: 70% 70% 60% 60%/100% 100% 50% 50%;
+        }
+        
+        /* New expressions CSS */
+        
+        /* Funny 1: cross-eyed */
+        .cross-eyed .eye.right {
+            left: 3em;
+        }
+        .cross-eyed .eye.left {
+            right: 3em;
+        }
+        .cross-eyed .mouth {
+            border-bottom-color: var(--mouth-color);
+        }
+        
+        /* Funny 2: tongue-out */
+        .tongue-out .mouth {
+            height: 2em;
+        }
+        .tongue-out .mouth::after {
+            bottom: -1em;
+            width: 1em;
+            height: 1.5em;
+            background-color: #c00;
+            border-radius: 50%;
+        }
+        
+        /* Funny 3: dizzy */
+        .dizzy .eye {
+            box-shadow: inset 0 0 0 0.1em var(--eye-pupil), inset 0 0 0 0.2em var(--eye-sclera), inset 0 0 0 0.3em var(--eye-pupil);
+        }
+        
+        /* Funny 4: goofy-grin */
+        .goofy-grin .mouth {
+            width: 3em;
+            border-bottom: 0.5em solid var(--mouth-color);
+        }
+        
+        /* Funny 5: winking-tongue */
+        .winking-tongue .eye.left {
+            height: 0.1em;
+            box-shadow: none;
+        }
+        .winking-tongue .mouth::after {
+            bottom: -1em;
+            width: 1em;
+            height: 1.5em;
+            background-color: #c00;
+            border-radius: 50%;
+        }
+        
+        /* Funny 6: laughing-hard */
+        .laughing-hard .mouth {
+            height: 2.5em;
+            border-bottom: 1em solid var(--mouth-color);
+        }
+        .laughing-hard .eye {
+            top: 1.5em;
+        }
+        
+        /* Funny 7: silly */
+        .silly .eye {
+            width: 1em;
+            height: 1em;
+            transform: rotate(15deg);
+        }
+        
+        /* Funny 8: cheeky */
+        .cheeky .mouth {
+            transform: translateX(-40%);
+            width: 2em;
+        }
+        
+        /* Funny 9: toothy */
+        .toothy .mouth::before {
+            top: 0.5em;
+            width: 2em;
+            height: 0.5em;
+            background: repeating-linear-gradient(to right, #fff 0, #fff 0.2em, var(--mouth-color) 0.2em, var(--mouth-color) 0.4em);
+        }
+        
+        /* Funny 10: derp */
+        .derp .eye.right {
+            top: 2em;
+            left: 1.5em;
+        }
+        .derp .eye.left {
+            top: 3em;
+            right: 1.5em;
+        }
+        
+        /* Funny 11: exaggerated-smile */
+        .exaggerated-smile .mouth {
+            width: 4em;
+            height: 2em;
+            border-bottom: 0.5em solid var(--mouth-color);
+        }
+        
+        /* Funny 12: bug-eyed */
+        .bug-eyed .eye {
+            width: 1.5em;
+            height: 1.5em;
+        }
+        
+        /* Funny 13: squished-face */
+        .squished-face .eye {
+            top: 3em;
+        }
+        .squished-face .mouth {
+            top: 4.5em;
+        }
+        
+        /* Funny 14: puffed-cheeks */
+        .puffed-cheeks .mouth {
+            border-radius: 50%;
+            background-color: var(--mouth-color);
+            height: 1em;
+        }
+        
+        /* Funny 15: zombie */
+        .zombie .eye {
+            box-shadow: inset 0 0 0 0.3em #f00;
+        }
+        
+        /* Funny 16: vampire-grin */
+        .vampire-grin .mouth::before {
+            top: -0.5em;
+            width: 0.5em;
+            height: 1em;
+            background: #fff;
+            left: 40%;
+        }
+        .vampire-grin .mouth::after {
+            top: -0.5em;
+            width: 0.5em;
+            height: 1em;
+            background: #fff;
+            left: 60%;
+        }
+        
+        /* Funny 17: pirate-snarl */
+        .pirate-snarl .mouth {
+            transform: rotate(10deg);
+        }
+        
+        /* Funny 18: clown */
+        .clown .mouth {
+            background-color: #f00;
+            border-radius: 50%;
+            width: 1em;
+            height: 1em;
+            top: 3em;
+        }
+        
+        /* Funny 19: alien */
+        .alien .eye {
+            width: 1.2em;
+            height: 1.5em;
+            box-shadow: inset 0 0 0 0.4em var(--eye-pupil);
+        }
+        
+        /* Funny 20: robot-blank */
+        .robot-blank .eye {
+            border-radius: 0;
+            background: #999;
+        }
+        
+        /* Funny 21: upside-down-smile */
+        .upside-down-smile .mouth {
+            border-bottom: none;
+            border-top-color: var(--mouth-color);
+        }
+        
+        /* Funny 22: heart-eyes */
+        .heart-eyes .eye {
+            background: radial-gradient(circle, #f00 0.2em, transparent 0.3em);
+        }
+        
+        /* Funny 23: stars-eyes */
+        .stars-eyes .eye::before {
+            content: '*';
+            color: #ff0;
+            font-size: 0.5em;
+            top: 0.2em;
+        }
+        
+        /* Funny 24: sweat-drop-worried */
+        .sweat-drop-worried .eye::after {
+            content: '';
+            top: -1em;
+            right: -0.5em;
+            width: 0.5em;
+            height: 0.75em;
+            background: #00f;
+            border-radius: 50%;
+        }
+        
+        /* Funny 25: squint */
+        .squint .eye {
+            height: 0.3em;
+        }
+        
+        /* Various 1: angry */
+        .angry .brow {
+            bottom: 1em;
+            transform: rotate(-30deg) translateX(-50%);
+        }
+        .angry .mouth {
+            border-top-color: var(--mouth-color);
+            border-bottom: none;
+        }
+        
+        /* Various 2: sad */
+        .sad .mouth {
+            border-top-color: var(--mouth-color);
+            border-bottom: none;
+            height: 1em;
+        }
+        
+        /* Various 3: happy */
+        .happy .mouth {
+            border-bottom-color: var(--mouth-color);
+        }
+        
+        /* Various 4: neutral */
+        .neutral .mouth {
+            width: 2em;
+            height: 0.2em;
+            background: var(--mouth-color);
+            border: none;
+        }
+        
+        /* Various 5: sleeping */
+        .sleeping .eye {
+            height: 0.1em;
+            box-shadow: none;
+        }
+        .sleeping .mouth {
+            top: 4em;
+            width: 1.5em;
+            height: 0.5em;
+        }
+        
+        /* Various 6: confused */
+        .confused .brow.right {
+            transform: rotate(20deg) translateX(-50%);
+        }
+        .confused .brow.left {
+            transform: rotate(-20deg) translateX(-50%);
+        }
+        
+        /* Various 7: excited */
+        .excited .mouth {
+            width: 3em;
+            height: 2em;
+            border-bottom: 0.5em solid var(--mouth-color);
+        }
+        
+        /* Various 8: scared */
+        .scared .eye {
+            width: 1em;
+            height: 1em;
+        }
+        .scared .mouth {
+            top: 4em;
+            width: 1em;
+            height: 1em;
+            border-radius: 50%;
+            background: var(--mouth-color);
+        }
+        
+        /* Various 9: determined */
+        .determined .brow {
+            bottom: 0.8em;
+            width: 2em;
+        }
+        
+        /* Various 10: smug */
+        .smug .mouth {
+            transform: translateX(-40%);
+            width: 1.5em;
+        }
+        
+        /* Various 11: crying */
+        .crying .eye::after {
+            content: '';
+            bottom: -0.5em;
+            width: 0.3em;
+            height: 0.8em;
+            background: #00f;
+            border-radius: 50%;
+        }
+        
+        /* Various 12: blushing */
+        .blushing .face::before {
+            content: '';
+            position: absolute;
+            top: 2.5em;
+            left: 1em;
+            width: 1em;
+            height: 1em;
+            background: rgba(255,0,0,0.3);
+            border-radius: 50%;
+        }
+        .blushing .face::after {
+            content: '';
+            position: absolute;
+            top: 2.5em;
+            right: 1em;
+            width: 1em;
+            height: 1em;
+            background: rgba(255,0,0,0.3);
+            border-radius: 50%;
+        }
+        
+        /* Various 13: yawning */
+        .yawning .mouth {
+            width: 2.5em;
+            height: 2.5em;
+            border-radius: 50%;
+            background: var(--mouth-color);
+        }
+        
+        /* Various 14: singing */
+        .singing .mouth {
+            width: 2em;
+            height: 1.5em;
+            border-radius: 50% 50% 0 0;
+            border-top-color: var(--mouth-color);
+        }
+        
+        /* Various 15: whispering */
+        .whispering .mouth {
+            width: 1em;
+            height: 0.5em;
+            transform: translateX(-30%);
+        }
+        
+        /* Various 16: shouting */
+        .shouting .mouth {
+            width: 3.5em;
+            height: 2em;
+            background: var(--mouth-color);
+            border-radius: 50%;
+        }
+        
+        /* Various 17: thinking */
+        .thinking .brow {
+            transform: rotate(10deg) translateX(-50%);
+        }
+        .thinking .mouth {
+            width: 1em;
+            height: 0.5em;
+        }
+        
+        /* Various 18: winking */
+        .winking .eye.left {
+            height: 0.1em;
+            box-shadow: none;
+        }
+        
+        /* Various 19: raised-eyebrow */
+        .raised-eyebrow .brow.left {
+            bottom: 1.2em;
+        }
+        
+        /* Various 20: frowning-deep */
+        .frowning-deep .mouth {
+            border-top-color: var(--mouth-color);
+            height: 2em;
+        }
+        
+        /* Various 21: surprised-open */
+        .surprised-open .mouth {
+            height: 2em;
+            width: 2em;
+            border-radius: 50%;
+            background: var(--mouth-color);
+        }
+        
+        /* Various 22: content */
+        .content .mouth {
+            width: 2em;
+            border-bottom: 0.3em solid var(--mouth-color);
+        }
+        
+        /* Various 23: mischievous */
+        .mischievous .mouth {
+            transform: rotate(5deg);
+        }
+        
+        /* Various 24: pained */
+        .pained .eye {
+            transform: rotate(45deg);
+        }
+        
+        /* Various 25: relieved */
+        .relieved .brow {
+            bottom: 0.5em;
+        }
+        .relieved .mouth {
+            border-bottom: none;
+            border-top-color: var(--mouth-color);
+        }
+        
+        /* Expression 57: grinning */
+        .grinning .mouth {
+            width: 3em;
+            height: 1.5em;
+            border-bottom: 0.4em solid var(--mouth-color);
+        }
+        
+        /* Expression 58: smirking */
+        .smirking .mouth {
+            transform: translateX(-30%) rotate(5deg);
+            width: 2em;
+        }
+        
+        /* Expression 59: pleading */
+        .pleading .eye {
+            box-shadow: inset 0 -0.2em 0 0.3em var(--eye-pupil);
+        }
+        .pleading .mouth {
+            border-top-color: var(--mouth-color);
+        }
+        
+        /* Expression 60: rolling-eyes */
+        .rolling-eyes .eye::before {
+            top: -0.2em;
+            height: 0.5em;
+        }
+        
+        /* Expression 61: relieved-smile */
+        .relieved-smile .mouth {
+            border-bottom: 0.3em solid var(--mouth-color);
+        }
+        
+        /* Expression 62: partying */
+        .partying .mouth {
+            background: #ff0;
+            border-radius: 50%;
+        }
+        
+        /* Expression 63: woozy */
+        .woozy .eye.left {
+            transform: rotate(10deg);
+        }
+        .woozy .mouth {
+            transform: rotate(-10deg);
+        }
+        
+        /* Expression 64: shushing */
+        .shushing .mouth {
+            width: 0.5em;
+            height: 1em;
+            background: var(--mouth-color);
+        }
+        
+        /* Expression 65: money-mouth */
+        .money-mouth .mouth::before {
+            content: '$';
+            color: #0f0;
+        }
+        
+        /* Expression 66: zipper-mouth */
+        .zipper-mouth .mouth {
+            background: linear-gradient(to right, var(--mouth-color), #ffd700);
+        }
+        
+        /* Expression 67: nauseated */
+        .nauseated .mouth {
+            border-top-color: #0f0;
+        }
+        
+        /* Expression 68: vomiting */
+        .vomiting .mouth {
+            height: 2em;
+            background: #0f0;
+        }
+        
+        /* Expression 69: sneezing */
+        .sneezing .mouth {
+            transform: rotate(20deg);
+        }
+        
+        /* Expression 70: masked */
+        .masked .face::before {
+            content: '';
+            bottom: 2em;
+            height: 1em;
+            background: #fff;
+        }
+        
+        /* Expression 71: thermometer */
+        .thermometer .mouth {
+            background: #f00;
+        }
+        
+        /* Expression 72: head-bandage */
+        .head-bandage .head::before {
+            background: #fff;
+        }
+        
+        /* Expression 73: exploding-head */
+        .exploding-head .head {
+            box-shadow: 0 0 1em #ff0;
+        }
+        
+        /* Expression 74: cowboy */
+        .cowboy .head::after {
+            content: '';
+            top: -1em;
+            width: 4em;
+            height: 1em;
+            background: #a52a2a;
+        }
+        
+        /* Expression 75: partying-face */
+        .partying-face .mouth {
+            border-bottom: 0.5em solid #ff0;
+        }
+        
+        /* Expression 76: disguised */
+        .disguised .eye {
+            box-shadow: none;
+            background: #000;
+        }
+        
+        /* Expression 77: sunglasses */
+        .sunglasses .eye {
+            background: #000;
+        }
+        
+        /* Expression 78: nerd */
+        .nerd .eye {
+            border: 0.1em solid #000;
+        }
+        
+        /* Expression 79: monocle */
+        .monocle .eye.right {
+            border: 0.1em solid #000;
+            border-radius: 50%;
+        }
+        
+        /* Expression 80: astonished */
+        .astonished .mouth {
+            width: 1.5em;
+            height: 1.5em;
+            border-radius: 50%;
+            background: var(--mouth-color);
+        }
+        
+        /* Expression 81: flushed */
+        .flushed .face::before {
+            left: 1em;
+            width: 1em;
+            height: 1em;
+            background: #f00;
+        }
+        
+        /* Expression 82: pleading-face */
+        .pleading-face .eye {
+            height: 1.2em;
+        }
+        
+        /* Expression 83: slightly-frowning */
+        .slightly-frowning .mouth {
+            border-top: 0.2em solid var(--mouth-color);
+        }
+        
+        /* Expression 84: open-mouth */
+        .open-mouth .mouth {
+            height: 1.8em;
+        }
+        
+        /* Expression 85: zipper-mouth-face */
+        .zipper-mouth-face .mouth {
+            height: 0.2em;
+            background: #ffd700;
+        }
+        
+        /* Expression 86: money-mouth-face */
+        .money-mouth-face .eye::before {
+            content: '$';
+        }
+        
+        /* Expression 87: face-with-thermometer */
+        .face-with-thermometer .mouth {
+            background: #f00;
+        }
+        
+        /* Expression 88: face-with-head-bandage */
+        .face-with-head-bandage .head {
+            border: 0.2em solid #fff;
+        }
+        
+        /* Expression 89: nauseated-face */
+        .nauseated-face .mouth {
+            background: #0f0;
+        }
+        
+        /* Expression 90: face-vomiting */
+        .face-vomiting .mouth::after {
+            bottom: -1em;
+            height: 1em;
+            background: #0f0;
+        }
+        
+        /* Expression 91: sneezing-face */
+        .sneezing-face .mouth::before {
+            font-size: 0.5em;
+        }
+        
+        /* Expression 92: hot-face */
+        .hot-face .face {
+            background: #f00;
+        }
+        
+        /* Expression 93: cold-face */
+        .cold-face .face {
+            background: #00f;
+        }
+        
+        /* Expression 94: woozy-face */
+        .woozy-face .eye {
+            transform: skew(10deg);
+        }
+        
+        /* Expression 95: dizzy-face */
+        .dizzy-face .eye::before {
+            content: 'x';
+        }
+        
+        /* Expression 96: exploding-head-face */
+        .exploding-head-face .head::after {
+            content: '';
+            top: -2em;
+            background: #ff0;
+        }
+
+        /* New added expressions */
+        .joyful .mouth {
+            width: 3.5em;
+            height: 2em;
+            border-bottom: 0.5em solid var(--mouth-color);
+        }
+        .joyful .eye {
+            top: 1.8em;
+        }
+
+        .evil .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .evil .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .evil .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+
+        .fear .eye {
+            width: 1.2em;
+            height: 1.2em;
+            box-shadow: inset 0 -0.1em 0 0.4em var(--eye-pupil);
+        }
+        .fear .mouth {
+            top: 4.2em;
+            width: 1.5em;
+            height: 1.5em;
+            border-radius: 50%;
+            background: var(--mouth-color);
+        }
+
+        .madness .eye {
+            transform: rotate(30deg);
+        }
+        .madness .mouth {
+            transform: rotate(15deg);
+            width: 3em;
+        }
+
+        .shyness .face::before {
+            content: '';
+            top: 3em;
+            left: 0.5em;
+            width: 1.5em;
+            height: 1.5em;
+            background: rgba(255,0,0,0.4);
+            border-radius: 50%;
+        }
+        .shyness .mouth {
+            width: 1.5em;
+            height: 0.8em;
+            border-bottom: 0.2em solid var(--mouth-color);
+        }
+
+        .lostness .eye {
+            top: 2.8em;
+            box-shadow: inset 0 0.2em 0 0.3em var(--eye-pupil);
+        }
+        .lostness .brow {
+            transform: rotate(10deg) translateX(-50%);
+        }
+
+        .joyful-scream .mouth {
+            width: 3em;
+            height: 2.5em;
+            background: var(--mouth-color);
+            border-radius: 50%;
+        }
+        .joyful-scream .eye {
+            top: 1.5em;
+        }
+
+        .playful .mouth {
+            transform: skew(10deg);
+        }
+        .playful .eye.left {
+            transform: scale(1.2);
+        }
+
+        .sarcastic .brow.left {
+            bottom: 1.5em;
+        }
+        .sarcastic .mouth {
+            transform: translateX(-20%);
+        }
+
+        .ecstatic .mouth {
+            width: 4em;
+            height: 2.5em;
+            border-bottom: 1em solid var(--mouth-color);
+        }
+
+        /* Additional 50 evil expressions */
+
+        .evil-grin1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .evil-grin1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .evil-grin1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .evil-grin1 .mouth {
+            border-top-color: var(--mouth-color);
+            border-bottom: none;
+            width: 3em;
+            transform: skew(-10deg);
+        }
+
+        .evil-grin2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .evil-grin2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .evil-grin2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .evil-grin2 .mouth {
+            border-top-color: var(--mouth-color);
+            border-bottom: none;
+            width: 2.5em;
+            transform: skew(10deg);
+        }
+
+        .malicious-smirk1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .malicious-smirk1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .malicious-smirk1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .malicious-smirk1 .mouth {
+            transform: translateX(-30%) rotate(10deg);
+            width: 2.2em;
+            border-top-color: var(--mouth-color);
+        }
+        .malicious-smirk1 .eye {
+            box-shadow: inset 0 -0.15em 0 0.35em var(--eye-pupil);
+        }
+
+        .malicious-smirk2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .malicious-smirk2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .malicious-smirk2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .malicious-smirk2 .mouth {
+            transform: translateX(-25%) rotate(15deg);
+            width: 2.4em;
+            border-top-color: var(--mouth-color);
+        }
+        .malicious-smirk2 .brow {
+            transform: rotate(-25deg) translateX(-50%);
+        }
+
+        .sinister-stare1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .sinister-stare1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .sinister-stare1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .sinister-stare1 .eye {
+            width: 1.1em;
+            height: 1.1em;
+            box-shadow: inset 0 -0.1em 0 0.4em #f00;
+        }
+        .sinister-stare1 .mouth {
+            height: 0.3em;
+            background: var(--mouth-color);
+        }
+
+        .sinister-stare2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .sinister-stare2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .sinister-stare2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .sinister-stare2 .eye {
+            width: 1.3em;
+            height: 1.3em;
+            box-shadow: inset 0 -0.2em 0 0.5em #f00;
+        }
+        .sinister-stare2 .brow {
+            bottom: 1.4em;
+            transform: rotate(-35deg) translateX(-50%);
+        }
+
+        .villainous-laugh1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .villainous-laugh1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .villainous-laugh1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .villainous-laugh1 .mouth {
+            width: 3.2em;
+            height: 2.2em;
+            border-bottom: 0.6em solid var(--mouth-color);
+            transform: rotate(-5deg);
+        }
+        .villainous-laugh1 .eye {
+            top: 1.7em;
+        }
+
+        .villainous-laugh2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .villainous-laugh2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .villainous-laugh2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .villainous-laugh2 .mouth {
+            width: 3.4em;
+            height: 2.4em;
+            border-bottom: 0.7em solid var(--mouth-color);
+            transform: rotate(5deg);
+        }
+        .villainous-laugh2 .brow {
+            transform: skewY(-15deg) translateX(-50%);
+        }
+
+        .demonic-glare1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .demonic-glare1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .demonic-glare1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .demonic-glare1 .eye {
+            background: radial-gradient(circle, #f00 0.3em, transparent 0.4em);
+        }
+        .demonic-glare1 .mouth {
+            border-top-color: #f00;
+        }
+
+        .demonic-glare2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .demonic-glare2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .demonic-glare2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .demonic-glare2 .eye {
+            background: radial-gradient(circle, #900 0.25em, transparent 0.35em);
+        }
+        .demonic-glare2 .brow {
+            color: #f00;
+            bottom: 1.5em;
+        }
+
+        .wicked-sneer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .wicked-sneer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .wicked-sneer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .wicked-sneer1 .mouth {
+            transform: translateX(-35%) rotate(20deg);
+            width: 2em;
+            border-top: 0.3em solid var(--mouth-color);
+        }
+        .wicked-sneer1 .eye.right {
+            transform: scale(1.1);
+        }
+
+        .wicked-sneer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .wicked-sneer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .wicked-sneer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .wicked-sneer2 .mouth {
+            transform: translateX(-40%) rotate(25deg);
+            width: 1.8em;
+            border-top: 0.4em solid var(--mouth-color);
+        }
+        .wicked-sneer2 .eye.left {
+            transform: scale(1.1);
+        }
+
+        .fiendish-frown1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .fiendish-frown1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .fiendish-frown1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .fiendish-frown1 .mouth {
+            border-top-color: var(--mouth-color);
+            height: 1.8em;
+        }
+
+        .fiendish-frown2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .fiendish-frown2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .fiendish-frown2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .fiendish-frown2 .mouth {
+            border-top-color: var(--mouth-color);
+            height: 2.2em;
+        }
+
+        .malevolent-grimace1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .malevolent-grimace1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .malevolent-grimace1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .malevolent-grimace1 .mouth {
+            width: 2.8em;
+            height: 1.8em;
+            background: var(--mouth-color);
+            border-radius: 30%;
+            transform: skew(15deg);
+        }
+        .malevolent-grimace1 .eye {
+            box-shadow: inset 0 -0.15em 0 0.4em #900;
+        }
+
+        .malevolent-grimace2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .malevolent-grimace2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .malevolent-grimace2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .malevolent-grimace2 .mouth {
+            width: 3em;
+            height: 2em;
+            background: var(--mouth-color);
+            border-radius: 40%;
+            transform: skew(-15deg);
+        }
+        .malevolent-grimace2 .brow {
+            transform: rotate(10deg) translateX(-50%);
+        }
+
+        .diabolical-snarl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .diabolical-snarl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .diabolical-snarl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .diabolical-snarl1 .mouth {
+            transform: rotate(15deg);
+            width: 2.6em;
+            border-bottom: 0.4em solid #f00;
+        }
+        .diabolical-snarl1 .eye {
+            transform: rotate(-10deg);
+        }
+
+        .diabolical-snarl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .diabolical-snarl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .diabolical-snarl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .diabolical-snarl2 .mouth {
+            transform: rotate(-15deg);
+            width: 2.7em;
+            border-bottom: 0.5em solid #f00;
+        }
+        .diabolical-snarl2 .eye {
+            transform: rotate(10deg);
+        }
+
+        .vicious-scowl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .vicious-scowl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .vicious-scowl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .vicious-scowl1 .mouth {
+            border-top-color: var(--mouth-color);
+            transform: rotate(10deg);
+        }
+
+        .vicious-scowl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .vicious-scowl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .vicious-scowl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .vicious-scowl2 .mouth {
+            border-top-color: var(--mouth-color);
+            transform: rotate(-10deg);
+        }
+
+        .nefarious-leer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .nefarious-leer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .nefarious-leer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .nefarious-leer1 .eye.left {
+            height: 0.8em;
+            box-shadow: none;
+        }
+        .nefarious-leer1 .mouth {
+            width: 2.3em;
+            transform: translateX(-20%);
+        }
+
+        .nefarious-leer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .nefarious-leer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .nefarious-leer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .nefarious-leer2 .eye.right {
+            height: 0.8em;
+            box-shadow: none;
+        }
+        .nefarious-leer2 .mouth {
+            width: 2.4em;
+            transform: translateX(20%);
+        }
+
+        .baleful-glower1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .baleful-glower1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .baleful-glower1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .baleful-glower1 .eye {
+            box-shadow: inset 0 0 0 0.35em #900;
+        }
+
+        .baleful-glower2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .baleful-glower2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .baleful-glower2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .baleful-glower2 .eye {
+            box-shadow: inset 0 0 0 0.4em #900;
+        }
+        .baleful-glower2 .mouth {
+            height: 1.2em;
+            border-top: 0.3em solid #900;
+        }
+
+        .heinous-grit1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .heinous-grit1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .heinous-grit1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .heinous-grit1 .mouth::before {
+            top: -0.4em;
+            width: 0.6em;
+            height: 0.9em;
+            background: #fff;
+            left: 35%;
+        }
+        .heinous-grit1 .mouth::after {
+            top: -0.4em;
+            width: 0.6em;
+            height: 0.9em;
+            background: #fff;
+            left: 65%;
+        }
+
+        .heinous-grit2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .heinous-grit2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .heinous-grit2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .heinous-grit2 .mouth::before {
+            top: -0.5em;
+            width: 0.7em;
+            height: 1em;
+            background: #fff;
+            left: 30%;
+        }
+        .heinous-grit2 .mouth::after {
+            top: -0.5em;
+            width: 0.7em;
+            height: 1em;
+            background: #fff;
+            left: 70%;
+        }
+
+        .infernal-rage1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .infernal-rage1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .infernal-rage1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .infernal-rage1 .mouth {
+            background: #f00;
+            height: 2.5em;
+        }
+
+        .infernal-rage2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .infernal-rage2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .infernal-rage2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .infernal-rage2 .eye {
+            box-shadow: inset 0 -0.2em 0 0.5em #f00;
+        }
+
+        .atrocious-glint1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .atrocious-glint1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .atrocious-glint1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .atrocious-glint1 .eye {
+            background: radial-gradient(circle, #600 0.2em, transparent 0.3em);
+        }
+        .atrocious-glint1 .mouth {
+            border-bottom-color: #600;
+        }
+
+        .atrocious-glint2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .atrocious-glint2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .atrocious-glint2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .atrocious-glint2 .eye {
+            background: radial-gradient(circle, #300 0.25em, transparent 0.35em);
+        }
+        .atrocious-glint2 .brow {
+            color: #600;
+        }
+
+        .depraved-snarl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .depraved-snarl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .depraved-snarl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .depraved-snarl1 .mouth {
+            transform: rotate(20deg);
+            border-bottom: 0.6em solid var(--mouth-color);
+        }
+        .depraved-snarl1 .eye {
+            transform: skew(15deg);
+        }
+
+        .depraved-snarl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .depraved-snarl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .depraved-snarl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .depraved-snarl2 .mouth {
+            transform: rotate(-20deg);
+            border-bottom: 0.7em solid var(--mouth-color);
+        }
+        .depraved-snarl2 .brow {
+            transform: skewY(15deg) translateX(-50%);
+        }
+
+        .odious-frown1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .odious-frown1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .odious-frown1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .odious-frown1 .mouth {
+            border-top-color: var(--mouth-color);
+            height: 2.3em;
+        }
+
+        .odious-frown2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .odious-frown2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .odious-frown2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .odious-frown2 .eye {
+            top: 2.8em;
+        }
+
+        .reprehensible-leer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .reprehensible-leer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .reprehensible-leer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .reprehensible-leer1 .eye.left {
+            height: 0.7em;
+        }
+        .reprehensible-leer1 .mouth {
+            transform: translateX(25%);
+        }
+
+        .reprehensible-leer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .reprehensible-leer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .reprehensible-leer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .reprehensible-leer2 .eye.right {
+            height: 0.7em;
+        }
+        .reprehensible-leer2 .mouth {
+            transform: translateX(-25%);
+        }
+
+        .abominable-glower1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .abominable-glower1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .abominable-glower1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .abominable-glower1 .eye {
+            box-shadow: inset 0 0 0 0.45em #300;
+        }
+        .abominable-glower1 .mouth {
+            background: #300;
+        }
+
+        .abominable-glower2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .abominable-glower2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .abominable-glower2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .abominable-glower2 .eye {
+            box-shadow: inset 0 0 0 0.5em #300;
+        }
+        .abominable-glower2 .brow {
+            bottom: 2.4em;
+        }
+
+        .execrable-grit1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .execrable-grit1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .execrable-grit1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .execrable-grit1 .mouth::before {
+            top: -0.6em;
+            width: 0.8em;
+            height: 1.1em;
+            background: #ddd;
+            left: 25%;
+        }
+        .execrable-grit1 .mouth::after {
+            top: -0.6em;
+            width: 0.8em;
+            height: 1.1em;
+            background: #ddd;
+            left: 75%;
+        }
+
+        .execrable-grit2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .execrable-grit2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .execrable-grit2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .execrable-grit2 .mouth::before {
+            top: -0.7em;
+            width: 0.9em;
+            height: 1.2em;
+            background: #ddd;
+            left: 20%;
+        }
+        .execrable-grit2 .mouth::after {
+            top: -0.7em;
+            width: 0.9em;
+            height: 1.2em;
+            background: #ddd;
+            left: 80%;
+        }
+
+        .loathsome-rage1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .loathsome-rage1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .loathsome-rage1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .loathsome-rage1 .mouth {
+            height: 2.8em;
+            background: #900;
+        }
+
+        .loathsome-rage2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .loathsome-rage2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .loathsome-rage2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .loathsome-rage2 .eye {
+            box-shadow: inset 0 -0.25em 0 0.6em #900;
+        }
+
+        .detestable-sneer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .detestable-sneer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .detestable-sneer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .detestable-sneer1 .mouth {
+            transform: translateX(-55%) rotate(40deg);
+            width: 1.7em;
+        }
+
+        .detestable-sneer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .detestable-sneer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .detestable-sneer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .detestable-sneer2 .eye {
+            transform: rotate(-5deg);
+        }
+
+        .repugnant-glint1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .repugnant-glint1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .repugnant-glint1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .repugnant-glint1 .eye {
+            background: radial-gradient(circle, #000 0.3em, transparent 0.4em);
+        }
+        .repugnant-glint1 .mouth {
+            border-bottom-color: #000;
+        }
+
+        .repugnant-glint2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .repugnant-glint2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .repugnant-glint2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .repugnant-glint2 .eye {
+            background: radial-gradient(circle, #111 0.35em, transparent 0.45em);
+        }
+        .repugnant-glint2 .brow {
+            color: #111;
+        }
+
+        .abhorrent-snarl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .abhorrent-snarl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .abhorrent-snarl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .abhorrent-snarl1 .mouth {
+            transform: rotate(25deg);
+            border-bottom: 0.8em solid var(--mouth-color);
+        }
+        .abhorrent-snarl1 .eye {
+            transform: skew(-20deg);
+        }
+
+        .abhorrent-snarl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .abhorrent-snarl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .abhorrent-snarl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .abhorrent-snarl2 .mouth {
+            transform: rotate(-25deg);
+            border-bottom: 0.9em solid var(--mouth-color);
+        }
+        .abhorrent-snarl2 .brow {
+            transform: skewY(-20deg) translateX(-50%);
+        }
+
+        .despicable-frown1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .despicable-frown1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .despicable-frown1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .despicable-frown1 .mouth {
+            height: 2.6em;
+            border-top-color: var(--mouth-color);
+        }
+
+        .despicable-frown2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .despicable-frown2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .despicable-frown2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .despicable-frown2 .eye {
+            top: 3em;
+        }
+
+        .vile-leer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .vile-leer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .vile-leer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .vile-leer1 .eye.left {
+            height: 0.6em;
+        }
+        .vile-leer1 .mouth {
+            transform: translateX(30%);
+        }
+
+        .vile-leer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .vile-leer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .vile-leer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .vile-leer2 .eye.right {
+            height: 0.6em;
+        }
+        .vile-leer2 .mouth {
+            transform: translateX(-30%);
+        }
+
+        .wretched-glower1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .wretched-glower1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .wretched-glower1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .wretched-glower1 .eye {
+            box-shadow: inset 0 0 0 0.55em #111;
+        }
+        .wretched-glower1 .mouth {
+            background: #111;
+        }
+
+        .wretched-glower2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .wretched-glower2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .wretched-glower2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .wretched-glower2 .eye {
+            box-shadow: inset 0 0 0 0.6em #111;
+        }
+        .wretched-glower2 .brow {
+            bottom: 2.9em;
+        }
+
+        /* Additional 10 evil expressions */
+        
+        .ruthless-glare1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .ruthless-glare1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .ruthless-glare1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .ruthless-glare1 .eye {
+            box-shadow: inset 0 -0.1em 0 0.4em #b00;
+        }
+
+        .ruthless-glare2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .ruthless-glare2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .ruthless-glare2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .ruthless-glare2 .eye {
+            box-shadow: inset 0 -0.15em 0 0.45em #b00;
+        }
+        .ruthless-glare2 .mouth {
+            border-top-color: #b00;
+            transform: skew(5deg);
+        }
+        
+        .savage-snarl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .savage-snarl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .savage-snarl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .savage-snarl1 .mouth {
+            transform: rotate(10deg);
+            width: 3em;
+            border-bottom: 0.6em solid #c00;
+        }
+        .savage-snarl1 .eye {
+            transform: skew(-10deg);
+        }
+        
+        .savage-snarl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .savage-snarl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .savage-snarl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .savage-snarl2 .mouth {
+            transform: rotate(-10deg);
+            width: 3.2em;
+            border-bottom: 0.7em solid #c00;
+        }
+        .savage-snarl2 .brow {
+            transform: skewY(10deg) translateX(-50%);
+        }
+        
+        .cruel-grimace1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .cruel-grimace1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .cruel-grimace1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .cruel-grimace1 .mouth {
+            width: 2.5em;
+            height: 1.5em;
+            background: #a00;
+            border-radius: 20%;
+            transform: skew(20deg);
+        }
+        .cruel-grimace1 .eye {
+            box-shadow: inset 0 -0.2em 0 0.5em #a00;
+        }
+        
+        .cruel-grimace2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .cruel-grimace2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .cruel-grimace2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .cruel-grimace2 .mouth {
+            width: 2.7em;
+            height: 1.7em;
+            background: #a00;
+            border-radius: 30%;
+            transform: skew(-20deg);
+        }
+        .cruel-grimace2 .brow {
+            bottom: 1.9em;
+            transform: rotate(15deg) translateX(-50%);
+        }
+        
+        .brutal-scowl1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .brutal-scowl1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .brutal-scowl1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .brutal-scowl1 .mouth {
+            border-top-color: #900;
+            transform: rotate(15deg);
+        }
+        
+        .brutal-scowl2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .brutal-scowl2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .brutal-scowl2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .brutal-scowl2 .mouth {
+            border-top-color: #900;
+            transform: rotate(-15deg);
+        }
+        
+        .ferocious-leer1 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .ferocious-leer1 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .ferocious-leer1 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .ferocious-leer1 .eye.left {
+            height: 0.9em;
+            box-shadow: none;
+        }
+        .ferocious-leer1 .mouth {
+            width: 2.5em;
+            transform: translateX(-25%);
+        }
+        
+        .ferocious-leer2 .brow {
+            border-top: none;
+            border-bottom: 0.25em solid currentColor;
+            border-radius: 0 0 50% 50%;
+        }
+        .ferocious-leer2 .right .brow {
+            margin-left: -0.3em;
+            transform: rotate(30deg) translateX(-50%) translateZ(0);
+        }
+        .ferocious-leer2 .left .brow {
+            margin-left: 0.3em;
+            transform: rotate(-30deg) translateX(-50%) translateZ(0);
+        }
+        .ferocious-leer2 .eye.right {
+            height: 0.9em;
+            box-shadow: none;
+        }
+        .ferocious-leer2 .mouth {
+            width: 2.6em;
+            transform: translateX(25%);
+        }
+        
+        /* Upper Body */
+        
+        .upper-body {
+            position: absolute;
+            z-index: 1;
+            top: 9.25em;
+            width: 100%;
+            color: hsl(200,0%,90%);
+            perspective: 320px;
+        }
+        
+        .upper-body::before,
+        .upper-body::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .upper-body::before {
+            bottom: 100%;
+            width: 3em;
+            height: 3.5em;
+            background-color: currentColor;
+            background-image:
+            linear-gradient(
+                to right,
+                rgba(255,255,255,0) 50%,
+                rgba(255,255,255,0.2),
+                rgba(255,255,255,0) 90%
+            ),
+            linear-gradient(
+                rgba(0,0,0,0) 50%,
+                rgba(0,0,0,0.05) 80%,
+                rgba(0,0,0,0.1)
+            );
+            border-radius: 50% 50% 0 0/10% 10% 0 0;
+        }
+        
+        .upper-body::after {
+            top: -2.75em;
+            width: 2em;
+            height: 2em;
+            background-color: rgba(0,0,0,0.9);
+            background-image:
+            linear-gradient(
+                to right,
+                rgba(255,255,255,0) 50%,
+                rgba(255,255,255,0.2) 80%,
+                rgba(255,255,255,0)
+            );
+            border-radius: 50%/10%;
+        }
+        
+        .torso {
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 50%;
+            width: 7.75em;
+            height: 9.125em;
+            transform-origin: top center;
+            transform: translateX(-50%) rotateX(45deg);
+            background-color: currentColor;
+            background-image:
+            linear-gradient(
+                rgba(255,255,255,0.1),
+                rgba(0,0,0,0) 80%,
+                rgba(0,0,0,0.05) 98%,
+                rgba(0,0,0,0.25) 100%
+            );
+            border-radius: 0.5em 0.5em 0.125em 0.125em;
+            box-shadow:
+            inset 0 0.25em 0.25em rgba(255,255,255,0.5),
+            -1.5em 0.5em 1em -1.25em rgba(0,0,0,0.3),
+            1.5em 0.5em 1em -1.25em rgba(0,0,0,0.3);
+        }
+        
+        .arm {
+            position: absolute;
+            left: 50%;
+            top: 4em;
+            width: 3em;
+            height: 5.5em;
+            transform-origin: center 1.5em;
+            background-color: currentColor;
+            border-radius: 1.5em/1em;
+            transition: transform 400ms;
+        }
+        
+        .arm.right {
+            margin-left: -6.25em;
+            transform: translateX(-50%) rotate(12deg);
+            box-shadow:
+            inset 0.5em 0.25em 0.375em -0.25em rgba(255,255,255,0.4),
+            inset 0 0 0.75em 0.75em currentColor,
+            inset 0 0 0 2em rgba(255,255,255, 0.15);
+        }
+        
+        .arm.left {
+            margin-left: 6.25em;
+            transform: translateX(-50%) rotate(-12deg);
+            box-shadow:
+            inset -0.5em 0.25em 0.375em -0.25em rgba(255,255,255,0.4),
+            inset 0 0 0.75em 0.75em currentColor,
+            inset 0 0 0 2em rgba(255,255,255, 0.15);
+        }
+
+        .explode .arm.right {
+            transform: translate(-8em, -4em) rotate(45deg);
+        }
+        
+        .explode .arm.left {
+            transform: translate(8em, -4em) rotate(-45deg);
+        }
+        
+        .arm::before {
+            content: '';
+            position: absolute;
+            bottom: 3.5em;
+            left: 0;
+            width: 100%;
+            height: 5.5em;
+            backface-visibility: hidden;
+            transform-origin: center 4.5em;
+            background-color: currentColor;
+            border-radius: 1.5em/1.5em 1.5em 1em 1em;
+        }
+        
+        .arm.right::before {
+            transform: rotate(14deg);
+            box-shadow:
+            inset 0.75em 0.125em 0.375em -0.5em rgba(255,255,255,0.4),
+            inset 0.25em 1.1em 0.75em 0.75em currentColor,
+            inset 0 0 0 2em rgba(255,255,255, 0.15);
+        }
+        
+        .arm.left::before {
+            transform: rotate(-14deg);
+            box-shadow:
+            inset -0.75em 0.125em 0.375em -0.5em rgba(255,255,255,0.4),
+            inset -0.25em 1.1em 0.75em 0.75em currentColor,
+            inset 0 0 0 2em rgba(255,255,255, 0.15);
+        }
+        
+        .arm::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1.5em;
+            transform-origin: center 4.5em;
+            background-color: currentColor;
+            border-radius: 50%;
+            box-shadow: inset 0 0 0 1em rgba(255,255,255,0.2);
+        }
+        
+        .hand {
+            position: absolute;
+            z-index: 1;
+            top: 80%;
+            left: 50%;
+            width: 1.75em;
+            height: 1.75em;
+            transform: translateX(-50%);
+            color: var(--skin-color);
+            background-color: currentColor;
+            background-image:
+            linear-gradient(
+                to right,
+                rgba(255,255,255,0.2),
+                rgba(0,0,0,0.075),
+                rgba(255,255,255,0.2)
+            );
+            border-radius: 1em/0.5em;
+            box-shadow: 0 -0.125em 0.125em rgba(0,0,0,0.1);
+        }
+        
+        .hand::before {
+            content: '';
+            position: absolute;
+            z-index: 1;
+            top: 1em;
+            left: 50%;
+            width: 3.5em;
+            height: 3.5em;
+            transform: translateX(-50%);
+            color: var(--skin-light);
+            border: 0.75em solid;
+            border-bottom-color: transparent;
+            box-shadow:
+            inset 0 0.25em rgba(0,0,0,0.15),
+            inset 0 0.25em;
+            border-radius: 50%;
+        }
+        
+        /* Lower Body */
+        
+        .lower-body {
+            position: absolute;
+            top: 18.5em;
+            left: 50%;
+            width: 10em;
+            height: 11.75em;
+            transform: translateX(-50%);
+            color: hsl(200,0%,90%);
+            transition: transform 400ms;
+        }
+        
+        .explode .lower-body {
+            transform: translate(-50%, 8em);
+        }
+        
+        .lower-body > div {
+            position: absolute;
+            background-color: currentColor;
+        }
+        
+        .waist {
+            z-index: 1;
+            top: 0;
+            width: 100%;
+            height: 1.5em;
+            background-image:
+            linear-gradient(
+                rgba(0,0,0,0.15),
+                rgba(0,0,0,0) 80%,
+                rgba(255,255,255,0.1) 90%,
+                rgba(255,255,255,0.15)
+            );
+            border-radius: 0.125em;
+            box-shadow: 0 0.75em 0.75em -0.25em rgba(0,0,0,0.25);
+        }
+        
+        .waist::before,
+        .waist::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            width: 3em;
+            height: 3em;
+            transform: translateX(-50%);
+            background-color: currentColor;
+            background-image:
+            linear-gradient(
+                rgba(255,255,255,0.75),
+                rgba(255,255,255,0) 10%
+            ),
+            linear-gradient(
+                to right,
+                rgba(255,255,255,0) 20%,
+                rgba(255,255,255,0.25) 25%,
+                rgba(255,255,255,0) 40%,
+                rgba(255,255,255,0) 60%,
+                rgba(255,255,255,0.25) 75%,
+                rgba(255,255,255,0) 80%,
+                rgba(255,255,255,0.2)
+            ),
+            linear-gradient(
+                rgba(255,255,255,0.1),
+                rgba(0,0,0,0.15)
+            );
+        }
+        
+        .waist::before {
+            margin-left: -2.75em;
+            border-radius: 50% 30% 0 0/100% 30% 0 100%;
+        }
+        
+        .waist::after {
+            margin-left: 2.75em;
+            border-radius: 30% 50% 0% 0%/30% 100% 100% 0%;
+        }
+        
+        .crotch {
+            z-index: 1;
+            top: 1.5em;
+            left: 50%;
+            width: 10%;
+            height: 4.5em;
+            transform: translateX(-50%);
+            background-image:
+            linear-gradient(
+                rgba(0,0,0,0.2),
+                rgba(0,0,0,0.05) 10%,
+                rgba(0,0,0,0.2) 10%,
+                rgba(255,255,255,0.1),
+                rgba(0,0,0,0.1)
+            );
+            border-radius: 0 0 0.25em 0.25em;
+            box-shadow:
+            -0.5em 0 0.25em -0.25em rgba(0,0,0,0.15),
+            0.5em 0 0.25em -0.25em rgba(0,0,0,0.15),
+            -0.25em 0 0.125em -0.125em rgba(0,0,0,0.2),
+            0.25em 0 0.125em -0.125em rgba(0,0,0,0.2);
+        }
+        
+        .leg {
+            bottom: 0;
+            left: 50%;
+            width: 4.75em;
+            height: 10.75em;
+            transform: translateX(-50%);
+            background-image:
+            linear-gradient(
+                rgba(0,0,0,0.1) 10%,
+                rgba(255,255,255,0.1) 25%,
+                rgba(0,0,0,0.1) 45%,
+                rgba(0,0,0,0), 50%,
+                rgba(0,0,0,0.05), 65%,
+                rgba(0,0,0,0) 74%,
+                rgba(0,0,0,0.1), 78%,
+                rgba(255,255,255,0.2) 78%,
+                rgba(255,255,255,0) 82%,
+                rgba(0,0,0,0.1)
+            );
+            border-radius: 0.25em 0.25em 0.0625em 0.0625em;
+        }
+        
+        .leg.right {
+            margin-left: -2.75em;
+        }
+        
+        .leg.left {
+            margin-left: 2.75em;
+        }
+        
+        
+        /* Controls */
+        
+        .controls {
+            position: relative;
+            z-index: 1;
+            width: 250px; /* Reduced width for mobile */
+            padding: 1.5em;
+            color: #333;
+            text-transform: uppercase;
+            background-color: rgba(220,220,220,0.5);
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        
+        .controls .title {
+            margin-bottom: 0.5rem;
+            font-weight: 900;
+            font-size: 1.25em;
+            letter-spacing: 0.03125em;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 0.5em 1em;
+            margin: 0.25rem 0;
+            color: #666;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.0625em;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 0.5em;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .button:hover {
+            color: #000;
+            border-color: #ccc;
+        }
+        
+        .button:active {
+            background-color: #ddd;
+        }
+        
+        .controls fieldset {
+            border: none;
+            margin: 1rem 0;
+        }
+        
+        .controls legend {
+            margin-bottom: 1rem;
+            font-weight: bold;
+            font-size: small;
+            letter-spacing: 0.03125em;
+        }
+        
+        .controls label {
+            display: block;
+            font-size: x-small;
+            letter-spacing: 0.0625em;
+            margin-bottom: 0.5em;
+        }
+        
+        .controls input[type="range"] {
+            -webkit-appearance: none; 
+            appearance: none;
+            position: relative;
+            width: 70%;
+            height: 2em;
+            padding: 0.375em;
+            margin: 0.25rem 0 1rem;
+            color: inherit;
+            background-color: currentColor;
+            border-radius: 1em;
+            outline: none;
+        }
+        
+        .controls input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; 
+            appearance: none;
+            position: relative;
+            z-index: 10;
+            width: 1.5em;
+            height: 1.5em;
+            background-color: hsla(50,90%,50%,1);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .controls input[type="range"]::-moz-range-thumb {
+            position: relative;
+            z-index: 10;
+            width: 1.5em;
+            height: 1.5em;
+            background-color: #333;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .controls input[type="range"]::-moz-range-track {
+            background-color: transparent;
+        }
+        
+        .controls select {
+            position: relative;
+            width: 70%;
+            height: 2em;
+            padding: 0.375em;
+            margin: 0.25rem 0 1rem;
+            color: #fff;
+            background-color: currentColor;
+            border-radius: 1em;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .form-element {
+            display: block;
+            margin-bottom: 1em;
+        }
+        
+        .form-element input[type="color"] {
+            margin-left: 0.5em;
+        }
+        
+        .reset {
+            margin-left: 0.5em;
+            width: auto;
+            padding: 0.25em 0.5em;
+        }
+        .controls {
+            position: relative;
+            z-index: 1;
+            width: 250px; /* Reduced width for mobile */
+            padding: 1.5em;
+            color: #333;
+            text-transform: uppercase;
+            background-color: rgba(220,220,220,0.5);
+            overflow-y: auto; /* Keep vertical scrolling */
+            min-height: 100%; /* Set minimum height */
+            box-sizing: border-box; /* Include padding in sizes */
+        }
+
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column; /* Toolbar under the figure */
+                height: auto; /* Automatic height for scrolling */
+                min-height: 100vh; /* Minimum height for the entire screen */
+            }
+
+            .figure-container {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                padding: 10px 0;
+            }
+
+            .minifigure {
+                width: 80px; /* Reduced for mobile */
+                min-height: 400px; /* Reduced for mobile */
+                margin: 1em auto;
+                transform: scale(0.8); /* Reduce figure scale for full display */
+                transform-origin: top center;
+            }
+
+            .controls {
+                width: 100% !important; /* Full width on mobile */
+                padding: 1em;
+                max-height: none; /* Remove height limit */
+                overflow-y: auto; /* Ensure scrolling */
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            }
+        }
+    </style>
+<div class="figure-container">
+<button 
+    onclick="window.location.href = 'main.html'" 
+    style="padding: 10px 20px; font-size: 16px;"
+>
+    RETURN TO MAIN
+</button>
+
+<div class="minifigure">
+    <div class="head">
+      <div class="faces-wrap">
+        <div class="faces">
+          <div class="face classic">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+  
+          <div class="face smile">
+            <div class="eye right">
+              <div class="brow"></div>
+            </div>
+            <div class="eye left">
+              <div class="brow"></div>
+            </div>
+            <div class="mouth"></div>
+          </div>
+  
+          <div class="face large-smile">
+            <div class="eye right">
+              <div class="brow"></div>
+            </div>
+            <div class="eye left">
+              <div class="brow"></div>
+            </div>
+            <div class="mouth"></div>
+          </div>
+  
+          <div class="face worried">
+            <div class="eye right">
+              <div class="brow"></div>
+            </div>
+            <div class="eye left">
+              <div class="brow"></div>
+            </div>
+            <div class="mouth"></div>
+          </div>
+  
+          <div class="face frown">
+            <div class="eye right">
+              <div class="brow"></div>
+            </div>
+            <div class="eye left">
+              <div class="brow"></div>
+            </div>
+            <div class="mouth"></div>
+          </div>
+  
+          <div class="face surprised">
+            <div class="eye right">
+              <div class="brow"></div>
+            </div>
+            <div class="eye left">
+              <div class="brow"></div>
+            </div>
+            <div class="mouth"></div>
+          </div>
+          
+          <!-- New funny expressions -->
+          <div class="face cross-eyed">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face tongue-out">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face dizzy">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face goofy-grin">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face winking-tongue">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face laughing-hard">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face silly">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face cheeky">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face toothy">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face derp">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face exaggerated-smile">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face bug-eyed">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face squished-face">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face puffed-cheeks">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face zombie">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face vampire-grin">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face pirate-snarl">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face clown">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face alien">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face robot-blank">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face upside-down-smile">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face heart-eyes">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face stars-eyes">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face sweat-drop-worried">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face squint">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <!-- Various expressions -->
+          <div class="face angry">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face sad">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face happy">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face neutral">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face sleeping">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face confused">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face excited">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face scared">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face determined">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face smug">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face crying">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face blushing">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face yawning">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face singing">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face whispering">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face shouting">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face thinking">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face winking">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face raised-eyebrow">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face frowning-deep">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face surprised-open">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face content">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face mischievous">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face pained">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face relieved">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <!-- Additional 40 expressions -->
+          <div class="face grinning">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face smirking">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face pleading">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face rolling-eyes">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face relieved-smile">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face partying">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face woozy">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face shushing">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face money-mouth">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face zipper-mouth">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face nauseated">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face vomiting">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face sneezing">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face masked">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face thermometer">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face head-bandage">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face exploding-head">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face cowboy">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face partying-face">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face disguised">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face sunglasses">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face nerd">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face monocle">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face astonished">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face flushed">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face pleading-face">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face slightly-frowning">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face open-mouth">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face zipper-mouth-face">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face money-mouth-face">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face face-with-thermometer">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face face-with-head-bandage">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face nauseated-face">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face face-vomiting">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face sneezing-face">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face hot-face">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face cold-face">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face woozy-face">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face dizzy-face">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <div class="face exploding-head-face">
+            <div class="eye right"></div>
+            <div class="eye left"></div>
+            <div class="mouth"></div>
+          </div>
+
+          <!-- New added faces -->
+          <div class="face joyful">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face evil">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face fear">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face madness">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face shyness">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face lostness">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face joyful-scream">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face playful">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face sarcastic">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face ecstatic">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <!-- Additional 50 evil faces -->
+          <div class="face evil-grin1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face evil-grin2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face malicious-smirk1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face malicious-smirk2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face sinister-stare1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face sinister-stare2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face villainous-laugh1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face villainous-laugh2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face demonic-glare1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face demonic-glare2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face wicked-sneer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face wicked-sneer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face fiendish-frown1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face fiendish-frown2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face malevolent-grimace1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face malevolent-grimace2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face diabolical-snarl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face diabolical-snarl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face vicious-scowl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face vicious-scowl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face nefarious-leer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face nefarious-leer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face baleful-glower1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face baleful-glower2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face heinous-grit1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face heinous-grit2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face infernal-rage1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face infernal-rage2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face atrocious-glint1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face atrocious-glint2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face depraved-snarl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face depraved-snarl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face odious-frown1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face odious-frown2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face reprehensible-leer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face reprehensible-leer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face abominable-glower1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face abominable-glower2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face execrable-grit1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face execrable-grit2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face loathsome-rage1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face loathsome-rage2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face detestable-sneer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face detestable-sneer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face repugnant-glint1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face repugnant-glint2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face abhorrent-snarl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face abhorrent-snarl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face despicable-frown1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face despicable-frown2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face vile-leer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face vile-leer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face wretched-glower1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face wretched-glower2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <!-- Additional 10 evil faces -->
+          <div class="face ruthless-glare1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face ruthless-glare2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face savage-snarl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face savage-snarl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face cruel-grimace1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face cruel-grimace2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face brutal-scowl1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face brutal-scowl2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face ferocious-leer1">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+
+          <div class="face ferocious-leer2">
+            <div class="eye right"><div class="brow"></div></div>
+            <div class="eye left"><div class="brow"></div></div>
+            <div class="mouth"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="upper-body">
+      <div class="torso"></div>
+      <div class="arm right">
+        <div class="hand right"></div>
+      </div>
+      <div class="arm left">
+        <div class="hand left"></div>
+      </div>
+    </div>
+    <div class="lower-body">
+      <div class="waist"></div>
+      <div class="crotch"></div>
+      <div class="leg right"></div>
+      <div class="leg left"></div>
+    </div>
+  </div>
+</div>
+  <div class="controls">
+    <h2 class="title">Controls</h2>
+    
+    <button class="button explode">Explode</button>
+    <button class="button randomize">Randomize</button>
+    <button class="button share">Share</button>
+    
+    <fieldset class="head-expression">
+      <legend>Head</legend>
+      
+      <div class="form-element">
+        <label for="expression">Expression:</label>
+        <input id="expression" class="expression-range expression" name="expression" type="range" min="0" max="14100" step="100" value="0">
+      </div>
+
+      <div class="form-element">
+        <label for="expression-select">Select expression:</label>
+        <select id="expression-select" style="background-color: black;">
+          <option value="0">classic</option>
+          <option value="100">smile</option>
+          <option value="200">large-smile</option>
+          <option value="300">worried</option>
+          <option value="400">frown</option>
+          <option value="500">surprised</option>
+          <option value="600">cross-eyed</option>
+          <option value="700">tongue-out</option>
+          <option value="800">dizzy</option>
+          <option value="900">goofy-grin</option>
+          <option value="1000">winking-tongue</option>
+          <option value="1100">laughing-hard</option>
+          <option value="1200">silly</option>
+          <option value="1300">cheeky</option>
+          <option value="1400">toothy</option>
+          <option value="1500">derp</option>
+          <option value="1600">exaggerated-smile</option>
+          <option value="1700">bug-eyed</option>
+          <option value="1800">squished-face</option>
+          <option value="1900">puffed-cheeks</option>
+          <option value="2000">zombie</option>
+          <option value="2100">vampire-grin</option>
+          <option value="2200">pirate-snarl</option>
+          <option value="2300">clown</option>
+          <option value="2400">alien</option>
+          <option value="2500">robot-blank</option>
+          <option value="2600">upside-down-smile</option>
+          <option value="2700">heart-eyes</option>
+          <option value="2800">stars-eyes</option>
+          <option value="2900">sweat-drop-worried</option>
+          <option value="3000">squint</option>
+          <option value="3100">angry</option>
+          <option value="3200">sad</option>
+          <option value="3300">happy</option>
+          <option value="3400">neutral</option>
+          <option value="3500">sleeping</option>
+          <option value="3600">confused</option>
+          <option value="3700">excited</option>
+          <option value="3800">scared</option>
+          <option value="3900">determined</option>
+          <option value="4000">smug</option>
+          <option value="4100">crying</option>
+          <option value="4200">blushing</option>
+          <option value="4300">yawning</option>
+          <option value="4400">singing</option>
+          <option value="4500">whispering</option>
+          <option value="4600">shouting</option>
+          <option value="4700">thinking</option>
+          <option value="4800">winking</option>
+          <option value="4900">raised-eyebrow</option>
+          <option value="5000">frowning-deep</option>
+          <option value="5100">surprised-open</option>
+          <option value="5200">content</option>
+          <option value="5300">mischievous</option>
+          <option value="5400">pained</option>
+          <option value="5500">relieved</option>
+          <option value="5600">grinning</option>
+          <option value="5700">smirking</option>
+          <option value="5800">pleading</option>
+          <option value="5900">rolling-eyes</option>
+          <option value="6000">relieved-smile</option>
+          <option value="6100">partying</option>
+          <option value="6200">woozy</option>
+          <option value="6300">shushing</option>
+          <option value="6400">money-mouth</option>
+          <option value="6500">zipper-mouth</option>
+          <option value="6600">nauseated</option>
+          <option value="6700">vomiting</option>
+          <option value="6800">sneezing</option>
+          <option value="6900">masked</option>
+          <option value="7000">thermometer</option>
+          <option value="7100">head-bandage</option>
+          <option value="7200">exploding-head</option>
+          <option value="7300">cowboy</option>
+          <option value="7400">partying-face</option>
+          <option value="7500">disguised</option>
+          <option value="7600">sunglasses</option>
+          <option value="7700">nerd</option>
+          <option value="7800">monocle</option>
+          <option value="7900">astonished</option>
+          <option value="8000">flushed</option>
+          <option value="8100">pleading-face</option>
+          <option value="8200">slightly-frowning</option>
+          <option value="8300">open-mouth</option>
+          <option value="8400">zipper-mouth-face</option>
+          <option value="8500">money-mouth-face</option>
+          <option value="8600">face-with-thermometer</option>
+          <option value="8700">face-with-head-bandage</option>
+          <option value="8800">nauseated-face</option>
+          <option value="8900">face-vomiting</option>
+          <option value="9000">sneezing-face</option>
+          <option value="9100">hot-face</option>
+          <option value="9200">cold-face</option>
+          <option value="9300">woozy-face</option>
+          <option value="9400">dizzy-face</option>
+          <option value="9500">exploding-head-face</option>
+          <option value="9600">joyful</option>
+          <option value="9700">evil</option>
+          <option value="9800">fear</option>
+          <option value="9900">madness</option>
+          <option value="10000">shyness</option>
+          <option value="10100">lostness</option>
+          <option value="10200">joyful-scream</option>
+          <option value="10300">playful</option>
+          <option value="10400">sarcastic</option>
+          <option value="10500">ecstatic</option>
+          <option value="10600">evil-grin1</option>
+          <option value="10700">evil-grin2</option>
+          <option value="10800">malicious-smirk1</option>
+          <option value="10900">malicious-smirk2</option>
+          <option value="11000">sinister-stare1</option>
+          <option value="11100">sinister-stare2</option>
+          <option value="11200">villainous-laugh1</option>
+          <option value="11300">villainous-laugh2</option>
+          <option value="11400">demonic-glare1</option>
+          <option value="11500">demonic-glare2</option>
+          <option value="11600">wicked-sneer1</option>
+          <option value="11700">wicked-sneer2</option>
+          <option value="11800">fiendish-frown1</option>
+          <option value="11900">fiendish-frown2</option>
+          <option value="12000">malevolent-grimace1</option>
+          <option value="12100">malevolent-grimace2</option>
+          <option value="12200">diabolical-snarl1</option>
+          <option value="12300">diabolical-snarl2</option>
+          <option value="12400">vicious-scowl1</option>
+          <option value="12500">vicious-scowl2</option>
+          <option value="12600">nefarious-leer1</option>
+          <option value="12700">nefarious-leer2</option>
+          <option value="12800">baleful-glower1</option>
+          <option value="12900">baleful-glower2</option>
+          <option value="13000">heinous-grit1</option>
+          <option value="13100">heinous-grit2</option>
+          <option value="13200">infernal-rage1</option>
+          <option value="13300">infernal-rage2</option>
+          <option value="13400">atrocious-glint1</option>
+          <option value="13500">atrocious-glint2</option>
+          <option value="13600">depraved-snarl1</option>
+          <option value="13700">depraved-snarl2</option>
+          <option value="13800">odious-frown1</option>
+          <option value="13900">odious-frown2</option>
+          <option value="14000">reprehensible-leer1</option>
+          <option value="14100">reprehensible-leer2</option>
+        </select>
+      </div>
+    </fieldset>
+    
+    <fieldset class="face-colors">
+      <legend>Face Colors</legend>
+      
+      <div class="form-element">
+        <label for="skin-color">Skin Color:</label>
+        <input id="skin-color" type="color" value="#ffd700">
+        <button class="button reset" data-for="skin-color">Reset</button>
+      </div>
+      
+      <div class="form-element">
+        <label for="eye-color">Eye Color:</label>
+        <input id="eye-color" type="color" value="#000000">
+        <button class="button reset" data-for="eye-color">Reset</button>
+      </div>
+      
+      <div class="form-element">
+        <label for="mouth-color">Mouth Color:</label>
+        <input id="mouth-color" type="color" value="#000000">
+        <button class="button reset" data-for="mouth-color">Reset</button>
+      </div>
+      
+      <div class="form-element">
+        <label for="brow-color">Brow Color:</label>
+        <input id="brow-color" type="color" value="#000000">
+        <button class="button reset" data-for="brow-color">Reset</button>
+      </div>
+      
+      <div class="form-element">
+        <label for="arm-color">Arm Color:</label>
+        <input id="arm-color" type="color" value="#ffd700">
+        <button class="button reset" data-for="arm-color">Reset</button>
+      </div>
+    </fieldset>
+    
+    <fieldset class="upper-color">
+      <legend>Upper Body</legend>
+      
+      <div class="form-element">
+        <label for="upper-hue">Hue:</label>
+        <input id="upper-hue" class="color-range upper-hue" name="upper-hue" type="range" min="0" max="360" value="200">
+      </div>
+      
+      <div class="form-element">
+        <label for="upper-saturation">Saturation:</label>
+        <input id="upper-saturation" class="color-range upper-saturation" name="upper-saturation" type="range" min="0" max="100" value="0">
+      </div>
+      
+      <div class="form-element">
+        <label for="upper-lightness">Lightness:</label>
+        <input id="upper-lightness" class="color-range upper-lightness" name="upper-lightness" type="range" min="0" max="90" value="90">
+      </div>
+    </fieldset>
+    
+    <fieldset class="lower-color">
+      <legend>Lower Body</legend>
+      
+      <div class="form-element">
+        <label for="lower-hue">Hue:</label>
+        <input id="lower-hue" class="color-range lower-hue" name="lower-hue" type="range" min="0" max="360" value="200">
+      </div>
+      
+      <div class="form-element">
+        <label for="lower-saturation">Saturation:</label>
+        <input id="lower-saturation" class="color-range lower-saturation" name="lower-saturation" type="range" min="0" max="100" value="0">
+      </div>
+      
+      <div class="form-element">
+        <label for="lower-lightness">Lightness:</label>
+        <input id="lower-lightness" class="color-range lower-lightness" name="lower-lightness" type="range" min="0" max="90" value="90">
+      </div>
+    </fieldset>
+    
+    <fieldset class="hand-settings">
+      <legend>ARM SETTINGS</legend>
+      
+      <div class="form-element">
+        <label for="arm-right-rotation">RIGHT ARM ROTATION:</label>
+        <input id="arm-right-rotation" type="range" min="-90" max="90" value="12">
+      </div>
+      
+      <div class="form-element">
+        <label for="arm-left-rotation">LEFT ARM ROTATION:</label>
+        <input id="arm-left-rotation" type="range" min="-90" max="90" value="-12">
+      </div>
+      
+      <div class="form-element">
+        <label for="arm-length">Arm length:</label>
+        <input id="arm-length" type="range" min="0.5" max="1.5" step="0.1" value="1">
+      </div>
+      
+      <div class="form-element">
+        <label for="hand-size">Hand size:</label>
+        <input id="hand-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
+      </div>
+    </fieldset>
+    
+    <fieldset class="new-params">
+      <legend>Other parameters</legend>
+      
+      <div class="form-element">
+        <label for="head-size">Head size:</label>
+        <input id="head-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
+      </div>
+      
+      <div class="form-element">
+        <label for="torso-size">Torso size:</label>
+        <input id="torso-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
+      </div>
+      
+      <div class="form-element">
+        <label for="leg-length">Leg length:</label>
+        <input id="leg-length" type="range" min="0.5" max="1.5" step="0.1" value="1">
+      </div>
+      
+      <div class="form-element">
+        <label for="eye-size">Eye size:</label>
+        <input id="eye-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
+      </div>
+      
+      <div class="form-element">
+        <label for="mouth-size">Mouth size:</label>
+        <input id="mouth-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
+      </div>
+
+      <!-- New funny parameters -->
+      <div class="form-element">
+        <label for="head-rotation">Head rotation:</label>
+        <input id="head-rotation" type="range" min="-45" max="45" value="0">
+      </div>
+
+      <div class="form-element">
+        <label for="eye-spacing">Eye spacing:</label>
+        <input id="eye-spacing" type="range" min="1" max="3" step="0.1" value="2.25">
+      </div>
+
+      <div class="form-element">
+        <label for="mouth-position">Mouth position:</label>
+        <input id="mouth-position" type="range" min="2" max="5" step="0.1" value="3.125">
+      </div>
+
+      <div class="form-element">
+        <label for="brow-position">Brow position:</label>
+        <input id="brow-position" type="range" min="0" max="2" step="0.1" value="0.625">
+      </div>
+    </fieldset>
+  </div>
+
+  <script>
+    if (localStorage.getItem('created_lego')){
+        localStorage.setItem('created_lego', String(Number(localStorage.getItem('created_lego')) + 1));
+    }
+    else{
+        localStorage.setItem('created_lego', '1');
+    }
+  </script>
+  <script>
+      var minifigure = document.querySelector('.minifigure');
+      var faces = document.querySelector('.faces');
+      var upperBody = document.querySelector('.upper-body');
+      var lowerBody = document.querySelector('.lower-body');
+      var explode = document.querySelector('.explode');
+      var randomize = document.querySelector('.randomize');
+      var share = document.querySelector('.share');
+      var expressionRangeInput = document.querySelector('.expression-range');
+      var expressionSelect = document.querySelector('#expression-select');
+      var colorRangeInput = document.querySelectorAll('.color-range');
+      var upperHue = document.getElementById('upper-hue');
+      var upperSaturation = document.getElementById('upper-saturation');
+      var upperLightness = document.getElementById('upper-lightness');
+      var lowerHue = document.getElementById('lower-hue');
+      var lowerSaturation = document.getElementById('lower-saturation');
+      var lowerLightness = document.getElementById('lower-lightness');
+      var skinColor = document.getElementById('skin-color');
+      var eyeColor = document.getElementById('eye-color');
+      var mouthColor = document.getElementById('mouth-color');
+      var browColor = document.getElementById('brow-color');
+      var armRightRotation = document.getElementById('arm-right-rotation');
+      var armLeftRotation = document.getElementById('arm-left-rotation');
+      var headSize = document.getElementById('head-size');
+      var torsoSize = document.getElementById('torso-size');
+      var legLength = document.getElementById('leg-length');
+      var armLength = document.getElementById('arm-length');
+      var handSize = document.getElementById('hand-size');
+      var eyeSize = document.getElementById('eye-size');
+      var mouthSize = document.getElementById('mouth-size');
+      var headRotation = document.getElementById('head-rotation');
+      var eyeSpacing = document.getElementById('eye-spacing');
+      var mouthPosition = document.getElementById('mouth-position');
+      var browPosition = document.getElementById('brow-position');
+      var armColor = document.getElementById('arm-color');
+      var armRight = document.querySelector('.arm.right');
+      var armLeft = document.querySelector('.arm.left');
+      var head = document.querySelector('.head');
+      var torso = document.querySelector('.torso');
+      var legs = document.querySelectorAll('.leg');
+      var arms = document.querySelectorAll('.arm');
+      var hands = document.querySelectorAll('.hand');
+      var eyes = document.querySelectorAll('.eye');
+      var mouths = document.querySelectorAll('.mouth');
+      var brows = document.querySelectorAll('.brow');
+      var resets = document.querySelectorAll('.reset');
+  
+      explode.addEventListener('click', explodeMinifigure);
+      randomize.addEventListener('click', randomizeInputs);
+      share.addEventListener('click', shareConfig);
+      expressionRangeInput.addEventListener('input', setExpression);
+      expressionSelect.addEventListener('change', setExpressionFromSelect);
+      armRightRotation.addEventListener('input', setArmRotations);
+      armLeftRotation.addEventListener('input', setArmRotations);
+      headSize.addEventListener('input', setNewParams);
+      headSize.addEventListener('change', setNewParams);
+      torsoSize.addEventListener('input', setNewParams);
+      legLength.addEventListener('input', setNewParams);
+      armLength.addEventListener('input', setNewParams);
+      handSize.addEventListener('input', setNewParams);
+      eyeSize.addEventListener('input', setNewParams);
+      mouthSize.addEventListener('input', setNewParams);
+      headRotation.addEventListener('input', setNewParams);
+      headRotation.addEventListener('change', setNewParams);
+      eyeSpacing.addEventListener('input', setNewParams);
+      mouthPosition.addEventListener('input', setNewParams);
+      browPosition.addEventListener('input', setNewParams);
+      armColor.addEventListener('input', setNewParams);
+  
+      for (var i = 0; i < colorRangeInput.length; i++) {
+        colorRangeInput[i].addEventListener('input', setColors);
+      }
+      
+      skinColor.addEventListener('input', setFaceColors);
+      eyeColor.addEventListener('input', setFaceColors);
+      mouthColor.addEventListener('input', setFaceColors);
+      browColor.addEventListener('input', setFaceColors);
+      
+      resets.forEach(btn => {
+        btn.addEventListener('click', resetColor);
+      });
+  
+      function getRandomNum(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+  
+      function explodeMinifigure() {
+        minifigure.classList.toggle('explode');
+        
+        if (minifigure.classList.contains('explode')) {
+            explode.innerHTML = 'Assemble';
+        } else {
+            explode.innerHTML = 'Explode';
+        }
+      };
+  
+      function randomizeInputs() {
+        var randomExpression = getRandomNum(0, 141);
+        var randomUpperHue = getRandomNum(0, 360);
+        var randomUpperSaturation = getRandomNum(0, 100);
+        var randomUpperLightness = getRandomNum(0, 90);
+        var randomLowerHue = getRandomNum(0, 360);
+        var randomLowerSaturation = getRandomNum(0, 100);
+        var randomLowerLightness = getRandomNum(0, 90);
+        var randomArmRight = getRandomNum(-90, 90);
+        var randomArmLeft = getRandomNum(-90, 90);
+        var randomHeadSize = getRandomNum(0.5, 1.5);
+        var randomTorsoSize = getRandomNum(0.5, 1.5);
+        var randomLegLength = getRandomNum(0.5, 1.5);
+        var randomArmLength = getRandomNum(0.5, 1.5);
+        var randomHandSize = getRandomNum(0.5, 1.5);
+        var randomEyeSize = getRandomNum(0.5, 1.5);
+        var randomMouthSize = getRandomNum(0.5, 1.5);
+        var randomHeadRotation = getRandomNum(-45, 45);
+        var randomEyeSpacing = getRandomNum(1, 3);
+        var randomMouthPosition = getRandomNum(2, 5);
+        var randomBrowPosition = getRandomNum(0, 2);
+        
+        expressionRangeInput.value = randomExpression * 100;
+        upperHue.value = randomUpperHue;
+        upperSaturation.value = randomUpperSaturation;
+        upperLightness.value = randomUpperLightness;
+        lowerHue.value = randomLowerHue;
+        lowerSaturation.value = randomLowerSaturation;
+        lowerLightness.value = randomLowerLightness;
+        armRightRotation.value = randomArmRight;
+        armLeftRotation.value = randomArmLeft;
+        headSize.value = randomHeadSize;
+        torsoSize.value = randomTorsoSize;
+        legLength.value = randomLegLength;
+        armLength.value = randomArmLength;
+        handSize.value = randomHandSize;
+        eyeSize.value = randomEyeSize;
+        mouthSize.value = randomMouthSize;
+        headRotation.value = randomHeadRotation;
+        eyeSpacing.value = randomEyeSpacing;
+        mouthPosition.value = randomMouthPosition;
+        browPosition.value = randomBrowPosition;
+        
+        setExpression();
+        setColors();
+        setFaceColors();
+        setArmRotations();
+        setNewParams();
+      };
+  
+      function setExpression() {
+        var expressionVal = parseInt(expressionRangeInput.value);
+        faces.style.transform = 'translateX(-' + expressionVal + '%)';
+        expressionSelect.value = expressionVal;
+      };
+
+      function setExpressionFromSelect() {
+        expressionRangeInput.value = expressionSelect.value;
+        setExpression();
+      };
+  
+      function setColors() {
+        var upperHueVal = parseInt(upperHue.value);
+        var upperSaturationVal = parseInt(upperSaturation.value);
+        var upperLightnessVal = parseInt(upperLightness.value);
+        var lowerHueVal = parseInt(lowerHue.value);
+        var lowerSaturationVal = parseInt(lowerSaturation.value);
+        var lowerLightnessVal = parseInt(lowerLightness.value);
+        
+        upperBody.style.color = 'hsl(' + upperHueVal + ',' + upperSaturationVal + '%,' + upperLightnessVal + '%)';
+        lowerBody.style.color = 'hsl(' + lowerHueVal + ',' + lowerSaturationVal + '%,' + lowerLightnessVal + '%)';
+      };
+      
+      function setFaceColors() {
+        document.documentElement.style.setProperty('--skin-color', skinColor.value);
+        document.documentElement.style.setProperty('--eye-pupil', eyeColor.value);
+        document.documentElement.style.setProperty('--mouth-color', mouthColor.value);
+        document.documentElement.style.setProperty('--brow-color', browColor.value);
+      };
+      
+      function resetColor(e) {
+        var btn = e.target;
+        var id = btn.dataset.for;
+        var input = document.getElementById(id);
+        if (id === 'skin-color') input.value = '#ffd700';
+        else if (id === 'eye-color') input.value = '#000000';
+        else if (id === 'mouth-color') input.value = '#000000';
+        else if (id === 'brow-color') input.value = '#000000';
+        setFaceColors();
+      }
+      
+      function setArmRotations() {
+        armRight.style.transform = `translateX(-50%) rotate(${armRightRotation.value}deg)`;
+        armLeft.style.transform = `translateX(-50%) rotate(${armLeftRotation.value}deg)`;
+      }
+      
+      function setNewParams() {
+        head.style.transform = `translateX(-50%) scale(${headSize.value}) rotate(${headRotation.value}deg)`;
+        torso.style.transform = `translateX(-50%) rotateX(45deg) scale(${torsoSize.value})`;
+        legs.forEach(leg => {
+          leg.style.height = `${10.75 * legLength.value}em`;
+        });
+        arms.forEach(arm => {
+          arm.style.height = `${5.5 * armLength.value}em`;
+          arm.style.color = armColor.value;
+        });
+        hands.forEach(hand => {
+          hand.style.transform = `translateX(-50%) scale(${handSize.value})`;
+        });
+        eyes.forEach((eye, index) => {
+          eye.style.transform = `scale(${eyeSize.value})`;
+          if (eye.classList.contains('right')) {
+            eye.style.left = `${eyeSpacing.value}em`;
+          } else if (eye.classList.contains('left')) {
+            eye.style.right = `${eyeSpacing.value}em`;
+          }
+        });
+        mouths.forEach(mouth => {
+          mouth.style.transform = `translateX(-50%) scale(${mouthSize.value})`;
+          mouth.style.top = `${mouthPosition.value}em`;
+        });
+        brows.forEach(brow => {
+          brow.style.bottom = `${browPosition.value}em`;
+        });
+      }
+      
+      async function shareConfig() {
+        // Временно отключаем 3D-трансформы для правильного захвата
+        const originalPerspective = minifigure.style.perspective;
+        const originalTransformStyle = minifigure.style.transformStyle;
+        const originalTorsoTransform = torso.style.transform;
+        const originalWidth = minifigure.style.width;
+        const originalUpperPerspective = upperBody.style.perspective;
+
+        minifigure.style.perspective = 'none';
+        minifigure.style.transformStyle = 'flat';
+        minifigure.style.width = '300px'; // Расширяем контейнер, чтобы руки поместились без отрицательных позиций
+        upperBody.style.perspective = 'none';
+        torso.style.transform = `translateX(-50%) scale(${torsoSize.value})`; // Убираем rotateX
+
+        const canvas = await html2canvas(minifigure, {
+          allowTaint: true,
+          useCORS: true,
+          scale: 2 // Увеличиваем разрешение для лучшего качества
+        });
+
+        // Восстанавливаем трансформы после захвата
+        minifigure.style.perspective = originalPerspective;
+        minifigure.style.transformStyle = originalTransformStyle;
+        minifigure.style.width = originalWidth;
+        upperBody.style.perspective = originalUpperPerspective;
+        torso.style.transform = originalTorsoTransform;
+
+        canvas.toBlob(async (blob) => {
+          const file = new File([blob], 'minifigure.png', { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'My LEGO Minifigure',
+              text: 'Check out my custom LEGO minifigure!'
+            });
+          } else {
+            alert('Sharing not supported on this device');
+          }
+        });
+      }
+      
+
+    function setFaceColors() {
+        document.documentElement.style.setProperty('--skin-color', skinColor.value);
+        document.documentElement.style.setProperty('--eye-pupil', eyeColor.value);
+        document.documentElement.style.setProperty('--mouth-color', mouthColor.value);
+        document.documentElement.style.setProperty('--brow-color', browColor.value);
+        // Обновляем цвет рук
+        arms.forEach(arm => {
+            arm.style.color = armColor.value;
+        });
+    }
+
+    function resetColor(e) {
+        var btn = e.target;
+        var id = btn.dataset.for;
+        var input = document.getElementById(id);
+        if (id === 'skin-color') input.value = '#ffd700';
+        else if (id === 'eye-color') input.value = '#000000';
+        else if (id === 'mouth-color') input.value = '#000000';
+        else if (id === 'brow-color') input.value = '#000000';
+        else if (id === 'arm-color') input.value = '#ffd700'; // Добавляем сброс для arm-color
+        setFaceColors();
+    }
+      // Load from URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      expressionRangeInput.value = urlParams.get('expression') || 0;
+      upperHue.value = urlParams.get('upperHue') || 200;
+      upperSaturation.value = urlParams.get('upperSaturation') || 0;
+      upperLightness.value = urlParams.get('upperLightness') || 90;
+      lowerHue.value = urlParams.get('lowerHue') || 200;
+      lowerSaturation.value = urlParams.get('lowerSaturation') || 0;
+      lowerLightness.value = urlParams.get('lowerLightness') || 90;
+      skinColor.value = urlParams.get('skinColor') || '#ffd700';
+      eyeColor.value = urlParams.get('eyeColor') || '#000000';
+      mouthColor.value = urlParams.get('mouthColor') || '#000000';
+      browColor.value = urlParams.get('browColor') || '#000000';
+      armRightRotation.value = urlParams.get('armRightRotation') || 12;
+      armLeftRotation.value = urlParams.get('armLeftRotation') || -12;
+      headSize.value = urlParams.get('headSize') || 1;
+      torsoSize.value = urlParams.get('torsoSize') || 1;
+      legLength.value = urlParams.get('legLength') || 1;
+      armLength.value = urlParams.get('armLength') || 1;
+      handSize.value = urlParams.get('handSize') || 1;
+      eyeSize.value = urlParams.get('eyeSize') || 1;
+      mouthSize.value = urlParams.get('mouthSize') || 1;
+      headRotation.value = urlParams.get('headRotation') || 0;
+      eyeSpacing.value = urlParams.get('eyeSpacing') || 2.25;
+      mouthPosition.value = urlParams.get('mouthPosition') || 3.125;
+      browPosition.value = urlParams.get('browPosition') || 0.625;
+      
+      setExpression();
+      setColors();
+      setFaceColors();
+      setArmRotations();
+      setNewParams();
+  </script>  
+  </body>
+</html>

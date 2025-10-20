@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин</title>
+    <style>
+        body {
+            background-color: darkblue;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+        #header {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        #title-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #timer {
+            font-size: 18px;
+            background-color: navy;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        #back-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #coins {
+            font-size: 20px;
+            background-color: navy;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        #coins.animate-out {
+            animation: coins-out 1s ease-in-out;
+        }
+        @keyframes coins-out {
+            0% { transform: scale(1); color: white; opacity: 1; }
+            50% { transform: scale(1.2); color: gold; opacity: 0.7; }
+            100% { transform: scale(1); color: white; opacity: 1; }
+        }
+        #container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        #empty-message {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 50px;
+        }
+        #empty-message button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .card {
+            background-color: navy;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card.purchased {
+            animation: purchased 1s ease-in-out;
+        }
+        @keyframes purchased {
+            0% { transform: scale(1); background-color: navy; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); }
+            50% { transform: scale(1.05); background-color: #4CAF50; box-shadow: 0 12px 24px rgba(76, 175, 80, 0.5); }
+            100% { transform: scale(1); background-color: navy; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); }
+        }
+        .card p {
+            margin: 10px 0;
+        }
+        .card h3 {
+            margin: 10px 0;
+            font-size: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .buy-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .buy-btn:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+        .more-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .copy-btn {
+            background-color: #FFC107;
+            color: black;
+        }
+        #loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: navy;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: left;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        .modal button {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .report-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .details-btn {
+            background-color: #FFC107;
+            color: black;
+        }
+        .close-btn {
+            background-color: #ccc;
+            color: black;
+        }
+        #report-reason {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        #report-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .confirm-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #confirm-text, #insufficient-text, #message-text {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #details-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .detail-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+                font-size: 12px;
+            }
+            #header {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+                position: relative;
+            }
+            #title-container {
+                width: 100%;
+                justify-content: center;
+                order: 3;
+                margin-top: 5px;
+                gap: 5px;
+            }
+            #title {
+                font-size: 16px;
+            }
+            #timer {
+                font-size: 12px;
+                padding: 3px 6px;
+            }
+            #back-btn {
+                order: 1;
+                width: auto;
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            #coins {
+                order: 2;
+                width: auto;
+                font-size: 14px;
+                padding: 6px 8px;
+                margin-left: auto;
+            }
+            #container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            #empty-message {
+                font-size: 14px;
+                margin-top: 30px;
+            }
+            #empty-message button {
+                padding: 8px 12px;
+                font-size: 12px;
+                margin-top: 10px;
+            }
+            .card {
+                padding: 10px;
+                border-radius: 10px;
+            }
+            .card h3 {
+                font-size: 14px;
+                margin: 5px 0;
+            }
+            .card p {
+                margin: 5px 0;
+                font-size: 12px;
+            }
+            button {
+                margin: 3px 0;
+                padding: 8px 12px;
+                font-size: 12px;
+                width: 100%;
+            }
+            #loader {
+                font-size: 16px;
+                padding: 15px;
+            }
+            .modal-content {
+                padding: 15px;
+                width: 95%;
+                max-width: 300px;
+            }
+            .modal h3 {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            #report-reason, #report-input {
+                font-size: 12px;
+                padding: 8px;
+            }
+            #confirm-text, #insufficient-text, #message-text {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+            .detail-item {
+                padding: 8px;
+                margin-bottom: 5px;
+                font-size: 12px;
+            }
+            .detail-label {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <button id="back-btn">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</button>
+        <div id="title-container">
+            <div id="title">Магазин</div>
+            <div id="timer"></div>
+        </div>
+        <div id="coins"></div>
+    </div>
+    <div id="loader">Загрузка...</div>
+    <div id="container"></div>
+    
+    <!-- More modal -->
+    <div id="more-modal" class="modal">
+        <div class="modal-content">
+            <button id="details" class="details-btn">Подробнее о продукте</button>
+            <button id="report" class="report-btn">Пожаловаться на продавца</button>
+            <button id="close-more" class="close-btn">Закрыть</button>
+        </div>
+    </div>
+    
+    <!-- Report modal -->
+    <div id="report-modal" class="modal">
+        <div class="modal-content">
+            <h3>Выберите или введите причину жалобы</h3>
+            <select id="report-reason" style="background-color: darkblue;">
+                <option value="">Выберите причину...</option>
+                <option value="Мошенничество">Мошенничество</option>
+                <option value="Обман">Обман</option>
+                <option value="Порнография">Порнография</option>
+                <option value="Оскорбление">Оскорбление</option>
+                <option value="Нарушение законов">Нарушение законов</option>
+                <option value="Нарушение правил Telegram">Нарушение правил Telegram</option>
+                <option value="Спам">Спам</option>
+                <option value="Фишинг">Фишинг</option>
+                <option value="Пропаганда насилия">Пропаганда насилия</option>
+                <option value="Расизм или дискриминация">Расизм или дискриминация</option>
+                <option value="Терроризм">Терроризм</option>
+                <option value="Другое">Другое</option>
+                <option value="Не нарушает закон, но надо удалить">Не нарушает закон, но надо удалить</option>
+
+            </select>
+            <textarea id="report-input" rows="4" placeholder="Опишите проблему (опционально)..."></textarea>
+            <button id="submit-report" class="submit-btn">Отправить</button>
+            <button id="cancel-report" class="cancel-btn">Отменить</button>
+        </div>
+    </div>
+    
+    <!-- Confirm modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <p id="confirm-text"></p>
+            <button id="confirm-buy" class="confirm-btn">Да</button>
+            <button id="cancel-buy" class="cancel-btn">Нет</button>
+        </div>
+    </div>
+    
+    <!-- Insufficient modal -->
+    <div id="insufficient-modal" class="modal">
+        <div class="modal-content">
+            <p id="insufficient-text">Недостаточно монет!<br>Монеты можно получить, генерируя что-то в этом приложении.</p>
+            <button id="close-insufficient" class="close-btn">ОК</button>
+        </div>
+    </div>
+    
+    <!-- Details modal -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="text-align: center; margin-bottom: 20px;">Подробнее о продукте</h3>
+            <div id="details-content"></div>
+            <button id="close-details" class="close-btn">Закрыть</button>
+        </div>
+    </div>
+    
+    <!-- Message modal -->
+    <div id="message-modal" class="modal">
+        <div class="modal-content">
+            <p id="message-text"></p>
+            <button id="close-message" class="close-btn">ОК</button>
+        </div>
+    </div>
+    
+    <!-- Scam modal -->
+    <div id="scam-modal" class="modal">
+        <div class="modal-content">
+            <p id="scam-text">ЭТО МОШЕННИЧЕСТВО! ВЫ НЕ МОЖЕТЕ ЭТО КУПИТЬ</p>
+            <button id="close-scam" class="close-btn">Закрыть</button>
+        </div>
+    </div>
+    
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxEcWprN9AVSX4UjmcP0vVW4eYNsOUhH24MB97-mCsA_HH_TxGzT0QPMpqtPMulkgHG/exec';
+
+        let currentSeller = null;
+        let currentToken = null;
+        let currentRow = null;
+        let currentPrice = null;
+        let currentName = null;
+        let currentDate = null;
+        let currentDesc = null;
+        let currentQty = null;
+        let nextUpdateTime = null;
+
+        function fetchData(silent = false) {
+            if (!silent) {
+                document.getElementById('loader').style.display = 'block';
+            }
+            fetch(`${SCRIPT_URL}?op=get`)
+                .then(res => res.json())
+                .then(data => {
+                    displayProducts(data);
+                    localStorage.setItem('shopData', JSON.stringify(data));
+                    if (!silent) {
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('header').style.display = 'flex';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    if (!silent) {
+                        document.getElementById('loader').style.display = 'none';
+                    }
+                });
+        }
+
+        function displayProducts(rows) {
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+            const userName = localStorage.getItem('userName') || '';
+            const userToken = localStorage.getItem('userToken') || '';
+            const boughtItems = (localStorage.getItem('bought') || '').split(',');
+            let hasProducts = false;
+            rows.forEach((row, index) => {
+                if (index === 0) return; // Skip header
+                const rowNum = index + 1;
+                const date = row[0];
+                const seller = row[1];
+                const token = row[2];
+                const name = row[3];
+                const price = parseFloat(row[4]);
+                const desc = row[5];
+                let status = row[6].trim();
+                const buyer = row[7] || '';
+                let qty = parseInt(row[10]);
+                qty = isNaN(qty) ? 1 : Math.max(0, qty);
+
+                if (token === userToken) return; // Hide own products
+
+                // Новые условия: скрываем, если уже куплено пользователем
+                const isPremiumProduct = name === "Премиум";
+                const isBadgeProduct = name === "Бейдж \"👑Премиум\" к профилю";
+                const isSpecial = isPremiumProduct || isBadgeProduct;
+                if (isPremiumProduct && localStorage.getItem('premium') === 'yes') return;
+                if (isBadgeProduct && localStorage.getItem('badge1') === 'yes') return;
+                if (!isSpecial && boughtItems.includes(name)) return;
+
+                const isAvailable = (status === 'Выставлен' || status === 'Listed') && qty > 0;
+
+                // Изменено: скрываем все недоступные предметы (не показываем даже свои купленные)
+                if (!isAvailable) return;
+
+                hasProducts = true;
+
+                const isPremium = name === "Бейдж \"👑Премиум\" к профилю";
+                const isScam = isPremium && seller !== "Аноним" && seller !== "Продавец премиума";
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.id = 'row-' + rowNum;
+                card.dataset.qty = qty;
+                card.dataset.price = price;
+                card.dataset.status = status;
+                card.dataset.buyer = buyer;
+                card.dataset.token = token;
+                card.innerHTML = `
+                    <p><strong>Продавец:</strong> ${seller}</p>
+                    <h3>${name}</h3>
+                    <p>${desc}</p>
+                `;
+                if (isScam) {
+                    card.innerHTML += `<p style="font-weight: bold; color: red;">ВНИМАНИЕ: ЭТО МОШЕННИЧЕСТВО!</p>`;
+                }
+
+                const buyBtn = document.createElement('button');
+                buyBtn.className = 'buy-btn';
+                if (isAvailable) {
+                    if (qty > 1) {
+                        buyBtn.textContent = `Купить 1/${qty} за ${price}🪙`;
+                    } else {
+                        buyBtn.textContent = `Купить за ${price}🪙`;
+                    }
+                    buyBtn.onclick = () => {
+                        if (isScam) {
+                            document.getElementById('scam-modal').style.display = 'flex';
+                        } else {
+                            checkCoinsAndBuy(rowNum, price, name, card);
+                        }
+                    };
+                } else {
+                    buyBtn.textContent = `Куплено за ${price}🪙`;
+                    buyBtn.disabled = true;
+                }
+                card.appendChild(buyBtn);
+
+                if (buyer === userName) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.textContent = 'Копировать';
+                    copyBtn.onclick = () => {
+                        navigator.clipboard.writeText(name).then(() => {
+                            showMessage('Название продукта скопировано!');
+                        });
+                    };
+                    card.appendChild(copyBtn);
+                }
+
+                const moreBtn = document.createElement('button');
+                moreBtn.className = 'more-btn';
+                moreBtn.textContent = 'Подробнее';
+                moreBtn.onclick = () => {
+                    currentDate = date;
+                    currentSeller = seller;
+                    currentToken = token;
+                    currentName = name;
+                    currentPrice = price;
+                    currentDesc = desc;
+                    currentQty = qty;
+                    currentRow = rowNum;
+                    document.getElementById('more-modal').style.display = 'flex';
+                };
+                card.appendChild(moreBtn);
+
+                container.appendChild(card);
+            });
+            if (!hasProducts) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.id = 'empty-message';
+                emptyDiv.innerHTML = `
+                    <p>Магазин пуст! Начните продавать свой продукт!</p>
+                    <button onclick="window.location.href='myshop_ru.html'">Перейти в мой магазин</button>
+                `;
+                container.appendChild(emptyDiv);
+            }
+        }
+
+        function checkCoinsAndBuy(rowIndex, price, name, card) {
+            let coins = parseFloat(localStorage.getItem('coins')) || 0;
+            currentToken = card.dataset.token;
+            if (coins < price) {
+                document.getElementById('insufficient-modal').style.display = 'flex';
+                return;
+            }
+            const userToken = localStorage.getItem('userToken') || '';
+            const sellerToken = card.dataset.token;
+            if (sellerToken === userToken) {
+                showMessage("Вы не можете купить свой же товар!");
+                return;
+            }
+            const isSpecial = name === "Премиум" || name === "Бейдж \"👑Премиум\" к профилю";
+            if (!isSpecial) {
+                const boughtItems = (localStorage.getItem('bought') || '').split(',');
+                if (boughtItems.includes(name)) {
+                    showMessage("Этот товар уже находится в списке купленных товаров!");
+                    return;
+                }
+            }
+            if (name === "Премиум" && localStorage.getItem('premium') === 'yes') {
+                showMessage("У вас уже есть премиум!");
+                return;
+            }
+            if (name === "Бейдж \"👑Премиум\" к профилю" && localStorage.getItem('premium') !== 'yes') {
+                showMessage("У вас нет премиума для покупки этого бейджа!");
+                return;
+            }
+            if (name === "Бейдж \"👑Премиум\" к профилю" && localStorage.getItem('badge1') === 'yes') {
+                showMessage("У вас уже есть этот бейдж!");
+                return;
+            }
+            showConfirmModal(rowIndex, price, name, card);
+        }
+
+        function showConfirmModal(rowIndex, price, name, card) {
+            currentRow = rowIndex;
+            currentPrice = price;
+            currentName = name;
+            document.getElementById('confirm-text').textContent = `Вы хотите купить "${name}" за ${price}🪙?`;
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+
+        function performPurchase() {
+            let coins = parseFloat(localStorage.getItem('coins')) || 0;
+            const userName = localStorage.getItem('userName');
+            if (!userName) {
+                showMessage('Имя пользователя не найдено в localStorage!');
+                document.getElementById('confirm-modal').style.display = 'none';
+                return;
+            }
+
+            coins -= currentPrice;
+            localStorage.setItem('coins', coins);
+
+            const coinsElem = document.getElementById('coins');
+            coinsElem.classList.add('animate-out');
+            updateCoinsDisplay();
+            setTimeout(() => {
+                coinsElem.classList.remove('animate-out');
+            }, 1000);
+
+            const data = {
+                op: 'buy',
+                row: currentRow,
+                buyer: userName
+            };
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            })
+            .then(res => res.text())
+            .then(result => {
+                if (result === 'OK') {
+                    const card = document.getElementById('row-' + currentRow);
+                    if (card) {
+                        card.classList.add('purchased');
+                        setTimeout(() => {
+                            card.classList.remove('purchased');
+                        }, 1000);
+                        const buyBtn = card.querySelector('.buy-btn');
+                        let qty = parseInt(card.dataset.qty);
+                        qty--;
+                        card.dataset.qty = qty;
+                        if (qty <= 0) {
+                            card.dataset.status = 'Куплено';
+                            card.dataset.buyer = userName;
+                            buyBtn.textContent = 'Куплено';
+                            buyBtn.disabled = true;
+                            const copyBtn = document.createElement('button');
+                            copyBtn.className = 'copy-btn';
+                            copyBtn.textContent = 'Копировать';
+                            copyBtn.onclick = () => {
+                                navigator.clipboard.writeText(currentName).then(() => {
+                                    showMessage('Название продукта скопировано!');
+                                });
+                            };
+                            card.insertBefore(copyBtn, buyBtn);
+                        } else {
+                            buyBtn.textContent = `Купить 1/${qty} за ${currentPrice}`;
+                        }
+                    }
+                    const isBadge = currentName === "Бейдж \"👑Премиум\" к профилю";
+                    const isPremium = currentName === "Премиум";
+                    if (!isBadge && !isPremium) {
+                        let bought = localStorage.getItem('bought') || '';
+                        bought += (bought ? ',' : '') + currentName;
+                        localStorage.setItem('bought', bought);
+                    }
+                    if (isPremium) {
+                        localStorage.setItem('premium', 'yes');
+                    }
+                    if (isBadge) {
+                        localStorage.setItem('badge1', 'yes');
+                    }
+                    if (isPremium) {
+                        showMessage("Премиум успешно куплен!");
+                    } else {
+                        showMessage("Куплено!\n отправлен в ваш список избранных покупок.\nТовар \"Премиум\" не отправляется в список покупок, а зачисляются сразу.");
+                    }
+                    setTimeout(() => fetchData(true), 1000);
+
+                    // Send Telegram message to seller
+                    const botToken = '8397748660:AAHmQ_m6uWUBoI4biuppk8BMGPZpP7ykO6o';
+                    const chatId = currentToken;
+                    const text = `+${currentPrice}🪙\n${currentName}`;
+
+                    const digitToLetter = {
+                        '0': 'x',
+                        '1': 'q',
+                        '2': 'w',
+                        '3': 'e',
+                        '4': 'r',
+                        '5': 't',
+                        '6': 'y',
+                        '7': 'u',
+                        '8': 'i',
+                        '9': 'o'
+                    };
+                    let priceStr = currentPrice.toString();
+                    let encodedPrice = '';
+                    for (let char of priceStr) {
+                        encodedPrice += digitToLetter[char] || char;
+                    }
+                    const buttonUrl = `https://t.me/NickNaymesBot/create2?startapp=${encodedPrice}_${
+                        Array.from({length: 20}, () => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 62)]).join('')
+                    }`;
+
+
+                    const payload = {
+                        chat_id: chatId,
+                        text: text,
+                        reply_markup: {
+                            inline_keyboard: [[{
+                                text: "Получить || Claim",
+                                url: buttonUrl
+                            }]]
+                        }
+                    };
+
+                    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.ok) {
+                            console.error('Telegram sendMessage error:', data);
+                        }
+                    })
+                    .catch(err => console.error('Telegram API error:', err));
+                } else {
+                    showMessage('Ошибка покупки: ' + result);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showMessage('Сетевая ошибка во время покупки.');
+            });
+            document.getElementById('confirm-modal').style.display = 'none';
+        }
+
+        function updateCoinsDisplay() {
+            const coins = localStorage.getItem('coins') || '0';
+            document.getElementById('coins').innerHTML = `🪙 ${coins}`;
+        }
+
+        function showMessage(text) {
+            document.getElementById('message-text').textContent = text;
+            document.getElementById('message-modal').style.display = 'flex';
+        }
+
+        function initNextUpdateTime() {
+            let savedTime = localStorage.getItem('nextUpdateTime');
+            const updateInterval = localStorage.getItem('premium') === 'yes' ? 60000 : 120000;
+            if (savedTime && parseInt(savedTime) > Date.now()) {
+                nextUpdateTime = parseInt(savedTime);
+            } else {
+                nextUpdateTime = Date.now() + updateInterval;
+                localStorage.setItem('nextUpdateTime', nextUpdateTime);
+            }
+        }
+
+        function updateTimer() {
+            const now = Date.now();
+            const diff = nextUpdateTime - now;
+            const updateInterval = localStorage.getItem('premium') === 'yes' ? 60000 : 120000;
+            if (diff <= 0) {
+                fetchData(true);
+                nextUpdateTime = now + updateInterval;
+                localStorage.setItem('nextUpdateTime', nextUpdateTime);
+                setTimeout(updateTimer, 1000);
+                return;
+            }
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+            document.getElementById('timer').innerHTML = `Обновление через ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function checkForChanges() {
+            fetch(`${SCRIPT_URL}?op=get`)
+                .then(res => res.json())
+                .then(newData => {
+                    const oldDataStr = localStorage.getItem('shopData') || '[]';
+                    const oldData = JSON.parse(oldDataStr);
+                    if (JSON.stringify(newData) !== JSON.stringify(oldData)) {
+                        displayProducts(newData);
+                        localStorage.setItem('shopData', JSON.stringify(newData));
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        // Close more modal
+        document.getElementById('close-more').onclick = () => {
+            document.getElementById('more-modal').style.display = 'none';
+        };
+
+        // Open details modal
+        document.getElementById('details').onclick = () => {
+            document.getElementById('more-modal').style.display = 'none';
+            const content = document.getElementById('details-content');
+            content.innerHTML = '';
+            
+            const items = [
+                {label: 'Дата размещения', value: currentDate},
+                {label: 'Продавец', value: currentSeller},
+                {label: 'Продукт', value: currentName},
+                {label: 'Цена', value: currentPrice},
+                {label: 'Описание', value: currentDesc},
+                {label: 'Осталось еще:', value: currentQty}
+            ];
+            
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'detail-item';
+                div.innerHTML = `
+                    <div class="detail-label">${item.label}:</div>
+                    <div>${item.value}</div>
+                `;
+                content.appendChild(div);
+            });
+            
+            document.getElementById('details-modal').style.display = 'flex';
+        };
+
+        // Close details
+        document.getElementById('close-details').onclick = () => {
+            document.getElementById('details-modal').style.display = 'none';
+        };
+
+        // Open report modal
+        document.getElementById('report').onclick = () => {
+            document.getElementById('more-modal').style.display = 'none';
+            document.getElementById('report-modal').style.display = 'flex';
+            document.getElementById('report-reason').value = '';
+            document.getElementById('report-input').value = '';
+        };
+
+        // Cancel report
+        document.getElementById('cancel-report').onclick = () => {
+            document.getElementById('report-modal').style.display = 'none';
+        };
+
+        // Submit report
+        document.getElementById('submit-report').onclick = () => {
+            const selectedReason = document.getElementById('report-reason').value.trim();
+            const customReason = document.getElementById('report-input').value.trim();
+            let reason = '';
+            if (selectedReason && customReason) {
+                reason = "Выбранная причина: " + selectedReason + '& Введенная причина: ' + customReason;
+            } else if (selectedReason) {
+                reason = selectedReason;
+            } else if (customReason) {
+                reason = customReason;
+            }
+            if (reason) {
+                const userName = localStorage.getItem('userName');
+                const userToken = localStorage.getItem('userToken');
+                if (!userName || !userToken) {
+                    showMessage('Информация о пользователе не найдена в localStorage!');
+                    return;
+                }
+                const data = {
+                    op: 'report',
+                    reporter: userName,
+                    reporterToken: userToken,
+                    reason: reason,
+                    seller: currentSeller,
+                    sellerToken: currentToken,
+                    product: currentName,
+                    price: currentPrice,
+                    date: currentDate
+                };
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.text())
+                .then(() => {
+                    showMessage('Жалоба отправлена.');
+                    document.getElementById('report-modal').style.display = 'none';
+                })
+                .catch(err => console.error(err));
+            } else {
+                showMessage('Выберите или введите причину жалобы!');
+            }
+        };
+
+        // Confirm buy
+        document.getElementById('confirm-buy').onclick = () => {
+            performPurchase();
+        };
+
+        // Cancel buy
+        document.getElementById('cancel-buy').onclick = () => {
+            document.getElementById('confirm-modal').style.display = 'none';
+        };
+
+        // Close insufficient
+        document.getElementById('close-insufficient').onclick = () => {
+            document.getElementById('insufficient-modal').style.display = 'none';
+        };
+
+        // Close message
+        document.getElementById('close-message').onclick = () => {
+            document.getElementById('message-modal').style.display = 'none';
+        };
+
+        // Close scam
+        document.getElementById('close-scam').onclick = () => {
+            document.getElementById('scam-modal').style.display = 'none';
+        };
+
+        window.onload = () => {
+            updateCoinsDisplay();
+            const cachedData = localStorage.getItem('shopData');
+            if (cachedData) {
+                displayProducts(JSON.parse(cachedData));
+                document.getElementById('header').style.display = 'flex';
+                document.getElementById('loader').style.display = 'none';
+            } else {
+                fetchData(false);
+            }
+            initNextUpdateTime();
+            updateTimer();
+            setInterval(updateTimer, 1000);
+            setInterval(checkForChanges, 1000);
+
+            // Disable copying and context menu
+            document.addEventListener('contextmenu', event => event.preventDefault());
+            document.addEventListener('selectstart', event => event.preventDefault());
+            document.addEventListener('copy', event => event.preventDefault());
+            document.addEventListener('cut', event => event.preventDefault());
+            document.addEventListener('dragstart', event => event.preventDefault());
+
+            // Back button
+            document.getElementById('back-btn').onclick = () => {
+                window.location.href = 'main.html';
+            };
+        };
+    </script>
+</body>
+</html>

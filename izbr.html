@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Избранное</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  /* Общие стили */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    background: radial-gradient(1200px 800px at 80% -10%, #100a7a 0%, #0a002e 60%);
+    color: #e0e0ff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+  }
+
+  /* Модальное окно */
+  .modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 500px;
+    background: rgba(255,255,255,0.05);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.4);
+    text-align: center;
+  }
+
+  h2 {
+    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+    margin: 0;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .buttons button {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    background: #1c1270;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s;
+  }
+
+  .buttons button:hover {
+    background: #2a1d9c;
+  }
+
+  .buttons button:active {
+    background: #150d54;
+    transform: scale(0.97);
+  }
+
+  #clearAllBtn {
+    background: #c0392b;
+  }
+
+  #clearAllBtn:hover {
+    background: #e74c3c;
+  }
+
+  #clearAllBtn:active {
+    background: #a93226;
+  }
+
+  /* Сетка элементов (для будущих списков) */
+  .favorites {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .favorite-item {
+    background: rgba(255,255,255,0.08);
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .favorite-item:hover {
+    background: rgba(255,255,255,0.15);
+  }
+
+  .favorite-item:hover .item-text::after {
+    content: attr(data-full);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1c1270;
+    color: #fff;
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: normal;
+    max-width: 250px;
+    word-wrap: break-word;
+    z-index: 10;
+  }
+
+  .item-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .action-btn {
+    cursor: pointer;
+    color: #e0e0ff;
+    font-size: 1rem;
+    transition: color 0.2s;
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+  }
+
+  .action-btn:hover {
+    color: #fff;
+  }
+
+  /* Адаптация для мобильных устройств */
+  @media (max-width: 480px) {
+    body {
+      padding: 1rem;
+    }
+    .modal {
+      padding: 1.5rem;
+    }
+    .buttons button {
+      font-size: 0.95rem;
+      padding: 0.7rem 0.8rem;
+    }
+    .favorite-item {
+      font-size: 0.9rem;
+      padding: 0.5rem 0.8rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="modal">
+    <h2 id="choose">Выберите список.</h2>
+    <div class="buttons">
+      <button id="nick" onclick="window.location.href = 'nicks.html'"></button>
+      <button id="desc" onclick="window.location.href = 'descs.html'"></button>
+      <button id="bought" onclick="window.location.href = 'bought.html'"></button>
+      <button id="main" onclick="window.location.href = 'main.html'"></button>
+    </div>
+  </div>
+
+  <script>
+    const lang = localStorage.getItem('lang');
+    const texts = {
+      ru: {
+        bought: 'Список избранных покупок',
+        nick: 'Список избранных никнеймов',
+        desc: 'Список избранных описаний',
+        choose: 'Выберите список.',
+        main: 'Вернуться в главное меню'
+      },
+      en: {
+        bought: 'Favorite purchases list',
+        nick: 'Favorite nicknames list',
+        desc: 'Favorite descriptions list',
+        choose: 'Select a list.',
+        main: 'Back to main menu'
+      }
+    };
+
+    const t = texts[lang] || texts.en;
+    document.getElementById('nick').textContent = t.nick;
+    document.getElementById('desc').textContent = t.desc;
+    document.getElementById('bought').textContent = t.bought;
+    document.getElementById('choose').textContent = t.choose;
+    document.getElementById('main').textContent = t.main;
+  </script>
+</body>
+</html>

@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Musical Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    /* General style */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-y: auto; /* Vertical scroll */
+      overflow-x: hidden; /* Disable horizontal scroll */
+      touch-action: manipulation; /* Improves responsiveness on mobile */
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px auto;
+      background: rgba(255,255,255,0.9);
+      border-radius: 10px;
+      padding: 15px; /* Reduced padding for mobile */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+    }
+    section {
+      margin-bottom: 25px; /* Reduced margins */
+    }
+    section h2 {
+      margin-top: 0;
+      color: #444;
+      display: inline-block;
+      vertical-align: middle;
+      font-size: 1.2em; /* Reduced font size for mobile */
+    }
+    /* "?" Button – alignment */
+    .info-btn {
+      background: #4CAF50;
+      border: none;
+      border-radius: 50%;
+      width: 20px; /* Reduced size */
+      height: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 5px;
+      cursor: pointer;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+    button, input[type="file"] {
+      padding: 8px 16px; /* Reduced padding */
+      font-size: 0.9em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 8px;
+      background: #66a6ff;
+      color: #fff;
+      transition: background 0.2s;
+      touch-action: manipulation;
+    }
+    button:hover {
+      background: #5594e6;
+    }
+    button:disabled {
+      background: #a3c4ff;
+      cursor: not-allowed;
+    }
+    .control-group {
+      margin-bottom: 12px; /* Reduced margins */
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      background: #ddd;
+      height: 6px; /* Reduced height */
+      border-radius: 4px;
+      outline: none;
+      touch-action: manipulation;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; /* Reduced size */
+      height: 18px;
+      border-radius: 50%;
+      background: #66a6ff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: #5594e6;
+    }
+    .value-display {
+      text-align: right;
+      font-size: 0.8em;
+      margin-top: 4px;
+    }
+    audio {
+      width: 100%;
+      margin-top: 8px;
+      outline: none;
+    }
+    /* Additional settings block */
+    .extra-tools-section {
+      margin-bottom: 25px;
+    }
+    #toggleExtra {
+      background: #ffb74d;
+      color: #fff;
+      margin-bottom: 8px;
+      width: 100%; /* Full width on mobile */
+    }
+    #extraTools {
+      display: none;
+      border-top: 1px solid #ccc;
+      padding-top: 12px;
+    }
+    .extra-control {
+      margin-bottom: 8px;
+    }
+    /* Modal window */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      overflow-y: auto; /* Scroll in modal window */
+    }
+    .modal-content {
+      background: #fff;
+      color: #333;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 90%;
+      width: auto;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    .modal-content p {
+      margin: 8px 0;
+    }
+    .modal-content ul {
+      list-style: none;
+      padding: 0;
+      text-align: left;
+    }
+    .modal-content li {
+      margin: 4px 0;
+    }
+    .modal-content button {
+      margin-top: 8px;
+      padding: 4px 8px;
+      border: none;
+      border-radius: 5px;
+      background: #66a6ff;
+      color: #fff;
+      cursor: pointer;
+    }
+    /* Reset button */
+    #resetBaseBtn {
+      margin-top: 12px;
+      background: #e57373;
+    }
+    /* File upload section */
+    .upload-section input[type="file"] {
+      display: block;
+      margin-top: 8px;
+      width: 100%;
+    }
+    /* New style for background visualizer */
+    canvas#visualizerBackground {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      display: none;
+    }
+    /* Style for "Return to Main Menu" button */
+    #backBtn {
+      padding: 8px 16px;
+      font-size: 14px;
+      z-index: 999;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+    }
+    /* Media queries for mobile devices */
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px;
+        padding: 10px;
+      }
+      section h2 {
+        font-size: 1.1em;
+      }
+      button, input[type="file"] {
+        padding: 6px 12px;
+        font-size: 0.8em;
+      }
+      .info-btn {
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+      }
+      input[type="range"] {
+        height: 5px;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        width: 16px;
+        height: 16px;
+      }
+      .value-display {
+        font-size: 0.75em;
+      }
+      .modal-content {
+        padding: 10px;
+        max-height: 70vh;
+      }
+      /* On mobile, button is above the label, not fixed */
+      #backBtn {
+        position: static;
+        display: block;
+        margin: 0 auto 20px auto;
+        width: fit-content;
+      }
+      .play-section {
+        margin-top: 0; /* Remove top margin for section */
+      }
+    }
+    /* Right scroll (default on mobile is right) */
+    /* No need to add anything extra, as default scroll is on the right */
+  </style>
+</head>
+<body>
+  <!-- Background with visualizer -->
+  <canvas id="visualizerBackground"></canvas>
+  
+  <div class="container">
+    <button id="backBtn" onclick="window.location.href = 'main.html'">
+      RETURN TO MAIN MENU
+    </button>
+
+    <!-- File upload -->
+    <section class="upload-section">
+      <h2>Upload your song</h2>
+      <input type="file" id="audioUpload" accept="audio/*">
+    </section>
+    
+    <!-- Playback and basic effects -->
+    <section class="play-section">
+      <h2>
+        Playback and basic effects
+        <button id="baseInfoBtn" class="info-btn" type="button" data-info="Volume: Controls the sound level through the amplifier. Value 1 is neutral, less than 1 is quieter, more than 1 is louder.&#10;Delay: Adds echo; 0 – no echo.">?</button>
+      </h2>
+      <!-- Autoplay disabled – user presses Play -->
+      <audio id="audioPlayer" controls></audio>
+      <div class="control-group">
+        <label for="volumeControl">Volume (0 - 24):
+          <button class="info-btn" data-info="Basic volume setting. Value 1 means no gain. Increasing the value makes the sound louder, decreasing it makes it quieter." type="button">?</button>
+        </label>
+        <input type="range" id="volumeControl" min="0" max="24" step="0.01" value="1">
+        <div class="value-display">Value: <span id="volumeValue">1.00</span></div>
+      </div>
+      <div class="control-group">
+        <label for="delayControl">Delay Effect (0 - 1 sec):
+          <button class="info-btn" data-info="Basic delay setting (echo). Value 0 – no effect, values up to 1 second add echo." type="button">?</button>
+        </label>
+        <input type="range" id="delayControl" min="0" max="1" step="0.01" value="0">
+        <div class="value-display">Value: <span id="delayValue">0.00</span> sec</div>
+      </div>
+    </section>
+    
+    <!-- Additional settings -->
+    <section class="extra-tools-section">
+      <button id="toggleExtra">Expand⬇️</button>
+      <div id="extraTools">
+        <h2>Additional settings</h2>
+        <div id="extraControls"><!-- Controls are generated automatically --></div>
+      </div>
+    </section>
+
+    <!-- Share button -->
+    <section class="share-section">
+      <button id="shareMusicBtn" disabled>Share music (Premium)</button>
+    </section>
+  </div>
+  
+  <!-- Modal window (file selection error) -->
+  <div id="overlay" class="modal-overlay">
+    <div class="modal-content">
+      File not selected.<br>
+      Please select a file before listening to it!
+      <br>
+      <button id="closeOverlay">Close</button>
+    </div>
+  </div>
+  
+  <!-- Modal window for settings -->
+  <div id="infoModal" class="modal-overlay">
+    <div class="modal-content" id="infoModalContent">
+      <!-- Content is generated dynamically -->
+      <button id="closeInfoModal">Close</button>
+    </div>
+  </div>
+  
+  <script>
+    // First part of code (remembered)
+    let originalFileName = '';
+    let audioFile = null; // selected file for sharing
+    const audioPlayer = document.getElementById('audioPlayer');
+    const audioUpload = document.getElementById('audioUpload');
+    const shareMusicBtn = document.getElementById('shareMusicBtn');
+    const volumeControl = document.getElementById('volumeControl');
+    const volumeValue = document.getElementById('volumeValue');
+    const delayControl = document.getElementById('delayControl');
+    const delayValue = document.getElementById('delayValue');
+    
+    // Second part of code (remembered)
+    const extraTools = document.getElementById('extraTools');
+    const extraControlsContainer = document.getElementById('extraControls');
+    const closeOverlay = document.getElementById('closeOverlay');
+    const baseInfoBtn = document.getElementById('baseInfoBtn');
+    
+    const infoModal = document.getElementById('infoModal');
+    const infoModalContent = document.getElementById('infoModalContent');
+    const closeInfoModal = document.getElementById('closeInfoModal');
+    
+    let audioContext, sourceNode, gainNode, delayNode;
+    let extraEffects = [];
+    let extraControlsGenerated = false;
+    let bypassExtraEffects = true; // Flag: if all extra sliders are at neutral level – effects are not applied
+    
+    // Premium check
+    const premium = localStorage.getItem('premium');
+    if (premium) {
+      shareMusicBtn.disabled = false;
+      shareMusicBtn.textContent = 'Share music';
+    }
+
+    // Handler for "Share music" button
+    shareMusicBtn.addEventListener('click', async () => {
+      if (!audioFile) {
+        alert("Please select a song file.");
+        return;
+      }
+      shareMusicBtn.disabled = true;
+      const processedBlob = await renderProcessedAudio();
+      shareMusicBtn.disabled = false;
+      if (!processedBlob) {
+        alert("Error processing audio.");
+        return;
+      }
+      const fileExt = originalFileName.split('.').pop();
+      const newFileName = originalFileName.replace(`.${fileExt}`, `_processed.wav`);
+      const processedFile = new File([processedBlob], newFileName, {type: 'audio/wav'});
+      const settingsText = getCurrentSettings();
+      if (navigator.canShare && navigator.canShare({ files: [processedFile] })) {
+        try {
+          await navigator.share({
+            title: 'My music',
+            text: settingsText,
+            files: [processedFile]
+          });
+        } catch (error) {
+          alert("Error attempting to share: " + error);
+        }
+      } else {
+        alert("Your browser does not support file sharing.");
+      }
+    });
+    
+    function getCurrentSettings() {
+      let settings = "Basic settings:\n";
+      settings += "Volume: " + volumeControl.value + "\n";
+      settings += "Delay: " + delayControl.value + " sec\n\n";
+      settings += "Additional settings:\n";
+      for (let i = 0; i < extraEffectsConfig.length; i++) {
+        const slider = document.getElementById('extraControl' + i);
+        if (slider) {
+          settings += extraEffectsConfig[i].name + ": " + slider.value + "\n";
+        }
+      }
+      return settings;
+    }
+    
+    // Function that always rebuilds the chain of additional effects
+    function rebuildExtraEffectsChain() {
+      delayNode.disconnect();
+      if (extraEffects.length > 0) {
+        delayNode.connect(extraEffects[0].node);
+        for (let i = 0; i < extraEffects.length - 1; i++) {
+          try { extraEffects[i].node.disconnect(); } catch(e){}
+          extraEffects[i].node.connect(extraEffects[i+1].node);
+        }
+        try { extraEffects[extraEffects.length - 1].node.disconnect(); } catch(e){}
+        extraEffects[extraEffects.length - 1].node.connect(audioContext.destination);
+        bypassExtraEffects = false;
+      } else {
+        delayNode.connect(audioContext.destination);
+        bypassExtraEffects = true;
+      }
+    }
+    
+    // Called when changing additional settings slider
+    function extraSliderChanged() {
+      rebuildExtraEffectsChain();
+    }
+    
+    // List of additional settings with updated descriptions (info)
+    const extraEffectsConfig = [
+      { name: 'Lowshelf (Bass, Low Frequency Control)', type: 'lowshelf', min: -20, max: 20, step: 1, value: 0, info: 'This filter allows you to control low frequencies. At value 0, the sound does not change, positive values boost bass, negative values reduce it.' },
+      { name: 'Distortion (Distortion)', type: 'distortion', min: 0, max: 1000, step: 1, value: 0, info: 'The distortion effect adds overdrive, creating a characteristic "dirty" sound. Value 0 means no distortion.' },
+      { name: 'Highpass (Removes Low Frequencies)', type: 'highpass', min: 20, max: 2000, step: 1, value: 20, info: 'Highpass filter cuts off low frequencies below the set threshold. Value 20 Hz – minimal cutoff.' },
+      { name: 'Lowpass (Removes High Frequencies)', type: 'lowpass', min: 1000, max: 22050, step: 1, value: 22050, info: 'Lowpass filter cuts off high frequencies above the set value. At 22050 Hz, the effect is not applied.' },
+      { name: 'Panner (Stereo Positioning)', type: 'panner', min: -1, max: 1, step: 0.01, value: 0, info: 'Panning allows you to control the sound position in stereo space. Value 0 means the sound is in the center.' },
+      { name: 'Compressor (Dynamic Range Compression)', type: 'compressor', min: -100, max: 0, step: 1, value: -100, info: 'Compressor reduces the dynamic range, making sound peaks less sharp. Value -100 means no compression.' },
+      { name: 'Delay (Secondary Delay)', type: 'delay', min: 0, max: 0.5, step: 0.01, value: 0, info: 'Delay effect adds echo. Value 0 means no delay.' },
+      { name: 'Notch (Notch Filter)', type: 'notch', min: 0, max: 2000, step: 1, value: 0, info: 'Notch filter removes a narrow range of frequencies to eliminate unwanted resonances.' },
+      { name: 'Peaking (Equalizer)', type: 'peaking', min: -20, max: 20, step: 1, value: 0, info: 'Peaking filter allows you to boost or cut a specific frequency range. Value 0 – no changes.' },
+      { name: 'Gain Booster (Gain)', type: 'gain', min: 1, max: 3, step: 0.01, value: 1, info: 'This amplifier increases the overall signal level. Value 1 means no gain.' },
+      { name: 'Tremolo (Amplitude Modulation)', type: 'tremolo', min: 0, max: 1, step: 0.01, value: 0, info: 'Tremolo creates a sound pulsation effect through periodic amplitude modulation. At 0, no effect.' },
+      { name: 'Bandpass (Passes Narrow Range)', type: 'bandpass', min: 0, max: 3000, step: 1, value: 0, info: 'Bandpass filter passes only a specific frequency range. At 0, the effect is not applied.' },
+      { name: 'Allpass (Phase Shift)', type: 'allpass', min: 300, max: 3000, step: 1, value: 1000, info: 'Allpass filter changes the signal phase without affecting the amplitude. This allows creating interesting spatial effects.' },
+      { name: 'Highshelf (High Frequency Control)', type: 'highshelf', min: -20, max: 20, step: 1, value: 0, info: 'This filter allows you to adjust high frequencies, affecting the brightness and clarity of the sound. Value 0 – no changes.' },
+      { name: 'Reverb (Reverberation)', type: 'reverb', min: 0, max: 1, step: 0.01, value: 0, info: 'Reverberation simulates room acoustics, adding depth and volume to the sound. Value 0 means no reverberation.' },
+      { name: 'Flanger (Flanger Effect)', type: 'flanger', min: 0, max: 0.005, step: 0.0001, value: 0, info: 'Flanger creates a "rotating" sound effect by changing the delay. At 0, the effect is not applied.' },
+      { name: 'Chorus (Chorus Effect)', type: 'chorus', min: 0, max: 0.03, step: 0.001, value: 0, info: 'Chorus adds slightly offset copies of the signal, making the sound wider and richer. Value 0 – no effect.' },
+      { name: 'Vibrato (Pitch Modulation)', type: 'vibrato', min: 0, max: 1, step: 0.01, value: 0, info: 'Vibrato changes the pitch of the sound, creating an oscillation effect. At 0, no effect.' },
+      { name: 'Phaser (Phaser Effect)', type: 'phaser', min: 0, max: 1, step: 0.01, value: 0, info: 'Phaser effect creates a characteristic "rotating" sound through periodic phase changes of the signal. At 0, no changes.' },
+      { name: 'AutoWah (Wah Effect)', type: 'autowah', min: 0, max: 1, step: 0.01, value: 0, info: 'AutoWah automatically changes signal filtering based on its dynamics, creating a "wah-wah" effect. At 0, no effect.' },
+      { name: 'Playback Rate (Playback Speed)', type: 'playbackRate', min: 0.5, max: 2.0, step: 0.01, value: 1, info: 'Changing playback speed alters the tempo and pitch of the sound. Value 1 – normal speed.' },
+      { name: 'Bitcrusher (Lo-fi Effect)', type: 'bitcrusher', min: 1, max: 16, step: 1, value: 16, info: 'Bitcrusher reduces the bit depth of the signal, creating a lo-fi effect. Value 16 means maximum quality sound (no effect).' }
+    ];
+
+    function createImpulseResponse(ctx, duration, decay) {
+      const length = ctx.sampleRate * duration;
+      const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+      const impulseL = impulse.getChannelData(0);
+      const impulseR = impulse.getChannelData(1);
+      for (let i = 0; i < length; i++) {
+        const n = decay ? Math.exp(-i / (ctx.sampleRate * decay)) : 1;
+        impulseL[i] = (Math.random() * 2 - 1) * n;
+        impulseR[i] = (Math.random() * 2 - 1) * n;
+      }
+      return impulse;
+    }
+    
+    // Function to create extra-effect with bypass logic
+    function createExtraEffect(cfg, ctx = audioContext) {
+      let node;
+      let extraData = { config: cfg };
+      switch(cfg.type) {
+        case 'lowshelf':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createBiquadFilter();
+            node.type = 'lowshelf';
+            node.frequency.value = 200;
+            node.gain.value = cfg.value;
+          }
+          break;
+        case 'distortion':
+          node = ctx.createWaveShaper();
+          node.curve = makeDistortionCurve(cfg.value);
+          break;
+        case 'highpass':
+          if (cfg.value == 20) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createBiquadFilter();
+            node.type = 'highpass';
+            node.frequency.value = cfg.value;
+          }
+          break;
+        case 'lowpass':
+          if (cfg.value == 22050) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createBiquadFilter();
+            node.type = 'lowpass';
+            node.frequency.value = cfg.value;
+          }
+          break;
+        case 'panner':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createStereoPanner();
+            node.pan.value = cfg.value;
+          }
+          break;
+        case 'compressor':
+          if (cfg.value == -100) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createDynamicsCompressor();
+            node.threshold.value = cfg.value;
+          }
+          break;
+        case 'delay':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createDelay(1.0);
+            node.delayTime.value = cfg.value;
+          }
+          break;
+        case 'notch':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createBiquadFilter();
+            node.type = 'notch';
+            node.frequency.value = cfg.value;
+          }
+          break;
+        case 'peaking':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createBiquadFilter();
+            node.type = 'peaking';
+            node.gain.value = cfg.value;
+          }
+          break;
+        case 'gain':
+          if (cfg.value == 1) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createGain();
+            node.gain.value = cfg.value;
+          }
+          break;
+        case 'tremolo':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createGain();
+            node.gain.value = 1;
+            const tremoloOsc = ctx.createOscillator();
+            tremoloOsc.type = 'sine';
+            tremoloOsc.frequency.value = 5;
+            const tremoloGain = ctx.createGain();
+            tremoloGain.gain.value = cfg.value;
+            tremoloOsc.connect(tremoloGain);
+            tremoloGain.connect(node.gain);
+            tremoloOsc.start(0);
+            extraData.tremoloOsc = tremoloOsc;
+            extraData.tremoloGain = tremoloGain;
+          }
+          break;
+        case 'bandpass':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createBiquadFilter();
+            node.type = 'bandpass';
+            node.frequency.value = cfg.value;
+          }
+          break;
+        case 'allpass':
+          node = ctx.createBiquadFilter();
+          node.type = 'allpass';
+          node.frequency.value = cfg.value;
+          break;
+        case 'highshelf':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createBiquadFilter();
+            node.type = 'highshelf';
+            node.frequency.value = 5000;
+            node.gain.value = cfg.value;
+          }
+          break;
+        case 'reverb':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            const convolver = ctx.createConvolver();
+            convolver.buffer = createImpulseResponse(ctx, 2.0, 2.0);
+            const reverbGain = ctx.createGain();
+            reverbGain.gain.value = cfg.value;
+            convolver.connect(reverbGain);
+            node = reverbGain;
+            extraData.convolver = convolver;
+          }
+          break;
+        case 'flanger':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createDelay();
+            node.delayTime.value = cfg.value;
+            const flangerOsc = ctx.createOscillator();
+            flangerOsc.type = 'sine';
+            flangerOsc.frequency.value = 0.25;
+            const flangerGain = ctx.createGain();
+            flangerGain.gain.value = cfg.value;
+            flangerOsc.connect(flangerGain);
+            flangerGain.connect(node.delayTime);
+            flangerOsc.start(0);
+            extraData.flangerOsc = flangerOsc;
+          }
+          break;
+        case 'chorus':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createDelay();
+            node.delayTime.value = cfg.value;
+            const chorusOsc = ctx.createOscillator();
+            chorusOsc.type = 'sine';
+            chorusOsc.frequency.value = 1.5;
+            const chorusGain = ctx.createGain();
+            chorusGain.gain.value = cfg.value;
+            chorusOsc.connect(chorusGain);
+            chorusGain.connect(node.delayTime);
+            chorusOsc.start(0);
+            extraData.chorusOsc = chorusOsc;
+          }
+          break;
+        case 'vibrato':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createGain();
+            node.gain.value = cfg.value;
+          }
+          break;
+        case 'phaser':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createGain();
+            node.gain.value = cfg.value;
+          }
+          break;
+        case 'autowah':
+          if (cfg.value == 0) {
+            node = ctx.createGain();
+            node.gain.value = 1;
+          } else {
+            node = ctx.createGain();
+            node.gain.value = cfg.value;
+          }
+          break;
+        case 'playbackRate':
+          node = ctx.createGain();
+          break;
+        case 'bitcrusher':
+          node = ctx.createScriptProcessor(4096, 1, 1);
+          node.bits = cfg.value;
+          node.onaudioprocess = function(e) {
+            const input = e.inputBuffer.getChannelData(0);
+            const output = e.outputBuffer.getChannelData(0);
+            const step = Math.pow(0.5, node.bits);
+            for (let i = 0; i < input.length; i++) {
+              output[i] = step * Math.floor(input[i] / step + 0.5);
+            }
+          };
+          break;
+        default:
+          node = ctx.createGain();
+          node.gain.value = cfg.value;
+      }
+      extraData.node = node;
+      return extraData;
+    }
+    
+    // Function to create distortion curve – if amount is 0, returns linear curve
+    function makeDistortionCurve(amount) {
+      const n_samples = 44100;
+      const curve = new Float32Array(n_samples);
+      if (amount === 0) {
+        for (let i = 0; i < n_samples; i++) {
+          curve[i] = i * 2 / n_samples - 1;
+        }
+        return curve;
+      }
+      const deg = Math.PI / 180;
+      for (let i = 0; i < n_samples; ++i) {
+        const x = i * 2 / n_samples - 1;
+        curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+      }
+      return curve;
+    }
+    
+    // Initialization of AudioContext and node chain
+    function initAudioContext() {
+      if (audioContext) {
+        audioContext.close();
+        audioContext = null;
+      }
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      audioContext.resume();
+      // Audio element remains muted – sound is output through AudioContext
+      audioPlayer.muted = true;
+      
+      sourceNode = audioContext.createMediaElementSource(audioPlayer);
+      gainNode = audioContext.createGain();
+      delayNode = audioContext.createDelay(2.0);
+      
+      extraEffects = extraEffectsConfig.map(cfg => createExtraEffect(cfg));
+      
+      sourceNode.connect(gainNode);
+      gainNode.connect(delayNode);
+      // If all extra sliders are at neutral level, chain is not applied
+      bypassExtraEffects = true;
+      delayNode.connect(audioContext.destination);
+      
+      if (!extraControlsGenerated) {
+        generateExtraControls();
+        extraControlsGenerated = true;
+      }
+    }
+    
+    // Generation of UI for additional settings
+    function generateExtraControls() {
+      extraEffects.forEach((effectData, index) => {
+        const cfg = effectData.config;
+        const controlDiv = document.createElement('div');
+        controlDiv.classList.add('extra-control');
+        
+        const label = document.createElement('label');
+        label.setAttribute('for', `extraControl${index}`);
+        label.innerHTML = `${cfg.name}: `;
+        const btn = document.createElement('button');
+        btn.classList.add('info-btn');
+        btn.type = "button";
+        btn.textContent = "?";
+        btn.addEventListener('click', () => {
+          openInfoModal(cfg.info);
+        });
+        label.appendChild(btn);
+        
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.id = `extraControl${index}`;
+        slider.min = cfg.min;
+        slider.max = cfg.max;
+        slider.step = cfg.step;
+        slider.value = cfg.value;
+        
+        const valueDisplay = document.createElement('div');
+        valueDisplay.classList.add('value-display');
+        valueDisplay.textContent = `Value: ${slider.value}`;
+        
+        slider.addEventListener('input', () => {
+          const val = parseFloat(slider.value);
+          valueDisplay.textContent = `Value: ${slider.value}`;
+          const thisCfg = extraEffectsConfig[index];
+          if (thisCfg.type === 'playbackRate') {
+            audioPlayer.playbackRate = val;
+          } else {
+            const newCfg = {...thisCfg, value: val};
+            extraEffects[index] = createExtraEffect(newCfg, audioContext);
+          }
+          extraSliderChanged();
+        });
+        
+        controlDiv.appendChild(label);
+        controlDiv.appendChild(slider);
+        controlDiv.appendChild(valueDisplay);
+        extraControlsContainer.appendChild(controlDiv);
+      });
+    }
+    
+    // Function to open modal window
+    function openInfoModal(message, extraContent = '') {
+      infoModalContent.innerHTML = `<p>${message}</p>${extraContent}<br><button id="closeInfoModal">Close</button>`;
+      document.getElementById('closeInfoModal').addEventListener('click', () => {
+        infoModal.style.display = 'none';
+      });
+      infoModal.style.display = 'flex';
+      
+      setTimeout(() => {
+        document.querySelectorAll('.reset-single').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const setting = e.target.getAttribute('data-setting');
+            if (setting === 'volume') {
+              volumeControl.value = 1;
+              volumeValue.textContent = '1.00';
+              if (gainNode) gainNode.gain.value = 1;
+              e.target.parentElement.innerHTML = `<strong>Volume:</strong> 1 <button class="reset-single" data-setting="volume">🔁</button>`;
+            } else if (setting === 'delay') {
+              delayControl.value = 0;
+              delayValue.textContent = '0.00';
+              if (delayNode) delayNode.delayTime.value = 0;
+              e.target.parentElement.innerHTML = `<strong>Delay:</strong> 0 sec <button class="reset-single" data-setting="delay">🔁</button>`;
+            } else if (e.target.hasAttribute('data-extra-index')) {
+              const index = e.target.getAttribute('data-extra-index');
+              const cfg = extraEffectsConfig[index];
+              const slider = document.getElementById('extraControl' + index);
+              if (slider) {
+                slider.value = cfg.value;
+                const display = slider.parentElement.querySelector('.value-display');
+                if (display) display.textContent = `Value: ${cfg.value}`;
+                slider.dispatchEvent(new Event('input'));
+                const li = document.querySelector('li[data-extra-index="'+index+'"]');
+                if (li) {
+                  li.innerHTML = `<strong>${cfg.name}:</strong> ${cfg.value} <button class="reset-single" data-extra-index="${index}">🔁</button>`;
+                }
+              }
+            }
+          });
+        });
+      }, 100);
+    }
+    
+    // Handler for information button (Basic settings)
+    baseInfoBtn.addEventListener('click', () => {
+      if (!audioPlayer.src) {
+        openInfoModal("File not selected.<br>Please select a file before listening to it!");
+        return;
+      }
+      let changedBase = "";
+      if (parseFloat(volumeControl.value) !== 1) {
+        changedBase += `<p><strong>Volume:</strong> ${volumeControl.value} <button class="reset-single" data-setting="volume">🔁</button></p>`;
+      }
+      if (parseFloat(delayControl.value) !== 0) {
+        changedBase += `<p><strong>Delay:</strong> ${delayControl.value} sec <button class="reset-single" data-setting="delay">🔁</button></p>`;
+      }
+      let changedExtras = "";
+      for (let i = 0; i < extraEffectsConfig.length; i++) {
+        const slider = document.getElementById('extraControl' + i);
+        if (slider && parseFloat(slider.value) !== parseFloat(extraEffectsConfig[i].value)) {
+          changedExtras += `<li data-extra-index="${i}"><strong>${extraEffectsConfig[i].name}:</strong> ${slider.value} <button class="reset-single" data-extra-index="${i}">🔁</button></li>`;
+        }
+      }
+      let modalMessage = "";
+      if (changedBase || changedExtras) {
+        if (changedBase) {
+          modalMessage += `<p><strong>Basic settings:</strong></p>` + changedBase;
+        }
+        if (changedExtras) {
+          modalMessage += `<p><strong>Additional settings:</strong></p><ul>${changedExtras}</ul>`;
+        }
+        modalMessage += `<p>Original file:</p>
+                         <audio controls src="${audioPlayer.src}"></audio>
+                         <button id="resetBaseBtn" type="button">Reset all changes</button>`;
+      } else {
+        modalMessage = `<p><strong>No changes!</strong></p><p>Original file:</p>
+                         <audio controls src="${audioPlayer.src}"></audio>`;
+      }
+      openInfoModal(modalMessage);
+      
+      if (document.getElementById('resetBaseBtn')) {
+        document.getElementById('resetBaseBtn').addEventListener('click', () => {
+          let changedBaseReset = "";
+          if (parseFloat(volumeControl.value) !== 1) {
+            changedBaseReset += `<p><strong>Volume:</strong> ${volumeControl.value} <button class="reset-single" data-setting="volume">🔁</button></p>`;
+          }
+          if (parseFloat(delayControl.value) !== 0) {
+            changedBaseReset += `<p><strong>Delay:</strong> ${delayControl.value} sec <button class="reset-single" data-setting="delay">🔁</button></p>`;
+          }
+          let changedExtrasReset = "";
+          for (let i = 0; i < extraEffectsConfig.length; i++) {
+            const slider = document.getElementById('extraControl' + i);
+            if (slider && parseFloat(slider.value) !== parseFloat(extraEffectsConfig[i].value)) {
+              changedExtrasReset += `<li data-extra-index="${i}"><strong>${extraEffectsConfig[i].name}:</strong> ${slider.value} <button class="reset-single" data-extra-index="${i}">🔁</button></li>`;
+            }
+          }
+          volumeControl.value = 1;
+          volumeValue.textContent = '1.00';
+          delayControl.value = 0;
+          delayValue.textContent = '0.00';
+          if (gainNode) gainNode.gain.value = 1;
+          if (delayNode) delayNode.delayTime.value = 0;
+          for (let i = 0; i < extraEffectsConfig.length; i++) {
+            const slider = document.getElementById('extraControl' + i);
+            if (slider) {
+              slider.value = extraEffectsConfig[i].value;
+              let display = slider.parentElement.querySelector('.value-display');
+              if (display) display.textContent = `Value: ${extraEffectsConfig[i].value}`;
+              slider.dispatchEvent(new Event('input'));
+            }
+          }
+          let resetMessage = "";
+          if (changedBaseReset || changedExtrasReset) {
+            if (changedBaseReset) {
+              resetMessage += `<p><strong>Basic settings:</strong></p>` + changedBaseReset;
+            }
+            if (changedExtrasReset) {
+              resetMessage += `<p><strong>Additional settings:</strong></p><ul>${changedExtrasReset}</ul>`;
+            }
+          } else {
+            resetMessage = `<p><strong>No changes!</strong></p>`;
+          }
+          resetMessage += `<p>Original file:</p>
+                           <audio controls src="${audioPlayer.src}"></audio>`;
+          openInfoModal(resetMessage);
+        });
+      }
+    });
+    
+    // Handlers for info buttons (data-info)
+    document.querySelectorAll('label .info-btn[data-info]').forEach(btn => {
+      if (btn.id !== 'baseInfoBtn') {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openInfoModal(e.target.getAttribute('data-info'));
+        });
+      }
+    });
+    
+    // File upload handling
+    audioUpload.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        if (localStorage.getItem('created_musics')){
+          localStorage.setItem('created_musics', String(Number(localStorage.getItem('created_musics')) + 1));
+        }
+        else{
+          localStorage.setItem('created_musics', '1');
+        }
+        originalFileName = file.name;
+        audioFile = file;
+        const fileURL = URL.createObjectURL(file);
+        audioPlayer.src = fileURL;
+        if (audioContext) {
+          audioContext.close();
+          audioContext = null;
+        }
+        initAudioContext();
+
+        // Hide file upload section
+        document.querySelector('.upload-section').style.display = 'none';
+
+        // Show background visualizer
+        const visCanvas = document.getElementById('visualizerBackground');
+        visCanvas.style.display = 'block';
+
+        // Create analyzer for visualizer and connect it to gainNode output
+        visualizerAnalyser = audioContext.createAnalyser();
+        visualizerAnalyser.fftSize = 256;
+        gainNode.connect(visualizerAnalyser);
+
+        // Start visualizer animation
+        drawVisualizer();
+      }
+    });
+    
+    // Basic effects control
+    volumeControl.addEventListener('input', () => {
+      if (gainNode) {
+        gainNode.gain.value = parseFloat(volumeControl.value);
+        volumeValue.textContent = parseFloat(volumeControl.value).toFixed(2);
+      }
+    });
+    
+    delayControl.addEventListener('input', () => {
+      if (delayNode) {
+        delayNode.delayTime.value = parseFloat(delayControl.value);
+        delayValue.textContent = parseFloat(delayControl.value).toFixed(2);
+      }
+    });
+    
+    // Toggle display of additional settings
+    toggleExtra.addEventListener('click', () => {
+      if (!audioPlayer.src) {
+        openInfoModal("File not selected.<br>Please select a file before listening to it!");
+        return;
+      }
+      if (extraTools.style.display === "none" || extraTools.style.display === "") {
+        extraTools.style.display = "block";
+        toggleExtra.textContent = "Collapse⬆️";
+      } else {
+        extraTools.style.display = "none";
+        toggleExtra.textContent = "Expand⬇️";
+      }
+    });
+    
+    // Close error modal window
+    closeOverlay.addEventListener('click', () => {
+      document.getElementById('overlay').style.display = 'none';
+    });
+    
+    // Initialization of AudioContext – no auto-playback
+    function initAudioContext() {
+      if (audioContext) {
+        audioContext.close();
+        audioContext = null;
+      }
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      audioContext.resume();
+      // Audio element remains muted – sound is output through AudioContext
+      audioPlayer.muted = true;
+      
+      sourceNode = audioContext.createMediaElementSource(audioPlayer);
+      gainNode = audioContext.createGain();
+      delayNode = audioContext.createDelay(2.0);
+      
+      extraEffects = extraEffectsConfig.map(cfg => createExtraEffect(cfg));
+      
+      sourceNode.connect(gainNode);
+      gainNode.connect(delayNode);
+      // If all extra sliders are at neutral level, bypassExtraEffects=true
+      bypassExtraEffects = true;
+      delayNode.connect(audioContext.destination);
+      
+      if (!extraControlsGenerated) {
+        generateExtraControls();
+        extraControlsGenerated = true;
+      }
+    }
+    
+    // On native Play button click, AudioContext resumes (if suspended)
+    audioPlayer.addEventListener('play', () => {
+      if (audioContext && audioContext.state !== "running") {
+        audioContext.resume();
+      }
+    });
+
+    /* --- Visualizer code --- */
+    let visualizerCanvas = document.getElementById('visualizerBackground');
+    let visualizerCtx = visualizerCanvas.getContext('2d');
+    let visualizerAnalyser;
+    
+    function resizeVisualizer() {
+      visualizerCanvas.width = window.innerWidth;
+      visualizerCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeVisualizer);
+    resizeVisualizer();
+    
+    function drawVisualizer() {
+      requestAnimationFrame(drawVisualizer);
+      if (!visualizerAnalyser) return;
+      let bufferLength = visualizerAnalyser.frequencyBinCount;
+      let dataArray = new Uint8Array(bufferLength);
+      visualizerAnalyser.getByteFrequencyData(dataArray);
+      visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+      
+      let barWidth = (visualizerCanvas.width / bufferLength) * 2.5;
+      let barHeight;
+      let x = 0;
+      
+      for (let i = 0; i < bufferLength; i++) {
+        barHeight = dataArray[i];
+        visualizerCtx.fillStyle = `rgb(${barHeight+100},50,${255-barHeight})`;
+        visualizerCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+      }
+    }
+    /* --- End of visualizer code --- */
+
+    // Function for rendering processed audio
+    async function renderProcessedAudio() {
+      if (!audioPlayer.src) return null;
+      try {
+        const response = await fetch(audioPlayer.src);
+        const arrayBuffer = await response.arrayBuffer();
+        const originalBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        const offlineContext = new OfflineAudioContext(originalBuffer.numberOfChannels, originalBuffer.length, originalBuffer.sampleRate);
+        const offlineSource = offlineContext.createBufferSource();
+        offlineSource.buffer = originalBuffer;
+        const offlineGain = offlineContext.createGain();
+        offlineGain.gain.value = gainNode.gain.value;
+        const offlineDelay = offlineContext.createDelay(2.0);
+        offlineDelay.delayTime.value = delayNode.delayTime.value;
+        const offlineExtraEffects = [];
+        let playbackRateVal = 1;
+        for (let i = 0; i < extraEffectsConfig.length; i++) {
+          const slider = document.getElementById(`extraControl${i}`);
+          const val = parseFloat(slider.value);
+          const cfg = {...extraEffectsConfig[i], value: val};
+          if (cfg.type === 'playbackRate') {
+            playbackRateVal = val;
+          } else {
+            const effectData = createExtraEffect(cfg, offlineContext);
+            offlineExtraEffects.push(effectData);
+          }
+        }
+        offlineSource.playbackRate.value = playbackRateVal;
+        offlineSource.connect(offlineGain);
+        offlineGain.connect(offlineDelay);
+        let lastNode = offlineDelay;
+        if (offlineExtraEffects.length > 0) {
+          lastNode.connect(offlineExtraEffects[0].node);
+          for (let i = 0; i < offlineExtraEffects.length - 1; i++) {
+            offlineExtraEffects[i].node.connect(offlineExtraEffects[i + 1].node);
+          }
+          offlineExtraEffects[offlineExtraEffects.length - 1].node.connect(offlineContext.destination);
+        } else {
+          lastNode.connect(offlineContext.destination);
+        }
+        offlineSource.start(0);
+        const renderedBuffer = await offlineContext.startRendering();
+        return audioBufferToWav(renderedBuffer);
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+
+    // Function to convert AudioBuffer to WAV Blob
+    function audioBufferToWav(buffer) {
+      const numOfChan = buffer.numberOfChannels;
+      const length = buffer.length * numOfChan * 2 + 44;
+      const out = new ArrayBuffer(length);
+      const view = new DataView(out);
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, length - 8, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, numOfChan, true);
+      view.setUint32(24, buffer.sampleRate, true);
+      view.setUint32(28, buffer.sampleRate * numOfChan * 2, true);
+      view.setUint16(32, numOfChan * 2, true);
+      view.setUint16(34, 16, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, buffer.length * numOfChan * 2, true);
+      let offset = 44;
+      for (let i = 0; i < buffer.length; i++) {
+        for (let channel = 0; channel < numOfChan; channel++) {
+          const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+          view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+          offset += 2;
+        }
+      }
+      return new Blob([out], {type: 'audio/wav'});
+    }
+
+    function writeString(view, offset, string) {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    }
+  </script>
+</body>
+</html>

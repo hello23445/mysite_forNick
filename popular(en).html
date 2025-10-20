@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #060039;
+            flex-direction: column;
+        }
+        #content {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        #top-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        #top-list li {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: darkblue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            width: 300px;
+            text-align: left;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: blue;
+        }
+        #loader {
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loader">Loading...</div>
+    <div id="content">
+        <h2 style="color: white;">
+            Top-3 Popular Generators<br>(number of generations)
+        </h2>
+        <ol id="top-list"></ol>
+    </div>
+    <button onclick="window.location.href='main.html';">Return to Main Menu</button>  <!-- Specify the path here -->
+
+    <script>
+        // Array with links to individual files (specify paths here)
+        const links = {
+            'Nickname': 'nickname.html',  // Replace with actual path
+            'Description': 'description.html',  // Replace with actual path
+            'AI Generator': 'ai.html'  // Replace with actual path
+        };
+
+        // URL of your Google Apps Script web app (replace with actual)
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxO6PDIfjeFElwOhySAG9EH9izpsJLxrju3jQonTYiyZF46NPDFePJGe2w1OoJ2fcyN/exec';  // Specify your deployment ID
+
+        let isInitialLoad = true;
+
+        async function fetchData() {
+            if (isInitialLoad) {
+                document.getElementById('loader').style.display = 'block';
+                document.getElementById('content').style.display = 'none';
+            }
+            try {
+                const response = await fetch(GAS_URL);
+                if (!response.ok) {
+                    throw new Error('Error fetching data: ' + response.status);
+                }
+                const data = await response.json();
+                // Assume GAS returns JSON: { a2: num, b2: num, c2: num }
+                console.log('Received data:', data);
+                updateTopList(data.a2, data.b2, data.c2);
+                if (isInitialLoad) {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('content').style.display = 'flex';
+                    isInitialLoad = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                if (isInitialLoad) {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('content').style.display = 'flex';  // Show content even on error (list will be empty)
+                    isInitialLoad = false;
+                }
+            }
+        }
+
+        function updateTopList(nicknames, descriptions, photos) {
+            const items = [
+                { name: 'Nickname', count: parseInt(nicknames) || 0, url: links['Nickname'] },
+                { name: 'Description', count: parseInt(descriptions) || 0, url: links['Description'] },
+                { name: 'AI Generator', count: parseInt(photos) || 0, url: links['AI Generator'] }
+            ];
+
+            // Sort by count from highest to lowest
+            items.sort((a, b) => b.count - a.count);
+
+            const list = document.getElementById('top-list');
+            list.innerHTML = '';  // Clear the list
+
+            items.forEach((item, index) => {
+                const li = document.createElement('li');
+                const button = document.createElement('button');
+                button.textContent = `${index + 1}. ${item.name}(${item.count})`;
+                button.onclick = () => {
+                    window.location.href = item.url;
+                };
+                li.appendChild(button);
+                list.appendChild(li);
+            });
+        }
+
+        // Load data on entry
+        fetchData();
+
+        // Update every 2 seconds
+        setInterval(fetchData, 2000);
+    </script>
+</body>
+</html>

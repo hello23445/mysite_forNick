@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Создать никнейм</title>
+  <style>
+    body{
+        background-color: #060039;
+        color: #d9d9d9;
+    }
+    #welcomeMessage {
+        text-align: center;
+        margin-top: 50px;
+    }
+    button {
+        
+        background-color: darkblue;
+        color: #d9d9d9;
+        margin: 20px auto;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="welcomeMessage">
+    Добро пожаловать в обновленную версию мини-приложения бота 'Создать никнейм'
+  </h1>
+  <center>
+    <button id="continueButton" onclick="window.location.href = redirectUrl;">Далее</button>
+  </center>
+  <script>
+    // Переменная для перенаправления
+    const redirectUrl = "main.html"; // Имя файла для перенаправления
+
+    // Элементы DOM
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const continueButton = document.getElementById('continueButton');
+    const hasVisited = localStorage.getItem('hasVisited');
+
+    if (localStorage.getItem('hasVisited') === 'true') {
+        window.location.href = redirectUrl; // Перенаправление, если пользователь уже посетил страницу
+    }
+    // Проверка статуса технического обслуживания
+    const maintenanceStatus = localStorage.getItem('m');
+    if (maintenanceStatus === 'Скоро' || maintenanceStatus === 'скоро') {
+      alert('Скоро начнется техническое обслуживание\nTechnical maintenance will start soon');
+    } else if (maintenanceStatus === 'Уже' || maintenanceStatus === 'уже') {
+      alert('Идет техническое обслуживание');
+      welcomeMessage.innerHTML = 'Проводится техническое обслуживание.<br>Technical maintenance is in progress.';
+      welcomeMessage.style.display = 'block';
+      continueButton.style.display = 'none'; // Скрываем кнопку во время обслуживания
+    } else if (!hasVisited) {
+      // Первый вход: показываем сообщение и кнопку
+      welcomeMessage.style.display = 'block';
+      continueButton.style.display = 'block';
+      localStorage.setItem('hasVisited', 'true');
+    }
+  </script>
+</body>
+</html>
