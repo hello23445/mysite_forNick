@@ -260,6 +260,7 @@
         preloader.style.display = "none"; // Скрываем прелоадер
         window.open(targetUrl, '_blank'); // Перенаправляем (открываем в новой вкладке)
       } catch (error) {
+        alert(localStorage.getItem('lang') === 'ru'? 'Произошла ошибка при отправке данных. Пожалуйста, попробуйте еще раз.' : 'An error occurred while sending data. Please try again.');
         console.error('Error logging to sheet:', error);
         preloader.style.display = "none"; // Скрываем прелоадер даже при ошибке
         // Опционально: обработка ошибки, но по инструкции перенаправляем только после успеха, так что здесь не перенаправляем
