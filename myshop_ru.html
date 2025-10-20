@@ -65,13 +65,12 @@
     }
 
     #names, #descs {
-      max-height: 300px; /* Ограничение высоты для прокрутки */
-      overflow-y: auto; /* Вертикальная прокрутка */
-      padding-right: 10px; /* Отступ для скроллбара справа */
-      -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS */
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 10px;
+      -webkit-overflow-scrolling: touch;
     }
 
-    /* Стили для постоянного отображения скроллбара в WebKit (Chrome, Safari) */
     #names::-webkit-scrollbar,
     #descs::-webkit-scrollbar {
       width: 10px;
@@ -80,30 +79,28 @@
 
     #names::-webkit-scrollbar-track,
     #descs::-webkit-scrollbar-track {
-      background: #060039; /* Цвет трека, matching body background */
+      background: #060039;
       border-radius: 10px;
     }
 
     #names::-webkit-scrollbar-thumb,
     #descs::-webkit-scrollbar-thumb {
-      background: #888; /* Цвет ползунка */
+      background: #888;
       border-radius: 10px;
-      border: 2px solid #060039; /* Граница для лучшего вида */
+      border: 2px solid #060039;
     }
 
     #names::-webkit-scrollbar-thumb:hover,
     #descs::-webkit-scrollbar-thumb:hover {
-      background: #555; /* Цвет при hover */
+      background: #555;
     }
 
-    /* Для Firefox */
     #names,
     #descs {
-      scrollbar-width: thin; /* Тонкий скроллбар */
-      scrollbar-color: #888 #060039; /* Цвет ползунка и трека */
+      scrollbar-width: thin;
+      scrollbar-color: #888 #060039;
     }
 
-    /* Мобильная адаптация */
     @media (max-width: 480px) {
       body {
         padding: 10px;
@@ -125,11 +122,10 @@
         padding: 8px;
       }
       #names, #descs {
-        max-height: 200px; /* Меньшая высота для мобильных */
+        max-height: 200px;
       }
     }
 
-    /* Preloader styles */
     #preloader {
       position: fixed;
       top: 0;
@@ -169,19 +165,15 @@
   <h2 id="descsTitle"></h2>
   <div id="descs"></div>
 
-  <!-- Preloader -->
   <div id="preloader">
     <div class="loader"></div>
   </div>
 
   <script>
-    // Замените на URL вашего развернутого Google Apps Script Web App
     const gasUrl = 'https://script.google.com/macros/s/AKfycbxsL9OlfXqONf_j3tlrZ9KsBzDzIuDAsxzQWVgzL-Nu8M1DtLoYNTr-0dyfIuSrNBhOjw/exec';
 
-    // Определяем язык
     const lang = localStorage.getItem('lang') === 'ru' ? 'ru' : 'en';
 
-    // Тексты
     const texts = {
       ru: {
         title: "Избранное",
@@ -189,7 +181,8 @@
         descsTitle: "Избранные описания:",
         noNames: "Нет избранных никнеймов.",
         noDescs: "Нет избранных описаний.",
-        backBtn: "ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ"
+        backBtn: "ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ",
+        error: "Произошла ошибка при отправке данных. Пожалуйста, попробуйте еще раз."
       },
       en: {
         title: "Favorites",
@@ -197,27 +190,23 @@
         descsTitle: "Favorite descriptions:",
         noNames: "No favorite nicknames.",
         noDescs: "No favorite descriptions.",
-        backBtn: "BACK TO MAIN MENU"
+        backBtn: "BACK TO MAIN MENU",
+        error: "An error occurred while sending data. Please try again."
       }
     };
 
-    // Устанавливаем тексты на страницу
     document.getElementById("title").textContent = texts[lang].title;
     document.getElementById("namesTitle").textContent = texts[lang].namesTitle;
     document.getElementById("descsTitle").textContent = texts[lang].descsTitle;
+    document.getElementById("backBtn").textContent = texts[lang].backBtn;
 
-    const backBtn = document.getElementById("backBtn");
-    backBtn.textContent = texts[lang].backBtn;
-
-    // Функция очистки лишних символов
     function cleanText(text) {
       return text
-        .replace(/[\[\]\{\}\\\/"'`]/g, "") // убираем [ ] { } \ / " ' `
-        .replace(/\s+/g, " ")              // двойные пробелы → один
+        .replace(/[\[\]\{\}\\\/"'`]/g, "")
+        .replace(/\s+/g, " ")
         .trim();
     }
 
-    // Получаем данные из localStorage
     const names = (localStorage.getItem('loved') || "")
       .split(",")
       .map(cleanText)
@@ -230,12 +219,10 @@
 
     const namesBlock = document.getElementById("names");
     const descsBlock = document.getElementById("descs");
-
     const preloader = document.getElementById("preloader");
 
-    // Функция для отправки данных в Google Sheet и перенаправления после
     async function logToSheetAndRedirect(product, targetUrl) {
-      preloader.style.display = "flex"; // Показываем прелоадер
+      preloader.style.display = "flex";
 
       const token = localStorage.getItem('userToken') || '';
       const now = new Date();
@@ -250,24 +237,28 @@
       try {
         const response = await fetch(gasUrl, {
           method: 'POST',
-          mode: 'no-cors',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
           body: `time=${encodeURIComponent(formattedTime)}&token=${encodeURIComponent(token)}&name=${encodeURIComponent(product)}`
         });
-        // Поскольку mode: 'no-cors', мы не можем проверить статус, но предполагаем успех, если fetch завершился без ошибок
-        preloader.style.display = "none"; // Скрываем прелоадер
-        window.open(targetUrl, '_blank'); // Перенаправляем (открываем в новой вкладке)
+
+        if (response.ok) {
+          preloader.style.display = "none";
+          // Добавляем небольшую задержку для мобильных устройств
+          setTimeout(() => {
+            window.location.assign(targetUrl);
+          }, 100);
+        } else {
+          throw new Error('Server responded with an error');
+        }
       } catch (error) {
-        alert(localStorage.getItem('lang') === 'ru'? 'Произошла ошибка при отправке данных. Пожалуйста, попробуйте еще раз.' : 'An error occurred while sending data. Please try again.');
         console.error('Error logging to sheet:', error);
-        preloader.style.display = "none"; // Скрываем прелоадер даже при ошибке
-        // Опционально: обработка ошибки, но по инструкции перенаправляем только после успеха, так что здесь не перенаправляем
+        preloader.style.display = "none";
+        alert(texts[lang].error);
       }
     }
 
-    // Никнеймы
     if (names.length === 0) {
       namesBlock.innerHTML = `<p>${texts[lang].noNames}</p>`;
     } else {
@@ -275,8 +266,8 @@
         const item = document.createElement("a");
         item.className = "item";
         item.textContent = name;
+        item.href = "#";
         const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}`;
-        item.href = "#"; // Убираем оригинальный href, чтобы предотвратить немедленный переход
         item.addEventListener('click', (e) => {
           e.preventDefault();
           logToSheetAndRedirect(name, targetUrl);
@@ -285,7 +276,6 @@
       });
     }
 
-    // Описания
     if (descs.length === 0) {
       descsBlock.innerHTML = `<p>${texts[lang].noDescs}</p>`;
     } else {
@@ -293,8 +283,8 @@
         const item = document.createElement("a");
         item.className = "item";
         item.textContent = desc;
+        item.href = "#";
         const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}`;
-        item.href = "#"; // Убираем оригинальный href, чтобы предотвратить немедленный переход
         item.addEventListener('click', (e) => {
           e.preventDefault();
           logToSheetAndRedirect(desc, targetUrl);
