@@ -1,5 +1,5 @@
 export const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss', ''];
-export const texpereriv = 'Уже' //Уже, Скоро, ...
+export const texpereriv = '' //Уже, Скоро, ...
 localStorage.setItem('m', texpereriv);
 
 // список запрещённых слов (только уникальные формы, без дублей)
@@ -60,7 +60,9 @@ const badWords = [
   'shabi', 'caonima', 'gou ri', 'sb', 'ni ma',
 
   // корейские (транслитерация)
-  'ssibal', 'gaesaekki', 'jot', 'meongcheong', 'baegopa'
+  'ssibal', 'gaesaekki', 'jot', 'meongcheong', 'baegopa',
+
+  'хентай', 'hentai', 'минет', 'minet', 'эротика', 'erotica'
 ];
 
 // берём имя пользователя
@@ -74,5 +76,4 @@ if (badWords.some(word => userName.includes(word.toLowerCase()))) {
       : 'The name you entered violates our rules.\nPlease enter a different name.'
   );
   window.location.href = 'user_profile.html';
-
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Избранное</title>
+  <title>Покупки</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     /* Общие стили */
@@ -120,7 +120,7 @@
 <body>
   <div class="wrapper">
     <div class="header">
-      <h2 id="title">Ваше избранное</h2>
+      <h2 id="title">Ваши покупки</h2>
     </div>
     <div class="favorites" id="favoritesList"></div>
     <button id="showMoreBtn" style="display: none;"></button>
@@ -130,6 +130,8 @@
   <script>
     const lang = localStorage.getItem('lang') || 'ru';
     let loved = localStorage.getItem('bought') || '';
+    let hiddenStr = localStorage.getItem('hiddenBought') || '';
+    let hidden = hiddenStr ? hiddenStr.split(',') : [];
     let increment = 10;
     let displayedItems = 0;
 
@@ -137,6 +139,10 @@
     const favoritesList = document.getElementById('favoritesList');
     const backBtn = document.getElementById('backBtn');
     const showMoreBtn = document.getElementById('showMoreBtn');
+
+    function saveHidden() {
+      localStorage.setItem('hiddenBought', hidden.join(','));
+    }
 
     function renderItems(itemsToRender) {
       itemsToRender.forEach(item => {
@@ -166,31 +172,57 @@
           window.open(`https://telegram.me/share/url?url=${encodeURIComponent(item)}`, '_blank');
         };
 
+        const deleteIcon = document.createElement('i');
+        deleteIcon.className = 'action-btn fa-solid fa-trash';
+        deleteIcon.onclick = () => {
+          hidden.push(item);
+          saveHidden();
+          div.remove();
+        };
+
         div.appendChild(textSpan);
         div.appendChild(copyIcon);
         div.appendChild(shareIcon);
+        div.appendChild(deleteIcon);
         favoritesList.appendChild(div);
       });
     }
 
     function render() {
-      document.title = lang === 'ru' ? 'Избранное' : 'Favorites';
-      title.textContent = lang === 'ru' ? 'Ваше избранное' : 'Your Favorites';
+      document.title = lang === 'ru' ? 'Покупки' : 'Purchases';
+      title.textContent = lang === 'ru' ? 'Ваши покупки' : 'Your Purchases';
+
+      const header = document.querySelector('.header');
+      const deleteAllBtn = document.createElement('button');
+      deleteAllBtn.textContent = lang === 'ru' ? 'Удалить все' : 'Delete all';
+      deleteAllBtn.style.background = 'red'
+      deleteAllBtn.onclick = () => {
+        const items = loved.split(',').filter(i => i.trim() !== '');
+        const visibleItems = items.filter(i => !hidden.includes(i));
+        visibleItems.forEach(item => {
+          hidden.push(item);
+        });
+        saveHidden();
+        favoritesList.innerHTML = '';
+        showMoreBtn.style.display = 'none';
+      };
+      header.appendChild(deleteAllBtn);
 
       favoritesList.innerHTML = '';
 
       const items = loved.split(',').filter(i => i.trim() !== '');
+      const visibleItems = items.filter(i => !hidden.includes(i));
 
-      if (items.length === 0) {
+      if (visibleItems.length === 0) {
         favoritesList.innerHTML = lang === 'ru' ? '<p>Список пуст.</p>' : '<p>No favorites yet.</p>';
         showMoreBtn.style.display = 'none';
       } else {
         if (displayedItems === 0) {
           displayedItems = increment;
         }
-        renderItems(items.slice(0, displayedItems));
-        displayedItems = Math.min(displayedItems, items.length);
-        showMoreBtn.style.display = displayedItems < items.length ? 'block' : 'none';
+        renderItems(visibleItems.slice(0, displayedItems));
+        displayedItems = Math.min(displayedItems, visibleItems.length);
+        showMoreBtn.style.display = displayedItems < visibleItems.length ? 'block' : 'none';
       }
 
       showMoreBtn.textContent = lang === 'ru' ? 'Показать еще' : 'Show more';
@@ -201,11 +233,12 @@
 
     showMoreBtn.onclick = () => {
       const items = loved.split(',').filter(i => i.trim() !== '');
+      const visibleItems = items.filter(i => !hidden.includes(i));
       increment += 10;
-      const nextItems = items.slice(displayedItems, displayedItems + increment);
+      const nextItems = visibleItems.slice(displayedItems, displayedItems + increment);
       renderItems(nextItems);
       displayedItems += nextItems.length;
-      showMoreBtn.style.display = displayedItems < items.length ? 'block' : 'none';
+      showMoreBtn.style.display = displayedItems < visibleItems.length ? 'block' : 'none';
     };
 
     render();

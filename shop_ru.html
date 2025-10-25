@@ -133,14 +133,32 @@
             color: black;
         }
         #loader {
+            display: none;
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 24px;
+        }
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         .modal {
             display: none;
@@ -300,7 +318,11 @@
             }
             #loader {
                 font-size: 16px;
-                padding: 15px;
+            }
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border-width: 4px;
             }
             .modal-content {
                 padding: 15px;
@@ -339,7 +361,10 @@
         </div>
         <div id="coins"></div>
     </div>
-    <div id="loader">Загрузка...</div>
+    <div id="loader">
+        <div class="spinner"></div>
+        Загрузка...
+    </div>
     <div id="container"></div>
     
     <!-- More modal -->
@@ -434,8 +459,9 @@
         let nextUpdateTime = null;
 
         function fetchData(silent = false) {
+            const loader = document.getElementById('loader');
             if (!silent) {
-                document.getElementById('loader').style.display = 'block';
+                loader.style.display = 'flex';
             }
             fetch(`${SCRIPT_URL}?op=get`)
                 .then(res => res.json())
@@ -443,14 +469,14 @@
                     displayProducts(data);
                     localStorage.setItem('shopData', JSON.stringify(data));
                     if (!silent) {
-                        document.getElementById('loader').style.display = 'none';
+                        loader.style.display = 'none';
                         document.getElementById('header').style.display = 'flex';
                     }
                 })
                 .catch(err => {
                     console.error(err);
                     if (!silent) {
-                        document.getElementById('loader').style.display = 'none';
+                        loader.style.display = 'none';
                     }
                 });
         }
@@ -620,11 +646,15 @@
         }
 
         function performPurchase() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'flex';
+
             let coins = parseFloat(localStorage.getItem('coins')) || 0;
             const userName = localStorage.getItem('userName');
             if (!userName) {
                 showMessage('Имя пользователя не найдено в localStorage!');
                 document.getElementById('confirm-modal').style.display = 'none';
+                loader.style.display = 'none';
                 return;
             }
 
@@ -697,7 +727,10 @@
                     } else {
                         showMessage("Куплено!\n отправлен в ваш список избранных покупок.\nТовар \"Премиум\" не отправляется в список покупок, а зачисляются сразу.");
                     }
-                    setTimeout(() => fetchData(true), 1000);
+                    setTimeout(() => {
+                        fetchData(true);
+                        loader.style.display = 'none';
+                    }, 1000);
 
                     // Send Telegram message to seller
                     const botToken = '8397748660:AAHmQ_m6uWUBoI4biuppk8BMGPZpP7ykO6o';
@@ -751,11 +784,13 @@
                     .catch(err => console.error('Telegram API error:', err));
                 } else {
                     showMessage('Ошибка покупки: ' + result);
+                    loader.style.display = 'none';
                 }
             })
             .catch(err => {
                 console.error(err);
                 showMessage('Сетевая ошибка во время покупки.');
+                loader.style.display = 'none';
             });
             document.getElementById('confirm-modal').style.display = 'none';
         }

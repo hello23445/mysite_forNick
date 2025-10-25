@@ -133,14 +133,32 @@
             color: black;
         }
         #loader {
+            display: none;
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 24px;
+        }
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         .modal {
             display: none;
@@ -300,7 +318,11 @@
             }
             #loader {
                 font-size: 16px;
-                padding: 15px;
+            }
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border-width: 4px;
             }
             .modal-content {
                 padding: 15px;
@@ -332,14 +354,17 @@
 </head>
 <body>
     <div id="header">
-        <button id="back-btn">BACK TO MAIN MENU</button>
+        <button id="back-btn">RETURN TO MAIN MENU</button>
         <div id="title-container">
             <div id="title">Shop</div>
             <div id="timer"></div>
         </div>
         <div id="coins"></div>
     </div>
-    <div id="loader">Loading...</div>
+    <div id="loader">
+        <div class="spinner"></div>
+        Loading...
+    </div>
     <div id="container"></div>
     
     <!-- More modal -->
@@ -354,25 +379,26 @@
     <!-- Report modal -->
     <div id="report-modal" class="modal">
         <div class="modal-content">
-            <h3>Select or Enter Report Reason</h3>
+            <h3>Select or enter the reason for the report</h3>
             <select id="report-reason" style="background-color: darkblue;">
                 <option value="">Select reason...</option>
                 <option value="Fraud">Fraud</option>
                 <option value="Deception">Deception</option>
                 <option value="Pornography">Pornography</option>
                 <option value="Insult">Insult</option>
-                <option value="Law Violation">Law Violation</option>
-                <option value="Telegram Rules Violation">Telegram Rules Violation</option>
+                <option value="Violation of laws">Violation of laws</option>
+                <option value="Violation of Telegram rules">Violation of Telegram rules</option>
                 <option value="Spam">Spam</option>
                 <option value="Phishing">Phishing</option>
-                <option value="Violence Propaganda">Violence Propaganda</option>
-                <option value="Racism or Discrimination">Racism or Discrimination</option>
+                <option value="Propaganda of violence">Propaganda of violence</option>
+                <option value="Racism or discrimination">Racism or discrimination</option>
                 <option value="Terrorism">Terrorism</option>
                 <option value="Other">Other</option>
-                <option value="Does not violate law, but needs to be removed">Does not violate law, but needs to be removed</option>
+                <option value="Does not violate the law, but needs to be removed">Does not violate the law, but needs to be removed</option>
+
             </select>
-            <textarea id="report-input" rows="4" placeholder="Describe the issue (optional)..."></textarea>
-            <button id="submit-report" class="submit-btn">Submit</button>
+            <textarea id="report-input" rows="4" placeholder="Describe the problem (optional)..."></textarea>
+            <button id="submit-report" class="submit-btn">Send</button>
             <button id="cancel-report" class="cancel-btn">Cancel</button>
         </div>
     </div>
@@ -389,7 +415,7 @@
     <!-- Insufficient modal -->
     <div id="insufficient-modal" class="modal">
         <div class="modal-content">
-            <p id="insufficient-text">Insufficient coins!<br>You can earn coins by generating something in this app.</p>
+            <p id="insufficient-text">Not enough coins!<br>You can get coins by generating something in this app.</p>
             <button id="close-insufficient" class="close-btn">OK</button>
         </div>
     </div>
@@ -433,8 +459,9 @@
         let nextUpdateTime = null;
 
         function fetchData(silent = false) {
+            const loader = document.getElementById('loader');
             if (!silent) {
-                document.getElementById('loader').style.display = 'block';
+                loader.style.display = 'flex';
             }
             fetch(`${SCRIPT_URL}?op=get`)
                 .then(res => res.json())
@@ -442,14 +469,14 @@
                     displayProducts(data);
                     localStorage.setItem('shopData', JSON.stringify(data));
                     if (!silent) {
-                        document.getElementById('loader').style.display = 'none';
+                        loader.style.display = 'none';
                         document.getElementById('header').style.display = 'flex';
                     }
                 })
                 .catch(err => {
                     console.error(err);
                     if (!silent) {
-                        document.getElementById('loader').style.display = 'none';
+                        loader.style.display = 'none';
                     }
                 });
         }
@@ -477,23 +504,23 @@
 
                 if (token === userToken) return; // Hide own products
 
-                // New conditions: hide if already bought by user
-                const isPremiumProduct = name === "Премиум";
-                const isBadgeProduct = name === "Бейдж \"👑Премиум\" к профилю";
+                // New conditions: hide if already purchased by the user
+                const isPremiumProduct = name === "Premium";
+                const isBadgeProduct = name === "Badge \"👑Premium\" for profile";
                 const isSpecial = isPremiumProduct || isBadgeProduct;
                 if (isPremiumProduct && localStorage.getItem('premium') === 'yes') return;
                 if (isBadgeProduct && localStorage.getItem('badge1') === 'yes') return;
                 if (!isSpecial && boughtItems.includes(name)) return;
 
-                const isAvailable = (status === 'Выставлен' || status === 'Listed') && qty > 0;
+                const isAvailable = (status === 'Listed' || status === 'Listed') && qty > 0;
 
-                // Changed: hide all unavailable items (don't even show own bought ones)
+                // Changed: hide all unavailable items (do not show even your own purchased ones)
                 if (!isAvailable) return;
 
                 hasProducts = true;
 
-                const isPremium = name === "Бейдж \"👑Премиум\" к профилю";
-                const isScam = isPremium && seller !== "Аноним" && seller !== "Продавец премиума";
+                const isPremium = name === "Badge \"👑Premium\" for profile";
+                const isScam = isPremium && seller !== "Anonymous" && seller !== "Premium Seller";
 
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -509,7 +536,7 @@
                     <p>${desc}</p>
                 `;
                 if (isScam) {
-                    card.innerHTML += `<p style="font-weight: bold; color: red;">WARNING: THIS IS A SCAM!</p>`;
+                    card.innerHTML += `<p style="font-weight: bold; color: red;">ATTENTION: THIS IS A SCAM!</p>`;
                 }
 
                 const buyBtn = document.createElement('button');
@@ -587,23 +614,23 @@
                 showMessage("You cannot buy your own product!");
                 return;
             }
-            const isSpecial = name === "Премиум" || name === "Бейдж \"👑Премиум\" к профилю";
+            const isSpecial = name === "Premium" || name === "Badge \"👑Premium\" for profile";
             if (!isSpecial) {
                 const boughtItems = (localStorage.getItem('bought') || '').split(',');
                 if (boughtItems.includes(name)) {
-                    showMessage("This product is already in your purchased items list!");
+                    showMessage("This item is already in the list of purchased items!");
                     return;
                 }
             }
-            if (name === "Премиум" && localStorage.getItem('premium') === 'yes') {
+            if (name === "Premium" && localStorage.getItem('premium') === 'yes') {
                 showMessage("You already have premium!");
                 return;
             }
-            if (name === "Бейдж \"👑Премиум\" к профилю" && localStorage.getItem('premium') !== 'yes') {
-                showMessage("You don't have premium to buy this badge!");
+            if (name === "Badge \"👑Premium\" for profile" && localStorage.getItem('premium') !== 'yes') {
+                showMessage("You do not have premium to buy this badge!");
                 return;
             }
-            if (name === "Бейдж \"👑Премиум\" к профилю" && localStorage.getItem('badge1') === 'yes') {
+            if (name === "Badge \"👑Premium\" for profile" && localStorage.getItem('badge1') === 'yes') {
                 showMessage("You already have this badge!");
                 return;
             }
@@ -619,11 +646,15 @@
         }
 
         function performPurchase() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'flex';
+
             let coins = parseFloat(localStorage.getItem('coins')) || 0;
             const userName = localStorage.getItem('userName');
             if (!userName) {
                 showMessage('User name not found in localStorage!');
                 document.getElementById('confirm-modal').style.display = 'none';
+                loader.style.display = 'none';
                 return;
             }
 
@@ -661,7 +692,7 @@
                         qty--;
                         card.dataset.qty = qty;
                         if (qty <= 0) {
-                            card.dataset.status = 'Куплено';
+                            card.dataset.status = 'Bought';
                             card.dataset.buyer = userName;
                             buyBtn.textContent = 'Bought';
                             buyBtn.disabled = true;
@@ -675,11 +706,11 @@
                             };
                             card.insertBefore(copyBtn, buyBtn);
                         } else {
-                            buyBtn.textContent = `Buy 1/${qty} for ${currentPrice}🪙`;
+                            buyBtn.textContent = `Buy 1/${qty} for ${currentPrice}`;
                         }
                     }
-                    const isBadge = currentName === "Бейдж \"👑Премиум\" к профилю";
-                    const isPremium = currentName === "Премиум";
+                    const isBadge = currentName === "Badge \"👑Premium\" for profile";
+                    const isPremium = currentName === "Premium";
                     if (!isBadge && !isPremium) {
                         let bought = localStorage.getItem('bought') || '';
                         bought += (bought ? ',' : '') + currentName;
@@ -694,9 +725,12 @@
                     if (isPremium) {
                         showMessage("Premium successfully purchased!");
                     } else {
-                        showMessage("Purchased!\n Sent to your favorites purchases list.\n\"Premium\" item is not sent to the purchases list, but credited immediately.");
+                        showMessage("Purchased!\n Sent to your list of favorite purchases.\nThe \"Premium\" product is not sent to the purchase list, but is credited immediately.");
                     }
-                    setTimeout(() => fetchData(true), 1000);
+                    setTimeout(() => {
+                        fetchData(true);
+                        loader.style.display = 'none';
+                    }, 1000);
 
                     // Send Telegram message to seller
                     const botToken = '8397748660:AAHmQ_m6uWUBoI4biuppk8BMGPZpP7ykO6o';
@@ -750,11 +784,13 @@
                     .catch(err => console.error('Telegram API error:', err));
                 } else {
                     showMessage('Purchase error: ' + result);
+                    loader.style.display = 'none';
                 }
             })
             .catch(err => {
                 console.error(err);
                 showMessage('Network error during purchase.');
+                loader.style.display = 'none';
             });
             document.getElementById('confirm-modal').style.display = 'none';
         }
@@ -822,7 +858,7 @@
             content.innerHTML = '';
             
             const items = [
-                {label: 'Listing Date', value: currentDate},
+                {label: 'Posting Date', value: currentDate},
                 {label: 'Seller', value: currentSeller},
                 {label: 'Product', value: currentName},
                 {label: 'Price', value: currentPrice},
@@ -897,12 +933,12 @@
                 })
                 .then(res => res.text())
                 .then(() => {
-                    showMessage('Report submitted.');
+                    showMessage('Report sent.');
                     document.getElementById('report-modal').style.display = 'none';
                 })
                 .catch(err => console.error(err));
             } else {
-                showMessage('Select or enter a report reason!');
+                showMessage('Select or enter the reason for the report!');
             }
         };
 

@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <style>
+        button, select, option, label {
+            font-weight: bold;
+        }
         html {
             box-sizing: border-box;
         }
@@ -42,22 +44,18 @@
         .minifigure {
             position: relative;
             width: 100px;
-            height: auto; /* Changed to fit all content */
+            height: auto; /* Changed to accommodate all content */
             min-height: 500px; /* Increased to capture the entire body in html2canvas */
             margin: auto;
             perspective: 200;
             transform-style: preserve-3d;
             transition: transform 400ms;
         }
-        
-        .minifigure.explode {
-            transform: scale(0.75) translateZ(0);
-        }
 
         /* Optimization for mobile devices */
         @media (max-width: 600px) {
             body {
-                flex-direction: column; /* Toolbar under the figure */
+                flex-direction: column; /* Control panel under the figure */
                 height: auto; /* Automatic height for scrolling */
             }
 
@@ -140,10 +138,6 @@
             transition: transform 400ms;
         }
         
-        .explode .head {
-            transform: translate(-50%, -8em);
-        }
-        
         .head::before,
         .head::after {
             content: '';
@@ -200,10 +194,6 @@
         .faces {
             display: flex;
             transition: transform 400ms cubic-bezier(0,0,0,1.25);
-        }
-        
-        .explode .faces {
-            transform: translateX(-500%) !important;
         }
         
         .face {
@@ -2042,7 +2032,7 @@
             box-shadow: inset 0 0 0 0.5em #300;
         }
         .abominable-glower2 .brow {
-            bottom: 2.4em;
+            bottom: 1.4em;
         }
 
         .execrable-grit1 .brow {
@@ -2689,14 +2679,6 @@
             inset 0 0 0 2em rgba(255,255,255, 0.15);
         }
 
-        .explode .arm.right {
-            transform: translate(-8em, -4em) rotate(45deg);
-        }
-        
-        .explode .arm.left {
-            transform: translate(8em, -4em) rotate(-45deg);
-        }
-        
         .arm::before {
             content: '';
             position: absolute;
@@ -2789,10 +2771,6 @@
             transform: translateX(-50%);
             color: hsl(200,0%,90%);
             transition: transform 400ms;
-        }
-        
-        .explode .lower-body {
-            transform: translate(-50%, 8em);
         }
         
         .lower-body > div {
@@ -3058,7 +3036,7 @@
 
         @media (max-width: 600px) {
             body {
-                flex-direction: column; /* Toolbar under the figure */
+                flex-direction: column; /* Control panel under the figure */
                 height: auto; /* Automatic height for scrolling */
                 min-height: 100vh; /* Minimum height for the entire screen */
             }
@@ -3086,14 +3064,25 @@
                 -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
             }
         }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .show-controls-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
     </style>
 <div class="figure-container">
 <button 
     onclick="window.location.href = 'main.html'" 
     style="padding: 10px 20px; font-size: 16px;"
 >
-    RETURN TO MAIN
+    BACK TO MAIN
 </button>
+<button class="show-controls-btn hidden" style="padding: 10px 20px; font-size: 16px;">Show Control Panel</button>
 
 <div class="minifigure">
     <div class="head">
@@ -4167,9 +4156,8 @@
   <div class="controls">
     <h2 class="title">Controls</h2>
     
-    <button class="button explode">Explode</button>
     <button class="button randomize">Randomize</button>
-    <button class="button share">Share</button>
+    <button class="button hide-controls">Hide Control Panel</button>
     
     <fieldset class="head-expression">
       <legend>Head</legend>
@@ -4414,62 +4402,62 @@
       </div>
       
       <div class="form-element">
-        <label for="arm-length">Arm length:</label>
+        <label for="arm-length">Arm Length:</label>
         <input id="arm-length" type="range" min="0.5" max="1.5" step="0.1" value="1">
       </div>
       
       <div class="form-element">
-        <label for="hand-size">Hand size:</label>
+        <label for="hand-size">Hand Size:</label>
         <input id="hand-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
       </div>
     </fieldset>
     
     <fieldset class="new-params">
-      <legend>Other parameters</legend>
+      <legend>Other Parameters</legend>
       
       <div class="form-element">
-        <label for="head-size">Head size:</label>
+        <label for="head-size">Head Size:</label>
         <input id="head-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
       </div>
       
       <div class="form-element">
-        <label for="torso-size">Torso size:</label>
+        <label for="torso-size">Torso Size:</label>
         <input id="torso-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
       </div>
       
       <div class="form-element">
-        <label for="leg-length">Leg length:</label>
+        <label for="leg-length">Leg Length:</label>
         <input id="leg-length" type="range" min="0.5" max="1.5" step="0.1" value="1">
       </div>
       
       <div class="form-element">
-        <label for="eye-size">Eye size:</label>
+        <label for="eye-size">Eye Size:</label>
         <input id="eye-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
       </div>
       
       <div class="form-element">
-        <label for="mouth-size">Mouth size:</label>
+        <label for="mouth-size">Mouth Size:</label>
         <input id="mouth-size" type="range" min="0.5" max="1.5" step="0.1" value="1">
       </div>
 
       <!-- New funny parameters -->
       <div class="form-element">
-        <label for="head-rotation">Head rotation:</label>
+        <label for="head-rotation">Head Rotation:</label>
         <input id="head-rotation" type="range" min="-45" max="45" value="0">
       </div>
 
       <div class="form-element">
-        <label for="eye-spacing">Eye spacing:</label>
+        <label for="eye-spacing">Eye Spacing:</label>
         <input id="eye-spacing" type="range" min="1" max="3" step="0.1" value="2.25">
       </div>
 
       <div class="form-element">
-        <label for="mouth-position">Mouth position:</label>
+        <label for="mouth-position">Mouth Position:</label>
         <input id="mouth-position" type="range" min="2" max="5" step="0.1" value="3.125">
       </div>
 
       <div class="form-element">
-        <label for="brow-position">Brow position:</label>
+        <label for="brow-position">Brow Position:</label>
         <input id="brow-position" type="range" min="0" max="2" step="0.1" value="0.625">
       </div>
     </fieldset>
@@ -4488,9 +4476,7 @@
       var faces = document.querySelector('.faces');
       var upperBody = document.querySelector('.upper-body');
       var lowerBody = document.querySelector('.lower-body');
-      var explode = document.querySelector('.explode');
       var randomize = document.querySelector('.randomize');
-      var share = document.querySelector('.share');
       var expressionRangeInput = document.querySelector('.expression-range');
       var expressionSelect = document.querySelector('#expression-select');
       var colorRangeInput = document.querySelectorAll('.color-range');
@@ -4529,10 +4515,11 @@
       var mouths = document.querySelectorAll('.mouth');
       var brows = document.querySelectorAll('.brow');
       var resets = document.querySelectorAll('.reset');
+      var hideControlsBtn = document.querySelector('.hide-controls');
+      var showControlsBtn = document.querySelector('.show-controls-btn');
+      var controls = document.querySelector('.controls');
   
-      explode.addEventListener('click', explodeMinifigure);
       randomize.addEventListener('click', randomizeInputs);
-      share.addEventListener('click', shareConfig);
       expressionRangeInput.addEventListener('input', setExpression);
       expressionSelect.addEventListener('change', setExpressionFromSelect);
       armRightRotation.addEventListener('input', setArmRotations);
@@ -4551,6 +4538,8 @@
       mouthPosition.addEventListener('input', setNewParams);
       browPosition.addEventListener('input', setNewParams);
       armColor.addEventListener('input', setNewParams);
+      hideControlsBtn.addEventListener('click', toggleControls);
+      showControlsBtn.addEventListener('click', toggleControls);
   
       for (var i = 0; i < colorRangeInput.length; i++) {
         colorRangeInput[i].addEventListener('input', setColors);
@@ -4568,16 +4557,6 @@
       function getRandomNum(min, max) {
         return Math.random() * (max - min) + min;
       }
-  
-      function explodeMinifigure() {
-        minifigure.classList.toggle('explode');
-        
-        if (minifigure.classList.contains('explode')) {
-            explode.innerHTML = 'Assemble';
-        } else {
-            explode.innerHTML = 'Explode';
-        }
-      };
   
       function randomizeInputs() {
         var randomExpression = getRandomNum(0, 141);
@@ -4676,7 +4655,7 @@
       }
       
       function setNewParams() {
-        head.style.transform = `translateX(-50%) scale(${headSize.value}) rotate(${headRotation.value}deg)`;
+        head.style.transform = `translateX(-50%) scale(${headSize.value}) rotate(${headRotation.value}deg) translateZ(0)`;
         torso.style.transform = `translateX(-50%) rotateX(45deg) scale(${torsoSize.value})`;
         legs.forEach(leg => {
           leg.style.height = `${10.75 * legLength.value}em`;
@@ -4704,55 +4683,23 @@
           brow.style.bottom = `${browPosition.value}em`;
         });
       }
-      
-      async function shareConfig() {
-        // Временно отключаем 3D-трансформы для правильного захвата
-        const originalPerspective = minifigure.style.perspective;
-        const originalTransformStyle = minifigure.style.transformStyle;
-        const originalTorsoTransform = torso.style.transform;
-        const originalWidth = minifigure.style.width;
-        const originalUpperPerspective = upperBody.style.perspective;
 
-        minifigure.style.perspective = 'none';
-        minifigure.style.transformStyle = 'flat';
-        minifigure.style.width = '300px'; // Расширяем контейнер, чтобы руки поместились без отрицательных позиций
-        upperBody.style.perspective = 'none';
-        torso.style.transform = `translateX(-50%) scale(${torsoSize.value})`; // Убираем rotateX
-
-        const canvas = await html2canvas(minifigure, {
-          allowTaint: true,
-          useCORS: true,
-          scale: 2 // Увеличиваем разрешение для лучшего качества
-        });
-
-        // Восстанавливаем трансформы после захвата
-        minifigure.style.perspective = originalPerspective;
-        minifigure.style.transformStyle = originalTransformStyle;
-        minifigure.style.width = originalWidth;
-        upperBody.style.perspective = originalUpperPerspective;
-        torso.style.transform = originalTorsoTransform;
-
-        canvas.toBlob(async (blob) => {
-          const file = new File([blob], 'minifigure.png', { type: 'image/png' });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              title: 'My LEGO Minifigure',
-              text: 'Check out my custom LEGO minifigure!'
-            });
-          } else {
-            alert('Sharing not supported on this device');
-          }
-        });
+    function toggleControls() {
+      if (controls.classList.contains('hidden')) {
+        controls.classList.remove('hidden');
+        showControlsBtn.classList.add('hidden');
+      } else {
+        controls.classList.add('hidden');
+        showControlsBtn.classList.remove('hidden');
       }
+    }
       
-
     function setFaceColors() {
         document.documentElement.style.setProperty('--skin-color', skinColor.value);
         document.documentElement.style.setProperty('--eye-pupil', eyeColor.value);
         document.documentElement.style.setProperty('--mouth-color', mouthColor.value);
         document.documentElement.style.setProperty('--brow-color', browColor.value);
-        // Обновляем цвет рук
+        // Update arm color
         arms.forEach(arm => {
             arm.style.color = armColor.value;
         });
@@ -4766,7 +4713,7 @@
         else if (id === 'eye-color') input.value = '#000000';
         else if (id === 'mouth-color') input.value = '#000000';
         else if (id === 'brow-color') input.value = '#000000';
-        else if (id === 'arm-color') input.value = '#ffd700'; // Добавляем сброс для arm-color
+        else if (id === 'arm-color') input.value = '#ffd700'; // Add reset for arm-color
         setFaceColors();
     }
       // Load from URL params

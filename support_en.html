@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>AI Support Chat</title>
   <style>
-    /* Reset default margins and set box-sizing */
+    /* Reset standard margins and set box-sizing */
     *, *::before, *::after {
       box-sizing: border-box;
     }
@@ -14,17 +14,18 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #74ABE2, #5563DE);
       margin: 0;
-      padding-top: 20px; /* top padding */
+      padding-top: 20px; /* top margin */
       display: flex;
       justify-content: center; /* center horizontally */
       align-items: flex-start; /* align to top */
       min-height: 100vh;
+      /* Removed min-width: 475px for better adaptability on small screens */
     }
 
     .chat-container {
       width: 100%;
       max-width: 600px;
-      max-height: 90vh; /* height limit so it doesn't overflow the screen */
+      max-height: 90vh; /* height limit to not exceed screen boundaries */
       background-color: #fff;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -32,6 +33,7 @@
       flex-direction: column;
       overflow: hidden;
       position: relative;
+      margin-top: 4%;
     }
 
     .chat-header {
@@ -115,7 +117,7 @@
       background-color: #3b45a0;
     }
 
-    /* Styles for disabled elements */
+    /* Styles for inactive elements */
     .disabled {
       opacity: 0.5;
       background-color: #ccc !important;
@@ -124,7 +126,7 @@
       color: #888 !important;
     }
 
-    /* Error messages (headings instead of alerts) */
+    /* Error messages (headings instead of alert) */
     .error-message {
       color: red;
       font-size: 18px;
@@ -214,17 +216,17 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    /* Typing indicator styles (small circles) */
+    /* Styles for typing indicator (small circles) */
     .typing-indicator {
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .typing-indicator .dot {
-      width: 6px;       /* reduced size */
+      width: 6px;
       height: 6px;
       margin: 0 3px;
-      background-color: #5563DE; /* matches header color */
+      background-color: #5563DE;
       border-radius: 50%;
       opacity: 0.5;
       animation: blink 1.4s infinite;
@@ -249,7 +251,7 @@
       }
     }
 
-    /* Media queries for responsiveness */
+    /* Media queries for adaptability */
     @media (max-width: 600px) {
       .chat-container {
         margin: 10px;
@@ -293,6 +295,32 @@
         font-size: 14px;
         padding: 0 15px;
       }
+      /* Additional adjustments for small screens */
+      .message {
+        max-width: 90%; /* Increased max-width for messages on small screens */
+      }
+      .chat-messages {
+        padding: 10px; /* Reduced padding */
+      }
+    }
+
+    /* Added media query for very small screens (e.g., old mobiles) */
+    @media (max-width: 320px) {
+      .chat-header {
+        font-size: 16px;
+        padding: 8px;
+      }
+      .chat-input input {
+        font-size: 12px;
+        padding: 6px;
+      }
+      .chat-input button {
+        font-size: 12px;
+        padding: 0 10px;
+      }
+      .stars {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
@@ -301,71 +329,75 @@
     onclick="window.location.href = 'main.html'" 
     style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
 >
-    BACK TO MAIN MENU
+    RETURN TO MAIN MENU
     </button>
 
   <div class="chat-container">
     <div class="chat-header">Support Service</div>
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-input">
-      <input type="text" id="message" placeholder="Enter your message..." autocomplete="off" />
-      <!-- "Send" button will be displayed via JS -->
+      <input type="text" id="message" placeholder="Enter message..." autocomplete="off" />
       <button id="send-btn">Send</button>
     </div>
   </div>
 
   <script>
-    // Array of Q&A
+    // Array of questions and answers
     const adminQna = [
       { 
-        question: "Bot Problem", 
-        keywords: ['error', 'technical error occurred', 'we are sorry', 'we are sorry, a technical error occurred.'], 
-        answer: 'In this case, you need to contact the administrators via the feedback bot @Clickerstart_bot .<br>So only they can help you and fix this error.'
+        question: "Problem with the bot", 
+        keywords: ['error', 'technical error occurred', 'sorry', 'Sorry, a technical error occurred.'], 
+        answer: 'In this case, you need to contact the administrators through the feedback bot @Clickerstart_bot.<br>Because only they can help you and fix this error.'
       },
       { 
         question: "What to do?", 
-        keywords: ['work', 'suspended', 'sorry,'], 
-        answer: 'A technical break is in progress. <br>If the bot does not start working after a few days, please contact our bot @Clickerstart_bot.' 
+        keywords: ['work', 'suspended', 'sorry, '], 
+        answer: 'A technical break is in progress. <br>If the bot does not start working in a few days, please contact our bot @Clickerstart_bot.' 
       },
       { 
         question: "Help", 
-        keywords: ['help', 'help me', 'support', 'assist'], 
-        answer: 'How can I help you?<br>If you need to speak with an administrator, type "Admin"'
+        keywords: ['help', 'help me', 'support', 'help'], 
+        answer: 'How can I help?<br>If you need to talk to an administrator, write "Admin"'
       },
       { 
         question: "Understood", 
         keywords: ['understood', 'clear', 'got it'], 
-        answer: "I'm glad I was able to explain it to you :)"
+        answer: "I'm glad I could explain it to you :)" 
       },
       { 
-        question: "Contact", 
+        question: "contact", 
         keywords: ['don\'t understand', 'admin'], 
-        answer: 'Please contact our feedback bot: @Clickerstart_bot.'
+        answer: 'Please contact our feedback bot: @Clickerstart_bot.' 
       },
       { 
         question: "Support", 
         keywords: ['support'], 
-        answer: 'We are always ready to help! Ask your question.'
+        answer: 'We are always ready to help! Ask your question.' 
       },
       { 
         question: "Greeting", 
-        keywords: ['hello', 'hi', 'hey'], 
-        answer: 'Hello! How can I help you? <br>(Our Telegram feedback bot: @Clickerstart_bot)'
+        keywords: ['hi', 'hello', 'hey'], 
+        answer: 'Hello! How can I help? <br>(Our Telegram feedback bot: @Clickerstart_bot)' 
       },
       { 
-        question: "Okay", 
-        keywords: ['okay', 'alright', 'ok'], 
-        answer: '🙂'
+        question: "Good", 
+        keywords: ['good', 'okay', 'ok'], 
+        answer: '🙂' 
       },
       { 
-        question: "Gratitude", 
-        keywords: ['thank you', 'thanks', 'ty'], 
-        answer: "You're welcome 😄"
+        question: "Thanks", 
+        keywords: ['thanks', 'thank you', 'thx'], 
+        answer: "You're welcome 😄" 
       },
       { 
         question: "Bot not responding", 
         keywords: ['ignores', 'not responding', 'not working', 'ignore'], 
-        answer: `If the bot does not respond to your messages, try the following steps:<br><br>1. Restart Telegram, Wi-Fi or your device.<br>Sometimes the problem might be with your Telegram, Wi-Fi, or your device.<br><br>2. Wait a little.<br>Sometimes the system can be overloaded.<br><br>3. Turn off your device for a couple of minutes.<br>Sometimes turning off the device may also help.<br><br>4. Clear the Telegram cache.<br>We recommend clearing your Telegram cache in the "Data and Storage" section of your Telegram settings.<br><br>If none of this helps, send me "Help".`
+        answer: `If the bot is not responding to your messages, try the following steps:<br><br>1. Restart Telegram, Wi-Fi, or your device.<br>Sometimes the problem may be in your Telegram, Wi-Fi, or device<br><br>2. Wait a bit.<br>Sometimes the system is overloaded.<br><br>3. Turn off the device for a couple of minutes.<br>Sometimes turning off the device can also help.<br><br>4. Clear Telegram cache<br>We recommend clearing your Telegram cache in the settings of your Telegram in the "Data and Storage" section.<br><br>If none of this helped you, send me "Help me"` 
+      },
+      { 
+        question: "What can you do?", 
+        keywords: ['can you do?', 'what can you do?', 'what can', 'do'], 
+        answer: `I can only answer your questions about our resources (bots and mini-apps) and help in some cases.` 
       }
     ];
 
@@ -382,15 +414,15 @@
     let userMessageCount = 0;
     let ratingDisplayed = false;
     let selectedStars = 0;
-    let ratingDisabled = false;  // lock system message
-    let ratingSent = false;      // flag for sent rating
-    let systemTypingActive = false; // flag that system is typing
+    let ratingDisabled = false;  // system message lock
+    let ratingSent = false;      // sent rating flag
+    let systemTypingActive = false; // flag that the system is typing
 
     // References to system message elements
     let ratingDiv = null;
     let reasonBtn = null;
 
-    // Function to display an error message (heading instead of alert)
+    // Function to display error message (heading instead of alert)
     function showError(message) {
       const errorHeading = document.createElement('h3');
       errorHeading.classList.add('error-message');
@@ -420,11 +452,34 @@
       return defaultMessage;
     }
 
+    function containsForbiddenWords(text) {
+    // Convert the entire text to lowercase
+    const lowerText = text.toLowerCase();
+    // List of forbidden words (all in lowercase)
+    const forbiddenWords = [
+      'bitch', 'fuck', 'shit', 'cunt', 'asshole', 'dick', 'piss', 'bastard', 'whore', 'idiot', 'stupid',
+      'scum', 'faggot', 'douche', 'prick', 'twat', 'moron', 'retard', 'dumbass', 'motherfucker'
+    ]; // Updated to English equivalents for consistency
+    
+    // If at least one forbidden word is in the string, return true
+    return forbiddenWords.some(word => lowerText.includes(word));
+  }
+
+
     function processMessage() {
-      // If the system is still typing, do not send the message
+      // If the system is still typing, do not send
       if (systemTypingActive) return;
       const text = messageInput.value.trim();
       if (!text) return;
+      
+      // If the message contains profanity or insults
+      if (containsForbiddenWords(text)) {
+        messageInput.value = ''; // clear input field
+        updateSendButtonVisibility();
+        appendMessage('ai', 'Let\'s not use profanity.');
+        return; // stop further processing
+      }
+      
       appendMessage('user', text);
       messageInput.value = '';
       updateSendButtonVisibility();
@@ -441,14 +496,14 @@
 
     sendBtn.addEventListener('click', processMessage);
     messageInput.addEventListener('keypress', e => {
-      // If Enter is pressed and the system is not typing
+      // If Enter key is pressed and system is not typing
       if (e.key === 'Enter' && !systemTypingActive) {
         processMessage();
       }
     });
 
-    // Function to update the visibility and active state of the "Send" button
-    // The button appears only if the input is not empty and the system is not typing
+    // Function to update "Send" button visibility
+    // Button appears only if input field is not empty and system is not typing
     function updateSendButtonVisibility() {
       if (messageInput.value.trim() !== '' && !systemTypingActive) {
         sendBtn.style.display = "inline-block";
@@ -459,7 +514,7 @@
 
     messageInput.addEventListener("input", updateSendButtonVisibility);
 
-    // Function to display the animated typing indicator (jumping dots)
+    // Function to display animated typing indicator (bouncing circles)
     function showTypingIndicator() {
       const indicator = document.createElement('div');
       indicator.classList.add('message', 'ai');
@@ -469,8 +524,8 @@
       return indicator;
     }
 
-    // On page load, set flag, update button visibility, show typing indicator,
-    // then after 3 seconds remove the indicator, display a greeting and update button visibility
+    // On page load, set flag, disable "Send" button,
+    // show typing indicator, then after 3 seconds remove indicator, display greeting and update button visibility
     window.onload = () => {
       systemTypingActive = true;
       updateSendButtonVisibility();
@@ -478,12 +533,12 @@
       setTimeout(() => {
         systemTypingActive = false;
         indicator.remove();
-        appendMessage('ai', 'Hello, how can I help you?');
+        appendMessage('ai', 'Hello, how can I help you?<br><br>To talk to an administrator, send me "Admin"');
         updateSendButtonVisibility();
       }, 3000);
     };
 
-    // Creating the rating block
+    // Create rating block
     function showRatingMessage() {
       ratingDiv = document.createElement('div');
       ratingDiv.classList.add('message', 'rating');
@@ -527,7 +582,7 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Updating stars display
+    // Update stars display
     function updateStarsDisplay(starsDiv) {
       const starSpans = starsDiv.querySelectorAll('.star');
       starSpans.forEach(star => {
@@ -536,14 +591,14 @@
       });
     }
 
-    // Sending rating to Telegram and disabling other elements of the system message
+    // Send rating to Telegram and lock other system message elements
     function sendRating() {
       if (ratingDisabled) return;
       if (selectedStars === 0) {
-        showError('Please select the number of stars for rating.');
+        showError('Please select the number of stars for the rating.');
         return;
       }
-      const ratingMsg = `Someone rated our support with ${selectedStars} ${selectedStars === 1 ? 'star' : 'stars'}!`;
+      const ratingMsg = `Someone rated our support ${selectedStars} ${selectedStars === 1 ? 'star' : 'stars'}!`;
       const url = `https://api.telegram.org/bot${telegramToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(ratingMsg)}`;
 
       fetch(url)
@@ -552,7 +607,7 @@
           if (data.ok) {
             ratingSent = true;
             if (selectedStars <= 3) {
-              appendMessage('ai', 'We apologize for the issues you experienced. We will strive to improve!');
+              appendMessage('ai', 'We apologize for the issues. We will try to improve!');
               disableRatingMessage({ allowReason: true });
               reasonBtn.style.display = 'inline-block';
             } else {
@@ -569,15 +624,15 @@
         });
     }
 
-    // Disabling system message elements.
-    // If allowReason==true, disable all elements except the "Reason" button and text.
+    // Lock system message elements.
+    // If allowReason==true, lock all elements except the "Reason" button and text.
     function disableRatingMessage({ allowReason }) {
       ratingDisabled = true;
       if (ratingDiv) {
         const buttons = ratingDiv.querySelectorAll('button');
         buttons.forEach(btn => {
           if (allowReason && btn === reasonBtn) {
-            // do not disable the "Reason" button
+            // do not lock "Reason" button
           } else {
             btn.disabled = true;
             btn.classList.add('disabled');
@@ -595,7 +650,7 @@
       }
     }
 
-    // Opening the modal window for entering a reason
+    // Open modal window for entering reason
     function openImprovementWindow() {
       if (!ratingDisabled) return;
       if (document.querySelector('.modal-overlay')) return;
@@ -607,7 +662,7 @@
       modal.classList.add('modal');
 
       const promptText = document.createElement('p');
-      promptText.textContent = 'Why did you give such a rating?';
+      promptText.textContent = 'Why did you give this rating?';
 
       const input = document.createElement('input');
       input.type = 'text';
@@ -666,6 +721,14 @@
       overlay.appendChild(modal);
       document.body.appendChild(overlay);
     }
+
+    // Added code: Hide keyboard on click/tap outside the input field
+    document.addEventListener('click', (event) => {
+      // If click is not on the input field or its descendants, hide the keyboard
+      if (!messageInput.contains(event.target)) {
+        messageInput.blur(); // Remove focus from input, which hides the keyboard on mobile
+      }
+    });
   </script>
 </body>
 </html>

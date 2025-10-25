@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Чат поддержки ИИ</title>
   <style>
     /* Сброс стандартных отступов и установка box-sizing */
@@ -19,7 +19,7 @@
       justify-content: center; /* по горизонтали по центру */
       align-items: flex-start; /* выравнивание по верху */
       min-height: 100vh;
-      min-width: 475px;
+      /* Убрали min-width: 475px для лучшей адаптивности на маленьких экранах */
     }
 
     .chat-container {
@@ -294,6 +294,32 @@
       .chat-input button {
         font-size: 14px;
         padding: 0 15px;
+      }
+      /* Дополнительные корректировки для маленьких экранов */
+      .message {
+        max-width: 90%; /* Увеличили max-width для сообщений на маленьких экранах */
+      }
+      .chat-messages {
+        padding: 10px; /* Уменьшили padding */
+      }
+    }
+
+    /* Добавили медиа-запрос для очень маленьких экранов (например, старые мобильные) */
+    @media (max-width: 320px) {
+      .chat-header {
+        font-size: 16px;
+        padding: 8px;
+      }
+      .chat-input input {
+        font-size: 12px;
+        padding: 6px;
+      }
+      .chat-input button {
+        font-size: 12px;
+        padding: 0 10px;
+      }
+      .stars {
+        font-size: 18px;
       }
     }
   </style>
@@ -696,6 +722,14 @@
       overlay.appendChild(modal);
       document.body.appendChild(overlay);
     }
+
+    // Добавленный код: Скрытие клавиатуры при клике/тапе вне поля ввода
+    document.addEventListener('click', (event) => {
+      // Если клик не по полю ввода и не по его потомкам, скрываем клавиатуру
+      if (!messageInput.contains(event.target)) {
+        messageInput.blur(); // Убираем фокус с input, что скрывает клавиатуру на мобильных
+      }
+    });
   </script>
 </body>
 </html>
