@@ -162,148 +162,9 @@
             font-weight: 600;
             color: var(--muted);
         }
-        body {
-            margin: 0;
-            padding: 0;
-            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
-            color: #ff6600;
-            overflow-x: hidden;
-            height: 100vh;
-            position: relative;
-        }
-        .fog {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 300%;
-            height: 300%;
-            background: url("https://i.ibb.co/9n0xC1h/smoke.png") repeat;
-            opacity: 0.08;
-            animation: fogmove 90s linear infinite;
-            pointer-events: none;
-            z-index: 1;
-        }
-        @keyframes fogmove {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-        }
-        .cloud {
-            position: fixed;
-            top: 10%;
-            width: 200px;
-            height: 60px;
-            background: radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            z-index: 2;
-            animation: cloudmove 120s linear infinite;
-        }
-        .cloud::before,
-        .cloud::after {
-            content: '';
-            position: absolute;
-            background: radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%);
-            width: 100px;
-            height: 50px;
-            top: -10px;
-            left: -50px;
-            border-radius: 50%;
-        }
-        .cloud::after {
-            width: 120px;
-            height: 60px;
-            top: 10px;
-            left: 50px;
-            border-radius: 50%;
-        }
-        .cloud2 {
-            top: 25%;
-            width: 300px;
-            height: 80px;
-            animation-duration: 160s;
-            animation-delay: 30s;
-        }
-        @keyframes cloudmove {
-            from { left: -250px; }
-            to { left: 410%; }
-        }
-        h1 {
-            text-align: center;
-            margin-top: 80px;
-            color: #cc0000;
-            text-shadow: 0 0 15px #ff0000, 0 0 30px #660000;
-            animation: flicker 2s infinite;
-            z-index: 10;
-            position: relative;
-        }
-        @keyframes flicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-            20%, 24%, 55% { opacity: 0.4; }
-        }
-        .pumpkin {
-            position: fixed;
-            top: -10%;
-            width: 50px;
-            height: auto;
-            z-index: 0;
-            animation: fall linear infinite;
-            pointer-events: none;
-        }
-        @keyframes fall {
-            from { top: -10%; transform: rotate(0deg); }
-            to { top: 110%; transform: rotate(360deg); }
-        }
-        .content, h1, p, button {
-            position: relative;
-            z-index: 10;
-        }
-        .p1  { left: 20%;  animation-duration: 12s; animation-delay: 0s; }
-        .p2  { left: 10%; animation-duration: 15s; animation-delay: 2s; }
-        .p3  { left: 15%; animation-duration: 18s; animation-delay: 4s; }
-        .p4  { left: 20%; animation-duration: 14s; animation-delay: 1s; }
-        .p5  { left: 25%; animation-duration: 20s; animation-delay: 3s; }
-        .p6  { left: 30%; animation-duration: 16s; animation-delay: 5s; }
-        .p7  { left: 35%; animation-duration: 18s; animation-delay: 7s; }
-        .p8  { left: 40%; animation-duration: 13s; animation-delay: 2s; }
-        .p9  { left: 45%; animation-duration: 21s; animation-delay: 6s; }
-        .p10 { left: 50%; animation-duration: 15s; animation-delay: 4s; }
-        .p11 { left: 55%; animation-duration: 19s; animation-delay: 8s; }
-        .p12 { left: 60%; animation-duration: 12s; animation-delay: 1s; }
-        .p13 { left: 65%; animation-duration: 22s; animation-delay: 5s; }
-        .p14 { left: 70%; animation-duration: 14s; animation-delay: 3s; }
-        .p15 { left: 75%; animation-duration: 17s; animation-delay: 7s; }
-        .p16 { left: 80%; animation-duration: 20s; animation-delay: 9s; }
-        .p17 { left: 85%; animation-duration: 16s; animation-delay: 2s; }
-        .p18 { left: 90%; animation-duration: 18s; animation-delay: 10s; }
-        .p19 { left: 95%; animation-duration: 11s; animation-delay: 6s; }
-        .p20 { left: 100%;animation-duration: 23s; animation-delay: 8s; }
-        @keyframes roll {
-            0% { left: -150%; transform: rotate(0deg); }
-            100% { left: 100%; transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
-    <div class="cloud"></div>
-    <div class="cloud cloud2"></div>
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p1" onclick="secret()" style="width: 60px; pointer-events: all;" id="p1">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p3">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p4">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p5">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p6">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p7">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p8">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p9">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p10">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p11">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p12">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p13">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p14">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p15">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p16">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p17">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p18">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p19">
-    <img src="https://png.pngtree.com/png-clipart/20230814/original/pngtree-illustration-of-scary-halloween-pumpkin-picture-image_7938109.png" class="pumpkin p20">
     <div id="maintenance">
         <h2 data-translate="maintenance" id="maintenanceM"></h2>
     </div>
@@ -433,21 +294,6 @@
     <script>
         if (!localStorage.getItem('userName')) {
             localStorage.setItem('userName', 'User');
-        }
-        function secret() {
-          localStorage.getItem('caught_special_pumpkin') ? localStorage.setItem('caught_special_pumpkin', String(parseInt(localStorage.getItem('caught_special_pumpkin')) + 1)) : localStorage.setItem('caught_special_pumpkin', '1');
-            const a1 = Math.floor(Math.random() * 6) + 1;
-            if (a1 === 4 || a1 === 5) {
-                const a = localStorage.getItem('coins') || '0';
-                localStorage.setItem('coins', String(parseInt(a) + 100));
-                alert('+100🪙');
-                document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + formatNumber(localStorage.getItem('coins'));
-            }
-            document.getElementById("p1").style.display = "none";
-            setTimeout(function() {
-                document.getElementById("p1").style.left = Math.floor(Math.random() * 90 + 5) + '%';
-                document.getElementById("p1").style.display = "block";
-            }, 4000);
         }
 
         const gasUrl = 'https://script.google.com/macros/s/AKfycbxkvAXAMckjNcVYGh3BmSmMI608TbUAwrmohywdKoVCMbmCz69Y0dKb3r9OP89NlH8s/exec';
@@ -1163,7 +1009,10 @@
         setInterval(() => {
             checkTokenAndRedirect();
         }, 6500);
-        document.getElementById("p1").style.left = Math.floor(Math.random() * 90 + 5) + '%';
+        
+if (window.Telegram && window.Telegram.WebApp) {
+  window.Telegram.WebApp.onEvent('settingsButtonClicked', showSettings);
+}
     </script>
 </body>
-</html>
+</html> 

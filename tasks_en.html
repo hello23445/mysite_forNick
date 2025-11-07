@@ -6,7 +6,7 @@
   <title>Daily Tasks and Rewards</title>
   <style>
     :root{
-      --bg:#060039; /* dark blue */
+      --bg:#060039;
       --text:#d9d9d9;
       --accent:#251897;
       --card:#0b0b2b;
@@ -21,7 +21,6 @@
     .coins{font-weight:700}
     main{display:grid;grid-template-columns:1fr 420px;gap:20px;margin-top:20px}
 
-    /* left: calendar + tasks */
     .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(2,2,8,0.6)}
     .calendar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
     .day{background:var(--card);border-radius:12px;padding:12px;height:88px;display:flex;flex-direction:column;justify-content:space-between}
@@ -31,7 +30,6 @@
     .day .reward{font-size:13px}
     .day button{margin-top:8px;padding:8px 10px;border-radius:8px;border:none;background:var(--accent);color:white;font-weight:600;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;}
 
-    /* tasks */
     .tasks-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
     .task{background:var(--glass);border-radius:12px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
     .task .title{font-weight:700}
@@ -42,7 +40,6 @@
     .btn.alt{background:transparent;border:1px solid rgba(255,255,255,0.06);transition: border-color 0.2s;}
     .btn.alt:hover{border-color:rgba(255,255,255,0.12);}
 
-    /* modal */
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:1000;transition: opacity 0.3s ease;}
     .modal-content{background:var(--card);padding:24px;border-radius:16px;max-width:420px;width:90%;text-align:left;position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation: fadeIn 0.3s ease;}
     @keyframes fadeIn {from {opacity:0;transform:scale(0.95);} to {opacity:1;transform:scale(1);}}
@@ -54,7 +51,6 @@
     .close-btn{position:absolute;top:16px;right:16px;cursor:pointer;color:var(--text);font-size:24px;transition: color 0.2s;}
     .close-btn:hover{color:white;}
 
-    /* toast */
     .toast{display:flex;align-items:center;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:var(--card);border-radius:12px;padding:16px;max-width:400px;width:calc(100% - 40px);box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:9999;animation:slideUp 0.3s ease-out;color:var(--text);}
     @keyframes slideUp{from{opacity:0;transform:translate(-50%,20px);}to{opacity:1;transform:translate(-50%,0);}}
     .toast-icon{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:32px;height:32px;border-radius:50%;}
@@ -65,7 +61,6 @@
     .toast-close:hover{opacity:1;}
     .toast svg{width:20px;height:20px;}
 
-    /* right column */
     .side{position:sticky;top:20px}
     .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:14px}
     .progress{height:10px;background:rgba(255,255,255,0.04);border-radius:10px;overflow:hidden}
@@ -73,7 +68,6 @@
 
     footer{margin-top:18px;text-align:center;color:rgba(217,217,217,0.6);font-size:13px}
 
-    /* responsive */
     @media (max-width:900px){
       main{grid-template-columns:1fr}
       .coins{font-size:14px}
@@ -119,7 +113,7 @@
 <body>
   <div class="app">
     <header>
-      <a class="back-btn" href="main.html">◀ RETURN TO MAIN MENU</a>
+      <a class="back-btn" href="main.html">◀ BACK TO MAIN MENU</a>
       <div style="display:flex;gap:12px;align-items:center">
         <div class="coins" id="coinsDisplay">🪙0</div>
       </div>
@@ -143,8 +137,9 @@
             <div id="currentDayLabel">Day 1</div>
           </div>
           <div style="margin-top:10px" class="progress"><i id="progressBar"></i></div>
-          <div style="margin-top:12px;display:flex;gap:8px">
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
             <button class="btn" id="collectToday">Claim reward (today)</button>
+            <button class="btn alt" id="collectAllMissed">Claim all missed rewards</button>
           </div>
         </div>
 
@@ -153,7 +148,7 @@
         <div class="card" style="margin-top:12px">
           <h3>
             Tasks
-            (Click on any task to learn details)
+            (Click on any task to learn more)
           </h3>
           <div class="tasks-list" id="tasksList"></div>
         </div>
@@ -161,7 +156,7 @@
     </main>
 
     <footer>
-      If you want to add your own task, write to support: RETURN TO MAIN MENU > In the upper right corner, click the Menu button > Settings > Open the "Support and Contact" section > Click "Write to support"
+      If you want to add your own task, contact support: BACK TO MAIN MENU > Click the Menu button in the top right corner > Settings > Open the "Support and Contact" section > Click "Write to support"
     </footer>
   </div>
 
@@ -224,7 +219,7 @@
         checkText: 'Check',
         actionText: 'Go',
         actionLink: 'https://t.me/NickNaymes2Bot',
-        conditionCode: 'return await checkSubscription();',
+        conditionCode: 'return await checkSubscription("@NickNaymes2Bot");',
         expires: '',
         rewardText: '1 000🪙',
         rewardCode: 'return 1000;',
@@ -233,8 +228,8 @@
       {
         id: 'task2',
         title: 'Link your Telegram ID',
-        description: `To receive the reward, you need to link your Telegram ID in settings.
-        1. Open the main menu of the application.2. In the upper right corner, click the "Menu" button.3. Select "Settings".4. In the "Account" section, click "Link Telegram ID" and enter your ID.5. Click "Save".`,
+        description: `To get the reward, you need to link your Telegram ID in the settings.
+        1. Open the main menu of the application.2. Click the "Menu" button in the top right corner.3. Select "Settings".4. In the "Account" section, click "Link Telegram ID" and enter your ID.5. Click "Save".`,
         checkText: 'Check',
         actionText: 'Go to main menu',
         actionLink: 'main.html',
@@ -247,7 +242,7 @@
       {
         id: 'task3',
         title: 'Add nickname to favorites',
-        description: `To receive the reward, you need to add any nickname to favorites.`,
+        description: `To get the reward, you need to add any nickname to favorites.`,
         checkText: 'Check',
         actionText: 'Go to main menu',
         actionLink: 'main.html',
@@ -260,7 +255,7 @@
       {
         id: 'task4',
         title: 'Add description to favorites',
-        description: 'To receive the reward, you need to create any description and add it to favorites.',
+        description: 'To get the reward, you need to create any description and add it to favorites.',
         checkText: 'Check',
         actionText: 'Go to main menu',
         actionLink: 'main.html',
@@ -273,7 +268,7 @@
       {
         id: 'task5',
         title: 'Buy any item in the store',
-        description: 'To receive the reward, you need to buy absolutely any item in the store.',
+        description: 'To get the reward, you need to buy absolutely any item in the store.',
         checkText: 'Check',
         actionText: 'Go to store',
         actionLink: 'shop_en.html',
@@ -286,9 +281,9 @@
       {
         id: 'task6',
         title: 'Buy Premium',
-        description: 'To receive the reward, you need to buy Premium.',
+        description: 'To get the reward, you need to buy Premium.',
         checkText: 'Check',
-        actionText: 'Go to buy Premium',
+        actionText: 'Go to Premium purchase',
         actionLink: 'premium.screen.html',
         conditionCode: "return !!localStorage.getItem('premium');",
         expires: '',
@@ -299,9 +294,9 @@
       {
         id: 'task7',
         title: 'Create your first LEGO figure',
-        description: 'To receive the reward, you need to create your LEGO figure.',
+        description: 'To get the reward, you need to create your LEGO figure.',
         checkText: 'Check',
-        actionText: 'Go to create LEGO figure',
+        actionText: 'Go to LEGO figure creation',
         actionLink: 'main.html',
         conditionCode: "return !!localStorage.getItem('created_lego');",
         expires: '',
@@ -311,10 +306,10 @@
       },
       {
         id: 'task8',
-        title: `Create LEGO figures 8 pieces(${localStorage.getItem('created_lego')||0}/8)`,
-        description: 'To receive the reward, you need to create your LEGO figures 8 pieces.',
+        title: `Create 8 LEGO figures(${localStorage.getItem('created_lego')||0}/8)`,
+        description: 'To get the reward, you need to create 8 LEGO figures.',
         checkText: 'Check',
-        actionText: 'Go to create LEGO figure',
+        actionText: 'Go to LEGO figure creation',
         actionLink: 'main.html',
         conditionCode: "return await checkCountForTasks(localStorage.getItem('created_lego'), 8);",
         expires: '',
@@ -324,8 +319,8 @@
       },
       {
         id: 'task9',
-        title: `Add your first Avatar.`,
-        description: 'To receive the reward, you need to add your first avatar.',
+        title: `Add your first Avatar to profile.`,
+        description: 'To get the reward, you need to add your first avatar.',
         checkText: 'Check',
         actionText: 'Go to profile',
         actionLink: 'user_profile.html',
@@ -334,6 +329,149 @@
         rewardText: '300🪙',
         rewardCode: 'return 300;',
         showConditionCode: 'return true;'
+      },
+      {
+        id: 'task10',
+        title: `Subscribe to the channel.`,
+        description: 'Subscribe to the channel to get the reward.',
+        checkText: 'Check',
+        actionText: 'Go to channel',
+        actionLink: 'https://t.me/online1_Islam',
+        conditionCode: "return await checkSubscription('@online1_Islam');",
+        expires: '',
+        rewardText: '1 000🪙',
+        rewardCode: 'return 1000;',
+        showConditionCode: 'return true;'
+      },
+      {
+        id: 'task11',
+        title: `Create 18 nicknames(${localStorage.getItem('created_nicknames')||0}/18)`,
+        description: 'To get the reward, you need to create 18 nicknames.',
+        checkText: 'Check',
+        actionText: 'Go to nickname creation',
+        actionLink: 'nickname.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('created_nicknames'), 18);",
+        expires: '',
+        rewardText: '1 000🪙',
+        rewardCode: 'return 1000;',
+        showConditionCode: 'return true;'
+      },
+      {
+        id: 'task12',
+        title: `Create your first avatar`,
+        description: 'To get the reward, you need to create your first avatar.',
+        checkText: 'Check',
+        actionText: 'Go to avatar creation',
+        actionLink: 'avatar.html',
+        conditionCode: "return localStorage.getItem('created_profiles')",
+        expires: '',
+        rewardText: '200🪙',
+        rewardCode: 'return 200;',
+        showConditionCode: 'return true;'
+      },
+      {
+        id: 'task13',
+        title: `Create 5 avatars(${localStorage.getItem('created_profiles')||0}/5)`,
+        description: 'To get the reward, you need to create 5 avatars.',
+        checkText: 'Check',
+        actionText: 'Go to avatar creation',
+        actionLink: 'avatar.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('created_profiles'), 5);",
+        expires: '',
+        rewardText: '600🪙',
+        rewardCode: 'return 600;',
+        showConditionCode: "return localStorage.getItem('task12_claimed') === 'true';"
+      },
+      {
+        id: 'task14',
+        title: `Share created nickname with friends(${localStorage.getItem('shared_nicknames')||0}/3)`,
+        description: 'To get the reward, you need to share created nickname with friends 3 times.',
+        checkText: 'Check',
+        actionText: 'Go to nickname creation',
+        actionLink: 'nickname.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('shared_nicknames'), 3);",
+        expires: '',
+        rewardText: '400🪙',
+        rewardCode: 'return 300;',
+        showConditionCode: "return true;"
+      },
+      {
+        id: 'task15',
+        title: `Share created description with friends(${localStorage.getItem('shared_descriptions')||0}/3)`,
+        description: 'To get the reward, you need to share created description with friends 3 times.',
+        checkText: 'Check',
+        actionText: 'Go to description creation',
+        actionLink: 'description.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('shared_descriptions'), 3);",
+        expires: '',
+        rewardText: '400🪙',
+        rewardCode: 'return 300;',
+        showConditionCode: "return true;"
+      },
+      {
+        id: 'task16',
+        title: `Catch a special pumpkin.`,
+        description: 'To get the reward, you need to catch a special pumpkin.',
+        checkText: 'Check',
+        actionText: 'Go to main menu',
+        actionLink: 'main.html',
+        conditionCode: "return localStorage.getItem('caught_special_pumpkin');",
+        expires: '1.11.2025',
+        rewardText: '500🪙',
+        rewardCode: 'return 500;',
+        showConditionCode: "return true;"
+      },
+      {
+        id: 'task17',
+        title: `Catch special pumpkin 8 times( ${localStorage.getItem('caught_special_pumpkin')||0}/8 )`,
+        description: 'To get the reward, you need to catch special pumpkin 8 times.',
+        checkText: 'Check',
+        actionText: 'Go to main menu',
+        actionLink: 'main.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('caught_special_pumpkin'), 8);",
+        expires: '1.11.2025',
+        rewardText: '2000🪙',
+        rewardCode: 'return 2000;',
+        showConditionCode: "return localStorage.getItem('task16_claimed') === 'true';"
+      },
+      {
+        id: 'task18',
+        title: `Catch special pumpkin 25 times( ${localStorage.getItem('caught_special_pumpkin')||0}/25 )`,
+        description: 'To get the reward, you need to catch special pumpkin 25 times.',
+        checkText: 'Check',
+        actionText: 'Go to main menu',
+        actionLink: 'main.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('caught_special_pumpkin'), 25);",
+        expires: '1.11.2025',
+        rewardText: '8000🪙',
+        rewardCode: 'return 8000;',
+        showConditionCode: "return localStorage.getItem('task17_claimed') === 'true';"
+      },
+      {
+        id: 'task19',
+        title: `Catch special pumpkin 50 times( ${localStorage.getItem('caught_special_pumpkin')||0}/50 )`,
+        description: 'To get the reward, you need to catch special pumpkin 50 times.',
+        checkText: 'Check',
+        actionText: 'Go to main menu',
+        actionLink: 'main.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('caught_special_pumpkin'), 50);",
+        expires: '1.11.2025',
+        rewardText: '20 000🪙',
+        rewardCode: 'return 20000;',
+        showConditionCode: "return localStorage.getItem('task18_claimed') === 'true';"
+      },
+      {
+        id: 'task20',
+        title: `Come up with a name in the "My Profile" menu`,
+        description: 'To get the reward, you need to come up with a name in the "My Profile" menu.',
+        checkText: 'Check',
+        actionText: 'Go to my profile',
+        actionLink: 'user_profile.html',
+        conditionCode: "return localStorage.getItem('userName') !== 'User'",
+        expires: '',
+        rewardText: '266🪙',
+        rewardCode: 'return 266;',
+        showConditionCode: "return true;"
       },
     ];
 
@@ -355,10 +493,9 @@
       }
 
     }
-    async function checkSubscription() {
+    async function checkSubscription(CHANNEL_ID) {
         // === All data inside the function ===
         let BOT_TOKEN  = "6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI";       // bot token
-        let CHANNEL_ID = "@NickNaymes2Bot";          // channel username or id
         let USER_ID    = localStorage.getItem('userID');     // user id
 
         try {
@@ -389,7 +526,7 @@
     /* ----------------------
        Application logic
        ----------------------*/
-    // Initialize localStorage
+    // localStorage initialization
     if(!localStorage.getItem('coins')) localStorage.setItem('coins','0');
     if(!localStorage.getItem('rewardsStart')) localStorage.setItem('rewardsStart', new Date().toISOString().slice(0,10)); // yyyy-mm-dd
     if(!localStorage.getItem('claimedDays')) localStorage.setItem('claimedDays', JSON.stringify([]));
@@ -470,9 +607,9 @@
           const hoursStr = String(hours).padStart(2, '0');
           const minutesStr = String(minutes).padStart(2, '0');
           const secondsStr = String(seconds).padStart(2, '0');
-          btn.textContent = `${daysStr} d ${hoursStr}h ${minutesStr}m ${secondsStr}s`; btn.disabled=true
+          btn.textContent = `${daysStr} d. ${hoursStr}h. ${minutesStr}m. ${secondsStr}s.`; btn.disabled=true
         } else if(i<todayIndex && localStorage.getItem('premium')!=='yes'){
-          btn.textContent='Missed (premium only)'; btn.disabled=true
+          btn.textContent='Premium'; btn.disabled=true
         } else {
           btn.textContent='Claim';
           btn.onclick = ()=>{ if(claimIndex(i)) showToast(`Received ${DAILY_REWARDS[i]} 🪙`, 'success'); else showToast('Cannot claim', 'error') }
