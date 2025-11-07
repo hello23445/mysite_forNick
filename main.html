@@ -1009,10 +1009,7 @@
         setInterval(() => {
             checkTokenAndRedirect();
         }, 6500);
-        
-if (window.Telegram && window.Telegram.WebApp) {
-  window.Telegram.WebApp.onEvent('settingsButtonClicked', showSettings);
-}
+        window.Telegram.WebApp.onEvent('settingsButtonClicked', showSettings);
     </script>
 </body>
 </html> 
