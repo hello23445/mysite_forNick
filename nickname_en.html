@@ -153,6 +153,7 @@
             <button id="randomize" class="btn">Random</button>
             <button id="to-decorate" class="btn hidden">Decorate →</button>
         </div>
+        <h4 id="error" style="color: red; display: none;"></h4>
         <div class="examples" id="example-list"></div>
         <div id="decorations" style="display:none; margin-top:30px;">
             <h2>Choose a decoration</h2>
@@ -169,7 +170,8 @@
             <div id="message"></div>
         </div>
     </div>
-    <script>
+    <script type="module">
+        import { badWords } from './security.js';
         const APP_URL = 'https://script.google.com/macros/s/AKfycbzxxdiQbEBql6LIuK0PgYdV0DIbhvHwPFKbRWg8trSyzmeGVYdbHQXkq3rgyqFBuc19/exec';
         
         if (localStorage.getItem('premium') !== 'true') {
@@ -369,6 +371,23 @@
             toDecorateBtn.classList.remove('hidden');
         };
         toDecorateBtn.onclick = () => {
+            // get the value from the input
+            let text = nicknameInput.value.toLowerCase();
+
+            // remove all characters except letters and digits (to prevent bypassing the filter)
+            text = text.replace(/[^a-zа-яё0-9]/gi, '');
+
+            // check for the presence of banned words
+            if (badWords.some(word => text.includes(word.toLowerCase()))) {
+                error.style.display = 'block';
+                error.textContent = 'The selected nickname violates our rules. Please choose another one.';
+                return;
+            } else {
+                error.textContent = '';
+                error.style.display = 'none';
+            }
+
+
             if (localStorage.getItem('created_nicknames')){
                 localStorage.setItem('created_nicknames', String(Number(localStorage.getItem('created_nicknames')) + 1));
             }

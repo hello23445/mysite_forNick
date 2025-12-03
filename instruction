@@ -1,0 +1,24 @@
+Инструкция по добавлению элементов в main.html
+1. Добавление пунктов в настройки (settingsMenu)
+- Найдите блок <div class="row"> внутри <div class="settings-wrap">.
+- Добавьте новую карточку <div class="card"> после существующих.
+| Структура карточки:
+Заголовок: <div class="card-header"> <h3 data-translate="ключ">Заголовок</h3> <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button> </div>
+Содержимое: <div style="display: none;"> ... контент ... </div>
+
+- Для перевода добавьте ключ в объект translations в JS (ru и en).
+- Для элементов (селект, чекбокс) добавьте обработчики в JS.
+- Вызовите applyTranslations() после изменений.
+
+2. Добавление кнопок в главное меню (mainMenu с генераторами)
+
+- В JS, добавьте текст кнопки в массив featureButtons (ru и en).
+- Добавьте ключ в массив featureKeys.
+- Добавьте URL в объекты filesRu и filesEn.
+- Функция applyTranslations() обновит меню автоматически.
+
+3. Добавление кнопок в боковое меню (sideMenu)
+
+- В JS, в функции applySideButtons(), добавьте объект в массив items: { textKey: 'ключ', icon: 'fa-solid fa-иконка', href: 'url' или onClick: функция }.
+- Добавьте перевод для textKey в translations (ru и en).
+- Функция applySideButtons() обновит меню автоматически.

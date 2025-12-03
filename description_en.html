@@ -146,6 +146,7 @@
     <button id="generateBtn" class="btn-green"><b>Generate</b></button>
     <button id="next1" class="btn-green" disabled><b>Next</b></button>
   </div>
+  <h4 id="error" style="color: red; display: none;"></h4>
 </div>
 
 <div id="screen2" class="screen">
@@ -962,7 +963,8 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+  import { badWords } from './security.js';
 const button = document.getElementById('s');
 button.style.fontWeight = 'bold';
 
@@ -1159,6 +1161,21 @@ generateBtn.addEventListener('click', () => {
 });
 
 next1.addEventListener('click', () => {
+  let text = descriptionInput.value.toLowerCase();
+
+  // remove all characters except letters and digits (to prevent bypassing the filter)
+  text = text.replace(/[^a-zа-яё0-9]/gi, '');
+
+  // check for the presence of banned words
+  if (badWords.some(word => text.includes(word.toLowerCase()))) {
+    error.style.display = 'block';
+    error.textContent = 'The description contains forbidden words. Please change the description.';
+    return;
+  } else {
+    error.textContent = '';
+    error.style.display = 'none';
+  }
+
   if (descriptionInput.value.includes('👑') || descriptionInput.value.includes('Premium') || descriptionInput.value.includes('Premium')) {
     if (confirm('The description contains forbidden words. Please change the description by clicking "Cancel" or click "OK" to remove them automatically.')) {
       descriptionInput.value = descriptionInput.value.replace(/👑/g, '').replace(/Premium/g, '').replace(/Premium/g, '');

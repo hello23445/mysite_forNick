@@ -106,14 +106,16 @@
     const redirectUrl = 'main.html';
 
     const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
+    localStorage.setItem('lang', userLang);
+    
     const text = {
       ru: {
         loading: 'Идет загрузка...\n|| Loading...',
         blocked: 'Ваш аккаунт заблокирован. || Your account is blocked.',
         support: 'Служба поддержки || Support service: @',
         supportBot: 'Clickerstart_bot',
-        maintenance: 'Ведется техническое обслуживание!\nTechnical maintenance',
-        soon: 'Скоро мы начнем техническое обслуживание\nTechnical maintenance will start soon.',
+        maintenance: 'Технический перерыв!\nTechnical maintenance',
+        soon: 'Скоро мы начнем технический перерыв!\nTechnical maintenance will start soon.',
         subscribe: 'Подпишитесь на канал для продолжения!\nSubscribe to the channel to continue!',
         checkSubscription: 'Проверить подписку || Check subscription'
       },

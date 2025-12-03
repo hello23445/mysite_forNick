@@ -19,16 +19,53 @@
             --btn: #251897;
             --shadow: rgba(0,0,0,.35);
             --disabled: #4a4a4a;
+            --snow-frost: rgba(255, 255, 255, 0.12);
         }
         * { box-sizing: border-box; }
         html, body { height: 100%; }
         body {
             font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-            background: radial-gradient(1200px 800px at 80% -10%, #100a7a 0%, var(--bg) 60%);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
             color: var(--text);
             margin: 0;
             padding: 0;
+            overflow: hidden;
+            position: relative;
         }
+        #bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+        }
+        /* === СНЕЖНЫЙ СЛОЙ НАД ВСЕМ, НО ПОД КНОПКАМИ === */
+        #snowCanvas, #snowPile {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        #snowPile {
+            bottom: 0;
+            top: auto;
+            height: 0;
+            background: linear-gradient(to top, rgba(255,255,255,0.9), rgba(255,255,255,0.3), transparent);
+            transition: height 1s ease-out;
+            z-index: 6;
+        }
+        /* === TOP BAR ПОВЕРХ СНЕГА === */
         .top-bar {
             position: sticky;
             top: 0;
@@ -44,12 +81,45 @@
         #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
         #sideTopBar { justify-content: space-between; gap: 6px; }
         #sideTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+        /* === СНЕЖНЫЙ СТИЛЬ КНОПОК === */
+        .icon-btn, .btn {
+            position: relative;
+            overflow: hidden;
+            transition: all .15s ease;
+        }
+        .icon-btn::before, .btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--snow-frost);
+            opacity: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            transition: opacity .3s ease;
+        }
+        .icon-btn:hover::before, .btn:hover::before {
+            opacity: 0.3;
+        }
+        .icon-btn::after, .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 10%, transparent 40%);
+            opacity: 0;
+            transform: translateX(-100%) translateY(-100%) rotate(30deg);
+            transition: opacity .4s ease;
+        }
+        .icon-btn:hover::after, .btn:hover::after {
+            opacity: 1;
+            transform: translateX(100%) translateY(100%) rotate(30deg);
+            transition: transform 0.6s ease, opacity 0.2s ease;
+        }
         .icon-btn {
             display: inline-flex; align-items: center; justify-content: center;
             background: #090975; border: 1px solid rgba(255,255,255,.08);
             color: var(--text); font-size: 16px; width: 36px; height: 36px; border-radius: 10px;
-            cursor: pointer; transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
-            box-shadow: 0 4px 12px var(--shadow);
+            cursor: pointer; box-shadow: 0 4px 12px var(--shadow);
         }
         .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
         .main { text-align: center; margin: 16px auto 0; padding: 0 12px; max-width: 860px; }
@@ -63,18 +133,16 @@
             background: linear-gradient(180deg, var(--btn), #1b1280);
             color: var(--text); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; cursor: pointer; width: 100%; font-size: 13px; font-weight: 600;
             box-shadow: 0 4px 12px var(--shadow);
-            transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
         }
         .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--shadow); }
-        .btn:disabled { 
-            opacity: .6; 
-            cursor: not-allowed; 
+        .btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
             background: var(--disabled);
         }
         .btn .left-icon { margin-right: 6px; }
         .btn .right-icon { margin-left: 6px; }
-        #settingsMenu { display: none; padding: 16px 12px 24px; }
-        .settings-wrap { max-width: 860px; margin: 0 auto; }
+        #maintenance { display: none; text-align: center; margin-top: 16px; color: #ff6b6b; padding: 10px; }
         .card {
             background: linear-gradient(180deg, var(--card), #0b0862);
             border: 1px solid rgba(255,255,255,.08);
@@ -85,8 +153,7 @@
         .lang-field { display: flex; align-items: center; gap: 8px; width: 100%; }
         select#langSelect { flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
         #tok { margin-top: 6px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); width: 100%; }
-        #maintenance { display: none; text-align: center; margin-top: 16px; color: #ff6b6b; padding: 10px; }
-        #statSelect, #avatarVisibilitySelect {
+        #statSelect, #avatarVisibilitySelect, #theme {
             flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
         @media (max-width: 560px) {
             .buttons-container { grid-template-columns: 1fr; }
@@ -129,17 +196,9 @@
             transform: translateX(100%);
             transition: transform 0.5s ease-in-out;
         }
-        #sideMenu.open {
-            transform: translateX(0);
-        }
-        @media (max-width: 400px) {
-            #sideMenu { width: 100%; }
-        }
-        .side-buttons {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 8px;
-        }
+        #sideMenu.open { transform: translateX(0); }
+        @media (max-width: 400px) { #sideMenu { width: 100%; } }
+        .side-buttons { display: grid; grid-template-columns: 1fr; gap: 8px; }
         .coins {
             background: linear-gradient(145deg, #060039, #0a004d);
             border-radius: 12px;
@@ -148,34 +207,103 @@
             color: #e0e0ff;
             font-weight: 600;
             text-align: center;
-            box-shadow: 0 0 10px rgba(96, 75, 254, 0.3),
-                        inset 0 0 8px rgba(30, 20, 100, 0.5);
+            box-shadow: 0 0 10px rgba(96, 75, 254, 0.3), inset 0 0 8px rgba(30, 20, 100, 0.5);
         }
-        .coins i {
-            font-style: normal;
-            font-weight: normal;
-            color: inherit;
-            pointer-events: none;
+        .coins i { font-style: normal; font-weight: normal; color: inherit; pointer-events: none; }
+        .label { font-size: 14px; font-weight: 600; color: var(--muted); }
+        /* === ОПТИМИЗАЦИЯ НАСТРОЕК: ПРОКРУТКА + СКВОЗНОЙ ФОН И СНЕГ === */
+        #settingsMenu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 30;
+            overflow: hidden;
         }
-        .label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--muted);
+        .settings-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 8px 12px 80px;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            pointer-events: auto;
+            background: transparent !important;
+        }
+        .settings-wrap * { pointer-events: auto; }
+        .settings-wrap::-webkit-scrollbar {
+            width: 6px;
+        }
+        .settings-wrap::-webkit-scrollbar-track { background: transparent; }
+        .settings-wrap::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        .settings-wrap::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        #settingsMenu .card {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: linear-gradient(180deg, rgba(13, 8, 112, 0.92), rgba(11, 8, 98, 0.92));
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, .08);
+        }
+        #settingsMenu .card-header h3 {
+            margin: 4px 0;
+            font-size: 13.5px;
+        }
+        #settingsMenu .collapsible-content {
+            padding: 6px 0;
+            font-size: 12.5px;
+        }
+        #settingsMenu .btn {
+            padding: 9px;
+            font-size: 12.8px;
+        }
+        #settingsMenu select {
+            padding: 9px;
+            font-size: 13px;
+        }
+        @media (max-width: 560px) {
+            .settings-wrap {
+                padding: 6px 10px 70px;
+                height: calc(100vh - 52px);
+            }
+            #settingsMenu .card { padding: 8px; }
+            #settingsMenu .btn, #settingsMenu select {
+                font-size: 15px;
+                padding: 11px;
+                min-height: 42px;
+            }
+        }
+        .no-animations * {
+            transition: none !important;
+            animation: none !important;
         }
     </style>
 </head>
 <body>
+    <div id="bg"></div>
+    <!-- //новогодний снег: начало -->
+    <canvas id="snowCanvas"></canvas>
+    <div id="snowPile"></div>
+    <!-- //новогодний снег: конец -->
     <div id="maintenance">
         <h2 data-translate="maintenance" id="maintenanceM"></h2>
     </div>
     <div class="top-bar" id="mainTopBar">
-        <h4 class="coins" id="coins"><i style="user-select: none;">🪙</i>0</h4>
+        <h4 class="coins" id="coins">0</h4>
         <button class="icon-btn" id="sideMenuBtn" title="Menu"><i class="fa-solid fa-bars"></i></button>
     </div>
     <div class="main" id="mainMenu">
         <h2 data-translate="main" id="mainM"></h2>
         <div class="buttons-container" id="featureButtons"></div>
     </div>
+    <!-- НАСТРОЙКИ: СКВОЗНОЙ ФОН + СНЕГ + ПРОКРУТКА -->
     <div id="settingsMenu">
         <div class="top-bar" id="settingsTopBar">
             <button class="icon-btn" id="backBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
@@ -223,35 +351,16 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h3 data-translate="privacySectionTitle"></h3>
-                        <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" style="display: none;">
-                        <div class="field">
-                            <div class="lang-field">
-                                <label for="avatarVisibilitySelect" class="label" data-translate="privacyLabel" style="color: white;"></label>
-                                <select id="avatarVisibilitySelect">
-                                    <option value="all">Все</option>
-                                    <option value="verified">Проверенные</option>
-                                    <option value="liked">Те, на кого я поставил(-а) лайк</option>
-                                    <option value="nobody">Никто</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
                         <h3 data-translate="accountSectionTitle" id="account-settings"></h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
                     <div style="display: none;">
-                        <div class="card" style="display: none;" id="my_idBox">
+                        <div class="card" style="display: none; margin-top: 1%;" id="my_idBox">
                             <div class="card-header">
                                 <h3 id="my_idHeader">Мой Telegram ID</h3>
                                 <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                             </div>
-                            <div style="display: none;">
+                            <div style="display: none; margin-top: 1%;">
                                 <button id="myID" class="btn">Ваш Telegram ID</button>
                             </div>
                         </div>
@@ -260,11 +369,42 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h3 data-translate="userDataSectionTitle">Данные пользователя</h3>
+                        <h3 data-translate="backgroundSectionTitle"></h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
-                    <div class="collapsible-content" style="display: none;">
-                        <button class="btn" style="margin-top: 2%;" id="LoadDatasFromUserToken" onclick='window.location.href = "https://t.me/Clickerstart_bot"'>Загрузить данные по токену(Через службу поддержки)</button>
+                    <div style="display: none;">
+                        <div class="card" style="margin-bottom: 8px; margin-top: 2%;">
+                            <div class="card-header">
+                                <h3 data-translate="backgroundSubTitle"></h3>
+                                <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                            </div>
+                            <div style="display: none; margin-top: 1%;">
+                                <select id="theme"></select>
+                                <div id="customUpload" style="display:none; margin-top:8px;">
+                                    <button class="btn" id="uploadCustom" data-translate="uploadCustomBg"></button>
+                                </div>
+                                <div style="margin-top:8px; display:flex; align-items:center; gap:8px;" id="blurBackground_settingShow">
+                                    <label class="label" data-translate="blurBackground" for="blurToggle"></label>
+                                    <input type="checkbox" id="blurToggle" />
+                                </div>
+                                <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+                                    <label class="label" data-translate="snow" for="snowToggle"></label>
+                                    <input type="checkbox" id="snowToggle" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card" style="margin-top: 3%;">
+                            <div class="card-header">
+                                <h3 data-translate="animationsSubTitle"></h3>
+                                <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                            </div>
+                            <div style="display: none; margin-top: 2%;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <label class="label" data-translate="animations" for="animationsToggle"></label>
+                                    <input type="checkbox" id="animationsToggle" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="card">
@@ -292,13 +432,12 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script>
+        
         if (!localStorage.getItem('userName')) {
             localStorage.setItem('userName', 'User');
         }
-
         const gasUrl = 'https://script.google.com/macros/s/AKfycbxkvAXAMckjNcVYGh3BmSmMI608TbUAwrmohywdKoVCMbmCz69Y0dKb3r9OP89NlH8s/exec';
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbr9H0F70BHo2js1tKD_P1MVChn-9NKr8av1p0ZtJj6h9845b3dB2xDarr_B1zpFwR/exec';
-
         const LINKS = {
             complaintRU: "https://t.me/NickNaymesBot/submit_complaints",
             supportRU: "https://t.me/Clickerstart_bot",
@@ -322,7 +461,8 @@
             connection: 'connection.html',
             popular: 'popular(ru).html',
             myshop: 'myshop_ru.html',
-            tasks: 'tasks.html'
+            tasks: 'tasks.html',
+            ai_video: 'https://t.me/GeneratorVideos1Bot'
         };
         const filesEn = {
             indexed_money: 'indexed_money_en.html',
@@ -342,16 +482,15 @@
             support: 'support_en.html',
             connection: 'connection_en.html',
             popular: 'popular(en).html',
-            myshop: 'myshop_ru.html'
+            myshop: 'myshop_ru.html',
+            ai_video: 'https://t.me/GeneratorVideos1Bot'
         };
-
         let storedCoins = parseInt(localStorage.getItem('coins'));
         if (!localStorage.getItem('coins') || storedCoins < 0) {
             localStorage.setItem('coins', '0');
         } else {
             document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + formatNumber(localStorage.getItem('coins'));
         }
-
         const tok = document.getElementById("tok");
         tok.style.background = "linear-gradient(180deg, var(--btn), #1b1280)";
         tok.style.color = "#fff";
@@ -360,14 +499,14 @@
         tok.style.padding = "10px 16px";
         tok.style.fontWeight = "600";
         tok.style.cursor = "pointer";
-
         let lang = localStorage.getItem('lang') || 'ru';
         if (!localStorage.getItem('statistic_turn')) {
             localStorage.setItem('statistic_turn', 'yes');
         }
-
+        let customBackgrounds = JSON.parse(localStorage.getItem('customBackgrounds')) || [];
         let translations = {
             ru: {
+                fixing: 'Режим поиска и устранения ошибок в этом приложении',
                 money: 'Играть и зарабатывать монеты',
                 task: 'Задания и награды',
                 shop: "Магазин",
@@ -383,7 +522,7 @@
                 privacyLabel: "Кто может видеть мою аватарку:",
                 featureButtons: [
                     "Никнейм","Описание","Аватарка","Лeгo","Шрифт","Сайт",
-                    "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор"
+                    "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор фото", "ИИ-Генератор видео"
                 ],
                 settingsButtons: ["Поддержка","Проверка соединения"],
                 langOptions: ["Русский","English"],
@@ -405,9 +544,17 @@
                 statCollectNo: "Не собирать данные для статистики",
                 statClear: "Очистить все данные статистики",
                 accountSectionTitle: "Аккаунт",
-                userIDButton: "Привязать или изменить свой Telegram ID"
+                userIDButton: "Привязать или изменить свой Telegram ID",
+                backgroundSectionTitle: "Вид приложения",
+                uploadCustomBg: "Выбрать фон для загрузки",
+                blurBackground: "Размытие фона",
+                animations: "Анимации",
+                snow: "Снег",
+                backgroundSubTitle: "Фон приложения",
+                animationsSubTitle: "Анимации"
             },
             en: {
+                fixing: 'Error Detection and Correction Mode in this App',
                 money: 'Play and earn coins',
                 task: 'Tasks and Rewards',
                 shop: "Shop",
@@ -423,7 +570,7 @@
                 privacyLabel: "Who can see my avatar:",
                 featureButtons: [
                     "Nickname","Description","Profile","Lego","Font","Sites",
-                    "ASCII-art","QR-code","Music","Colors","AI-Generator"
+                    "ASCII-art","QR-code","Music","Colors","AI-Photo Generator", "AI-Video Generator"
                 ],
                 settingsButtons: ["Support","Connection check"],
                 langOptions: ["Русский","English"],
@@ -445,14 +592,19 @@
                 statCollectNo: "Do not collect data for statistics",
                 statClear: "Clear all statistics data",
                 accountSectionTitle: "Account",
-                userIDButton: "Link or change my Telegram ID"
+                userIDButton: "Link or change my Telegram ID",
+                backgroundSectionTitle: "App appearance",
+                uploadCustomBg: "Select background to upload",
+                blurBackground: "Background blur",
+                animations: "Animations",
+                snow: "Snow",
+                backgroundSubTitle: "App Background",
+                animationsSubTitle: "Animations"
             }
         };
-
         function formatNumber(num) {
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
         }
-
         function createButton({ text, icon, onClick, href, newTab=false, disabled=false, id, duplicateIcon=false }) {
             const btn = document.createElement('button');
             btn.className = 'btn';
@@ -473,9 +625,9 @@
                 btn.appendChild(i2);
             }
             if (href) {
-                btn.onclick = () => { 
-                    incrementCoins(); 
-                    newTab ? window.open(href, '_blank') : window.location.href = href; 
+                btn.onclick = () => {
+                    incrementCoins();
+                    newTab ? window.open(href, '_blank') : window.location.href = href;
                 };
             } else if (onClick) {
                 btn.onclick = onClick;
@@ -487,38 +639,32 @@
             }
             return btn;
         }
-
         function applyTranslations() {
             checkUserID();
             document.getElementById('showmytokentext').style.color = 'white';
             if (lang === 'ru') {
-                document.getElementById('LoadDatasFromUserToken').textContent = 'Загрузить данные по токену(Через службу поддержки)';
                 document.getElementById('userTokenWarning').textContent = 'Токен необходим для работы со службой поддержки и загрузки ваших данных в этом приложении. Будьте внимательны перед тем как показывать свой токен другим.';
                 document.getElementById('showmytokentext').textContent = 'Показать мой токен пользователя';
             } else {
-                document.getElementById('LoadDatasFromUserToken').textContent = 'Load data by token (via support service)';
                 document.getElementById('userTokenWarning').textContent = 'The token is required to work with the support service and to load your data in this application. Be careful before sharing your token with others.';
                 document.getElementById('showmytokentext').textContent = 'Show my user token';
             }
             const files = lang === 'ru' ? filesRu : filesEn;
-
             document.querySelectorAll('[data-translate]').forEach(el => {
                 const key = el.getAttribute('data-translate');
                 if (translations[lang][key] !== undefined) {
                     el.textContent = translations[lang][key];
                 }
             });
-
             const featureContainer = document.getElementById('featureButtons');
             featureContainer.innerHTML = '';
-            const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai'];
+            const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai', 'ai_video'];
             translations[lang].featureButtons.forEach((text, i) => {
                 const url = files[featureKeys[i]];
                 const isExternal = /^https?:\/\//i.test(url);
                 const btn = createButton({ text, icon: 'fa-solid fa-shapes', href: url, newTab: isExternal });
                 featureContainer.appendChild(btn);
             });
-
             const settingsContainer = document.getElementById('settingsButtons');
             settingsContainer.innerHTML = '';
             const settingsKeys = ['support','connection'];
@@ -528,7 +674,6 @@
                 const btn = createButton({ text, icon: settingsIcons[i], href: url });
                 settingsContainer.appendChild(btn);
             });
-
             document.getElementById('account-settings').textContent = translations[lang].accountSectionTitle;
             document.getElementById('userID-confirming').textContent = translations[lang].userIDButton;
             document.getElementById('stat_setting_text').textContent = translations[lang].statSectionTitle;
@@ -541,7 +686,6 @@
             `;
             const statSelect = document.getElementById('statSelect');
             statSelect.value = localStorage.getItem('statistic_turn') || 'yes';
-
             if (lang === 'ru') {
                 const hasLink = !!LINKS.complaintRU && /^https?:\/\//i.test(LINKS.complaintRU);
                 const complaintBtn = createButton({
@@ -553,7 +697,6 @@
                 });
                 settingsContainer.appendChild(complaintBtn);
             }
-
             const supportLink = lang === 'ru' ? LINKS.supportRU : LINKS.supportEN;
             const supportOk = !!supportLink && /^https?:\/\//i.test(supportLink);
             const writeSupportBtn = createButton({
@@ -564,7 +707,6 @@
                 disabled: !supportOk
             });
             settingsContainer.appendChild(writeSupportBtn);
-
             const langSelect = document.getElementById('langSelect');
             langSelect.innerHTML = '';
             translations[lang].langOptions.forEach((text, i) => {
@@ -574,20 +716,35 @@
                 option.selected = (option.value === lang);
                 langSelect.appendChild(option);
             });
-
-            const avatarVisibilitySelect = document.getElementById('avatarVisibilitySelect');
-            const visibilityOptions = lang === 'ru' ? ['Все', 'Проверенные на безопасность пользователи', 'Те, на кого я поставил(-а) лайк', 'Никто'] : ['All', 'Verified users', 'Those I liked', 'Nobody'];
-            const visibilityValues = ['all', 'verified', 'liked', 'nobody'];
-            avatarVisibilitySelect.innerHTML = '';
-            visibilityOptions.forEach((text, i) => {
+            // Theme select
+            const themeSelect = document.getElementById('theme');
+            themeSelect.innerHTML = '';
+            const themeOptionsFixed = lang === 'ru' 
+                ? ["Стандартный фон", "Фон события(Новогодний)", "Темный"] 
+                : ["Default background", "Event background (New Year)", "Dark"];
+            for (let i = 0; i < 3; i++) {
                 const option = document.createElement('option');
-                option.value = visibilityValues[i];
-                option.textContent = text;
-                option.selected = (option.value === (localStorage.getItem('avatar_visibility') || 'all'));
-                avatarVisibilitySelect.appendChild(option);
+                option.value = `theme${i + 1}`;
+                option.textContent = themeOptionsFixed[i];
+                themeSelect.appendChild(option);
+            }
+            customBackgrounds.forEach((bg, i) => {
+                const option = document.createElement('option');
+                option.value = `custom_${i}`;
+                option.textContent = bg.name;
+                themeSelect.appendChild(option);
             });
+            const uploadOption = document.createElement('option');
+            uploadOption.value = 'upload';
+            uploadOption.textContent = lang === 'ru' ? "Загрузить свой фон" : "Upload your own background";
+            themeSelect.appendChild(uploadOption);
+            let storedTheme = localStorage.getItem('theme') || 'theme1';
+            if (storedTheme === 'upload' || !Array.from(themeSelect.options).some(opt => opt.value === storedTheme)) {
+                storedTheme = 'theme1';
+                localStorage.setItem('theme', 'theme1');
+            }
+            themeSelect.value = storedTheme;
         }
-
         function initTokenButton(btnId) {
             let isVisible = false;
             const updateLabel = () => {
@@ -595,12 +752,12 @@
                 const maskedToken = userToken ? '*'.repeat(userToken.length) : '';
                 const btn = document.getElementById(btnId);
                 if (isVisible) {
-                    btn.innerHTML = '<i class="fa-solid fa-key left-icon"></i><span>' + 
-                        (lang === 'ru' ? 'Ваш токен: ' + userToken + ' (Нажмите для копирования)' : 
+                    btn.innerHTML = '<i class="fa-solid fa-key left-icon"></i><span>' +
+                        (lang === 'ru' ? 'Ваш токен: ' + userToken + ' (Нажмите для копирования)' :
                         'Your token: ' + userToken + ' (Click to copy)') + '</span>';
                 } else {
-                    btn.innerHTML = '<i class="fa-solid fa-key left-icon"></i><span>' + 
-                        (lang === 'ru' ? 'Ваш токен: ' + maskedToken + ' (Нажмите для показа)' : 
+                    btn.innerHTML = '<i class="fa-solid fa-key left-icon"></i><span>' +
+                        (lang === 'ru' ? 'Ваш токен: ' + maskedToken + ' (Нажмите для показа)' :
                         'Your token: ' + maskedToken + ' (Click to show)') + '</span>';
                 }
             };
@@ -627,49 +784,36 @@
                 }
             };
         }
-
         applyTranslations();
         initTokenButton('tok');
-
         document.getElementById('backBtn').onclick = () => {
             document.getElementById('settingsMenu').style.display = 'none';
             document.getElementById('mainMenu').style.display = 'block';
             document.getElementById('mainTopBar').style.display = 'flex';
             saveUserDataToGoogleSheets();
         };
-
         document.getElementById('langSelect').onchange = function() {
             lang = this.value;
             localStorage.setItem('lang', lang);
             applyTranslations();
             initTokenButton('tok');
         };
-
-        document.getElementById('avatarVisibilitySelect').onchange = function() {
-            localStorage.setItem('avatar_visibility', this.value);
-        };
-
         document.getElementById('statSelect').onchange = function() {
             const selectedOption = this.options[this.selectedIndex].text;
             const statTurn = selectedOption === translations[lang].statCollectYes ? 'yes' : 'no';
             localStorage.setItem('statistic_turn', statTurn);
             applySideButtons();
         };
-
         const m = localStorage.getItem('m');
         if (m === 'Уже' || m === 'уже') {
             document.querySelectorAll('div').forEach(el => el.style.display = 'none');
             alert(lang === 'ru' ? 'Идет техническое обслуживание' : 'Maintenance in progress');
             document.getElementById('maintenance').style.display = 'block';
             document.getElementById('maintenanceM').textContent = translations[lang].maintenance;
-        } else if (m === 'Скоро' || m === 'скоро') {
-            alert(lang === 'ru' ? 'Скоро начнется техническое обслуживание' : 'Maintenance will start soon');
         }
-
         if (!localStorage.getItem('first_use_date')) {
             localStorage.setItem('first_use_date', new Date().toISOString());
         }
-
         function clearAllStatistic() {
             let confirmed;
             if (lang === 'ru') {
@@ -689,7 +833,7 @@
             }
             if (!confirmed) return;
             if (confirmed) {
-                alert('✅');
+                alert('DONE');
             }
             const keys = [
                 'created_nicknames',
@@ -718,7 +862,6 @@
             localStorage.setItem('statistic_turn', 'yes');
             applyTranslations();
         }
-
         const dataKeys = [
             'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
             'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
@@ -726,14 +869,12 @@
             'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story',
             'first_use_date', 'statistic_turn', 'lang', 'avatar_visibility', 'loved', 'loved_descs', 'liked_users', 'userName', 'userAvatar'
         ];
-
         const statKeys = [
             'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
             'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
             'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
             'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story'
         ];
-
         async function uploadAvatarToDrive(base64) {
             try {
                 const response = await fetch(SCRIPT_URL, {
@@ -759,7 +900,6 @@
                 throw err;
             }
         }
-
         async function saveUserDataToGoogleSheets() {
             const SPREADSHEET_ID = '145dg5-KwMTiz3dVWTjLzXtHOQ5z9Gufm47LgLKsXHWU';
             try {
@@ -824,7 +964,6 @@
                 console.error('Ошибка в saveUserDataToGoogleSheets:', err);
             }
         }
-
         function incrementCoins() {
             if (Math.random() < 0.07) {
                 let amount = 1;
@@ -836,7 +975,6 @@
                 document.getElementById('coins').innerHTML = '<i style="user-select: none;">🪙</i>' + formatNumber(coins);
             }
         }
-
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.card-header, .toggle-btn').forEach(element => {
                 element.addEventListener('click', (e) => {
@@ -860,11 +998,9 @@
             const statSelect = document.getElementById('statSelect');
             statSelect.value = localStorage.getItem('statistic_turn') || 'yes';
         });
-
         const sideMenu = document.getElementById('sideMenu');
         const overlay = document.getElementById('overlay');
         const sideButtons = document.getElementById('sideButtons');
-
         function showSideMenu() {
             applyTranslations();
             applySideButtons();
@@ -874,7 +1010,6 @@
                 sideMenu.classList.add('open');
             }, 10);
         }
-
         function hideSideMenu() {
             sideMenu.classList.remove('open');
             setTimeout(() => {
@@ -882,24 +1017,25 @@
                 overlay.style.display = 'none';
             }, 500);
         }
-
         document.getElementById('sideMenuBtn').onclick = showSideMenu;
         document.getElementById('sideCloseBtn').onclick = hideSideMenu;
         overlay.onclick = hideSideMenu;
-
         function showSettings() {
             document.getElementById('mainMenu').style.display = 'none';
             document.getElementById('mainTopBar').style.display = 'none';
             document.getElementById('settingsMenu').style.display = 'block';
             applyTranslations();
         }
-
+        function fixingFunction() {
+            window.location.href = 'errors.html';
+        }
         function applySideButtons() {
             sideButtons.innerHTML = '';
             const files = lang === 'ru' ? filesRu : filesEn;
             const isStatsDisabled = localStorage.getItem('statistic_turn') === 'no';
             const items = [
                 { textKey: 'home', icon: 'fa-solid fa-house', onClick: hideSideMenu },
+                { textKey: 'fixing', icon: 'fa-solid fa-hammer', onClick: fixingFunction },
                 { textKey: 'stats', icon: 'fa-solid fa-chart-simple', href: 'statistics.html', disabled: isStatsDisabled },
                 { textKey: 'profile', icon: 'fa-solid fa-user', href: 'user_profile.html' },
                 { textKey: 'popular', icon: 'fa-solid fa-square-poll-vertical', href: files.popular },
@@ -923,7 +1059,6 @@
                 sideButtons.appendChild(btn);
             });
         }
-
         function checkUserID() {
             if (localStorage.getItem('userID')) {
                 document.getElementById('my_idHeader').style.color = 'white';
@@ -939,7 +1074,6 @@
                 document.getElementById('my_idBox').style.display = 'none';
             }
         }
-
         document.getElementById('myID').addEventListener('click', (e) => {
             const textToCopy = localStorage.getItem('userID');
             navigator.clipboard.writeText(textToCopy)
@@ -955,7 +1089,6 @@
                     alert(lang === 'ru' ? 'Ошибка копирования' : 'Copy error');
                 });
         });
-
         async function checkTokenAndRedirect() {
             try {
                 const userToken = localStorage.getItem('userToken');
@@ -980,7 +1113,6 @@
                 console.error('Ошибка при проверке токена:', error);
             }
         }
-
         document.addEventListener("click", function (event) {
             const t = event.target;
             if (
@@ -994,7 +1126,6 @@
                 }
             }
         });
-
         async function securityChecker() {
             const { blockedTokens } = await import('./security.js');
             if (blockedTokens.includes(localStorage.getItem('userToken'))) {
@@ -1009,6 +1140,223 @@
         setInterval(() => {
             checkTokenAndRedirect();
         }, 6500);
+        // === НОВОГОДНИЙ СНЕГ: УЛУЧШЕННЫЙ ===
+        (function () {
+            const canvas = document.getElementById('snowCanvas');
+            const ctx = canvas.getContext('2d');
+            const pile = document.getElementById('snowPile');
+            let width, height;
+            const flakes = [];
+            const maxFlakes = 120;
+            let pileHeight = 0;
+            let lastTime = 0;
+            let startTime = null;
+            let flakeCount = 0;
+            const appearDuration = 5000;
+            const startDelay = 2000;
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            function createFlake() {
+                return {
+                    x: Math.random() * width,
+                    y: -10 - Math.random() * 50,
+                    radius: Math.random() * 2 + 1,
+                    speed: Math.random() * 0.8 + 0.4,
+                    opacity: Math.random() * 0.4 + 0.6,
+                    sway: Math.random() * 0.15 + 0.05
+                };
+            }
+            function updateFlakes(delta) {
+                const now = performance.now();
+                if (!startTime) startTime = now;
+                const elapsed = now - startTime;
+                if (elapsed < startDelay) return;
+                const progress = Math.min(1, (elapsed - startDelay) / appearDuration);
+                const targetFlakes = Math.floor(progress * maxFlakes);
+                while (flakeCount < targetFlakes) {
+                    flakes.push(createFlake());
+                    flakeCount++;
+                }
+                flakes.forEach((flake, i) => {
+                    flake.y += flake.speed * delta * 60;
+                    flake.x += Math.sin(flake.y * 0.005) * flake.sway * delta * 60;
+                    if (flake.y > height - pileHeight - 10) {
+                        flakes[i] = createFlake();
+                        if (Math.random() < 0.01) {
+                            pileHeight = Math.min(pileHeight + 0.02, height * 0.3);
+                            pile.style.height = pileHeight + 'px';
+                        }
+                    }
+                    if (flake.x > width) flake.x = 0;
+                    if (flake.x < 0) flake.x = width;
+                });
+            }
+            function drawFlakes() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#fff';
+                flakes.forEach(flake => {
+                    ctx.globalAlpha = flake.opacity;
+                    ctx.beginPath();
+                    ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+            }
+            function animate(time) {
+                if (!lastTime) lastTime = time;
+                const delta = (time - lastTime) / 1000;
+                lastTime = time;
+                updateFlakes(delta);
+                drawFlakes();
+                requestAnimationFrame(animate);
+            }
+            window.addEventListener('resize', () => {
+                resize();
+            });
+            resize();
+            requestAnimationFrame(animate);
+        })();
+        // === КОНЕЦ СНЕГА ===
+        // Theme handling
+        function setTheme(value) {
+            const bgDiv = document.getElementById('bg');
+            bgDiv.style.backgroundRepeat = 'no-repeat';
+            bgDiv.style.backgroundSize = 'cover';
+            bgDiv.style.backgroundPosition = 'center center';
+            bgDiv.style.backgroundAttachment = 'fixed';
+            if (value === 'theme1') {
+                bgDiv.style.backgroundImage = 'none';
+                bgDiv.style.backgroundColor = 'rgb(0, 0, 79)';
+            } else if (value === 'theme2') {
+                bgDiv.style.backgroundImage = "url('image.jpg')";
+                bgDiv.style.backgroundColor = '';
+            } else if (value === 'theme3') {
+                bgDiv.style.backgroundImage = 'none';
+                bgDiv.style.backgroundColor = 'black';
+            } else if (value.startsWith('custom_')) {
+                const index = parseInt(value.split('_')[1]);
+                const bg = customBackgrounds[index];
+                if (bg) {
+                    bgDiv.style.backgroundImage = `url(${bg.data})`;
+                    bgDiv.style.backgroundColor = '';
+                }
+            }
+            updateBlurDisabled();
+            applyBlur();
+        }
+        function updateBlurDisabled() {
+            const themeValue = document.getElementById('theme').value;
+            const blurToggle = document.getElementById('blurToggle');
+            if (themeValue === 'theme1' || themeValue === 'theme3') {
+                blurToggle.disabled = true;
+                document.getElementById('blurBackground_settingShow').style.display = 'none';
+                blurToggle.checked = false;
+                localStorage.setItem('blur', 'no');
+            } else {
+                blurToggle.disabled = false;
+                document.getElementById('blurBackground_settingShow').style.display = 'block';
+
+            }
+        }
+        function applyBlur() {
+            const bgDiv = document.getElementById('bg');
+            if (localStorage.getItem('blur') === 'yes') {
+                bgDiv.style.filter = 'blur(5px)';
+            } else {
+                bgDiv.style.filter = 'none';
+            }
+        }
+        document.getElementById('theme').onchange = function() {
+            const value = this.value;
+            const customUpload = document.getElementById('customUpload');
+            if (value === 'upload') {
+                customUpload.style.display = 'block';
+            } else {
+                customUpload.style.display = 'none';
+                localStorage.setItem('theme', value);
+                setTheme(value);
+            }
+        };
+        document.getElementById('uploadCustom').onclick = function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        const dataURL = ev.target.result;
+                        const newBg = { name: file.name, data: dataURL };
+                        customBackgrounds.push(newBg);
+                        localStorage.setItem('customBackgrounds', JSON.stringify(customBackgrounds));
+                        applyTranslations();
+                        const newValue = `custom_${customBackgrounds.length - 1}`;
+                        document.getElementById('theme').value = newValue;
+                        localStorage.setItem('theme', newValue);
+                        setTheme(newValue);
+                        document.getElementById('customUpload').style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert(lang === 'ru' ? 'Пожалуйста, выберите изображение' : 'Please select an image');
+                }
+            };
+            input.click();
+        };
+        document.getElementById('blurToggle').onchange = function() {
+            localStorage.setItem('blur', this.checked ? 'yes' : 'no');
+            applyBlur();
+        };
+        document.getElementById('animationsToggle').onchange = function() {
+            localStorage.setItem('animations', this.checked ? 'yes' : 'no');
+            applyAnimations();
+        };
+        function applyAnimations() {
+            if (localStorage.getItem('animations') === 'no') {
+                document.body.classList.add('no-animations');
+            } else {
+                document.body.classList.remove('no-animations');
+            }
+        }
+        document.getElementById('snowToggle').onchange = function() {
+            localStorage.setItem('snow', this.checked ? 'yes' : 'no');
+            applySnow();
+        };
+        function applySnow() {
+            const snowCanvas = document.getElementById('snowCanvas');
+            const snowPile = document.getElementById('snowPile');
+            if (localStorage.getItem('snow') === 'yes') {
+                snowCanvas.style.display = 'block';
+                snowPile.style.display = 'block';
+            } else {
+                snowCanvas.style.display = 'none';
+                snowPile.style.display = 'none';
+            }
+        }
+        // Init theme and blur
+        if (!localStorage.getItem('blur')) {
+            localStorage.setItem('blur', 'no');
+        }
+        document.getElementById('blurToggle').checked = localStorage.getItem('blur') === 'yes';
+        if (!localStorage.getItem('animations')) {
+            localStorage.setItem('animations', 'yes');
+        }
+        document.getElementById('animationsToggle').checked = localStorage.getItem('animations') === 'yes';
+        applyAnimations();
+        if (!localStorage.getItem('snow')) {
+            localStorage.setItem('snow', 'yes');
+        }
+        document.getElementById('snowToggle').checked = localStorage.getItem('snow') === 'yes';
+        applySnow();
+        let storedTheme = localStorage.getItem('theme') || 'theme1';
+        if (storedTheme === 'upload') {
+            storedTheme = 'theme1';
+            localStorage.setItem('theme', 'theme1');
+        }
+        setTheme(storedTheme);
     </script>
 </body>
-</html> 
+</html>

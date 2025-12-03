@@ -146,6 +146,7 @@ style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size:
     <button id="generateBtn" class="btn-green"><b>Сгенерировать</b></button>
     <button id="next1" class="btn-green" disabled><b>Далее</b></button>
   </div>
+  <h4 id="error" style="color: red; display: none;"></h4>
 </div>
 
 <div id="screen2" class="screen">
@@ -962,7 +963,8 @@ style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size:
   </div>
 </div>
 
-<script>
+<script type="module">
+  import { badWords } from './security.js';
 const button = document.getElementById('s');
 button.style.fontWeight = 'bold';
 
@@ -1237,6 +1239,23 @@ generateBtn.addEventListener('click', () => {
 });
 
 next1.addEventListener('click', () => {
+  // получаем значение из input
+  let text = descriptionInput.value.toLowerCase();
+
+  // убираем все символы, кроме букв и цифр (чтобы нельзя было обходить фильтр)
+  text = text.replace(/[^a-zа-яё0-9]/gi, '');
+
+  // проверяем наличие запрещённых слов
+  if (badWords.some(word => text.includes(word.toLowerCase()))) {
+    error.style.display = 'block';
+    error.textContent = 'Описание содержит запрещённые слова. Пожалуйста, измените описание.';
+    return;
+  }
+  else{
+    error.textContent = '';
+    error.style.display = 'none';
+  }
+
   if (descriptionInput.value.includes('👑') || descriptionInput.value.includes('Премиум') || descriptionInput.value.includes('Premium')){
     if(confirm('Описание содержит запрещённые слова. Пожалуйста, измените описание нажав на "Отмена" или нажмите "Ок" чтобы убрать автоматически.')){
       descriptionInput.value = descriptionInput.value.replace(/👑/g, '').replace(/Премиум/g, '').replace(/Premium/g, '');

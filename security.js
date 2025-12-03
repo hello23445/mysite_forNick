@@ -1,9 +1,9 @@
 export const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss', ''];
-export const texpereriv = 'Уже' //Уже, Скоро, ...
+export const texpereriv = '' //Уже, Скоро, ...
 localStorage.setItem('m', texpereriv);
 
 // список запрещённых слов (только уникальные формы, без дублей)
-const badWords = [
+export const badWords = [
   // русские
   'говно', 'хейт', 'порно', 'аноним',
   'admin', 'админ', 'moder', 'модер', 'модератор',
@@ -76,6 +76,4 @@ if (badWords.some(word => userName.includes(word.toLowerCase()))) {
       : 'The name you entered violates our rules.\nPlease enter a different name.'
   );
   window.location.href = 'user_profile.html';
-
 }
-

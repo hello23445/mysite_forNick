@@ -113,16 +113,16 @@
 <body>
   <div class="app">
     <header>
-      <a class="back-btn" href="main.html">◀ BACK TO MAIN MENU</a>
+      <a class="back-btn" href="main.html">RETURN TO MAIN MENU</a>
       <div style="display:flex;gap:12px;align-items:center">
-        <div class="coins" id="coinsDisplay">🪙0</div>
+        <div class="coins" id="coinsDisplay">0🪙</div>
       </div>
     </header>
 
     <main>
       <section class="panel">
         <h2>Rewards</h2>
-        <p style="opacity:0.8">Rewards can be collected one per day. If you have Premium, you can claim missed rewards.</p>
+        <p style="opacity:0.8">Rewards can be collected one per day. If you have Premium, you can collect missed rewards.</p>
 
         <div style="margin-top:14px">
           <div class="calendar" id="calendar"></div>
@@ -148,7 +148,7 @@
         <div class="card" style="margin-top:12px">
           <h3>
             Tasks
-            (Click on any task to learn more)
+            (Click on any task to learn details)
           </h3>
           <div class="tasks-list" id="tasksList"></div>
         </div>
@@ -156,14 +156,14 @@
     </main>
 
     <footer>
-      If you want to add your own task, contact support: BACK TO MAIN MENU > Click the Menu button in the top right corner > Settings > Open the "Support and Contact" section > Click "Write to support"
+      If you want to add your own task, write to support: RETURN TO MAIN MENU > In the upper right corner, click the Menu button > Settings > Open the "Support and Contact" section > Click "Write to support"
     </footer>
   </div>
 
   <!-- Modal -->
   <div id="taskModal" class="modal">
     <div class="modal-content">
-      <span class="close-btn" id="closeModal">&times;</span>
+      <span class="close-btn" id="closeModal">×</span>
       <h1 id="modalTitle"></h1>
       <div class="description" id="modalDescription"></div>
       <div id="modalExpires" class="meta"></div>
@@ -178,39 +178,39 @@
 
   <script>
     /* ----------------------
-       Customizable variables (point 2)
+       1. Rewards initialization: 29th = 10 000, 30th = 50 000
        ----------------------*/
+    let DAILY_REWARDS = JSON.parse(localStorage.getItem('dailyRewards') || 'null');
+    if (!DAILY_REWARDS) {
+      DAILY_REWARDS = [];
+      const start = 100;
+      const end = 5000;
+      const days = 28;
+      const increment = Math.floor((end - start) / (days - 1));
+      for (let i = 0; i < days; i++) {
+        DAILY_REWARDS.push(start + i * increment);
+      }
+      DAILY_REWARDS.push(10000);  // 29th day
+      DAILY_REWARDS.push(50000);  // 30th day
+      localStorage.setItem('dailyRewards', JSON.stringify(DAILY_REWARDS));
+    }
 
-        let DAILY_REWARDS = JSON.parse(localStorage.getItem('dailyRewards') || 'null');
+    /* ----------------------
+       2. Auto-reset calendar after 30th day
+       ----------------------*/
+    function resetCycleIfNeeded() {
+      const claimed = getClaimed();
+      const todayIndex = dayIndexFromStart();
+      if (claimed.includes(29) && todayIndex >= 30) {
+        localStorage.setItem('rewardsStart', new Date().toISOString().slice(0,10));
+        localStorage.setItem('claimedDays', JSON.stringify([]));
+        renderAll();
+      }
+    }
 
-        if (!DAILY_REWARDS) {
-          DAILY_REWARDS = [];
-          const start = 100;
-          const end = 5000;
-          const days = 29;
-          const increment = Math.floor((end - start) / (days - 1));
-          for (let i = 0; i < days; i++) {
-            DAILY_REWARDS.push(start + i * increment);
-          }
-          DAILY_REWARDS.push(10000);
-          localStorage.setItem('dailyRewards', JSON.stringify(DAILY_REWARDS));
-        }
-
-
-    /* TASKS structure:
-      id: unique id
-      title: task title
-      description: task text (shown to user)
-      checkText: check button text
-      actionText: second button text (leads to execution)
-      actionLink: link/file to redirect to
-      conditionCode: js code string (any executable code) that should return true if task is completed
-      expires: expiration date in 'dd.mm.yyyy' format (inclusive)
-      rewardText: string displayed to user (e.g. '100 🪙')
-      rewardCode: js code string (any executable code) returning number of coins (e.g. 'return 100;')
-      showConditionCode: js code string (any executable code) that should return true if task should appear (e.g. 'return localStorage.getItem("") === ...;' or 'return !localStorage.getItem("");' or 'return localStorage.getItem("item") === ...;' or 'return localStorage.getItem("item") !== ...;' and so on)
-    */
-
+    /* ----------------------
+       3. All tasks (without changes)
+       ----------------------*/
     const TASKS = [
       {
         id: 'task1',
@@ -221,315 +221,237 @@
         actionLink: 'https://t.me/NickNaymes2Bot',
         conditionCode: 'return await checkSubscription("@NickNaymes2Bot");',
         expires: '',
-        rewardText: '1 000🪙',
+        rewardText: '1 000',
         rewardCode: 'return 1000;',
         showConditionCode: 'return localStorage.getItem("userID")'
       },
       {
         id: 'task2',
         title: 'Link your Telegram ID',
-        description: `To get the reward, you need to link your Telegram ID in the settings.
-        1. Open the main menu of the application.2. Click the "Menu" button in the top right corner.3. Select "Settings".4. In the "Account" section, click "Link Telegram ID" and enter your ID.5. Click "Save".`,
+        description: `To receive the reward, you need to link your Telegram ID in the settings.\n1. Open the main menu of the application.\n2. In the upper right corner, click the "Menu" button.\n3. Select "Settings".\n4. In the "Account" section, click "Link Telegram ID" and enter your ID.\n5. Click "Save".`,
         checkText: 'Check',
         actionText: 'Go to main menu',
         actionLink: 'main.html',
         conditionCode: "return !!localStorage.getItem('userID');",
         expires: '',
-        rewardText: '500🪙',
+        rewardText: '500',
         rewardCode: 'return 500;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task3',
         title: 'Add nickname to favorites',
-        description: `To get the reward, you need to add any nickname to favorites.`,
+        description: `To receive the reward, you need to add any nickname to favorites.`,
         checkText: 'Check',
         actionText: 'Go to main menu',
         actionLink: 'main.html',
         conditionCode: "return !!localStorage.getItem('loved');",
         expires: '',
-        rewardText: '255🪙',
+        rewardText: '255',
         rewardCode: 'return 255;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task4',
         title: 'Add description to favorites',
-        description: 'To get the reward, you need to create any description and add it to favorites.',
+        description: 'To receive the reward, you need to create any description and add it to favorites.',
         checkText: 'Check',
         actionText: 'Go to main menu',
         actionLink: 'main.html',
         conditionCode: "return !!localStorage.getItem('loved_descs');",
         expires: '',
-        rewardText: '255🪙',
+        rewardText: '255',
         rewardCode: 'return 255;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task5',
         title: 'Buy any item in the store',
-        description: 'To get the reward, you need to buy absolutely any item in the store.',
+        description: 'To receive the reward, you need to buy absolutely any item in the store.',
         checkText: 'Check',
         actionText: 'Go to store',
-        actionLink: 'shop_en.html',
+        actionLink: 'shop_ru.html',
         conditionCode: "return !!localStorage.getItem('bought');",
         expires: '',
-        rewardText: '200🪙',
+        rewardText: '200',
         rewardCode: 'return 200;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task6',
         title: 'Buy Premium',
-        description: 'To get the reward, you need to buy Premium.',
+        description: 'To receive the reward, you need to buy Premium.',
         checkText: 'Check',
-        actionText: 'Go to Premium purchase',
+        actionText: 'Go to buy Premium',
         actionLink: 'premium.screen.html',
         conditionCode: "return !!localStorage.getItem('premium');",
         expires: '',
-        rewardText: '200 000🪙',
+        rewardText: '200 000',
         rewardCode: 'return 200000;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task7',
         title: 'Create your first LEGO figure',
-        description: 'To get the reward, you need to create your LEGO figure.',
+        description: 'To receive the reward, you need to create your LEGO figure.',
         checkText: 'Check',
-        actionText: 'Go to LEGO figure creation',
+        actionText: 'Go to create LEGO figure',
         actionLink: 'main.html',
         conditionCode: "return !!localStorage.getItem('created_lego');",
         expires: '',
-        rewardText: '555🪙',
+        rewardText: '555',
         rewardCode: 'return 555;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task8',
-        title: `Create 8 LEGO figures(${localStorage.getItem('created_lego')||0}/8)`,
-        description: 'To get the reward, you need to create 8 LEGO figures.',
+        title: function() { return `Create LEGO figure 8 times(${localStorage.getItem('created_lego')||0}/8)`; },
+        description: 'To receive the reward, you need to create your LEGO figure 8 times.',
         checkText: 'Check',
-        actionText: 'Go to LEGO figure creation',
+        actionText: 'Go to create LEGO figure',
         actionLink: 'main.html',
         conditionCode: "return await checkCountForTasks(localStorage.getItem('created_lego'), 8);",
         expires: '',
-        rewardText: '800🪙',
+        rewardText: '800',
         rewardCode: 'return 800;',
         showConditionCode: 'return !!localStorage.getItem("created_lego")'
       },
       {
         id: 'task9',
-        title: `Add your first Avatar to profile.`,
-        description: 'To get the reward, you need to add your first avatar.',
+        title: 'Add your first Avatar to profile.',
+        description: 'To receive the reward, you need to add your first avatar.',
         checkText: 'Check',
         actionText: 'Go to profile',
         actionLink: 'user_profile.html',
         conditionCode: "return await checkAvatarForTask()",
         expires: '',
-        rewardText: '300🪙',
+        rewardText: '300',
         rewardCode: 'return 300;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task10',
-        title: `Subscribe to the channel.`,
-        description: 'Subscribe to the channel to get the reward.',
+        title: 'Subscribe to the channel.',
+        description: 'Subscribe to the channel to receive the reward.',
         checkText: 'Check',
         actionText: 'Go to channel',
         actionLink: 'https://t.me/online1_Islam',
         conditionCode: "return await checkSubscription('@online1_Islam');",
         expires: '',
-        rewardText: '1 000🪙',
+        rewardText: '1 000',
         rewardCode: 'return 1000;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task11',
-        title: `Create 18 nicknames(${localStorage.getItem('created_nicknames')||0}/18)`,
-        description: 'To get the reward, you need to create 18 nicknames.',
+        title: function() { return `Create 18 nicknames(${localStorage.getItem('created_nicknames')||0}/18)`; },
+        description: 'To receive the reward, you need to create 18 nicknames.',
         checkText: 'Check',
-        actionText: 'Go to nickname creation',
+        actionText: 'Go to create nicknames',
         actionLink: 'nickname.html',
         conditionCode: "return await checkCountForTasks(localStorage.getItem('created_nicknames'), 18);",
         expires: '',
-        rewardText: '1 000🪙',
+        rewardText: '1 000',
         rewardCode: 'return 1000;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task12',
-        title: `Create your first avatar`,
-        description: 'To get the reward, you need to create your first avatar.',
+        title: 'Create your first avatar',
+        description: 'To receive the reward, you need to create your first avatar.',
         checkText: 'Check',
-        actionText: 'Go to avatar creation',
+        actionText: 'Go to create avatar',
         actionLink: 'avatar.html',
         conditionCode: "return localStorage.getItem('created_profiles')",
         expires: '',
-        rewardText: '200🪙',
+        rewardText: '200',
         rewardCode: 'return 200;',
         showConditionCode: 'return true;'
       },
       {
         id: 'task13',
-        title: `Create 5 avatars(${localStorage.getItem('created_profiles')||0}/5)`,
-        description: 'To get the reward, you need to create 5 avatars.',
+        title: function() { return `Create 5 avatars(${localStorage.getItem('created_profiles')||0}/5)`; },
+        description: 'To receive the reward, you need to create 5 avatars.',
         checkText: 'Check',
-        actionText: 'Go to avatar creation',
+        actionText: 'Go to create avatar',
         actionLink: 'avatar.html',
         conditionCode: "return await checkCountForTasks(localStorage.getItem('created_profiles'), 5);",
         expires: '',
-        rewardText: '600🪙',
+        rewardText: '600',
         rewardCode: 'return 600;',
         showConditionCode: "return localStorage.getItem('task12_claimed') === 'true';"
       },
       {
         id: 'task14',
-        title: `Share created nickname with friends(${localStorage.getItem('shared_nicknames')||0}/3)`,
-        description: 'To get the reward, you need to share created nickname with friends 3 times.',
+        title: function() { return `Share created nickname with friends(${localStorage.getItem('shared_nicknames')||0}/3)`; },
+        description: 'To receive the reward, you need to share the created nickname with friends 3 times.',
         checkText: 'Check',
-        actionText: 'Go to nickname creation',
+        actionText: 'Go to create nicknames',
         actionLink: 'nickname.html',
         conditionCode: "return await checkCountForTasks(localStorage.getItem('shared_nicknames'), 3);",
         expires: '',
-        rewardText: '400🪙',
+        rewardText: '400',
         rewardCode: 'return 300;',
         showConditionCode: "return true;"
       },
       {
         id: 'task15',
-        title: `Share created description with friends(${localStorage.getItem('shared_descriptions')||0}/3)`,
-        description: 'To get the reward, you need to share created description with friends 3 times.',
+        title: function() { return `Share created description with friends(${localStorage.getItem('shared_descriptions')||0}/3)`; },
+        description: 'To receive the reward, you need to share the created description with friends 3 times.',
         checkText: 'Check',
-        actionText: 'Go to description creation',
+        actionText: 'Go to create descriptions',
         actionLink: 'description.html',
         conditionCode: "return await checkCountForTasks(localStorage.getItem('shared_descriptions'), 3);",
         expires: '',
-        rewardText: '400🪙',
+        rewardText: '400',
         rewardCode: 'return 300;',
         showConditionCode: "return true;"
       },
       {
-        id: 'task16',
-        title: `Catch a special pumpkin.`,
-        description: 'To get the reward, you need to catch a special pumpkin.',
-        checkText: 'Check',
-        actionText: 'Go to main menu',
-        actionLink: 'main.html',
-        conditionCode: "return localStorage.getItem('caught_special_pumpkin');",
-        expires: '1.11.2025',
-        rewardText: '500🪙',
-        rewardCode: 'return 500;',
-        showConditionCode: "return true;"
-      },
-      {
-        id: 'task17',
-        title: `Catch special pumpkin 8 times( ${localStorage.getItem('caught_special_pumpkin')||0}/8 )`,
-        description: 'To get the reward, you need to catch special pumpkin 8 times.',
-        checkText: 'Check',
-        actionText: 'Go to main menu',
-        actionLink: 'main.html',
-        conditionCode: "return await checkCountForTasks(localStorage.getItem('caught_special_pumpkin'), 8);",
-        expires: '1.11.2025',
-        rewardText: '2000🪙',
-        rewardCode: 'return 2000;',
-        showConditionCode: "return localStorage.getItem('task16_claimed') === 'true';"
-      },
-      {
-        id: 'task18',
-        title: `Catch special pumpkin 25 times( ${localStorage.getItem('caught_special_pumpkin')||0}/25 )`,
-        description: 'To get the reward, you need to catch special pumpkin 25 times.',
-        checkText: 'Check',
-        actionText: 'Go to main menu',
-        actionLink: 'main.html',
-        conditionCode: "return await checkCountForTasks(localStorage.getItem('caught_special_pumpkin'), 25);",
-        expires: '1.11.2025',
-        rewardText: '8000🪙',
-        rewardCode: 'return 8000;',
-        showConditionCode: "return localStorage.getItem('task17_claimed') === 'true';"
-      },
-      {
-        id: 'task19',
-        title: `Catch special pumpkin 50 times( ${localStorage.getItem('caught_special_pumpkin')||0}/50 )`,
-        description: 'To get the reward, you need to catch special pumpkin 50 times.',
-        checkText: 'Check',
-        actionText: 'Go to main menu',
-        actionLink: 'main.html',
-        conditionCode: "return await checkCountForTasks(localStorage.getItem('caught_special_pumpkin'), 50);",
-        expires: '1.11.2025',
-        rewardText: '20 000🪙',
-        rewardCode: 'return 20000;',
-        showConditionCode: "return localStorage.getItem('task18_claimed') === 'true';"
-      },
-      {
         id: 'task20',
-        title: `Come up with a name in the "My Profile" menu`,
-        description: 'To get the reward, you need to come up with a name in the "My Profile" menu.',
+        title: `Come up with a name for yourself in the "My Profile" menu`,
+        description: 'To receive the reward, you need to come up with a name for yourself in the "My Profile" menu.',
         checkText: 'Check',
         actionText: 'Go to my profile',
         actionLink: 'user_profile.html',
         conditionCode: "return localStorage.getItem('userName') !== 'User'",
         expires: '',
-        rewardText: '266🪙',
+        rewardText: '266',
         rewardCode: 'return 266;',
         showConditionCode: "return true;"
       },
     ];
 
     function checkAvatarForTask() {
-      if (localStorage.getItem('userAvatar') !== 'user_profile_photo.png') {
-          return true;
-      }
-      else {
-          return false;
-      }
+      return localStorage.getItem('userAvatar') !== 'user_profile_photo.png';
     }
-    function checkCountForTasks(count, required_number) {
-      
-      if ((Number(count) || 0) >= required_number && count && required_number) {
-          return true;
-      }
-      else {
-          return false;
-      }
 
+    async function checkCountForTasks(count, required) {
+      return (Number(count) || 0) >= required;
     }
+
     async function checkSubscription(CHANNEL_ID) {
-        // === All data inside the function ===
-        let BOT_TOKEN  = "6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI";       // bot token
-        let USER_ID    = localStorage.getItem('userID');     // user id
-
-        try {
-            let url = `https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${CHANNEL_ID}&user_id=${USER_ID}`;
-            let response = await fetch(url);
-            let data = await response.json();
-
-            if (!data.ok) {
-                console.error("Request error:", data);
-                return false;
-            }
-
-            let status = data.result.status;
-            console.log("Status:", status);
-
-            if (status === "member" || status === "administrator" || status === "creator") {
-                console.log("✅ User is subscribed to the channel!");
-                return true;
-            } else {
-                console.log("❌ User is NOT subscribed!");
-                return false;
-            }
-        } catch (err) {
-            console.error("Error:", err);
-            return false;
-        }
+      const BOT_TOKEN = "6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI";
+      const USER_ID = localStorage.getItem('userID');
+      try {
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${CHANNEL_ID}&user_id=${USER_ID}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (!data.ok) return false;
+        const status = data.result.status;
+        return ["member", "administrator", "creator"].includes(status);
+      } catch (err) {
+        console.error(err);
+        return false;
+      }
     }
+
     /* ----------------------
-       Application logic
+       Main logic
        ----------------------*/
-    // localStorage initialization
-    if(!localStorage.getItem('coins')) localStorage.setItem('coins','0');
-    if(!localStorage.getItem('rewardsStart')) localStorage.setItem('rewardsStart', new Date().toISOString().slice(0,10)); // yyyy-mm-dd
-    if(!localStorage.getItem('claimedDays')) localStorage.setItem('claimedDays', JSON.stringify([]));
+    if (!localStorage.getItem('coins')) localStorage.setItem('coins', '0');
+    if (!localStorage.getItem('rewardsStart')) localStorage.setItem('rewardsStart', new Date().toISOString().slice(0,10));
+    if (!localStorage.getItem('claimedDays')) localStorage.setItem('claimedDays', JSON.stringify([]));
 
     const coinsDisplay = document.getElementById('coinsDisplay');
     const calendarEl = document.getElementById('calendar');
@@ -538,128 +460,158 @@
     const progressBar = document.getElementById('progressBar');
     const currentDayLabel = document.getElementById('currentDayLabel');
     const collectTodayBtn = document.getElementById('collectToday');
+    const collectAllMissedBtn = document.getElementById('collectAllMissed');
 
-    function getCoins(){return parseInt(localStorage.getItem('coins')||'0',10)}
-    function setCoins(n){localStorage.setItem('coins', String(n)); renderCoins()}
-    function renderCoins(){ coinsDisplay.textContent = `🪙${getCoins()}` }
+    function getCoins() { return parseInt(localStorage.getItem('coins') || '0', 10); }
+    function setCoins(n) { localStorage.setItem('coins', String(n)); renderCoins(); }
+    function renderCoins() { coinsDisplay.textContent = `🪙${getCoins()}`; }
 
-    function getStartDate(){ return new Date(localStorage.getItem('rewardsStart')) }
-    function dayIndexFromStart(){
-      const start = getStartDate();
-      const now = new Date();
-      const diff = Math.floor((Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()) - Date.UTC(start.getFullYear(),start.getMonth(),start.getDate()))/86400000);
-      return Math.min(29, Math.max(0, diff)); // 0..29
+    function getStartDate() { return new Date(localStorage.getItem('rewardsStart')); }
+    function dayIndexFromStart() {
+      const diff = Math.floor((Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()) -
+        Date.UTC(getStartDate().getFullYear(), getStartDate().getMonth(), getStartDate().getDate())) / 86400000);
+      return Math.max(0, diff);
     }
 
-    function getClaimed(){ try{return JSON.parse(localStorage.getItem('claimedDays')||'[]')}catch(e){return []} }
-    function setClaimed(arr){ localStorage.setItem('claimedDays', JSON.stringify(arr)); }
+    function getClaimed() { try { return JSON.parse(localStorage.getItem('claimedDays') || '[]'); } catch { return []; } }
+    function setClaimed(arr) { localStorage.setItem('claimedDays', JSON.stringify(arr)); }
 
-    function canClaimIndex(index){
+    function canClaimIndex(index) {
+      if (getClaimed().includes(index)) return false;
+      const today = dayIndexFromStart();
+      if (index === today) return true;
+      if (index < today) return localStorage.getItem('premium') === 'yes';
+      return false;
+    }
+
+    function claimIndex(index) {
+      if (!canClaimIndex(index)) return false;
+      setCoins(getCoins() + DAILY_REWARDS[index]);
       const claimed = getClaimed();
-      if(claimed.includes(index)) return false;
-      const todayIndex = dayIndexFromStart();
-      if(index === todayIndex) return true;
-      // missed — only if premium === 'yes'
-      if(index < todayIndex){
-        return localStorage.getItem('premium') === 'yes';
-      }
-      return false; // future day
-    }
-
-    function claimIndex(index){
-      if(!canClaimIndex(index)) return false;
-      const coins = getCoins() + DAILY_REWARDS[index];
-      setCoins(coins);
-      const claimed = getClaimed(); claimed.push(index); setClaimed(claimed);
+      claimed.push(index);
+      setClaimed(claimed);
       renderAll();
       return true;
     }
 
-    function formatDate(date){
-      const dd = String(date.getDate()).padStart(2, '0');
-      const mm = String(date.getMonth() + 1).padStart(2, '0');
-      const yyyy = date.getFullYear();
-      return `${dd}.${mm}.${yyyy}`;
+    function claimAllMissed() {
+      if (localStorage.getItem('premium') !== 'yes') {
+        showToast('Premium required', 'error');
+        return;
+      }
+      let total = 0;
+      for (let i = 0; i < dayIndexFromStart(); i++) {
+        if (!getClaimed().includes(i)) {
+          total += DAILY_REWARDS[i];
+          claimIndex(i);
+        }
+      }
+      if (total > 0) showToast(`Received ${total}🪙 for missed days!`, 'success');
     }
 
-    function renderCalendar(){
-      calendarEl.innerHTML='';
+    function parseDateDDMMYYYY(s) {
+      if (!s) return null;
+      const [d, m, y] = s.split('.').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function isTaskExpired(task) {
+      if (!task.expires) return false;
+      const exp = parseDateDDMMYYYY(task.expires);
+      if (!exp) return false;
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      return exp < today;
+    }
+
+    function renderCalendar() {
+      calendarEl.innerHTML = '';
       const claimed = getClaimed();
       const todayIndex = dayIndexFromStart();
-      const start = getStartDate();
       const now = new Date();
-      for(let i=0;i<30;i++){
-        const day = document.createElement('div'); day.className='day';
-        if(claimed.includes(i)) day.classList.add('claimed');
-        if(i===todayIndex) day.classList.add('today');
-        day.innerHTML = `<div><div class="num">Day ${i+1}</div><div class="reward">${DAILY_REWARDS[i]} 🪙</div></div>`;
+
+      for (let i = 0; i < 30; i++) {
+        const day = document.createElement('div');
+        day.className = 'day';
+        if (claimed.includes(i)) day.classList.add('claimed');
+        if (i === todayIndex) day.classList.add('today');
+
+        day.innerHTML = `<div><div class="num">Day ${i+1}</div><div class="reward">${DAILY_REWARDS[i]}🪙</div></div>`;
         const btn = document.createElement('button');
-        if(claimed.includes(i)){
-          btn.textContent='Claimed'; btn.disabled=true; btn.style.opacity=0.6
-        } else if(i>todayIndex){
-          const futureDate = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
-          const timeDiff = futureDate.getTime() - now.getTime();
-          const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-          const daysStr = String(days).padStart(2, '0');
-          const hoursStr = String(hours).padStart(2, '0');
-          const minutesStr = String(minutes).padStart(2, '0');
-          const secondsStr = String(seconds).padStart(2, '0');
-          btn.textContent = `${daysStr} d. ${hoursStr}h. ${minutesStr}m. ${secondsStr}s.`; btn.disabled=true
-        } else if(i<todayIndex && localStorage.getItem('premium')!=='yes'){
-          btn.textContent='Premium'; btn.disabled=true
+
+        if (claimed.includes(i)) {
+          btn.textContent = 'Claimed'; btn.disabled = true; btn.style.opacity = 0.6;
+        } else if (i > todayIndex) {
+          const future = new Date(getStartDate());
+          future.setDate(future.getDate() + i);
+          const diff = future - now;
+          const d = Math.floor(diff / 86400000);
+          const h = Math.floor((diff % 86400000) / 3600000);
+          const m = Math.floor((diff % 3600000) / 60000);
+          const s = Math.floor((diff % 60000) / 1000);
+          btn.textContent = `${String(d).padStart(2,'0')} d. ${String(h).padStart(2,'0')}h. ${String(m).padStart(2,'0')}m. ${String(s).padStart(2,'0')}s.`;
+          btn.disabled = true;
+        } else if (i < todayIndex && localStorage.getItem('premium') !== 'yes') {
+          btn.textContent = 'Premium'; btn.disabled = true;
         } else {
-          btn.textContent='Claim';
-          btn.onclick = ()=>{ if(claimIndex(i)) showToast(`Received ${DAILY_REWARDS[i]} 🪙`, 'success'); else showToast('Cannot claim', 'error') }
+          btn.textContent = 'Claim';
+          btn.onclick = () => {
+            if (claimIndex(i)) showToast(`Received ${DAILY_REWARDS[i]}🪙`, 'success');
+            else showToast('Cannot claim', 'error');
+          };
         }
         day.appendChild(btn);
         calendarEl.appendChild(day);
       }
     }
 
-    function renderTasks(){
-      tasksList.innerHTML='';
-      const now = new Date();
-      for(const t of TASKS){
-        let shouldShow = true;
+    function renderTasks() {
+      tasksList.innerHTML = '';
+      for (const t of TASKS) {
+        let show = true;
         if (t.showConditionCode) {
-          try {
-            const fn = new Function(t.showConditionCode);
-            shouldShow = fn();
-          } catch(e) { console.error(e); shouldShow = false; }
+          try { show = new Function(t.showConditionCode)(); } catch { show = false; }
         }
-        if (!shouldShow) continue;
-        const taskEl = document.createElement('div'); taskEl.className='task';
-        const expiresDate = parseDateDDMMYYYY(t.expires);
-        const expired = expiresDate && (new Date(expiresDate.getFullYear(),expiresDate.getMonth(),expiresDate.getDate()) < new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()));
-        let isClaimed = !!localStorage.getItem(t.id + '_claimed');
-        taskEl.innerHTML = `<div class="title">${t.title} (${t.rewardText})</div>`;
-        const btn = document.createElement('button'); btn.className='btn';
-        if (isClaimed) {
-          btn.textContent = 'Claimed';
-          btn.disabled = true;
-          btn.style.opacity = 0.6;
+        if (!show) continue;
+
+        const taskEl = document.createElement('div');
+        taskEl.className = 'task';
+        const expired = isTaskExpired(t);
+        const claimed = !!localStorage.getItem(t.id + '_claimed');
+
+        const title = typeof t.title === 'function' ? t.title() : t.title;
+        taskEl.innerHTML = `<div class="title">${title} (${t.rewardText}🪙)</div>`;
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+
+        if (claimed) {
+          btn.textContent = 'Claimed'; btn.disabled = true; btn.style.opacity = 0.6;
+        } else if (expired) {
+          btn.textContent = 'Expired'; btn.disabled = true; btn.style.opacity = 0.6;
         } else {
           btn.textContent = t.checkText;
-          btn.onclick = async (e)=>{
+          btn.onclick = async (e) => {
             e.stopPropagation();
-            try{
-              const getFn = new Function('return async function() {' + t.conditionCode + '}');
-              const fn = getFn();
-              const res = await fn();
-              if(res){
-                const rewardFn = new Function(t.rewardCode);
-                const amount = parseInt(rewardFn(),10)||0;
-                setCoins(getCoins()+amount);
+            if (expired) {
+              showToast('The deadline for this task has expired.', 'error');
+              return;
+            }
+            try {
+              const fn = new Function('return async function(){' + t.conditionCode + '}')();
+              const ok = await fn();
+              if (ok) {
+                const reward = new Function(t.rewardCode)();
+                setCoins(getCoins() + reward);
                 localStorage.setItem(t.id + '_claimed', 'true');
-                showToast(`Task completed — received ${amount} 🪙`, 'success');
+                showToast(`Task completed — received ${reward}🪙`, 'success');
                 renderAll();
               } else {
                 showToast('Condition not met', 'error');
               }
-            }catch(e){ console.error(e); showToast('Error checking task', 'error'); }
+            } catch (err) {
+              console.error(err);
+              showToast('Verification error', 'error');
+            }
           };
         }
         taskEl.appendChild(btn);
@@ -668,102 +620,70 @@
       }
     }
 
-    function parseDateDDMMYYYY(s){
-      if(!s) return null; const parts = s.split('.'); if(parts.length!==3) return null; const d=parseInt(parts[0],10), m=parseInt(parts[1],10)-1, y=parseInt(parts[2],10); return new Date(y,m,d);
+    function renderProgress() {
+      const claimed = getClaimed().length;
+      progressBar.style.width = Math.round((claimed / 30) * 100) + '%';
+      collectedCountEl.textContent = claimed;
+      currentDayLabel.textContent = `Day ${dayIndexFromStart() + 1}`;
     }
 
-    function renderProgress(){
-      const claimed = getClaimed();
-      const percent = Math.round((claimed.length/30)*100);
-      progressBar.style.width = percent+'%';
-      collectedCountEl.textContent = claimed.length;
-      currentDayLabel.textContent = `Day ${dayIndexFromStart()+1}`;
-    }
-
-    function renderCollectToday(){
+    function renderCollectToday() {
       const today = dayIndexFromStart();
-      if(getClaimed().includes(today)){
+      if (getClaimed().includes(today)) {
+        collectTodayBtn.textContent = 'Claimed (today)';
         collectTodayBtn.disabled = true;
         collectTodayBtn.style.opacity = 0.6;
-        collectTodayBtn.textContent = 'Claimed (today)';
       } else {
+        collectTodayBtn.textContent = 'Claim reward (today)';
         collectTodayBtn.disabled = false;
         collectTodayBtn.style.opacity = 1;
-        collectTodayBtn.textContent = 'Claim reward (today)';
       }
     }
 
-    function renderAll(){ renderCoins(); renderCalendar(); renderTasks(); renderProgress(); renderCollectToday(); }
+    function renderCollectAllMissed() {
+      const isPremium = localStorage.getItem('premium') === 'yes';
+      collectAllMissedBtn.textContent = isPremium
+        ? 'Claim all missed rewards'
+        : 'Claim all missed rewards (Premium)';
+      collectAllMissedBtn.disabled = !isPremium;
+      collectAllMissedBtn.style.opacity = isPremium ? 1 : 0.6;
+    }
 
-    // collect today button
-    collectTodayBtn.addEventListener('click', ()=>{
+    function renderAll() {
+      renderCoins();
+      renderCalendar();
+      renderTasks();
+      renderProgress();
+      renderCollectToday();
+      renderCollectAllMissed();
+      resetCycleIfNeeded();
+    }
+
+    collectTodayBtn.onclick = () => {
       const today = dayIndexFromStart();
-      if(getClaimed().includes(today)) return showToast('Already claimed today', 'error');
-      if(claimIndex(today)) showToast(`Received ${DAILY_REWARDS[today]} 🪙`, 'success'); else showToast('Cannot claim', 'error');
-    });
+      if (claimIndex(today)) showToast(`Received ${DAILY_REWARDS[today]}🪙`, 'success');
+      else showToast('Already claimed today', 'error');
+    };
 
-    // toast
-    function showToast(text, type = 'info'){
-      const existingToasts = document.querySelectorAll('.toast');
-      existingToasts.forEach(toast => toast.remove());
-      const t = document.createElement('div');
-      t.classList.add('toast');
-      if(type === 'success') {
-        t.classList.add('success');
-        t.innerHTML = `
-          <div class="toast-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-            </svg>
-          </div>
-          <div class="toast-text">${text}</div>
-          <button class="toast-close">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-            </svg>
-          </button>
-        `;
-      } else if(type === 'error') {
-        t.classList.add('error');
-        t.innerHTML = `
-          <div class="toast-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
-            </svg>
-          </div>
-          <div class="toast-text">${text}</div>
-          <button class="toast-close">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-            </svg>
-          </button>
-        `;
-      } else {
-        t.innerHTML = `
-          <div class="toast-text">${text}</div>
-          <button class="toast-close">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-            </svg>
-          </button>
-        `;
-      }
-      document.body.appendChild(t);
-      const closeBtn = t.querySelector('.toast-close');
-      if(closeBtn) {
-        closeBtn.addEventListener('click', () => {
-          t.style.opacity = 0;
-          setTimeout(() => t.remove(), 300);
-        });
-      }
-      setTimeout(() => {
-        t.style.transition = 'opacity 0.3s ease';
-        t.style.opacity = 0;
-        setTimeout(() => t.remove(), 300);
-      }, 5000);
+    collectAllMissedBtn.onclick = claimAllMissed;
+
+    function showToast(text, type = 'info') {
+      document.querySelectorAll('.toast').forEach(t => t.remove());
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icon = type === 'success'
+        ? `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/></svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/></svg>`;
+      toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-text">${text}</div>
+        <button class="toast-close"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg></button>
+      `;
+      document.body.appendChild(toast);
+      toast.querySelector('.toast-close').onclick = () => toast.remove();
+      setTimeout(() => toast.remove(), 5000);
     }
 
-    // modal
     const modal = document.getElementById('taskModal');
     const closeModal = document.getElementById('closeModal');
     const modalTitle = document.getElementById('modalTitle');
@@ -774,66 +694,55 @@
     const modalCheckBtn = document.getElementById('modalCheckBtn');
     const modalBackBtn = document.getElementById('modalBackBtn');
 
-    function showModal(task){
-      modalTitle.textContent = task.title;
+    function showModal(task) {
+      modalTitle.textContent = typeof task.title === 'function' ? task.title() : task.title;
       modalDescription.textContent = task.description;
-      const expiresDate = parseDateDDMMYYYY(task.expires);
-      const expired = expiresDate && (new Date(expiresDate.getFullYear(),expiresDate.getMonth(),expiresDate.getDate()) < new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()));
-      if (task.expires) {
-        modalExpires.textContent = `Until: ${task.expires}${expired ? ' · Expired' : ''}`;
-      } else {
-        modalExpires.textContent = '';
-      }
-      modalReward.textContent = `Reward: ${task.rewardText}`;
+      modalReward.textContent = `Reward: ${task.rewardText} coins🪙`;
+      const expired = isTaskExpired(task);
+      modalExpires.textContent = task.expires ? `Until: ${task.expires}${expired ? ' · Expired' : ''}` : '';
       modalActionBtn.textContent = task.actionText;
-      modalActionBtn.onclick = () => { window.location.href = task.actionLink };
-      let isClaimed = !!localStorage.getItem(task.id + '_claimed');
-      if (isClaimed) {
-        modalCheckBtn.textContent = 'Claimed';
+      modalActionBtn.onclick = () => location.href = task.actionLink;
+
+      const claimed = !!localStorage.getItem(task.id + '_claimed');
+      if (claimed || expired) {
+        modalCheckBtn.textContent = claimed ? 'Claimed' : 'Expired';
         modalCheckBtn.disabled = true;
         modalCheckBtn.style.opacity = 0.6;
-        modalCheckBtn.onclick = null;
       } else {
         modalCheckBtn.textContent = task.checkText;
         modalCheckBtn.onclick = async () => {
-          try{
-            const getFn = new Function('return async function() {' + task.conditionCode + '}');
-            const fn = getFn();
-            const res = await fn();
-            if(res){
-              const rewardFn = new Function(task.rewardCode);
-              const amount = parseInt(rewardFn(),10)||0;
-              setCoins(getCoins()+amount);
+          if (expired) { showToast('The deadline for this task has expired.', 'error'); return; }
+          try {
+            const fn = new Function('return async function(){' + task.conditionCode + '}')();
+            const ok = await fn();
+            if (ok) {
+              const reward = new Function(task.rewardCode)();
+              setCoins(getCoins() + reward);
               localStorage.setItem(task.id + '_claimed', 'true');
-              showToast(`Task completed — received ${amount} 🪙`, 'success');
+              showToast(`Task completed — received ${reward}🪙`, 'success');
               renderAll();
               modal.style.display = 'none';
             } else {
               showToast('Condition not met', 'error');
             }
-          }catch(e){ console.error(e); showToast('Error checking task', 'error'); }
+          } catch (e) { showToast('Error', 'error'); }
         };
       }
       modal.style.display = 'flex';
     }
 
-    closeModal.onclick = () => { modal.style.display = 'none'; };
-    modalBackBtn.onclick = () => { modal.style.display = 'none'; };
-    window.onclick = (event) => { if (event.target === modal) modal.style.display = 'none'; };
+    closeModal.onclick = modalBackBtn.onclick = () => modal.style.display = 'none';
+    window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
 
-    // initial render
     renderAll();
-
-    // Update dynamic elements every second to keep timers live
     setInterval(() => {
       renderCalendar();
-      renderProgress();
       renderCollectToday();
+      renderCollectAllMissed();
+      resetCycleIfNeeded();
     }, 1000);
 
-    // Convenience: expose TASKS and DAILY_REWARDS to window for easy editing in console
-    window.APP = {TASKS,DAILY_REWARDS};
-
+    window.APP = { TASKS, DAILY_REWARDS };
   </script>
 </body>
 </html>

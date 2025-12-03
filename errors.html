@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Status</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        /* Общие стили */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0b1d5c; /* темно-синий фон */
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            text-align: center;
+        }
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 40px;
+        }
+
+        /* Кнопки */
+        .button {
+            color: #fff;
+            padding: 14px 22px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            transition: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: inline-block;
+            width: 100%;       /* кнопки одинаковой ширины */
+            max-width: 320px;  /* максимальная ширина */
+            text-align: center;
+            margin-bottom: 15px; /* отступ между кнопками */
+        }
+        .reload-button {
+            background-color: #f39c12;
+        }
+        .support-button {
+            background-color: #1dd1a1;
+        }
+
+        /* Контент */
+        .center-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        .status-text {
+            font-size: 20px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            word-break: break-word;
+            text-align: center;
+        }
+        .status-text ol {
+            text-align: left;
+            margin: 10px auto;
+            padding-left: 20px;
+            max-width: 80%;
+        }
+        .status-text li {
+            margin-bottom: 5px;
+        }
+
+        /* Адаптив */
+        @media (max-width: 480px) {
+            .button {
+                padding: 12px 18px;
+                font-size: 14px;
+            }
+            .status-text {
+                font-size: 18px;
+            }
+        }
+        a, div{
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="main.html" class="button" id="backButton" style="background-color: darkblue;">BACK TO MAIN MENU</a>
+    </header>
+
+    <div class="center-content">
+        <div class="status-text" id="statusText">Loading...</div>
+        <div style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        margin-block: 1.5rem;
+        ">
+        <i class="fa-regular fa-window-minimize fa-2xl"
+            style="transform: rotate(180deg) scaleX(1.5);
+                    color: #908686;"></i>
+
+        <h4 id="or" style="
+            color: #908686;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-align: center;
+            text-transform: uppercase;
+            margin: -45%;
+        ">
+            или
+        </h4>
+
+        <i class="fa-regular fa-window-minimize fa-2xl"
+            style="transform: scaleX(1.5);
+                    color: #908686;"></i>
+        </div>
+
+
+
+        </center>
+        <a id="reloadBTN" class="button reload-button" href="index.html" style="background-color: darkblue;">Restart the application (helps most of the time)</a>
+        <a href="https://t.me/Clickerstart_bot" target="_blank" class="button support-button" id="supportButton" style="background-color: darkblue;">Contact Support</a>
+    </div>
+
+<script>
+    const userToken = localStorage.getItem('userToken');
+    if (!userToken || userToken.trim() === '') {
+        window.location.href = 'index.html';
+    }
+
+    if (localStorage.getItem('errors')) {
+        localStorage.removeItem('errors');
+    }
+
+    const errors = [];
+    let lang = localStorage.getItem('lang') || 'en';
+    if (lang !== 'ru' && lang !== 'en') {
+        lang = 'en';
+        localStorage.setItem('lang', 'en');
+        errors.push(lang === 'ru' ? 'Язык был сброшен на английский по умолчанию.' : 'Language has been reset to English by default.');
+    }
+
+    document.title = lang === 'ru' ? 'Статус приложения' : 'App Status';
+
+    const statusText = document.getElementById('statusText');
+    statusText.textContent = lang === 'ru' ? 'Загрузка...' : 'Loading...';
+
+    const backButton = document.getElementById('backButton');
+    const supportButton = document.getElementById('supportButton');
+    const reloadBTN = document.getElementById('reloadBTN');
+
+    // Тексты на двух языках
+    const texts = {
+        ru: {
+            reloadBTN: 'Перезапустить приложение (помогает чаще всего)',
+            back: 'ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ',
+            support: 'Написать в службу поддержки',
+            ok: 'Все работает корректно✅',
+            errorsPrefix: 'Найдено и устранено следующих ошибок:',
+            or: 'ИЛИ'
+        },
+        en: {
+            reloadBTN: 'Restart the application (helps most of the time)',
+            back: 'BACK TO MAIN MENU',
+            support: 'Contact Support',
+            ok: 'Everything works correctly✅',
+            errorsPrefix: 'Found and fixed the following errors:',
+            or: 'OR'
+        }
+    };
+
+    // Обновляем кнопки и заголовки заранее
+    or.textContent = texts[lang].or;
+    backButton.textContent = texts[lang].back;
+    supportButton.textContent = texts[lang].support;
+    reloadBTN.textContent = texts[lang].reloadBTN;
+
+    const coins = localStorage.getItem('coins');
+    if (!coins || isNaN(Number(coins)) || Number(coins) < 0) {
+        localStorage.setItem('coins', '100000');
+        errors.push(lang === 'ru' ? 'Исправлено количество монет.' : 'Count of coins has been fixed.');
+    }
+
+    let created_lego = localStorage.getItem('created_lego');
+    if (!created_lego || isNaN(Number(created_lego)) || Number(created_lego) < 0) {
+        created_lego = '0';
+        localStorage.setItem('created_lego', created_lego);
+        errors.push(lang === 'ru' ? 'Исправлено количество созданных LEGO.' : 'Created LEGO count has been fixed.');
+    }
+
+    let created_nicknames = localStorage.getItem('created_nicknames');
+    if (!created_nicknames || isNaN(Number(created_nicknames)) || Number(created_nicknames) < 0) {
+        created_nicknames = '0';
+        localStorage.setItem('created_nicknames', created_nicknames);
+        errors.push(lang === 'ru' ? 'Исправлено количество созданных никнеймов.' : 'Created nicknames count has been fixed.');
+    }
+
+    const nick_story = localStorage.getItem('nick_story');
+    if (nick_story === null || typeof nick_story !== 'string' || nick_story.includes('NaN')) {
+        let nick_story = localStorage.getItem('nick_story');
+        if (typeof nick_story === 'string') {
+            nick_story = nick_story.replace(/NaN/g, '');
+            localStorage.setItem('nick_story', nick_story);
+        }
+        else{
+            localStorage.setItem('nick_story', '');
+        }
+        errors.push(lang === 'ru'
+            ? 'Исправлено количество сохранённых никнеймов в истории.'
+            : 'Saved nicknames in history count has been fixed.');
+    }
+
+    const desc_story = localStorage.getItem('desc_story');
+    if (desc_story === null || typeof desc_story !== 'string' || desc_story.includes('NaN')) {
+        let desc_story = localStorage.getItem('desc_story');
+
+        if (typeof desc_story === 'string') {
+            desc_story = desc_story.replace(/NaN/g, '');
+            localStorage.setItem('desc_story', desc_story);
+        } else {
+            localStorage.setItem('desc_story', '');
+        }
+
+
+        errors.push(lang === 'ru'
+            ? 'Исправлено количество сохранённых описаний в историю созданных описаний.'
+            : 'Saved descriptions in history count has been fixed.');
+    }
+
+
+    // Проверяем ошибки и отображаем
+    if (errors.length > 0) {
+        let html = texts[lang].errorsPrefix + '<ol>';
+        errors.forEach(err => {
+            html += `<li>${err}</li>`;
+        });
+        html += '</ol>';
+        statusText.innerHTML = html;
+    } else {
+        statusText.textContent = texts[lang].ok;
+    }
+
+    // Очищаем errors после отображения
+    localStorage.removeItem('errors');
+</script>
+
+</body>
+</html>
