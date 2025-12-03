@@ -1,5 +1,5 @@
 export const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss', ''];
-export const texpereriv = 'Скоро' //Уже, Скоро, ...
+export const texpereriv = 'Уже' //Уже, Скоро, ...
 localStorage.setItem('m', texpereriv);
 
 // список запрещённых слов (только уникальные формы, без дублей)
@@ -78,3 +78,4 @@ if (badWords.some(word => userName.includes(word.toLowerCase()))) {
   window.location.href = 'user_profile.html';
 
 }
+
