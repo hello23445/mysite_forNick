@@ -388,6 +388,7 @@
             text: settingsText,
             files: [processedFile]
           });
+          localStorage.setItem('shared_music', String(Number(localStorage.getItem('shared_music') || '0') + 1));
         } catch (error) {
           alert("Ошибка при попытке поделиться: " + error);
         }

@@ -36,12 +36,14 @@
     .task .meta{font-size:13px;opacity:0.85;margin-top:6px}
     .task .buttons{display:flex;gap:8px;margin-top:10px}
     .btn{padding:8px 10px;border-radius:10px;border:none;background:var(--accent);color:white;font-weight:700;cursor:pointer;transition: background 0.2s;}
-    .btn:hover{background:#3a2ab8;}
     .btn.alt{background:transparent;border:1px solid rgba(255,255,255,0.06);transition: border-color 0.2s;}
     .btn.alt:hover{border-color:rgba(255,255,255,0.12);}
 
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:1000;transition: opacity 0.3s ease;}
+    .modal.mobile{bottom:0;top:auto;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.6);}
+    .modal.mobile::before{content:'';position:absolute;top:0;left:0;width:100%;height:30%;background:linear-gradient(to bottom,rgba(0,0,0,0.6),transparent);}
     .modal-content{background:var(--card);padding:24px;border-radius:16px;max-width:420px;width:90%;text-align:left;position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation: fadeIn 0.3s ease;}
+    .modal.mobile .modal-content{border-bottom-left-radius:0;border-bottom-right-radius:0;padding-bottom:32px;}
     @keyframes fadeIn {from {opacity:0;transform:scale(0.95);} to {opacity:1;transform:scale(1);}}
     .modal-content h1{font-size:20px;font-weight:700;margin-bottom:12px;text-align:center;}
     .modal-content .description{margin-bottom:16px;line-height:1.5;font-size:14px;}
@@ -49,7 +51,6 @@
     .modal-content .buttons{display:flex;flex-direction:column;gap:12px;margin-top:20px;}
     .modal-content .buttons button{width:100%;}
     .close-btn{position:absolute;top:16px;right:16px;cursor:pointer;color:var(--text);font-size:24px;transition: color 0.2s;}
-    .close-btn:hover{color:white;}
 
     .toast{display:flex;align-items:center;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:var(--card);border-radius:12px;padding:16px;max-width:400px;width:calc(100% - 40px);box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:9999;animation:slideUp 0.3s ease-out;color:var(--text);}
     @keyframes slideUp{from{opacity:0;transform:translate(-50%,20px);}to{opacity:1;transform:translate(-50%,0);}}
@@ -66,6 +67,8 @@
     .progress{height:10px;background:rgba(255,255,255,0.04);border-radius:10px;overflow:hidden}
     .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#5b3cff);width:0%}
 
+    .daily-note{margin-top:8px;font-size:13px;opacity:0.8;text-align:center;}
+
     footer{margin-top:18px;text-align:center;color:rgba(217,217,217,0.6);font-size:13px}
 
     @media (max-width:900px){
@@ -81,18 +84,19 @@
       .day button {font-size:11px; padding:6px 8px;}
       .task .title {font-size:14px;}
       .task .meta {font-size:11px;}
-      .btn {font-size:12px; padding:6px 8px;}
+      .btn {font-size:14px; padding:12px 16px;}
       .calendar {gap:8px;}
       .tasks-list {gap:8px;}
-      .modal-content {padding:16px;}
+      .modal-content {padding:20px;}
       .modal-content h1 {font-size:18px;}
-      .modal-content .description {font-size:12px;}
+      .modal-content .description {font-size:13px;}
       .modal-content .meta {font-size:14px;}
       .app {padding:10px;}
       header {gap:8px;}
       .back-btn {font-size:14px; padding:8px 12px;}
       .coins {font-size:14px;}
       footer {font-size:11px;}
+      .modal.mobile .modal-content{padding:24px;padding-bottom:40px;}
     }
     @media (max-width:480px){
       body {font-size:12px;}
@@ -102,11 +106,11 @@
       .day button {font-size:10px; padding:5px 7px;}
       .task .title {font-size:12px;}
       .task .meta {font-size:10px;}
-      .btn {font-size:10px; padding:5px 7px;}
+      .btn {font-size:14px; padding:14px 18px;}
       .calendar {grid-template-columns:repeat(2,1fr); gap:6px;}
-      .modal-content {padding:12px; max-width:90%;}
+      .modal-content {padding:16px;}
       .modal-content h1 {font-size:16px;}
-      .modal-content .description {font-size:11px;}
+      .modal-content .description {font-size:12px;}
     }
   </style>
 </head>
@@ -141,6 +145,17 @@
             <button class="btn" id="collectToday">Забрать награду (сегодня)</button>
             <button class="btn alt" id="collectAllMissed">Забрать все пропущенные награды</button>
           </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="card" style="margin-top:12px">
+          <h3>
+            Ежедневные задания
+            (Нажмите на любое задание чтобы узнать подробности)
+          </h3>
+          <div class="tasks-list" id="dailyTasksList"></div>
+          <div class="daily-note">Ежедневные задания обновляются каждый день.</div>
         </div>
 
         <div style="height:12px"></div>
@@ -208,9 +223,6 @@
       }
     }
 
-    /* ----------------------
-       3. Все задания (без изменений)
-       ----------------------*/
     const TASKS = [
       {
         id: 'task1',
@@ -223,7 +235,12 @@
         expires: '',
         rewardText: '1 000',
         rewardCode: 'return 1000;',
-        showConditionCode: 'return localStorage.getItem("userID")'
+        showConditionCode: 'return localStorage.getItem("userID")',
+        tooltip: 'Перейдите на страницу и подпишитесь, затем нажмите Проверить.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 1000🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 1 completed");'
       },
       {
         id: 'task2',
@@ -236,7 +253,12 @@
         expires: '',
         rewardText: '500',
         rewardCode: 'return 500;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: `Чтобы получить награду, вам нужно привязать свой Telegram ID в настройках.\n1. Откройте главное меню приложения.\n2. В правом верхнем углу нажмите на кнопку "Меню".\n3. Выберите "Настройки".\n4. В разделе "Аккаунт" нажмите "Привязать Telegram ID" и введите свой ID.\n5. Нажмите "Сохранить".`,
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 500🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 2 completed");'
       },
       {
         id: 'task3',
@@ -249,7 +271,12 @@
         expires: '',
         rewardText: '255',
         rewardCode: 'return 255;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: `Чтобы получить награду, вам нужно добавить любой никнейм в избранное.`,
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 255🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 3 completed");'
       },
       {
         id: 'task4',
@@ -262,7 +289,12 @@
         expires: '',
         rewardText: '255',
         rewardCode: 'return 255;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: 'Чтобы получить награду, вам нужно создать любое описание и добавить его в избранное.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 255🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 4 completed");'
       },
       {
         id: 'task5',
@@ -275,7 +307,12 @@
         expires: '',
         rewardText: '200',
         rewardCode: 'return 200;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: 'Чтобы получить награду, вам нужно купить абсолютно любой товар в магазине.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 200🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 5 completed");'
       },
       {
         id: 'task6',
@@ -288,7 +325,12 @@
         expires: '',
         rewardText: '200 000',
         rewardCode: 'return 200000;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: 'Чтобы получить награду, вам нужно купить Премиум.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 200000🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 6 completed");'
       },
       {
         id: 'task7',
@@ -301,7 +343,12 @@
         expires: '',
         rewardText: '555',
         rewardCode: 'return 555;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: 'Чтобы получить награду, вам нужно создать свою лego-фигурку.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 555🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 7 completed");'
       },
       {
         id: 'task8',
@@ -314,7 +361,12 @@
         expires: '',
         rewardText: '800',
         rewardCode: 'return 800;',
-        showConditionCode: 'return !!localStorage.getItem("created_lego")'
+        showConditionCode: 'return !!localStorage.getItem("created_lego")',
+        tooltip: 'Чтобы получить награду, вам нужно создать свою лego-фигурку 8 штук.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 800🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 8 completed");'
       },
       {
         id: 'task9',
@@ -327,7 +379,12 @@
         expires: '',
         rewardText: '300',
         rewardCode: 'return 300;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: 'Чтобы получить награду, вам нужно добавить свою первую аватарку.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 300🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 9 completed");'
       },
       {
         id: 'task10',
@@ -340,7 +397,12 @@
         expires: '',
         rewardText: '1 000',
         rewardCode: 'return 1000;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: 'Подпишитесь на канал чтобы получить награду.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 1000🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 10 completed");'
       },
       {
         id: 'task11',
@@ -353,7 +415,12 @@
         expires: '',
         rewardText: '1 000',
         rewardCode: 'return 1000;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: 'Чтобы получить награду, вам нужно создать 18 никнеймов.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 1000🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 11 completed");'
       },
       {
         id: 'task12',
@@ -366,7 +433,12 @@
         expires: '',
         rewardText: '200',
         rewardCode: 'return 200;',
-        showConditionCode: 'return true;'
+        showConditionCode: 'return true;',
+        tooltip: 'Чтобы получить награду, вам нужно создать свою первую аватарку.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 200🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 12 completed");'
       },
       {
         id: 'task13',
@@ -379,7 +451,12 @@
         expires: '',
         rewardText: '600',
         rewardCode: 'return 600;',
-        showConditionCode: "return localStorage.getItem('task12_claimed') === 'true';"
+        showConditionCode: "return localStorage.getItem('task12_claimed') === 'true';",
+        tooltip: 'Чтобы получить награду, вам нужно создать аватарки 5 штук.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 600🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 13 completed");'
       },
       {
         id: 'task14',
@@ -392,7 +469,12 @@
         expires: '',
         rewardText: '400',
         rewardCode: 'return 300;',
-        showConditionCode: "return true;"
+        showConditionCode: "return true;",
+        tooltip: 'Чтобы получить награду, вам нужно поделиться созданным никнеймом с друзьями 3 раза.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 300🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 14 completed");'
       },
       {
         id: 'task15',
@@ -405,7 +487,12 @@
         expires: '',
         rewardText: '400',
         rewardCode: 'return 300;',
-        showConditionCode: "return true;"
+        showConditionCode: "return true;",
+        tooltip: 'Чтобы получить награду, вам нужно поделиться созданным описанием с друзьями 3 раза.',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 300🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 15 completed");'
       },
       {
         id: 'task20',
@@ -418,9 +505,194 @@
         expires: '',
         rewardText: '266',
         rewardCode: 'return 266;',
-        showConditionCode: "return true;"
+        showConditionCode: "return true;",
+        tooltip: 'Чтобы получить награду, вам нужно придумать себе имя в меню "Мой профиль".',
+        checkButtonTitle: 'Подсказка для кнопки проверки',
+        successText: 'Задание выполнено — получено 266🪙',
+        onFailText: 'Условие не выполнено',
+        logEvent: 'console.log("Task 20 completed");'
       },
     ];
+
+    const DAILY_TASKS_POOL = [
+      {
+        id: 'daily_task1',
+        title: () => `Создать 8 никнеймов(${localStorage.getItem('created_nicknames')||0}/8)`,
+        description: 'Чтобы получить награду, вам нужно создать 8 никнеймов.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию никнеймов',
+        actionLink: 'nickname.html',
+        conditionCode: "return await checkCountForTasks(localStorage.getItem('created_nicknames'), 8);",
+        expires: '',
+        rewardText: '500',
+        rewardCode: 'return 500;',
+        showConditionCode: 'return true;',
+        tooltip: 'Создайте 8 никнеймов чтобы выполнить это задание.',
+        checkButtonTitle: 'Проверить',
+        successText: 'Ежедневное задание выполнено — получено 500🪙',
+        onFailText: 'Условие для задания не выполнено',
+        logEvent: 'console.log("Daily task 1 completed");'
+      },
+      {
+        id: 'daily_task2',
+        title: 'Добавить никнейм в избранное',
+        description: `Чтобы получить награду, вам нужно добавить любой никнейм в избранное.`,
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию никнеймов',
+        actionLink: 'nickname.html',
+        conditionCode: "return !!localStorage.getItem('loved');",
+        expires: '',
+        rewardText: '300',
+        rewardCode: 'return 300;',
+        showConditionCode: 'return true;',
+        tooltip: 'Добавьте никнейм в избранное чтобы выполнить это задание.',
+        checkButtonTitle: 'Проверить',
+        successText: 'Ежедневное задание выполнено — получено 300🪙',
+        onFailText: 'Условие для задания не выполнено',
+        logEvent: 'console.log("Daily task 2 completed");'
+      },
+      {
+        id: 'daily_task3',
+        title: 'Создать свою первую ЛЕГО-фигурку',
+        description: 'Чтобы получить награду, вам нужно создать свою лego-фигурку.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию ЛЕГО-фигурки',
+        actionLink: 'main.html',
+        conditionCode: "return !!localStorage.getItem('created_lego');",
+        expires: '',
+        rewardText: '400',
+        rewardCode: 'return 400;',
+        showConditionCode: 'return true;',
+        tooltip: 'Создайте ЛЕГО-фигурку чтобы выполнить это задание.',
+        checkButtonTitle: 'Проверить',
+        successText: 'Ежедневное задание выполнено — получено 400🪙',
+        onFailText: 'Условие для задания не выполнено',
+        logEvent: 'console.log("Daily task 3 completed");'
+      },
+      {
+        id: 'daily_task4',
+        title: 'Добавить описание в избранное',
+        description: 'Чтобы получить награду, вам нужно создать любое описание и добавить его в избранное.',
+        checkText: 'Проверить',
+        actionText: 'Перейти в главное меню',
+        actionLink: 'main.html',
+        conditionCode: "return !!localStorage.getItem('loved_descs');",
+        expires: '',
+        rewardText: '300',
+        rewardCode: 'return 300;',
+        showConditionCode: 'return true;',
+        tooltip: 'Добавьте описание в избранное чтобы выполнить это задание.',
+        checkButtonTitle: 'Проверить',
+        successText: 'Ежедневное задание выполнено — получено 300🪙',
+        onFailText: 'Условие для задания не выполнено',
+        logEvent: 'console.log("Daily task 4 completed");'
+      },
+      {
+        id: 'daily_task5',
+        title: 'Создайте аватарку 1шт',
+        description: 'Чтобы получить награду, вам нужно создать аватарку 1 шт.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию аватарки',
+        actionLink: 'avatar.html',
+        conditionCode: "return !!localStorage.getItem('created_profiles');",
+        expires: '',
+        rewardText: '250',
+        rewardCode: 'return 250;',
+        showConditionCode: 'return true;',
+        tooltip: 'Создайте аватарку чтобы выполнить это задание.',
+        checkButtonTitle: 'Проверить',
+        successText: 'Ежедневное задание выполнено — получено 250🪙',
+        onFailText: 'Условие для задания не выполнено',
+        logEvent: 'console.log("Daily task 5 completed");'
+      },
+      {
+        id: 'daily_task6',
+        title: () => `Создайте аватарку 6шт (${localStorage.getItem('created_profiles')||0}/6)`,
+        description: 'Чтобы получить награду, вам нужно создать аватарку 6 шт.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию аватарки',
+        actionLink: 'avatar.html',
+        conditionCode: "return (Number(localStorage.getItem('created_profiles')||0)) >= 6;",
+        expires: '',
+        rewardText: '700',
+        rewardCode: 'return 700;',
+        showConditionCode: 'return localStorage.getItem("daily_task5_claimed") === "true";',
+        tooltip: 'Создайте аватарку 6 шт чтобы выполнить это задание.',
+        checkButtonTitle: 'Проверить',
+        successText: 'Ежедневное задание выполнено — получено 700🪙',
+        onFailText: 'Условие для задания не выполнено',
+        logEvent: 'console.log("Daily task 6 completed");'
+      },
+      {
+        id: 'daily_task7',
+        title: () => `Добавьте 4 никнейма в избранное (${localStorage.getItem("loved") ? JSON.parse(localStorage.getItem("loved")).length : 0}/4)`,
+        description: 'Чтобы получить награду, вам нужно добавить 4 никнейма в избранное.',
+        checkText: 'Проверить',
+        actionText: 'Перейти в главное меню',
+        actionLink: 'main.html',
+        conditionCode: "return (localStorage.getItem('loved') ? JSON.parse(localStorage.getItem('loved')).length : 0) >= 4;",
+        expires: '',
+        rewardText: '478',
+        rewardCode: 'return 478;',
+        showConditionCode: 'return localStorage.getItem("daily_task2_claimed") === "true";',
+        tooltip: 'Добавьте 4 никнейма в избранное чтобы выполнить это задание.',
+        checkButtonTitle: 'Проверить',
+        successText: 'Ежедневное задание выполнено — получено 478🪙',
+        onFailText: 'Условие для задания не выполнено',
+        logEvent: 'console.log("Daily task 7 completed");'
+      },
+      {
+        id: 'daily_task8',
+        title: () => `Добавьте 8 описаний в избранное (${localStorage.getItem("loved_descs") ? JSON.parse(localStorage.getItem("loved_descs")).length : 0}/8)`,
+        description: 'Чтобы получить награду, вам нужно добавить 8 описаний в избранное.',
+        checkText: 'Проверить',
+        actionText: 'Перейти к созданию описаний',
+        actionLink: 'description.html',
+        conditionCode: "return (localStorage.getItem('loved_descs') ? JSON.parse(localStorage.getItem('loved_descs')).length : 0) >= 8;",
+        expires: '',
+        rewardText: '1200',
+        rewardCode: 'return 1200;',
+        showConditionCode: 'return localStorage.getItem("daily_task2_claimed") === "true";',
+        tooltip: 'Добавьте 8 описаний в избранное чтобы выполнить это задание.',
+        checkButtonTitle: 'Проверить',
+        successText: 'Ежедневное задание выполнено — получено 1200🪙',
+        onFailText: 'Условие для задания не выполнено',
+        logEvent: 'console.log("Daily task 8 completed");'
+      },
+      {
+        id: 'daily_task9',
+        title: 'Купите 3 любых товара в магазине',
+        description: 'Чтобы получить награду, вам нужно купить 3 любых товара в магазине.',
+        checkText: 'Проверить',
+        actionText: 'Перейти в магазин',
+        actionLink: 'shop_ru.html',
+        conditionCode: "return (Number(localStorage.getItem('bought') || 0)) >= 3;",
+        expires: '',
+        rewardText: '900',
+        rewardCode: 'return 900;',
+        showConditionCode: 'return true;',
+        tooltip: 'Купите 3 любых товара в магазине чтобы выполнить это задание.',
+        checkButtonTitle: 'Проверить',
+        successText: 'Ежедневное задание выполнено — получено 900🪙',
+        onFailText: 'Условие для задания не выполнено',
+        logEvent: 'console.log("Daily task 9 completed");'
+      }
+    ];
+
+    function getDailyTasks() {
+      const today = new Date().toISOString().slice(0, 10);
+      let storedDaily = JSON.parse(localStorage.getItem('dailyTasks') || 'null');
+      if (!storedDaily || storedDaily.date !== today) {
+        // Сброс всех ежедневных заданий при смене дня
+        DAILY_TASKS_POOL.forEach(t => localStorage.removeItem(t.id + '_claimed'));
+        const shuffled = [...DAILY_TASKS_POOL].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 3);
+        localStorage.setItem('dailyTasks', JSON.stringify({ date: today, tasks: selected.map(t => t.id) }));
+        return selected;
+      } else {
+        return storedDaily.tasks.map(id => DAILY_TASKS_POOL.find(t => t.id === id));
+      }
+    }
 
     function checkAvatarForTask() {
       return localStorage.getItem('userAvatar') !== 'user_profile_photo.png';
@@ -446,9 +718,6 @@
       }
     }
 
-    /* ----------------------
-       Основная логика
-       ----------------------*/
     if (!localStorage.getItem('coins')) localStorage.setItem('coins', '0');
     if (!localStorage.getItem('rewardsStart')) localStorage.setItem('rewardsStart', new Date().toISOString().slice(0,10));
     if (!localStorage.getItem('claimedDays')) localStorage.setItem('claimedDays', JSON.stringify([]));
@@ -456,6 +725,7 @@
     const coinsDisplay = document.getElementById('coinsDisplay');
     const calendarEl = document.getElementById('calendar');
     const tasksList = document.getElementById('tasksList');
+    const dailyTasksList = document.getElementById('dailyTasksList');
     const collectedCountEl = document.getElementById('collectedCount');
     const progressBar = document.getElementById('progressBar');
     const currentDayLabel = document.getElementById('currentDayLabel');
@@ -565,24 +835,27 @@
       }
     }
 
-    function renderTasks() {
-      tasksList.innerHTML = '';
-      for (const t of TASKS) {
+    function renderTasks(tasks, container, isDaily = false) {
+      container.innerHTML = '';
+      for (const t of tasks) {
         let show = true;
         if (t.showConditionCode) {
           try { show = new Function(t.showConditionCode)(); } catch { show = false; }
         }
-        if (!show) continue;
+        if (!show || isTaskExpired(t)) continue;
 
         const taskEl = document.createElement('div');
         taskEl.className = 'task';
         const expired = isTaskExpired(t);
-        const claimed = !!localStorage.getItem(t.id + '_claimed');
+        const claimedKey = t.id + '_claimed';
+        const claimed = !!localStorage.getItem(claimedKey);
 
         const title = typeof t.title === 'function' ? t.title() : t.title;
         taskEl.innerHTML = `<div class="title">${title} (${t.rewardText}🪙)</div>`;
+        taskEl.title = t.tooltip || '';
         const btn = document.createElement('button');
         btn.className = 'btn';
+        btn.title = t.checkButtonTitle || '';
 
         if (claimed) {
           btn.textContent = 'Выполнено'; btn.disabled = true; btn.style.opacity = 0.6;
@@ -602,11 +875,14 @@
               if (ok) {
                 const reward = new Function(t.rewardCode)();
                 setCoins(getCoins() + reward);
-                localStorage.setItem(t.id + '_claimed', 'true');
-                showToast(`Задание выполнено — получено ${reward}🪙`, 'success');
+                localStorage.setItem(claimedKey, 'true');
+                showToast(t.successText || `Задание выполнено — получено ${reward}🪙`, 'success');
+                if (t.logEvent) {
+                  try { new Function(t.logEvent)(); } catch (e) { console.error(e); }
+                }
                 renderAll();
               } else {
-                showToast('Условие не выполнено', 'error');
+                showToast(t.onFailText || 'Условие не выполнено', 'error');
               }
             } catch (err) {
               console.error(err);
@@ -616,7 +892,7 @@
         }
         taskEl.appendChild(btn);
         taskEl.onclick = () => showModal(t);
-        tasksList.appendChild(taskEl);
+        container.appendChild(taskEl);
       }
     }
 
@@ -652,7 +928,8 @@
     function renderAll() {
       renderCoins();
       renderCalendar();
-      renderTasks();
+      renderTasks(TASKS, tasksList);
+      renderTasks(getDailyTasks(), dailyTasksList, true);
       renderProgress();
       renderCollectToday();
       renderCollectAllMissed();
@@ -695,6 +972,12 @@
     const modalBackBtn = document.getElementById('modalBackBtn');
 
     function showModal(task) {
+      if (window.innerWidth <= 768) {
+        modal.classList.add('mobile');
+      } else {
+        modal.classList.remove('mobile');
+      }
+
       modalTitle.textContent = typeof task.title === 'function' ? task.title() : task.title;
       modalDescription.textContent = task.description;
       modalReward.textContent = `Награда: ${task.rewardText} монет🪙`;
@@ -703,7 +986,8 @@
       modalActionBtn.textContent = task.actionText;
       modalActionBtn.onclick = () => location.href = task.actionLink;
 
-      const claimed = !!localStorage.getItem(task.id + '_claimed');
+      const claimedKey = task.id + '_claimed';
+      const claimed = !!localStorage.getItem(claimedKey);
       if (claimed || expired) {
         modalCheckBtn.textContent = claimed ? 'Забрано' : 'Истёк';
         modalCheckBtn.disabled = true;
@@ -716,14 +1000,17 @@
             const fn = new Function('return async function(){' + task.conditionCode + '}')();
             const ok = await fn();
             if (ok) {
-              const reward = new Function(t.rewardCode)();
+              const reward = new Function(task.rewardCode)();
               setCoins(getCoins() + reward);
-              localStorage.setItem(task.id + '_claimed', 'true');
-              showToast(`Задание выполнено — получено ${reward}🪙`, 'success');
+              localStorage.setItem(claimedKey, 'true');
+              showToast(task.successText || `Задание выполнено — получено ${reward}🪙`, 'success');
+              if (task.logEvent) {
+                try { new Function(task.logEvent)(); } catch (e) { console.error(e); }
+              }
               renderAll();
               modal.style.display = 'none';
             } else {
-              showToast('Условие не выполнено', 'error');
+              showToast(task.onFailText || 'Условие не выполнено', 'error');
             }
           } catch (e) { showToast('Ошибка', 'error'); }
         };

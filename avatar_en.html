@@ -1189,6 +1189,7 @@
             title: 'My Avatar',
             text: 'Check out the avatar I created!'
           }).catch(console.error);
+        localStorage.setItem('shared_avatars', String(Number(localStorage.getItem('shared_avatars') || '0') + 1));
         } else {
           const a = document.createElement('a');
           a.href = URL.createObjectURL(blob);

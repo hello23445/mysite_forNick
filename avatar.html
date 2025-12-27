@@ -1190,6 +1190,7 @@
             title: 'Моя аватарка',
             text: 'Смотри, какую аватарку я создал!'
           }).catch(console.error);
+        localStorage.setItem('shared_avatars', String(Number(localStorage.getItem('shared_avatars') || '0') + 1));
         } else {
           const a = document.createElement('a');
           a.href = URL.createObjectURL(blob);

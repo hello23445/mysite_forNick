@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Internet Speed Test</title>
 <style>
+
     body {
         margin: 0;
         font-family: 'Segoe UI', sans-serif;
@@ -19,6 +20,37 @@
         flex-direction: column;
     }
 
+    /* Preloader */
+    #preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(6, 0, 57, 0.95);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        transition: opacity 0.6s ease;
+    }
+
+    .spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid rgba(255,255,255,0.2);
+        border-top: 6px solid #d9d9d9;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
     .container {
         display: flex;
         gap: 30px;
@@ -27,6 +59,12 @@
         align-items: flex-start;
         width: 100%;
         max-width: 900px;
+        opacity: 0;
+        transition: opacity 0.8s ease;
+    }
+
+    .container.loaded {
+        opacity: 1;
     }
 
     .card {
@@ -36,16 +74,6 @@
         text-align: center;
         width: 350px;
         box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
-        transition: transform 0.3s;
-    }
-
-    .card:hover {
-        transform: scale(1.02);
-    }
-
-    h1 {
-        font-size: 1.8em;
-        margin-bottom: 10px;
     }
 
     .circle-wrapper {
@@ -88,13 +116,11 @@
         justify-content: center;
         font-size: 2em;
         font-weight: bold;
-        text-align: center;
     }
 
     .circle-text {
         font-size: 1.2em;
         font-weight: bold;
-        margin-top: 2px;
         opacity: 1;
         transition: opacity 0.5s ease;
         margin-bottom: 15px;
@@ -131,6 +157,42 @@
         transition: opacity 0.6s ease;
     }
 
+    /* Buttons container */
+    .buttons-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    button {
+        padding: 12px 24px;
+        font-size: 16px;
+        border: none;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.15);
+        color: #d9d9d9;
+        cursor: pointer;
+        width: 80%;
+        max-width: 300px;
+        transition: none;
+    }
+
+    button.back {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 10px 15px;
+        font-size: 14px;
+        width: auto;
+    }
+
+    #tips-btn {
+        display: none;
+        background: rgba(255,255,255,0.2);
+    }
+
     .tips {
         display: none;
         width: 100%;
@@ -149,31 +211,7 @@
         margin-bottom: 10px;
     }
 
-    .tips ul {
-        padding-left: 20px;
-    }
-
-    .tips ul li {
-        margin-bottom: 6px;
-    }
-
-    button {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        padding: 10px 15px;
-        font-size: 14px;
-        border: none;
-        border-radius: 8px;
-        background: rgba(255,255,255,0.1);
-        color: #d9d9d9;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: rgba(255,255,255,0.2);
-    }
-
+    /* Responsive */
     @media (max-width: 768px) {
         .container {
             flex-direction: column;
@@ -185,12 +223,7 @@
             padding: 20px;
         }
 
-        .circle-wrapper {
-            width: 160px;
-            height: 160px;
-        }
-
-        .circle-bg, .circle-progress, .circle-content {
+        .circle-wrapper, .circle-bg, .circle-progress, .circle-content {
             width: 160px;
             height: 160px;
         }
@@ -198,27 +231,22 @@
         .circle-content {
             font-size: 1.6em;
         }
-
-        .progress-container {
-            height: 8px;
-        }
-
-        .progress-bar {
-            height: 8px;
-        }
-
-        #connection {
-            font-size: 1.1em;
-        }
     }
 </style>
 </head>
 <body>
-<button onclick="window.location.href='main.html'">BACK TO MAIN MENU</button>
 
-<div class="container">
+<!-- Preloader -->
+<div id="preloader">
+    <div class="spinner"></div>
+    <div>Loading...</div>
+</div>
+
+<button class="back" onclick="window.location.href='main.html'">BACK TO MAIN MENU</button>
+
+<div class="container" id="main-container">
     <div class="card">
-        <h1 class="circle-text" id="circle-text">Measuring speed...</h1>
+        <h1 class="circle-text" id="circle-text">Click "Start Test"</h1>
 
         <div class="circle-wrapper">
             <div class="circle-bg"></div>
@@ -233,78 +261,155 @@
         </div>
 
         <div class="result" id="connection">Connection: —</div>
+
+        <!-- Buttons centered one under the other -->
+        <div class="buttons-container">
+            <button id="start-btn" onclick="testSpeed()">Start Test</button>
+            <button id="tips-btn" onclick="toggleTips()">Tips for Improvement</button>
+        </div>
     </div>
 
     <div class="tips" id="tips">
-        <h2>Tips to Improve Connection</h2>
+        <h2>Tips to Improve Your Connection</h2>
         <ul>
             <li>Restart your router.</li>
             <li>Use an Ethernet cable instead of Wi-Fi.</li>
-            <li>Close unnecessary programs using the internet.</li>
+            <li>Close unnecessary programs that use the internet.</li>
             <li>Move the router closer to your device.</li>
-            <li>Contact your provider to upgrade your plan.</li>
+            <li>Contact your ISP to upgrade your plan.</li>
         </ul>
     </div>
 </div>
 
 <script>
+const preloader = document.getElementById('preloader');
+const container = document.getElementById('main-container');
+const downloadEl = document.getElementById('download');
+const connectionEl = document.getElementById('connection');
+const progressEl = document.getElementById('progress');
+const circleEl = document.getElementById('circle-progress');
+const tipsEl = document.getElementById('tips');
+const circleText = document.getElementById('circle-text');
+const startBtn = document.getElementById('start-btn');
+const tipsBtn = document.getElementById('tips-btn');
+
+let testInProgress = false;
+
+const slowConnectionTimeout = setTimeout(() => {
+    preloader.style.opacity = '0';
+    setTimeout(() => { preloader.style.display = 'none'; }, 600);
+    
+    container.classList.add('loaded');
+    connectionEl.textContent = "Connection: Poor (slow page load)";
+    connectionEl.style.opacity = 1;
+    tipsEl.style.display = "block";
+    circleText.textContent = "Slow connection";
+    circleText.style.animation = 'none';
+    circleText.style.opacity = 1;
+}, 8000);
+
+function hidePreloader() {
+    clearTimeout(slowConnectionTimeout);
+    preloader.style.opacity = '0';
+    setTimeout(() => {
+        preloader.style.display = 'none';
+        container.classList.add('loaded');
+    }, 600);
+}
+
+function toggleTips() {
+    if (tipsEl.style.display === 'none' || tipsEl.style.display === '') {
+        tipsEl.style.display = 'block';
+        tipsBtn.textContent = 'Close Tips';
+    } else {
+        tipsEl.style.display = 'none';
+        tipsBtn.textContent = 'Tips for Improvement';
+    }
+}
+
 async function testSpeed() {
-    const downloadEl = document.getElementById('download');
-    const connectionEl = document.getElementById('connection');
-    const progressEl = document.getElementById('progress');
-    const circleEl = document.getElementById('circle-progress');
-    const tipsEl = document.getElementById('tips');
-    const circleText = document.getElementById('circle-text');
+    if (testInProgress) return;
+    testInProgress = true;
 
-    let fileSizeMB = 5;
+    downloadEl.textContent = "0 Mbps";
+    progressEl.style.width = "0%";
+    circleEl.style.transform = "rotate(0deg)";
+    connectionEl.style.opacity = 0;
+    tipsEl.style.display = "none";
+    tipsBtn.style.display = "none";
+    circleText.style.opacity = 1;
+    circleText.textContent = "Measuring speed...";
+    circleText.style.animation = "pulse 2s infinite";
+    startBtn.disabled = true;
+    startBtn.textContent = "Testing...";
+
+    const fileSizeMB = 5;
+    const imgUrl = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg?cache=" + Math.random();
+
     let startTime = performance.now();
-    await new Promise(resolve => {
-        let img = new Image();
-        img.onload = resolve;
-        img.onerror = resolve;
-        img.src = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg?full&cache=" + Math.random();
-    });
-    let endTime = performance.now();
+    try {
+        await new Promise((resolve, reject) => {
+            let img = new Image();
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = imgUrl;
+        });
+    } catch (e) {
+        finishTest(0);
+        return;
+    }
 
+    let endTime = performance.now();
     let durationSec = (endTime - startTime) / 1000;
     let speedMbps = ((fileSizeMB * 8) / durationSec).toFixed(2);
 
+    finishTest(speedMbps);
+}
+
+function finishTest(speedMbps) {
     let current = 0;
-    let interval = setInterval(() => {
-        if (current < speedMbps) {
-            current += Math.max(0.1, speedMbps / 50);
+    const target = parseFloat(speedMbps);
+
+    const interval = setInterval(() => {
+        if (current < target) {
+            current += Math.max(0.1, target / 50);
             downloadEl.textContent = current.toFixed(1) + " Mbps";
-            progressEl.style.width = Math.min((current / speedMbps) * 100, 100) + "%";
-            let deg = Math.min((current / speedMbps) * 360, 360);
+            progressEl.style.width = Math.min((current / target) * 100, 100) + "%";
+            let deg = Math.min((current / target) * 360, 360);
             circleEl.style.transform = "rotate(" + deg + "deg)";
         } else {
-            downloadEl.textContent = speedMbps + " Mbps";
+            downloadEl.textContent = target + " Mbps";
             progressEl.style.width = "100%";
             circleEl.style.transform = "rotate(360deg)";
             clearInterval(interval);
 
             circleText.style.opacity = 0;
+            setTimeout(() => { circleText.style.display = "none"; }, 500);
 
             let quality;
-            if (speedMbps < 5) quality = "Weak";
-            else if (speedMbps < 15) quality = "Average";
-            else if (speedMbps < 50) quality = "Good";
-            else quality = "Strong";
+            if (target < 5) quality = "Poor";
+            else if (target < 15) quality = "Average";
+            else if (target < 50) quality = "Good";
+            else quality = "Excellent";
 
             connectionEl.textContent = "Connection: " + quality;
-            setTimeout(() => {
-                circleText.style.display = "none";
-            }, 1000);
             connectionEl.style.opacity = 1;
 
-            if (speedMbps < 5) {
+            if (target < 5) {
                 tipsEl.style.display = "block";
+            } else if (target >= 5 && target < 15) {
+                tipsBtn.style.display = "block";
+                tipsBtn.textContent = "Tips for Improvement";
             }
+
+            startBtn.disabled = false;
+            startBtn.textContent = "Test Again";
+            testInProgress = false;
         }
     }, 20);
 }
 
-window.onload = testSpeed;
+window.addEventListener('load', hidePreloader);
 </script>
 </body>
 </html>

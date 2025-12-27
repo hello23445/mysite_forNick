@@ -980,6 +980,7 @@ W ← + → E
       const artText = asciiArtDiv.textContent;
       navigator.clipboard.writeText(artText)
         .then(() => {
+          localStorage.setItem('copied_arts', String(Number(localStorage.getItem('copied_arts') || '0') + 1));
           copyMessage.textContent = "Copied!";
           copyMessage.classList.remove("error");
           copyMessage.classList.add("success");

@@ -194,7 +194,12 @@
 
     const coins = localStorage.getItem('coins');
     if (!coins || isNaN(Number(coins)) || Number(coins) < 0) {
-        localStorage.setItem('coins', '100000');
+        const fixedCoins = Number(localStorage.getItem('coins_for_fixed'));
+        localStorage.setItem(
+        'coins',
+        Number.isFinite(fixedCoins) ? fixedCoins : 0
+        );
+
         errors.push(lang === 'ru' ? 'Исправлено количество монет.' : 'Count of coins has been fixed.');
     }
 

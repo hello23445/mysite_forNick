@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Main</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsqr.min.js"></script>
     <style>
         :root {
             --bg: #060039;
@@ -20,6 +18,9 @@
             --shadow: rgba(0,0,0,.35);
             --disabled: #4a4a4a;
             --snow-frost: rgba(255, 255, 255, 0.12);
+            --scrollbar-thumb: rgba(255, 255, 255, 0.35);
+            --scrollbar-thumb-hover: rgba(255, 255, 255, 0.55);
+            --scrollbar-track: rgba(255, 255, 255, 0.05);
         }
         * { box-sizing: border-box; }
         html, body { height: 100%; }
@@ -47,7 +48,6 @@
             background-position: center center;
             background-attachment: fixed;
         }
-        /* === СНЕЖНЫЙ СЛОЙ НАД ВСЕМ, НО ПОД КНОПКАМИ === */
         #snowCanvas, #snowPile {
             position: fixed;
             top: 0;
@@ -65,7 +65,6 @@
             transition: height 1s ease-out;
             z-index: 6;
         }
-        /* === TOP BAR ПОВЕРХ СНЕГА === */
         .top-bar {
             position: sticky;
             top: 0;
@@ -81,7 +80,7 @@
         #settingsTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
         #sideTopBar { justify-content: space-between; gap: 6px; }
         #sideTopBar .title { flex: 1; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
-        /* === СНЕЖНЫЙ СТИЛЬ КНОПОК === */
+
         .icon-btn, .btn {
             position: relative;
             overflow: hidden;
@@ -122,7 +121,30 @@
             cursor: pointer; box-shadow: 0 4px 12px var(--shadow);
         }
         .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
-        .main { text-align: center; margin: 16px auto 0; padding: 0 12px; max-width: 860px; }
+
+        .main { 
+            text-align: center; 
+            margin: 16px auto 0; 
+            padding: 0 12px; 
+            max-width: 860px; 
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .main::-webkit-scrollbar {
+            width: 10px;
+        }
+        .main::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        .main::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 5px;
+        }
+        .main::-webkit-scrollbar-thumb:hover {
+            background: var(--scrollbar-thumb-hover);
+        }
+
         h2 { margin: 8px 0 6px; font-weight: 800; font-size: 18px; }
         .buttons-container {
             display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; justify-items: stretch; }
@@ -142,7 +164,9 @@
         }
         .btn .left-icon { margin-right: 6px; }
         .btn .right-icon { margin-left: 6px; }
+
         #maintenance { display: none; text-align: center; margin-top: 16px; color: #ff6b6b; padding: 10px; }
+
         .card {
             background: linear-gradient(180deg, var(--card), #0b0862);
             border: 1px solid rgba(255,255,255,.08);
@@ -155,6 +179,7 @@
         #tok { margin-top: 6px; background: var(--bg); border: 1px dashed rgba(255,255,255,.15); width: 100%; }
         #statSelect, #avatarVisibilitySelect, #theme {
             flex: 1; min-width: 140px; padding: 10px; background: var(--bg-soft); color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.08); }
+
         @media (max-width: 560px) {
             .buttons-container { grid-template-columns: 1fr; }
             .field { align-items: stretch; }
@@ -163,6 +188,7 @@
             #tok { width: 100%; }
             .label { font-size: 16px; }
         }
+
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -173,6 +199,7 @@
             font-size: 13px;
             line-height: 1.4;
         }
+
         #overlay {
             display: none;
             position: fixed;
@@ -183,6 +210,7 @@
             background: rgba(0,0,0,0.4);
             z-index: 40;
         }
+
         #sideMenu {
             display: none;
             position: fixed;
@@ -197,8 +225,25 @@
             transition: transform 0.5s ease-in-out;
         }
         #sideMenu.open { transform: translateX(0); }
+
+        #sideMenu::-webkit-scrollbar {
+            width: 10px;
+        }
+        #sideMenu::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        #sideMenu::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 5px;
+        }
+        #sideMenu::-webkit-scrollbar-thumb:hover {
+            background: var(--scrollbar-thumb-hover);
+        }
+
         @media (max-width: 400px) { #sideMenu { width: 100%; } }
+
         .side-buttons { display: grid; grid-template-columns: 1fr; gap: 8px; }
+
         .coins {
             background: linear-gradient(145deg, #060039, #0a004d);
             border-radius: 12px;
@@ -211,7 +256,7 @@
         }
         .coins i { font-style: normal; font-weight: normal; color: inherit; pointer-events: none; }
         .label { font-size: 14px; font-weight: 600; color: var(--muted); }
-        /* === ОПТИМИЗАЦИЯ НАСТРОЕК: ПРОКРУТКА + СКВОЗНОЙ ФОН И СНЕГ === */
+
         #settingsMenu {
             display: none;
             position: fixed;
@@ -235,16 +280,17 @@
         }
         .settings-wrap * { pointer-events: auto; }
         .settings-wrap::-webkit-scrollbar {
-            width: 6px;
+            width: 10px;
         }
-        .settings-wrap::-webkit-scrollbar-track { background: transparent; }
+        .settings-wrap::-webkit-scrollbar-track { background: var(--scrollbar-track); }
         .settings-wrap::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
+            background: var(--scrollbar-thumb);
+            border-radius: 5px;
         }
         .settings-wrap::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: var(--scrollbar-thumb-hover);
         }
+
         #settingsMenu .card {
             padding: 10px;
             margin-bottom: 8px;
@@ -280,6 +326,7 @@
                 min-height: 42px;
             }
         }
+
         .no-animations * {
             transition: none !important;
             animation: none !important;
@@ -288,10 +335,8 @@
 </head>
 <body>
     <div id="bg"></div>
-    <!-- //новогодний снег: начало -->
     <canvas id="snowCanvas"></canvas>
     <div id="snowPile"></div>
-    <!-- //новогодний снег: конец -->
     <div id="maintenance">
         <h2 data-translate="maintenance" id="maintenanceM"></h2>
     </div>
@@ -303,7 +348,7 @@
         <h2 data-translate="main" id="mainM"></h2>
         <div class="buttons-container" id="featureButtons"></div>
     </div>
-    <!-- НАСТРОЙКИ: СКВОЗНОЙ ФОН + СНЕГ + ПРОКРУТКА -->
+
     <div id="settingsMenu">
         <div class="top-bar" id="settingsTopBar">
             <button class="icon-btn" id="backBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
@@ -419,7 +464,9 @@
             </div>
         </div>
     </div>
+
     <div id="overlay"></div>
+
     <div id="sideMenu">
         <div class="top-bar" id="sideTopBar">
             <button class="icon-btn" id="sideCloseBtn" title="Close"><i class="fa-solid fa-arrow-left"></i></button>
@@ -430,9 +477,29 @@
             <div class="side-buttons" id="sideButtons"></div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+
+            <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script>
-        
+          document.addEventListener('keydown', function (event) {
+            if (event.key === '1') {
+                hideSideMenu();
+                showSettings();
+            }
+            if (event.key === 'Escape') {
+                hideSideMenu();
+            const settingsMenu = document.getElementById('settingsMenu');
+            const mainMenu = document.getElementById('mainMenu');
+            const mainTopBar = document.getElementById('mainTopBar');
+
+            if (settingsMenu) settingsMenu.style.display = 'none';
+            if (mainMenu) mainMenu.style.display = 'block';
+            if (mainTopBar) mainTopBar.style.display = 'flex';
+
+            if (typeof saveUserDataToGoogleSheets === 'function') {
+                saveUserDataToGoogleSheets();
+            }
+            }
+        });
         if (!localStorage.getItem('userName')) {
             localStorage.setItem('userName', 'User');
         }
@@ -1359,5 +1426,4 @@
         setTheme(storedTheme);
     </script>
 </body>
-
 </html>

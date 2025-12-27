@@ -991,6 +991,7 @@ W ← + → E
       navigator.clipboard.writeText(artText)
         .then(() => {
           copyMessage.textContent = "Скопировано!";
+          localStorage.setItem('copied_arts', String(Number(localStorage.getItem('copied_arts') || '0') + 1));
           copyMessage.classList.remove("error");
           copyMessage.classList.add("success");
         })
