@@ -20,7 +20,6 @@
     .back-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);padding:10px 14px;border-radius:12px;text-decoration:none;font-weight:600}
     .coins{font-weight:700}
     main{display:grid;grid-template-columns:1fr 420px;gap:20px;margin-top:20px}
-
     .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(2,2,8,0.6)}
     .calendar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
     .day{background:var(--card);border-radius:12px;padding:12px;height:88px;display:flex;flex-direction:column;justify-content:space-between}
@@ -29,7 +28,6 @@
     .day .num{font-weight:700}
     .day .reward{font-size:13px}
     .day button{margin-top:8px;padding:8px 10px;border-radius:8px;border:none;background:var(--accent);color:white;font-weight:600;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;}
-
     .tasks-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
     .task{background:var(--glass);border-radius:12px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
     .task .title{font-weight:700}
@@ -38,22 +36,23 @@
     .btn{padding:8px 10px;border-radius:10px;border:none;background:var(--accent);color:white;font-weight:700;cursor:pointer;transition: background 0.2s;}
     .btn.alt{background:transparent;border:1px solid rgba(255,255,255,0.06);transition: border-color 0.2s;}
     .btn.alt:hover{border-color:rgba(255,255,255,0.12);}
-
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:1000;transition: opacity 0.3s ease;}
     .modal.mobile{bottom:0;top:auto;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.6);}
     .modal.mobile::before{content:'';position:absolute;top:0;left:0;width:100%;height:30%;background:linear-gradient(to bottom,rgba(0,0,0,0.6),transparent);}
-    .modal-content{background:var(--card);padding:24px;border-radius:16px;max-width:420px;width:90%;text-align:left;position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation: fadeIn 0.3s ease;}
+    .modal-content{background:var(--card);padding:24px;border-radius:16px;max-width:420px;width:90%;text-align:left;position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
     .modal.mobile .modal-content{border-bottom-left-radius:0;border-bottom-right-radius:0;padding-bottom:32px;}
     @keyframes fadeIn {from {opacity:0;transform:scale(0.95);} to {opacity:1;transform:scale(1);}}
+    .modal-content.no-animation {animation: none !important;}
+    .modal.mobile .modal-content.no-animation {animation: none !important;}
     .modal-content h1{font-size:20px;font-weight:700;margin-bottom:12px;text-align:center;}
     .modal-content .description{margin-bottom:16px;line-height:1.5;font-size:14px;}
     .modal-content .meta{font-size:16px;font-weight:bold;opacity:0.9;margin-bottom:8px;}
     .modal-content .buttons{display:flex;flex-direction:column;gap:12px;margin-top:20px;}
     .modal-content .buttons button{width:100%;}
     .close-btn{position:absolute;top:16px;right:16px;cursor:pointer;color:var(--text);font-size:24px;transition: color 0.2s;}
-
-    .toast{display:flex;align-items:center;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:var(--card);border-radius:12px;padding:16px;max-width:400px;width:calc(100% - 40px);box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:9999;animation:slideUp 0.3s ease-out;color:var(--text);}
-    @keyframes slideUp{from{opacity:0;transform:translate(-50%,20px);}to{opacity:1;transform:translate(-50%,0);}}
+    .toast{display:flex;align-items:center;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:var(--card);border-radius:12px;padding:16px;max-width:400px;width:calc(100% - 40px);box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:9999;color:var(--text);}
+    @keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    .toast.no-animation {animation: none !important;}
     .toast-icon{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:32px;height:32px;border-radius:50%;}
     .toast.success .toast-icon{background:rgba(34,197,94,0.2);color:var(--success);}
     .toast.error .toast-icon{background:rgba(239,68,68,0.2);color:var(--error);}
@@ -61,16 +60,12 @@
     .toast-close{margin-left:auto;background:none;border:none;color:var(--text);opacity:0.6;cursor:pointer;padding:0 8px;transition:opacity 0.2s;}
     .toast-close:hover{opacity:1;}
     .toast svg{width:20px;height:20px;}
-
     .side{position:sticky;top:20px}
     .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:14px}
     .progress{height:10px;background:rgba(255,255,255,0.04);border-radius:10px;overflow:hidden}
     .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#5b3cff);width:0%}
-
     .daily-note{margin-top:8px;font-size:13px;opacity:0.8;text-align:center;}
-
     footer{margin-top:18px;text-align:center;color:rgba(217,217,217,0.6);font-size:13px}
-
     @media (max-width:900px){
       main{grid-template-columns:1fr}
       .coins{font-size:14px}
@@ -89,7 +84,7 @@
       .tasks-list {gap:8px;}
       .modal-content {padding:20px;}
       .modal-content h1 {font-size:18px;}
-      .modal-content .description {font-size:13px;}
+      .modal-content .description {font-size:16px;}
       .modal-content .meta {font-size:14px;}
       .app {padding:10px;}
       header {gap:8px;}
@@ -110,7 +105,15 @@
       .calendar {grid-template-columns:repeat(2,1fr); gap:6px;}
       .modal-content {padding:16px;}
       .modal-content h1 {font-size:16px;}
-      .modal-content .description {font-size:12px;}
+      .modal-content .description {font-size:16px;}
+    }
+    @keyframes slideUp {
+      from {opacity: 0; transform: translateY(100%);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    .modal.mobile .modal-content {
+      animation: slideUp 0.3s ease;
+      transform: translateY(0); /* Ensures it stays in place after animation */
     }
   </style>
 </head>
@@ -122,17 +125,14 @@
         <div class="coins" id="coinsDisplay">🪙0</div>
       </div>
     </header>
-
     <main>
       <section class="panel">
         <h2>Награды</h2>
         <p style="opacity:0.8">Награды можно собирать по одной в день. Если у вас есть Премиум, то вы можете забирать пропущенные награды.</p>
-
         <div style="margin-top:14px">
           <div class="calendar" id="calendar"></div>
         </div>
       </section>
-
       <aside class="side">
         <div class="card">
           <h3>Прогресс</h3>
@@ -146,9 +146,7 @@
             <button class="btn alt" id="collectAllMissed">Забрать все пропущенные награды</button>
           </div>
         </div>
-
         <div style="height:12px"></div>
-
         <div class="card" style="margin-top:12px">
           <h3>
             Ежедневные задания
@@ -157,9 +155,7 @@
           <div class="tasks-list" id="dailyTasksList"></div>
           <div class="daily-note">Ежедневные задания обновляются каждый день.</div>
         </div>
-
         <div style="height:12px"></div>
-
         <div class="card" style="margin-top:12px">
           <h3>
             Задания
@@ -169,12 +165,10 @@
         </div>
       </aside>
     </main>
-
     <footer>
       Если вы хотите добавить своё задание, то напишите в службу поддержки: ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ > В правом верхнем углу нажмите кнопку Меню > Настройки > Откройте раздел "Поддержка и связь"> Нажмите "Написать в службу поддержки"
     </footer>
   </div>
-
   <!-- Modal -->
   <div id="taskModal" class="modal">
     <div class="modal-content">
@@ -190,7 +184,6 @@
       </div>
     </div>
   </div>
-
   <script>
     /* ----------------------
        1. Инициализация наград: 29-й = 10 000, 30-й = 50 000
@@ -205,11 +198,10 @@
       for (let i = 0; i < days; i++) {
         DAILY_REWARDS.push(start + i * increment);
       }
-      DAILY_REWARDS.push(10000);  // 29-й день
-      DAILY_REWARDS.push(50000);  // 30-й день
+      DAILY_REWARDS.push(10000); // 29-й день
+      DAILY_REWARDS.push(50000); // 30-й день
       localStorage.setItem('dailyRewards', JSON.stringify(DAILY_REWARDS));
     }
-
     /* ----------------------
        2. Авто-сброс календаря после 30-го дня
        ----------------------*/
@@ -222,7 +214,6 @@
         renderAll();
       }
     }
-
     const TASKS = [
       {
         id: 'task1',
@@ -513,7 +504,6 @@
         logEvent: 'console.log("Task 20 completed");'
       },
     ];
-
     const DAILY_TASKS_POOL = [
       {
         id: 'daily_task1',
@@ -678,7 +668,6 @@
         logEvent: 'console.log("Daily task 9 completed");'
       }
     ];
-
     function getDailyTasks() {
       const today = new Date().toISOString().slice(0, 10);
       let storedDaily = JSON.parse(localStorage.getItem('dailyTasks') || 'null');
@@ -693,15 +682,12 @@
         return storedDaily.tasks.map(id => DAILY_TASKS_POOL.find(t => t.id === id));
       }
     }
-
     function checkAvatarForTask() {
       return localStorage.getItem('userAvatar') !== 'user_profile_photo.png';
     }
-
     async function checkCountForTasks(count, required) {
       return (Number(count) || 0) >= required;
     }
-
     async function checkSubscription(CHANNEL_ID) {
       const BOT_TOKEN = "6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI";
       const USER_ID = localStorage.getItem('userID');
@@ -717,11 +703,9 @@
         return false;
       }
     }
-
     if (!localStorage.getItem('coins')) localStorage.setItem('coins', '0');
     if (!localStorage.getItem('rewardsStart')) localStorage.setItem('rewardsStart', new Date().toISOString().slice(0,10));
     if (!localStorage.getItem('claimedDays')) localStorage.setItem('claimedDays', JSON.stringify([]));
-
     const coinsDisplay = document.getElementById('coinsDisplay');
     const calendarEl = document.getElementById('calendar');
     const tasksList = document.getElementById('tasksList');
@@ -731,21 +715,17 @@
     const currentDayLabel = document.getElementById('currentDayLabel');
     const collectTodayBtn = document.getElementById('collectToday');
     const collectAllMissedBtn = document.getElementById('collectAllMissed');
-
     function getCoins() { return parseInt(localStorage.getItem('coins') || '0', 10); }
     function setCoins(n) { localStorage.setItem('coins', String(n)); renderCoins(); }
     function renderCoins() { coinsDisplay.textContent = `🪙${getCoins()}`; }
-
     function getStartDate() { return new Date(localStorage.getItem('rewardsStart')); }
     function dayIndexFromStart() {
       const diff = Math.floor((Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()) -
         Date.UTC(getStartDate().getFullYear(), getStartDate().getMonth(), getStartDate().getDate())) / 86400000);
       return Math.max(0, diff);
     }
-
     function getClaimed() { try { return JSON.parse(localStorage.getItem('claimedDays') || '[]'); } catch { return []; } }
     function setClaimed(arr) { localStorage.setItem('claimedDays', JSON.stringify(arr)); }
-
     function canClaimIndex(index) {
       if (getClaimed().includes(index)) return false;
       const today = dayIndexFromStart();
@@ -753,7 +733,6 @@
       if (index < today) return localStorage.getItem('premium') === 'yes';
       return false;
     }
-
     function claimIndex(index) {
       if (!canClaimIndex(index)) return false;
       setCoins(getCoins() + DAILY_REWARDS[index]);
@@ -763,7 +742,6 @@
       renderAll();
       return true;
     }
-
     function claimAllMissed() {
       if (localStorage.getItem('premium') !== 'yes') {
         showToast('Требуется Premium', 'error');
@@ -778,13 +756,11 @@
       }
       if (total > 0) showToast(`Получено ${total}🪙 за пропущенные дни!`, 'success');
     }
-
     function parseDateDDMMYYYY(s) {
       if (!s) return null;
       const [d, m, y] = s.split('.').map(Number);
       return new Date(y, m - 1, d);
     }
-
     function isTaskExpired(task) {
       if (!task.expires) return false;
       const exp = parseDateDDMMYYYY(task.expires);
@@ -793,22 +769,18 @@
       today.setHours(0,0,0,0);
       return exp < today;
     }
-
     function renderCalendar() {
       calendarEl.innerHTML = '';
       const claimed = getClaimed();
       const todayIndex = dayIndexFromStart();
       const now = new Date();
-
       for (let i = 0; i < 30; i++) {
         const day = document.createElement('div');
         day.className = 'day';
         if (claimed.includes(i)) day.classList.add('claimed');
         if (i === todayIndex) day.classList.add('today');
-
         day.innerHTML = `<div><div class="num">День ${i+1}</div><div class="reward">${DAILY_REWARDS[i]}🪙</div></div>`;
         const btn = document.createElement('button');
-
         if (claimed.includes(i)) {
           btn.textContent = 'Получено'; btn.disabled = true; btn.style.opacity = 0.6;
         } else if (i > todayIndex) {
@@ -834,7 +806,6 @@
         calendarEl.appendChild(day);
       }
     }
-
     function renderTasks(tasks, container, isDaily = false) {
       container.innerHTML = '';
       for (const t of tasks) {
@@ -843,20 +814,17 @@
           try { show = new Function(t.showConditionCode)(); } catch { show = false; }
         }
         if (!show || isTaskExpired(t)) continue;
-
         const taskEl = document.createElement('div');
         taskEl.className = 'task';
         const expired = isTaskExpired(t);
         const claimedKey = t.id + '_claimed';
         const claimed = !!localStorage.getItem(claimedKey);
-
         const title = typeof t.title === 'function' ? t.title() : t.title;
         taskEl.innerHTML = `<div class="title">${title} (${t.rewardText}🪙)</div>`;
         taskEl.title = t.tooltip || '';
         const btn = document.createElement('button');
         btn.className = 'btn';
         btn.title = t.checkButtonTitle || '';
-
         if (claimed) {
           btn.textContent = 'Выполнено'; btn.disabled = true; btn.style.opacity = 0.6;
         } else if (expired) {
@@ -895,14 +863,12 @@
         container.appendChild(taskEl);
       }
     }
-
     function renderProgress() {
       const claimed = getClaimed().length;
       progressBar.style.width = Math.round((claimed / 30) * 100) + '%';
       collectedCountEl.textContent = claimed;
       currentDayLabel.textContent = `День ${dayIndexFromStart() + 1}`;
     }
-
     function renderCollectToday() {
       const today = dayIndexFromStart();
       if (getClaimed().includes(today)) {
@@ -915,7 +881,6 @@
         collectTodayBtn.style.opacity = 1;
       }
     }
-
     function renderCollectAllMissed() {
       const isPremium = localStorage.getItem('premium') === 'yes';
       collectAllMissedBtn.textContent = isPremium
@@ -924,7 +889,6 @@
       collectAllMissedBtn.disabled = !isPremium;
       collectAllMissedBtn.style.opacity = isPremium ? 1 : 0.6;
     }
-
     function renderAll() {
       renderCoins();
       renderCalendar();
@@ -935,15 +899,12 @@
       renderCollectAllMissed();
       resetCycleIfNeeded();
     }
-
     collectTodayBtn.onclick = () => {
       const today = dayIndexFromStart();
       if (claimIndex(today)) showToast(`Получено ${DAILY_REWARDS[today]}🪙`, 'success');
       else showToast('Сегодня уже забрали', 'error');
     };
-
     collectAllMissedBtn.onclick = claimAllMissed;
-
     function showToast(text, type = 'info') {
       document.querySelectorAll('.toast').forEach(t => t.remove());
       const toast = document.createElement('div');
@@ -958,9 +919,12 @@
       `;
       document.body.appendChild(toast);
       toast.querySelector('.toast-close').onclick = () => toast.remove();
+      const animationsEnabled = localStorage.getItem('animations') === 'yes';
+      if (!animationsEnabled) {
+        toast.classList.add('no-animation');
+      }
       setTimeout(() => toast.remove(), 5000);
     }
-
     const modal = document.getElementById('taskModal');
     const closeModal = document.getElementById('closeModal');
     const modalTitle = document.getElementById('modalTitle');
@@ -970,14 +934,12 @@
     const modalActionBtn = document.getElementById('modalActionBtn');
     const modalCheckBtn = document.getElementById('modalCheckBtn');
     const modalBackBtn = document.getElementById('modalBackBtn');
-
     function showModal(task) {
       if (window.innerWidth <= 768) {
         modal.classList.add('mobile');
       } else {
         modal.classList.remove('mobile');
       }
-
       modalTitle.textContent = typeof task.title === 'function' ? task.title() : task.title;
       modalDescription.textContent = task.description;
       modalReward.textContent = `Награда: ${task.rewardText} монет🪙`;
@@ -985,7 +947,6 @@
       modalExpires.textContent = task.expires ? `До: ${task.expires}${expired ? ' · Истёк' : ''}` : '';
       modalActionBtn.textContent = task.actionText;
       modalActionBtn.onclick = () => location.href = task.actionLink;
-
       const claimedKey = task.id + '_claimed';
       const claimed = !!localStorage.getItem(claimedKey);
       if (claimed || expired) {
@@ -1016,11 +977,16 @@
         };
       }
       modal.style.display = 'flex';
+      const animationsEnabled = localStorage.getItem('animations') === 'yes';
+      const modalContent = document.querySelector('.modal-content');
+      if (!animationsEnabled) {
+        modalContent.classList.add('no-animation');
+      } else {
+        modalContent.classList.remove('no-animation');
+      }
     }
-
     closeModal.onclick = modalBackBtn.onclick = () => modal.style.display = 'none';
     window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
-
     renderAll();
     setInterval(() => {
       renderCalendar();
@@ -1028,8 +994,6 @@
       renderCollectAllMissed();
       resetCycleIfNeeded();
     }, 1000);
-
-    window.APP = { TASKS, DAILY_REWARDS };
   </script>
 </body>
 </html>

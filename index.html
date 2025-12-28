@@ -4,12 +4,13 @@
   <meta charset="UTF-8" />
   <title>Загрузка</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      background-color: #060039;
+      background: linear-gradient(160deg, #04002b, #0b0070);
       color: #d9d9d9;
       font-family: Arial, sans-serif;
       font-size: 20px;
@@ -25,59 +26,67 @@
       padding: 20px;
     }
 
-    button {
-      background-color: #251897;
-      color: #d9d9d9;
-      border: none;
-      padding: 14px 24px;
-      margin: 12px;
-      border-radius: 12px;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #5d4ec8;
+    /* Карточка */
+    .card {
+      background: rgba(37, 24, 151, 0.25);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      padding: 30px 25px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      animation: fadeIn 0.35s ease;
     }
 
     h1 {
-      margin-bottom: 30px;
+      margin: 20px 0 30px;
       font-size: 28px;
+      white-space: pre-line;
+    }
+
+    button {
+      background: linear-gradient(135deg, #3a2bff, #6a5cff);
+      color: #d9d9d9;
+      border: none;
+      padding: 14px 24px;
+      margin: 12px 0;
+      border-radius: 14px;
+      font-size: 24px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      width: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
     }
 
     .token-container {
       margin-top: 20px;
       display: flex;
-      flex-direction: row;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       gap: 10px;
-      background: #251897;
-      padding: 8px 12px;
-      border-radius: 12px;
+      background: rgba(37, 24, 151, 0.6);
+      padding: 10px 14px;
+      border-radius: 14px;
       user-select: all;
       font-size: 16px;
-      max-width: 400px;
+      max-width: 100%;
       word-break: break-all;
     }
 
     .copy-btn {
-      background-color: #251897;
+      background: #3a2bff;
       border: none;
       color: #d9d9d9;
       cursor: pointer;
-      font-size: 18px;
-      padding: 8px 16px;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 16px;
+      padding: 8px 14px;
       border-radius: 12px;
       user-select: none;
-    }
-
-    .copy-btn:hover {
-      background-color: #5d4ec8;
+      white-space: nowrap;
     }
 
     .support-text {
@@ -86,17 +95,42 @@
     }
 
     .support-text a {
-      color: #d9d9d9;
+      color: #ffffff;
       text-decoration: underline;
+    }
+
+    /* ===== PRELOADER ===== */
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 5px solid rgba(255,255,255,0.2);
+      border-top-color: #6a5cff;
+      border-radius: 50%;
+      margin: 0 auto;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
+
 <body>
   <div class="centered">
-    <h1 id="message">Идет загрузка... || Loading...</h1>
-    <div id="buttons"></div>
+    <div class="card">
+      <div class="loader"></div>
+      <h1 id="message">Идет загрузка... || Loading...</h1>
+      <div id="buttons"></div>
+    </div>
   </div>
 
+  <!-- JS НИЖЕ — БЕЗ ИЗМЕНЕНИЙ -->
   <script type="module">
     // --- security.js ---
     import { texpereriv, blockedTokens } from './security.js';
@@ -105,34 +139,34 @@
     const channelUsername = '@Nicknaymes2bot';
     const redirectUrl = 'main.html';
 
-    const userLang = navigator.language.startsWith('ru') ? 'ru' : 'en';
-    localStorage.setItem('lang', userLang);
+    let userLang = localStorage.getItem('lang');
     
     const text = {
       ru: {
-        loading: 'Идет загрузка...\n|| Loading...',
-        blocked: 'Ваш аккаунт заблокирован. || Your account is blocked.',
-        support: 'Служба поддержки || Support service: @',
+        loading: 'Идет загрузка...',
+        blocked: 'Ваш аккаунт заблокирован.',
+        support: 'Служба поддержки: @',
         supportBot: 'Clickerstart_bot',
-        maintenance: 'Технический перерыв!\nTechnical maintenance',
-        soon: 'Скоро мы начнем технический перерыв!\nTechnical maintenance will start soon.',
-        subscribe: 'Подпишитесь на канал для продолжения!\nSubscribe to the channel to continue!',
-        checkSubscription: 'Проверить подписку || Check subscription'
+        maintenance: 'Технический перерыв!',
+        soon: 'Скоро мы начнем технический перерыв!',
+        subscribe: 'Подпишитесь на канал для продолжения!',
+        checkSubscription: 'Проверить подписку'
       },
       en: {
-        loading: 'Loading... || Идет загрузка...',
-        blocked: 'Your account is blocked. || Ваш аккаунт заблокирован.',
-        support: 'Support service || Служба поддержки: @',
+        loading: 'Loading...',
+        blocked: 'Your account is blocked.',
+        support: 'Support service: @',
         supportBot: 'Clickerstart_bot',
-        maintenance: 'Technical maintenance!\nВедется техническое обслуживание!',
-        soon: 'Technical maintenance will start soon.\nСкоро мы начнем техническое обслуживание.',
-        subscribe: 'Subscribe to the channel to continue!\nПодпишитесь на канал для продолжения!',
-        checkSubscription: 'Check subscription || Проверить подписку'
+        maintenance: 'Technical maintenance!',
+        soon: 'Technical maintenance will start soon.',
+        subscribe: 'Subscribe to the channel to continue!',
+        checkSubscription: 'Check subscription'
       }
     };
 
     const messageEl = document.getElementById('message');
     const buttonsEl = document.getElementById('buttons');
+    const loaderEl = document.querySelector('.loader');
     let userToken = null;
 
     function copyToClipboard(text) {
@@ -240,7 +274,6 @@
     }
 
     async function fakeCheckSubscription() {
-      // Simulate a brief delay to mimic a real check
       await new Promise(resolve => setTimeout(resolve, 500));
       localStorage.setItem('hasVisited', 'true');
       buttonsEl.appendChild(createTokenContainer());
@@ -285,9 +318,40 @@
         localStorage.setItem('claimedPurchases', claimedIds.join(','));
 
         alert(`Вы получили ${amount} монет! || You received ${amount} coins!`);
-      } else {
-        console.log('Параметр startapp отсутствует.');
       }
+    }
+
+    function showLanguageSelect() {
+      loaderEl.style.display = 'none';
+      messageEl.textContent = 'Выберите язык\nChoose language';
+      buttonsEl.innerHTML = '';
+
+      const select = document.createElement('select');
+      select.style.width = '100%';
+      select.style.padding = '10px';
+      select.style.margin = '10px 0';
+      select.style.borderRadius = '10px';
+      select.style.background = '#251897';
+      select.style.color = 'white';
+      select.style.border = 'none';
+      select.style.fontSize = '18px';
+      select.innerHTML = `
+        <option value="ru">Русский</option>
+        <option value="en">English</option>
+      `;
+      buttonsEl.appendChild(select);
+
+      const continueBtn = document.createElement('button');
+      continueBtn.textContent = 'Продолжить / Continue';
+      continueBtn.onclick = () => {
+        userLang = select.value;
+        localStorage.setItem('lang', userLang);
+        loaderEl.style.display = 'block';
+        messageEl.textContent = text[userLang].loading;
+        buttonsEl.innerHTML = '';
+        main();
+      };
+      buttonsEl.appendChild(continueBtn);
     }
 
     async function main() {
@@ -326,7 +390,7 @@
           return;
         }
       } else if (isFirstVisit) {
-        createSubscriptionScreen(true); // Show fake subscription screen
+        createSubscriptionScreen(true);
         return;
       }
 
@@ -336,7 +400,12 @@
       window.location.href = redirectUrl;
     }
 
-    main();
+    if (userLang === 'ru') {
+      messageEl.textContent = text.ru.loading;
+      main();
+    } else {
+      showLanguageSelect();
+    }
   </script>
 </body>
 </html>

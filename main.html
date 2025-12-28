@@ -96,9 +96,6 @@
             pointer-events: none;
             transition: opacity .3s ease;
         }
-        .icon-btn:hover::before, .btn:hover::before {
-            opacity: 0.3;
-        }
         .icon-btn::after, .btn::after {
             content: '';
             position: absolute;
@@ -109,18 +106,12 @@
             transform: translateX(-100%) translateY(-100%) rotate(30deg);
             transition: opacity .4s ease;
         }
-        .icon-btn:hover::after, .btn:hover::after {
-            opacity: 1;
-            transform: translateX(100%) translateY(100%) rotate(30deg);
-            transition: transform 0.6s ease, opacity 0.2s ease;
-        }
         .icon-btn {
             display: inline-flex; align-items: center; justify-content: center;
             background: #090975; border: 1px solid rgba(255,255,255,.08);
             color: var(--text); font-size: 16px; width: 36px; height: 36px; border-radius: 10px;
             cursor: pointer; box-shadow: 0 4px 12px var(--shadow);
         }
-        .icon-btn:hover { transform: translateY(-1px); background: #0b0bb0; }
 
         .main { 
             text-align: center; 
@@ -128,11 +119,11 @@
             padding: 0 12px; 
             max-width: 860px; 
             height: calc(100vh - 60px);
-            overflow-y: auto;
+            overflow-y: scroll;
             -webkit-overflow-scrolling: touch;
         }
         .main::-webkit-scrollbar {
-            width: 10px;
+            width: 20px;
         }
         .main::-webkit-scrollbar-track {
             background: var(--scrollbar-track);
@@ -156,7 +147,6 @@
             color: var(--text); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; cursor: pointer; width: 100%; font-size: 13px; font-weight: 600;
             box-shadow: 0 4px 12px var(--shadow);
         }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--shadow); }
         .btn:disabled {
             opacity: .6;
             cursor: not-allowed;
