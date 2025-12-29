@@ -467,7 +467,15 @@
             <div class="side-buttons" id="sideButtons"></div>
         </div>
     </div>
-
+    <script type="module">
+        import { texpereriv} from './security.js';
+        if (texpereriv === 'Скоро'){
+            document.getElementById('mainM').textContent = localStorage.getItem('lang') === 'en' ? 'Soon we will start a technical break!' : 'Скоро мы начнем технический перерыв.';
+        }
+        else if (texpereriv === 'Уже'){
+            window.location.href = 'index.html'; 
+        }
+    </script>
             <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script>
           document.addEventListener('keydown', function (event) {
