@@ -1,5 +1,5 @@
 export const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss', ''];
-export const texpereriv = 'Уже' //Уже, Скоро, ...
+export const texpereriv = 'Скоро' //Уже, Скоро, ...
 localStorage.setItem('m', texpereriv);
 
 // список запрещённых слов (только уникальные формы, без дублей)

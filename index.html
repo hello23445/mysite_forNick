@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Загрузка</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -153,15 +154,16 @@
       }
 
       .centered {
-        padding: 10px; /* Adjust padding for full screen feel */
+        padding: 20px; /* Restore padding to show edges */
       }
 
       .card {
-        padding: 50px 35px; /* Larger padding */
-        max-width: 100%; /* Full width on mobile for larger screen */
-        border-radius: 0; /* Optional: remove radius for full screen */
-        height: auto;
-        box-shadow: none; /* Optional: remove shadow for full screen */
+        padding: 40px 20px; /* Adjust padding, less horizontal for wider feel */
+        max-width: 90%;
+        margin: 0 auto;
+        min-height: auto; /* Not full height */
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.45);
       }
 
       h1 {
@@ -349,6 +351,7 @@
     }
 
     function showMaintenanceScreen() {
+      loaderEl.style.display = 'none';
       messageEl.textContent = text[userLang].maintenance;
       buttonsEl.innerHTML = '';
       buttonsEl.appendChild(createTokenContainer());
@@ -512,8 +515,8 @@
       window.location.href = redirectUrl;
     }
 
-    if (userLang === 'ru') {
-      messageEl.textContent = text.ru.loading;
+    if (userLang && (userLang === 'ru' || userLang === 'en')) {
+      messageEl.textContent = text[userLang].loading;
       toggleAnimations();
       main();
     } else {
