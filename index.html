@@ -35,6 +35,9 @@
       max-width: 420px;
       width: 100%;
       box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    }
+
+    .card.animating {
       animation: fadeIn 0.35s ease;
     }
 
@@ -53,11 +56,14 @@
       border-radius: 14px;
       font-size: 24px;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
       width: 100%;
     }
 
-    button:hover {
+    button.animating {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button.animating:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 18px rgba(0,0,0,0.4);
     }
@@ -65,8 +71,9 @@
     .token-container {
       margin-top: 20px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       gap: 10px;
       background: rgba(37, 24, 151, 0.6);
       padding: 10px 14px;
@@ -75,6 +82,7 @@
       font-size: 16px;
       max-width: 100%;
       word-break: break-all;
+      text-align: center;
     }
 
     .copy-btn {
@@ -87,6 +95,7 @@
       border-radius: 12px;
       user-select: none;
       white-space: nowrap;
+      width: auto;
     }
 
     .support-text {
@@ -118,10 +127,90 @@
       from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* Notification styles */
+    #notification {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 0 0 5px 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+      font-size: 16px;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    /* Mobile optimizations: Increase sizes */
+    @media screen and (max-width: 768px) {
+      html, body {
+        font-size: 28px; /* Further increase base font size */
+      }
+
+      .centered {
+        padding: 10px; /* Adjust padding for full screen feel */
+      }
+
+      .card {
+        padding: 50px 35px; /* Larger padding */
+        max-width: 100%; /* Full width on mobile for larger screen */
+        border-radius: 0; /* Optional: remove radius for full screen */
+        height: auto;
+        box-shadow: none; /* Optional: remove shadow for full screen */
+      }
+
+      h1 {
+        font-size: 42px; /* Larger heading */
+        margin: 30px 0 40px;
+      }
+
+      button {
+        padding: 20px 30px; /* Larger buttons */
+        font-size: 32px;
+        border-radius: 20px;
+        margin: 18px 0;
+      }
+
+      .token-container {
+        font-size: 24px; /* Larger token text */
+        padding: 14px 18px;
+        border-radius: 18px;
+        gap: 14px;
+      }
+
+      .copy-btn {
+        font-size: 24px;
+        padding: 12px 18px;
+        border-radius: 16px;
+      }
+
+      .support-text {
+        font-size: 26px; /* Larger support text */
+        margin-top: 35px;
+      }
+
+      .loader {
+        width: 70px; /* Larger loader */
+        height: 70px;
+        border-width: 7px;
+      }
+
+      #notification {
+        font-size: 24px; /* Larger notification text */
+        padding: 14px 26px;
+        max-width: 90%; /* Wider on mobile */
+      }
+    }
   </style>
 </head>
 
 <body>
+  <div id="notification"></div>
   <div class="centered">
     <div class="card">
       <div class="loader"></div>
@@ -167,16 +256,39 @@
     const messageEl = document.getElementById('message');
     const buttonsEl = document.getElementById('buttons');
     const loaderEl = document.querySelector('.loader');
+    const cardEl = document.querySelector('.card');
+    const notificationEl = document.getElementById('notification');
     let userToken = null;
+
+    function showNotification(message) {
+      notificationEl.textContent = message;
+      notificationEl.style.display = 'block';
+      setTimeout(() => {
+        notificationEl.style.display = 'none';
+      }, 3000); // Hide after 3 seconds
+    }
+
+    function toggleAnimations() {
+      const animationsEnabled = localStorage.getItem('animations') === 'yes';
+      if (animationsEnabled) {
+        cardEl.classList.add('animating');
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => btn.classList.add('animating'));
+      } else {
+        cardEl.classList.remove('animating');
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => btn.classList.remove('animating'));
+      }
+    }
 
     function copyToClipboard(text) {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
-          alert('Ваш токен скопирован!\nYour token copied!');
+          showNotification('Ваш токен скопирован!\nYour token copied!');
           const copyBtn = document.querySelector('.copy-btn');
           if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
         }, () => {
-          alert('Не удалось скопировать токен.');
+          showNotification('Не удалось скопировать токен.');
         });
       } else {
         const textArea = document.createElement('textarea');
@@ -185,11 +297,11 @@
         textArea.select();
         try {
           document.execCommand('copy');
-          alert('Ваш токен скопирован!\nYour token copied!');
+          showNotification('Ваш токен скопирован!\nYour token copied!');
           const copyBtn = document.querySelector('.copy-btn');
           if (copyBtn) copyBtn.textContent = 'Скопировано! || Copied!';
         } catch {
-          alert('Не удалось скопировать токен.');
+          showNotification('Не удалось скопировать токен.');
         }
         document.body.removeChild(textArea);
       }
@@ -306,7 +418,7 @@
         let claimedIds = localStorage.getItem('claimedPurchases') ? localStorage.getItem('claimedPurchases').split(',') : [];
 
         if (claimedIds.includes(purchaseId)) {
-          alert('Вы уже получили эту награду! || You already received this reward!');
+          showNotification('Вы уже получили эту награду! || You already received this reward!');
           return;
         }
 
@@ -317,7 +429,7 @@
         claimedIds.push(purchaseId);
         localStorage.setItem('claimedPurchases', claimedIds.join(','));
 
-        alert(`Вы получили ${amount} монет! || You received ${amount} coins!`);
+        showNotification(`Вы получили ${amount} монет! || You received ${amount} coins!`);
       }
     }
 
@@ -367,15 +479,15 @@
       }
 
       if (blockedTokens.includes(userToken)) {
-        alert('Вы заблокированы!\nYou have been banned!');
+        showNotification('Вы заблокированы!\nYou have been banned!');
         showBlockedScreen();
         return;
       }
 
       if (texpereriv.toLowerCase() === 'скоро') {
-        alert(text[userLang].soon);
+        showNotification(text[userLang].soon);
       } else if (texpereriv.toLowerCase() === 'уже') {
-        alert(text[userLang].maintenance);
+        showNotification(text[userLang].maintenance);
         showMaintenanceScreen();
         return;
       }
@@ -402,9 +514,11 @@
 
     if (userLang === 'ru') {
       messageEl.textContent = text.ru.loading;
+      toggleAnimations();
       main();
     } else {
       showLanguageSelect();
+      toggleAnimations();
     }
   </script>
 </body>
