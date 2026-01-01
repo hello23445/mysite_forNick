@@ -136,6 +136,7 @@
             font-weight: bold;
             margin-top: 20px;
             min-height: 24px;
+            color: #00ff00;
         }
     </style>
 </head>
@@ -333,6 +334,12 @@
                 if (!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
+
+                // ИСПРАВЛЕНИЕ: Не перезаписываем статус пустой строкой
+                if (data.message) {
+                    statusEl.textContent = data.message;
+                } // иначе оставляем как есть или очищаем ниже в функциях
+
                 return data;
             } catch (error) {
                 return { error: error.message };
@@ -392,10 +399,11 @@
             }
 
             if (result.success) {
+                // Явно показываем сообщение успеха (не полагаемся на data.message)
                 statusEl.textContent = t.successCreated;
                 statusEl.style.color = '#00ff00';
 
-                // Сразу показываем интерфейс существующей базы
+                // Сразу обновляем интерфейс
                 isBlocked = false;
                 buttonsEl.innerHTML = `
                     <button id="updateBtn">${t.updateBtn}</button>
@@ -407,7 +415,7 @@
                 document.getElementById('deleteBtn').onclick = () => showConfirmModal(t.confirmDelete, deleteSheetConfirmed);
                 document.getElementById('blockBtn').onclick = () => showConfirmModal(t.confirmBlock, toggleBlockConfirmed);
 
-                // Принудительная перезагрузка с обходом кэша (работает на всех мобильных)
+                // Принудительная перезагрузка с обходом кэша
                 setTimeout(() => {
                     const cleanUrl = window.location.pathname;
                     window.location.href = cleanUrl + '?t=' + Date.now();
@@ -420,6 +428,7 @@
             const result = await callGAS('update', 'POST', { data: lsData });
             if (!result.error && result.success) {
                 statusEl.textContent = t.successUpdated;
+                statusEl.style.color = '#00ff00';
             }
         }
 
@@ -427,6 +436,7 @@
             const result = await callGAS('delete', 'POST');
             if (!result.error && result.success) {
                 checkSheet();
+                statusEl.textContent = '';
             }
         }
 
@@ -489,13 +499,13 @@
                     modalEl.style.display = 'none';
                     checkSheet();
                     statusEl.textContent = t.successImported;
+                    statusEl.style.color = '#00ff00';
                 }
             } else {
                 showErrorModal(t.errorWrongCode);
             }
         }
 
-        // Закрытие модалок по клику вне области
         [modalEl, confirmModalEl, errorModalEl].forEach(el => {
             el.onclick = (e) => {
                 if (e.target === el) el.style.display = 'none';
