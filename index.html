@@ -470,7 +470,18 @@
     }
 
 async function getSTARTAPP() {
-  const charMap = { qe:1, wy:2, et:3, rf:4, th:5, yr:6, ufg:7, ifg:8, ofgg:9, xo:0 };
+  const charMap = {
+  "qe":  1,
+  "wy":  2,
+  "et":  3,
+  "rf":  4,
+  "th":  5,
+  "yr":  6,
+  "ufg": 7,
+  "ifg": 8,
+  "ofgg":9,
+  "xo":  0
+};
   const startapp = Telegram.WebApp.initDataUnsafe.start_param;
   if (startapp) {
     const parts = startapp.split('_');
@@ -593,4 +604,5 @@ async function getSTARTAPP() {
     }
   </script>
 </body>
+
 </html>
