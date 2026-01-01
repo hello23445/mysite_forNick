@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление базой данных</title>
+    <style>
+        body {
+            background-color: darkblue;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        button {
+            background: #3a2bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.2s;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #modal-content {
+            background: darkblue;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+        a {
+            color: #3a2bff;
+            text-decoration: none;
+        }
+        #error-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #error-modal-content {
+            background: darkblue;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        #preloader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3a2bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Стиль для кнопки "Назад" */
+        #backBtn {
+            margin-top: 30px;
+            background: blue;
+        }
+        #backBtn:hover {
+            background: darkblue;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Кнопка "Вернуться назад" с динамическим текстом -->
+        <button id="backBtn" onclick="window.location.href='main.html'"></button>
+        <h1 id="mainTitle">Управление базой данных</h1>
+        <div id="buttons"></div>
+        <p id="status"></p>
+
+    </div>
+
+    <div id="modal">
+        <div id="modal-content">
+            <h2 id="importTitle">Импорт базы данных</h2>
+            <div id="sheetNameStep">
+                <p id="enterTokenText">Введите токен пользователя.</p>
+                <input id="sheetNameInput" type="text" placeholder="" id="tokenPlaceholder">
+                <button id="submitSheetName">Подтвердить</button>
+                <button id="cancelBtn">Отмена</button>
+                <p><a href="https://t.me/Clickerstart_bot" target="_blank" id="forgotTokenLink">Забыли токен? Обратитесь в поддержку: @Clickerstart_bot</a></p>
+            </div>
+            <div id="codeStep" style="display:none;">
+                <p id="enterCodeText">Введите 6-значный код отправленный в приложение другого устройства:</p>
+                <input id="codeInput" type="text" placeholder="Код" maxlength="6">
+                <button id="submitCode">Подтвердить</button>
+                <button id="cancelCodeBtn">Отмена</button>
+                <p><a href="https://t.me/Clickerstart_bot" target="_blank" id="noAccessLink">Нету доступа к устройству? Обратитесь в поддержку @Clickerstart_bot</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="error-modal">
+        <div id="error-modal-content">
+            <p id="error-message"></p>
+            <button id="error-ok-btn">OK</button>
+        </div>
+    </div>
+
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <script>
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbz3pIkQGKR1QCs_cP7ZODqlHt_p80NtUIT7_AjTKRUfP1M06Jxfh0Rj34P7zjeeUCVW/exec';
+
+        // Определяем язык
+        const lang = (localStorage.getItem('lang') || 'ru') === 'ru' ? 'ru' : 'en';
+
+        // Переводы
+        const texts = {
+            ru: {
+                mainTitle: 'Управление моей базой данных',
+                createBtn: 'Создать свою базу данных',
+                importBtn: 'У меня уже есть своя база данных',
+                updateBtn: 'Обновить данные в моей базе данных',
+                deleteBtn: 'Удалить мою базу данных',
+                blockBtnBlocked: 'Разблокировать мою базу данных',
+                blockBtnUnblocked: 'Заблокировать мою базу данных',
+                blockInfo: 'Заблокировав свою базу данных никто не сможет загружать ваши данные.',
+                importTitle: 'Импорт базы данных',
+                enterTokenText: 'Введите токен пользователя.',
+                tokenPlaceholder: 'Введите сюда.',
+                forgotTokenLink: 'Забыли токен? Обратитесь в поддержку: @Clickerstart_bot',
+                enterCodeText: 'Введите 6-значный код отправленный в приложение другого устройства:',
+                noAccessLink: 'Нету доступа к устройству? Обратитесь в поддержку @Clickerstart_bot',
+                errorEnterToken: 'Введите токен пользователя',
+                errorSheetNotFound: 'База данных не найдена',
+                errorBlocked: 'Вход запрещен!',
+                errorWrongCode: 'Неверный код!',
+                successImported: 'База данных импортирована!',
+                successUpdated: 'База обновлена!',
+                okBtn: 'OK',
+                backBtn: 'Вернуться назад'  // добавлено
+            },
+            en: {
+                mainTitle: 'Database Management',
+                createBtn: 'Create my database',
+                importBtn: 'I already have a database',
+                updateBtn: 'Update database',
+                deleteBtn: 'Delete database',
+                blockBtnBlocked: 'Unblock my database',
+                blockBtnUnblocked: 'Block my database',
+                blockInfo: 'By blocking your database, no one will be able to download your data.',
+                importTitle: 'Database Import',
+                enterTokenText: 'Enter user token.',
+                tokenPlaceholder: 'Enter here.',
+                forgotTokenLink: 'Forgot your token? Contact support: @Clickerstart_bot',
+                enterCodeText: 'Enter the 6-digit code sent to the other device\'s app:',
+                noAccessLink: 'No access to the device? Contact support @Clickerstart_bot',
+                errorEnterToken: 'Enter user token',
+                errorSheetNotFound: 'Table not found',
+                errorBlocked: 'Access denied!',
+                errorWrongCode: 'Wrong code',
+                successImported: 'Database imported',
+                successUpdated: 'Database updated',
+                okBtn: 'OK',
+                backBtn: 'Go back'  // добавлено
+            }
+        };
+
+        const t = texts[lang];
+
+        function getOrCreateUserToken() {
+            let token = localStorage.getItem('userToken');
+            if (!token) {
+                token = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+                localStorage.setItem('userToken', token);
+            }
+            return token;
+        }
+
+        let userToken = getOrCreateUserToken();
+        const statusEl = document.getElementById('status');
+        const buttonsEl = document.getElementById('buttons');
+        const modalEl = document.getElementById('modal');
+        const sheetNameStep = document.getElementById('sheetNameStep');
+        const codeStep = document.getElementById('codeStep');
+        const sheetNameInput = document.getElementById('sheetNameInput');
+        const codeInput = document.getElementById('codeInput');
+        const errorModalEl = document.getElementById('error-modal');
+        const errorMessageEl = document.getElementById('error-message');
+        const preloaderEl = document.getElementById('preloader');
+        let generatedCode = null;
+        let isBlocked = false;
+
+        function showPreloader() {
+            preloaderEl.style.display = 'flex';
+            document.body.style.pointerEvents = 'none';
+        }
+
+        function hidePreloader() {
+            preloaderEl.style.display = 'none';
+            document.body.style.pointerEvents = 'auto';
+        }
+
+        function showErrorModal(message) {
+            errorMessageEl.textContent = message;
+            document.getElementById('error-ok-btn').textContent = t.okBtn;
+            errorModalEl.style.display = 'flex';
+            document.getElementById('error-ok-btn').onclick = () => {
+                errorModalEl.style.display = 'none';
+            };
+        }
+
+        async function callGAS(endpoint, method = 'GET', body = null, sheetNameParam = null) {
+            showPreloader();
+            try {
+                let url = `${GAS_URL}?endpoint=${endpoint}&userToken=${userToken}`;
+                if (sheetNameParam) url += `&sheetName=${encodeURIComponent(sheetNameParam)}`;
+
+                const options = { method };
+                if (method === 'POST') {
+                    options.headers = { 'Content-Type': 'text/plain' };
+                    options.body = body ? JSON.stringify(body) : '';
+                }
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`Error: ${response.status}`);
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                statusEl.textContent = data.message || '';
+                return data;
+            } catch (error) {
+                statusEl.textContent = '';
+                return { error: error.message };
+            } finally {
+                hidePreloader();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('importTitle').textContent = t.importTitle;
+            document.getElementById('enterTokenText').textContent = t.enterTokenText;
+            document.getElementById('sheetNameInput').placeholder = t.tokenPlaceholder;
+            document.getElementById('forgotTokenLink').textContent = t.forgotTokenLink;
+            document.getElementById('enterCodeText').textContent = t.enterCodeText;
+            document.getElementById('noAccessLink').textContent = t.noAccessLink;
+
+            // Перевод кнопки "Вернуться назад"
+            document.getElementById('backBtn').textContent = t.backBtn;
+        }
+
+        async function checkSheet() {
+            const result = await callGAS('check');
+            if (result.error) {
+                statusEl.textContent = `Error: ${result.error}`;
+                return;
+            }
+            if (result.exists) {
+                isBlocked = result.blocked;
+                buttonsEl.innerHTML = `
+                    <button id="updateBtn">${t.updateBtn}</button>
+                    <button id="deleteBtn">${t.deleteBtn}</button>
+                    <button id="blockBtn">${isBlocked ? t.blockBtnBlocked : t.blockBtnUnblocked}</button>
+                    <p>${t.blockInfo}</p>
+                `;
+                document.getElementById('updateBtn').onclick = updateSheet;
+                document.getElementById('deleteBtn').onclick = deleteSheet;
+                document.getElementById('blockBtn').onclick = toggleBlock;
+            } else {
+                buttonsEl.innerHTML = `
+                    <button id="createBtn">${t.createBtn}</button>
+                    <button id="importBtn">${t.importBtn}</button>
+                `;
+                document.getElementById('createBtn').onclick = createSheet;
+                document.getElementById('importBtn').onclick = openImportModal;
+            }
+        }
+
+        async function createSheet() {
+            const lsData = { ...localStorage };
+            const result = await callGAS('create', 'POST', { data: lsData });
+            if (!result.error && result.success) checkSheet();
+        }
+
+        async function updateSheet() {
+            const lsData = { ...localStorage };
+            const result = await callGAS('update', 'POST', { data: lsData });
+            if (!result.error && result.success) statusEl.textContent = t.successUpdated;
+        }
+
+        async function deleteSheet() {
+            const result = await callGAS('delete', 'POST');
+            if (!result.error && result.success) checkSheet();
+        }
+
+        async function toggleBlock() {
+            const result = await callGAS('set_blocked', 'POST', { blocked: !isBlocked });
+            if (!result.error && result.success) {
+                checkSheet();
+            }
+        }
+
+        function openImportModal() {
+            modalEl.style.display = 'flex';
+            sheetNameStep.style.display = 'block';
+            codeStep.style.display = 'none';
+            sheetNameInput.value = '';
+            codeInput.value = '';
+            generatedCode = null;
+
+            document.getElementById('submitSheetName').onclick = handleSheetNameSubmit;
+            document.getElementById('submitCode').onclick = handleCodeSubmit;
+            document.getElementById('cancelBtn').onclick = () => modalEl.style.display = 'none';
+            document.getElementById('cancelCodeBtn').onclick = () => modalEl.style.display = 'none';
+        }
+
+        async function handleSheetNameSubmit() {
+            const sheetName = sheetNameInput.value.trim();
+            if (!sheetName) {
+                showErrorModal(t.errorEnterToken);
+                return;
+            }
+            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const result = await callGAS('set_code', 'POST', { code: generatedCode }, sheetName);
+            if (result.error) {
+                let message = 'Unknown error';
+                if (result.error === 'Sheet not found') {
+                    message = t.errorSheetNotFound;
+                } else if (result.error === 'Sheet blocked') {
+                    message = t.errorBlocked;
+                }
+                showErrorModal(message);
+            } else if (result.success) {
+                sheetNameStep.style.display = 'none';
+                codeStep.style.display = 'block';
+            }
+        }
+
+        async function handleCodeSubmit() {
+            const enteredCode = codeInput.value.trim();
+            if (enteredCode === generatedCode) {
+                const loadResult = await callGAS('load', 'GET', null, sheetNameInput.value.trim());
+                if (loadResult.error) {
+                    let message = 'Unknown error';
+                    if (loadResult.error === 'Sheet not found') {
+                        message = t.errorSheetNotFound;
+                    } else if (loadResult.error === 'Sheet blocked') {
+                        message = t.errorBlocked;
+                    }
+                    showErrorModal(message);
+                    return;
+                }
+                if (loadResult.data) {
+                    Object.entries(loadResult.data).forEach(([key, value]) => localStorage.setItem(key, value));
+                    userToken = sheetNameInput.value.trim();
+                    localStorage.setItem('userToken', userToken);
+                    await callGAS('clear_cell', 'POST', null, userToken);
+                    modalEl.style.display = 'none';
+                    checkSheet();
+                    statusEl.textContent = t.successImported;
+                }
+            } else {
+                showErrorModal(t.errorWrongCode);
+            }
+        }
+
+        modalEl.onclick = (e) => {
+            if (e.target === modalEl) modalEl.style.display = 'none';
+        };
+        errorModalEl.onclick = (e) => {
+            if (e.target === errorModalEl) errorModalEl.style.display = 'none';
+        };
+
+        // Применяем переводы и запускаем проверку
+        updateUI();
+        checkSheet();
+    </script>
+</body>
+</html>
