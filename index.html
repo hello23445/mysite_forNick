@@ -316,6 +316,15 @@
     const modalMessageEl = document.getElementById('modal-message');
     const modalOkBtn = document.getElementById('modal-ok');
     let userToken = null;
+    let modalResolve = null;
+
+    modalOkBtn.onclick = () => {
+      modalEl.style.display = 'none';
+      if (modalResolve) {
+        modalResolve();
+        modalResolve = null;
+      }
+    };
 
     function showNotification(message) {
       notificationEl.textContent = message;
@@ -328,11 +337,10 @@
     function showModal(message) {
       modalMessageEl.textContent = message;
       modalEl.style.display = 'flex';
+      return new Promise(resolve => {
+        modalResolve = resolve;
+      });
     }
-
-    modalOkBtn.onclick = () => {
-      modalEl.style.display = 'none';
-    };
 
     function toggleAnimations() {
       const animationsEnabled = localStorage.getItem('animations') === 'yes';
@@ -457,11 +465,11 @@
       localStorage.setItem('hasVisited', 'true');
       buttonsEl.appendChild(createTokenContainer());
       buttonsEl.appendChild(createSupportText());
-      getSTARTAPP();
+      await getSTARTAPP();
       window.location.href = redirectUrl;
     }
 
-    function getSTARTAPP() {
+    async function getSTARTAPP() {
       const charMap = { q:1, w:2, e:3, r:4, t:5, y:6, u:7, i:8, o:9, x:0 };
 
       const startapp = Telegram.WebApp.initDataUnsafe.start_param;
@@ -485,9 +493,10 @@
         let claimedIds = localStorage.getItem('claimedPurchases') ? localStorage.getItem('claimedPurchases').split(',') : [];
 
         if (claimedIds.includes(purchaseId)) {
-          showModal('Вы уже получили эту награду! || You already received this reward!');
+          await showModal('Вы уже получили эту награду! || You already received this reward!');
           return;
         }
+        
 
         let coins = parseInt(localStorage.getItem('coins')) || 0;
         coins += amount;
@@ -496,7 +505,7 @@
         claimedIds.push(purchaseId);
         localStorage.setItem('claimedPurchases', claimedIds.join(','));
 
-        showModal(`Вы получили ${amount} монет! || You received ${amount} coins!`);
+        await showModal(`Вы получили ${amount} монет! || You received ${amount} coins!`);
       }
     }
 
