@@ -132,6 +132,11 @@
             background: darkblue;
             opacity: 1;
         }
+        #status {
+            font-weight: bold;
+            margin-top: 20px;
+            min-height: 24px;
+        }
     </style>
 </head>
 <body>
@@ -142,7 +147,6 @@
         <p id="status"></p>
     </div>
 
-    <!-- Модалка импорта -->
     <div id="modal">
         <div id="modal-content">
             <h2 id="importTitle">Импорт базы данных</h2>
@@ -163,7 +167,6 @@
         </div>
     </div>
 
-    <!-- Модалка подтверждения -->
     <div id="confirm-modal">
         <div id="confirm-modal-content">
             <p id="confirm-message"></p>
@@ -174,7 +177,6 @@
         </div>
     </div>
 
-    <!-- Модалка ошибки -->
     <div id="error-modal">
         <div id="error-modal-content">
             <p id="error-message"></p>
@@ -213,7 +215,7 @@
                 errorWrongCode: 'Неверный код!',
                 successImported: 'База данных импортирована!',
                 successUpdated: 'База обновлена!',
-                successCreated: 'База данных успешно создана!',
+                successCreated: 'База данных успешно создана! Страница обновится...',
                 okBtn: 'OK',
                 backBtn: 'Вернуться назад',
                 confirmUpdate: 'Вы уверены, что хотите обновить базу данных?',
@@ -244,7 +246,7 @@
                 errorWrongCode: 'Wrong code',
                 successImported: 'Database imported',
                 successUpdated: 'Database updated',
-                successCreated: 'Database successfully created!',
+                successCreated: 'Database successfully created! Page will reload...',
                 okBtn: 'OK',
                 backBtn: 'Go back',
                 confirmUpdate: 'Are you sure you want to update the database?',
@@ -307,14 +309,11 @@
 
             confirmModalEl.style.display = 'flex';
 
-            const yesBtn = document.getElementById('confirm-yes');
-            const noBtn = document.getElementById('confirm-no');
-
-            yesBtn.onclick = () => {
+            document.getElementById('confirm-yes').onclick = () => {
                 confirmModalEl.style.display = 'none';
                 onConfirm();
             };
-            noBtn.onclick = () => {
+            document.getElementById('confirm-no').onclick = () => {
                 confirmModalEl.style.display = 'none';
             };
         }
@@ -388,14 +387,15 @@
             const result = await callGAS('create', 'POST', { data: lsData });
 
             if (result.error) {
-                showErrorModal(result.error || 'Ошибка при создании базы данных');
+                showErrorModal(result.error || (lang === 'ru' ? 'Ошибка при создании базы' : 'Error creating database'));
                 return;
             }
 
             if (result.success) {
                 statusEl.textContent = t.successCreated;
+                statusEl.style.color = '#00ff00';
 
-                // Мгновенно показываем интерфейс существующей базы
+                // Сразу показываем интерфейс существующей базы
                 isBlocked = false;
                 buttonsEl.innerHTML = `
                     <button id="updateBtn">${t.updateBtn}</button>
@@ -407,10 +407,11 @@
                 document.getElementById('deleteBtn').onclick = () => showConfirmModal(t.confirmDelete, deleteSheetConfirmed);
                 document.getElementById('blockBtn').onclick = () => showConfirmModal(t.confirmBlock, toggleBlockConfirmed);
 
-                // Небольшая задержка перед перезагрузкой — чтобы пользователь увидел сообщение
+                // Принудительная перезагрузка с обходом кэша (работает на всех мобильных)
                 setTimeout(() => {
-                    location.reload();
-                }, 1000);
+                    const cleanUrl = window.location.pathname;
+                    window.location.href = cleanUrl + '?t=' + Date.now();
+                }, 1500);
             }
         }
 
@@ -494,7 +495,7 @@
             }
         }
 
-        // Закрытие модалок по клику вне контента
+        // Закрытие модалок по клику вне области
         [modalEl, confirmModalEl, errorModalEl].forEach(el => {
             el.onclick = (e) => {
                 if (e.target === el) el.style.display = 'none';
