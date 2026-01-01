@@ -342,7 +342,7 @@
 
                 return data;
             } catch (error) {
-                return { error: 'Перезапустите приложение || Reload the page' };
+                return { error: error.message };
             } finally {
                 hidePreloader();
             }
