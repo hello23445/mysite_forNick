@@ -342,7 +342,7 @@
 
                 return data;
             } catch (error) {
-                return location.reload();
+                return { error: error.message };
             } finally {
                 hidePreloader();
             }
@@ -421,6 +421,7 @@
                     window.location.href = cleanUrl + '?t=' + Date.now();
                 }, 1500);
             }
+            await checkSheet();
         }
 
         async function updateSheetConfirmed() {
@@ -517,4 +518,3 @@
     </script>
 </body>
 </html>
-
