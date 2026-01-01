@@ -397,6 +397,7 @@
                             </div>
                             <div style="display: none; margin-top: 1%;">
                                 <button id="myID" class="btn">Ваш Telegram ID</button>
+                                <button class="btn" id="localStorageClearbtn" style="display: none; margin-top: 2%;" onclick="if (confirm('Очистить весь localStorage?')){localStorage.clear(); window.location.href = 'index.html'}">Очистить весь localStorage</button>
                             </div>
                         </div>
                         <button class="btn" id="userID-confirming" onclick="window.location.href = 'set_telegram_id.html'">Привязать или изменить свой Telegram ID</button>
@@ -553,6 +554,9 @@ document.getElementById('verificationModalContainer').innerHTML =
 }
 </style>
     <script type="module">
+        if (localStorage.getItem('userToken') === 'GUo80GZ1KU7Jm9G4'){
+            localStorageClearbtn.style.display = 'block'
+        }
         import { texpereriv} from './security.js';
         if (texpereriv === 'Скоро'){
             document.getElementById('mainM').textContent = localStorage.getItem('lang') === 'en' ? 'Soon we will start a technical break!' : 'Скоро мы начнем технический перерыв.';

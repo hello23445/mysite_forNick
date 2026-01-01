@@ -488,8 +488,9 @@ select {
 
         async function handleCodeSubmit() {
             const enteredCode = codeInput.value.trim();
+            const importedToken = sheetNameInput.value.trim();
             if (enteredCode === generatedCode) {
-                const loadResult = await callGAS('load', 'GET', null, sheetNameInput.value.trim());
+                const loadResult = await callGAS('load', 'GET', null, importedToken);
                 if (loadResult.error) {
                     let message = loadResult.error;
                     if (loadResult.error.includes('not found')) message = t.errorSheetNotFound;
@@ -498,10 +499,12 @@ select {
                     return;
                 }
                 if (loadResult.data) {
-                    Object.entries(loadResult.data).forEach(([key, value]) => localStorage.setItem(key, value));
-                    userToken = sheetNameInput.value.trim();
-                    localStorage.setItem('userToken', userToken);
-                    await callGAS('clear_cell', 'POST', null, userToken);
+                    Object.entries(loadResult.data).forEach(([key, value]) => {
+                        if (key !== 'userToken') {
+                            localStorage.setItem(key, value);
+                        }
+                    });
+                    await callGAS('clear_cell', 'POST', null, importedToken);
                     modalEl.style.display = 'none';
                     checkSheet();
                     statusEl.textContent = t.successImported;
