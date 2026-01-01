@@ -501,7 +501,7 @@ async function getSTARTAPP() {
 
         localStorage.setItem('userCode', code);
     }
-    if (userCodeFromApp === localStorage.getItem('userCode') || purchaseId.length < 20 || purchaseId > 20){
+    if (userCodeFromApp !== localStorage.getItem('userCode') || purchaseId.length < 20 || purchaseId > 20){
       await showModal('Ошибка! || Error!')
       return;
     }
