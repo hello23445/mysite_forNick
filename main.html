@@ -660,7 +660,10 @@ document.getElementById('verificationModalContainer').innerHTML =
         if (!localStorage.getItem('statistic_turn')) {
             localStorage.setItem('statistic_turn', 'yes');
         }
-        let customBackgrounds = JSON.parse(localStorage.getItem('customBackgrounds')) || [];
+        let customBackgrounds = JSON.parse(
+  localStorage.getItem('customBackgrounds') || '[]'
+);
+
         let translations = {
             ru: {
                 fixing: 'Режим поиска и устранения ошибок в этом приложении',
