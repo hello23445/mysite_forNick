@@ -498,10 +498,12 @@ async function getSTARTAPP() {
     claimedIds.push(purchaseId);
     localStorage.setItem('claimedPurchases', claimedIds.join(','));
     await showModal(`Вы получили ${amount} монет! || You received ${amount} coins!`);
+    
   } else {
     console.log('Параметр startapp отсутствует.');
   }
 }
+    await getSTARTAPP();
 
     function showLanguageSelect() {
       loaderEl.style.display = 'none';
