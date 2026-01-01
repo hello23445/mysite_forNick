@@ -446,7 +446,7 @@
     </div>
     
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxEcWprN9AVSX4UjmcP0vVW4eYNsOUhH24MB97-mCsA_HH_TxGzT0QPMpqtPMulkgHG/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6U7Npzcv7t9bGUT-NB_2A6hEAqNicA-cf8dDVnb1LszP7VfhInH-H4v41bFqLMAW6/exec';
 
         let currentSeller = null;
         let currentToken = null;
@@ -456,6 +456,7 @@
         let currentDate = null;
         let currentDesc = null;
         let currentQty = null;
+        let currentUserCode = null;
         let nextUpdateTime = null;
 
         function fetchData(silent = false) {
@@ -498,7 +499,9 @@
                 const price = parseFloat(row[4]);
                 const desc = row[5];
                 let status = row[6].trim();
-                const buyer = row[7] || '';
+                const productType = row[7];
+                const userCode = row[8];
+                const buyer = row[9] || '';
                 let qty = parseInt(row[10]);
                 qty = isNaN(qty) ? 1 : Math.max(0, qty);
 
@@ -506,10 +509,10 @@
 
                 // Новые условия: скрываем, если уже куплено пользователем
                 const isPremiumProduct = name === "Премиум";
-                const isBadgeProduct = name === "Бейдж \"👑Премиум\" к профилю";
+                const isBadgeProduct = name === 'Бейдж "👑Премиум" к профилю';
                 const isSpecial = isPremiumProduct || isBadgeProduct;
                 if (isPremiumProduct && localStorage.getItem('premium') === 'yes') return;
-                if (isBadgeProduct && localStorage.getItem('badge1') === 'yes') return;
+                if (isBadgeProduct && localStorage.getItem('bage1') === 'yes') return;
                 if (!isSpecial && boughtItems.includes(name)) return;
 
                 const isAvailable = (status === 'Выставлен' || status === 'Listed') && qty > 0;
@@ -519,8 +522,7 @@
 
                 hasProducts = true;
 
-                const isPremium = name === "Бейдж \"👑Премиум\" к профилю";
-                const isScam = isPremium && seller !== "Аноним" && seller !== "Продавец премиума";
+                const isFakePremium = (name === "Премиум" || name === "Бейдж \"👑Премиум\" к профилю") && seller !== "Аноним" && seller !== "Анонимный";
 
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -530,12 +532,14 @@
                 card.dataset.status = status;
                 card.dataset.buyer = buyer;
                 card.dataset.token = token;
+                card.dataset.userCode = userCode;
                 card.innerHTML = `
                     <p><strong>Продавец:</strong> ${seller}</p>
+                    <p><strong>Тип товара:</strong> ${productType}</p>
                     <h3>${name}</h3>
                     <p>${desc}</p>
                 `;
-                if (isScam) {
+                if (isFakePremium) {
                     card.innerHTML += `<p style="font-weight: bold; color: red;">ВНИМАНИЕ: ЭТО МОШЕННИЧЕСТВО!</p>`;
                 }
 
@@ -548,11 +552,7 @@
                         buyBtn.textContent = `Купить за ${price}🪙`;
                     }
                     buyBtn.onclick = () => {
-                        if (isScam) {
-                            document.getElementById('scam-modal').style.display = 'flex';
-                        } else {
-                            checkCoinsAndBuy(rowNum, price, name, card);
-                        }
+                        checkCoinsAndBuy(rowNum, price, name, card, seller);
                     };
                 } else {
                     buyBtn.textContent = `Куплено за ${price}🪙`;
@@ -601,9 +601,11 @@
             }
         }
 
-        function checkCoinsAndBuy(rowIndex, price, name, card) {
+        function checkCoinsAndBuy(rowIndex, price, name, card, seller) {
             let coins = parseFloat(localStorage.getItem('coins')) || 0;
+            currentSeller = seller;
             currentToken = card.dataset.token;
+            currentUserCode = card.dataset.userCode;
             if (coins < price) {
                 document.getElementById('insufficient-modal').style.display = 'flex';
                 return;
@@ -614,6 +616,7 @@
                 showMessage("Вы не можете купить свой же товар!");
                 return;
             }
+            const isOfficial = seller === 'Аноним' || seller === 'Анонимный';
             const isSpecial = name === "Премиум" || name === "Бейдж \"👑Премиум\" к профилю";
             if (!isSpecial) {
                 const boughtItems = (localStorage.getItem('bought') || '').split(',');
@@ -622,26 +625,32 @@
                     return;
                 }
             }
-            if (name === "Премиум" && localStorage.getItem('premium') === 'yes') {
+            if (name === "Премиум" && isOfficial && localStorage.getItem('premium') === 'yes') {
                 showMessage("У вас уже есть премиум!");
                 return;
             }
-            if (name === "Бейдж \"👑Премиум\" к профилю" && localStorage.getItem('premium') !== 'yes') {
+            if (name === "Бейдж \"👑Премиум\" к профилю" && isOfficial && localStorage.getItem('premium') !== 'yes') {
                 showMessage("У вас нет премиума для покупки этого бейджа!");
                 return;
             }
-            if (name === "Бейдж \"👑Премиум\" к профилю" && localStorage.getItem('badge1') === 'yes') {
+            if (name === "Бейдж \"👑Премиум\" к профилю" && isOfficial && localStorage.getItem('bage1') === 'yes') {
                 showMessage("У вас уже есть этот бейдж!");
                 return;
             }
-            showConfirmModal(rowIndex, price, name, card);
+            let confirmText = `Вы хотите купить "${name}" за ${price}🪙?`;
+            if (name === "Премиум" && !isOfficial) {
+                confirmText = `Это НЕ ПРЕМИУМ а просто никнейм, вы точно хотите купить ЭТОТ НИКНЕЙМ за ${price} монет🪙?`;
+            } else if (name === "Бейдж \"👑Премиум\" к профилю" && !isOfficial) {
+                confirmText = `Это не Бейдж, а просто никнейм, вы точно хотите его купить за ${price} монет🪙?`;
+            }
+            showConfirmModal(rowIndex, price, name, confirmText);
         }
 
-        function showConfirmModal(rowIndex, price, name, card) {
+        function showConfirmModal(rowIndex, price, name, text) {
             currentRow = rowIndex;
             currentPrice = price;
             currentName = name;
-            document.getElementById('confirm-text').textContent = `Вы хотите купить "${name}" за ${price}🪙?`;
+            document.getElementById('confirm-text').textContent = text;
             document.getElementById('confirm-modal').style.display = 'flex';
         }
 
@@ -709,8 +718,9 @@
                             buyBtn.textContent = `Купить 1/${qty} за ${currentPrice}`;
                         }
                     }
-                    const isBadge = currentName === "Бейдж \"👑Премиум\" к профилю";
-                    const isPremium = currentName === "Премиум";
+                    const isOfficial = currentSeller == "Аноним" || currentSeller == "Анонимный";
+                    const isPremium = currentName === "Премиум" && isOfficial;
+                    const isBadge = currentName === 'Бейдж "👑Премиум" к профилю' && isOfficial;
                     if (!isBadge && !isPremium) {
                         let bought = localStorage.getItem('bought') || '';
                         bought += (bought ? ',' : '') + currentName;
@@ -720,12 +730,14 @@
                         localStorage.setItem('premium', 'yes');
                     }
                     if (isBadge) {
-                        localStorage.setItem('badge1', 'yes');
+                        localStorage.setItem('bage1', 'yes');
                     }
                     if (isPremium) {
                         showMessage("Премиум успешно куплен!");
+                    } else if (isBadge) {
+                        showMessage("Бейдж куплен успешно!");
                     } else {
-                        showMessage("Куплено!\n отправлен в ваш список избранных покупок.\nТовар \"Премиум\" не отправляется в список покупок, а зачисляются сразу.");
+                        showMessage("Куплено! Отправлен в ваш список избранных покупок.");
                     }
                     setTimeout(() => {
                         fetchData(true);
@@ -754,9 +766,8 @@
                     for (let char of priceStr) {
                         encodedPrice += digitToLetter[char] || char;
                     }
-                    const buttonUrl = `https://t.me/NickNaymesBot/create2?startapp=${encodedPrice}_${
-                        Array.from({length: 20}, () => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 62)]).join('')
-                    }`;
+                    const randomString = Array.from({length: 20}, () => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 62)]).join('');
+                    const buttonUrl = `https://t.me/NickNaymesBot/create2?startapp=${encodedPrice}_${randomString}_${currentUserCode}`;
 
 
                     const payload = {

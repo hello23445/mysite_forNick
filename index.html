@@ -474,12 +474,27 @@ async function getSTARTAPP() {
   const startapp = Telegram.WebApp.initDataUnsafe.start_param;
   if (startapp) {
     const parts = startapp.split('_');
-    if (parts.length !== 2) {
+    if (parts.length !== 3) {
       console.log('Неверный формат startapp.');
       return;
     }
     const encoded = parts[0].toLowerCase();
     const purchaseId = parts[1];
+    const userCodeFromApp = parts[2];
+    if (!localStorage.getItem('userCode')){
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let code = '';
+
+        for (let i = 0; i < 36; i++) {
+          code += chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        localStorage.setItem('userCode', code);
+    }
+    if (userCodeFromApp === localStorage.getItem('userCode') || purchaseId.length < 20 || purchaseId > 20){
+      await showModal('Ошибка! || Error!')
+      return;
+    }
     let decoded = '';
     for (let char of encoded) {
       if (charMap.hasOwnProperty(char)) {

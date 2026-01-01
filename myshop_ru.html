@@ -267,7 +267,18 @@
         item.className = "item";
         item.textContent = name;
         item.href = "#";
-        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}`;
+        if (!localStorage.getItem('userCode')) {
+          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+          let code = '';
+
+          for (let i = 0; i < 36; i++) {
+            code += chars[Math.floor(Math.random() * chars.length)];
+          }
+
+          localStorage.setItem('userCode', code);
+        }
+
+        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}_nickname_${localStorage.getItem('userCode')}`;
         item.addEventListener('click', (e) => {
           e.preventDefault();
           logToSheetAndRedirect(name, targetUrl);
@@ -284,7 +295,7 @@
         item.className = "item";
         item.textContent = desc;
         item.href = "#";
-        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}`;
+        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}_description_${localStorage.getItem('userCode')}`;
         item.addEventListener('click', (e) => {
           e.preventDefault();
           logToSheetAndRedirect(desc, targetUrl);
