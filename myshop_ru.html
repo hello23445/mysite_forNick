@@ -221,10 +221,11 @@
     const descsBlock = document.getElementById("descs");
     const preloader = document.getElementById("preloader");
 
-    async function logToSheetAndRedirect(product, targetUrl) {
+    async function logToSheetAndRedirect(product, type, targetUrl) {
       preloader.style.display = "flex";
 
       const token = localStorage.getItem('userToken') || '';
+      const userCode = localStorage.getItem('userCode') || '';
       const now = new Date();
       const day = String(now.getDate()).padStart(2, '0');
       const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -240,7 +241,7 @@
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
-          body: `time=${encodeURIComponent(formattedTime)}&token=${encodeURIComponent(token)}&name=${encodeURIComponent(product)}`
+          body: `time=${encodeURIComponent(formattedTime)}&token=${encodeURIComponent(token)}&name=${encodeURIComponent(product)}&type=${encodeURIComponent(type)}&userCode=${encodeURIComponent(userCode)}`
         });
 
         if (response.ok) {
@@ -278,10 +279,10 @@
           localStorage.setItem('userCode', code);
         }
 
-        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}_nickname_${localStorage.getItem('userCode')}`;
+        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}`;
         item.addEventListener('click', (e) => {
           e.preventDefault();
-          logToSheetAndRedirect(name, targetUrl);
+          logToSheetAndRedirect(name, 'nickname', targetUrl);
         });
         namesBlock.appendChild(item);
       });
@@ -305,10 +306,10 @@
 
           localStorage.setItem('userCode', code);
         }
-        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}_description_${localStorage.getItem('userCode')}`;
+        const targetUrl = `https://t.me/sellertovarsbot?start=${localStorage.getItem('userToken')}_${lang}`;
         item.addEventListener('click', (e) => {
           e.preventDefault();
-          logToSheetAndRedirect(desc, targetUrl);
+          logToSheetAndRedirect(desc, 'description', targetUrl);
         });
         descsBlock.appendChild(item);
       });
