@@ -147,6 +147,42 @@
       max-width: 80%;
     }
 
+    /* Modal styles */
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1001;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal .modal-content {
+      background: rgba(37, 24, 151, 0.25);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      padding: 30px 25px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      text-align: center;
+    }
+
+    #modal-message {
+      margin-bottom: 20px;
+      font-size: 24px;
+      white-space: pre-line;
+    }
+
+    #modal-ok {
+      width: auto;
+      min-width: 120px;
+    }
+
     /* Mobile optimizations: Increase sizes */
     @media screen and (max-width: 768px) {
       html, body {
@@ -207,6 +243,15 @@
         padding: 14px 26px;
         max-width: 90%; /* Wider on mobile */
       }
+
+      #modal-message {
+        font-size: 32px;
+      }
+
+      #modal-ok {
+        padding: 18px 28px;
+        font-size: 28px;
+      }
     }
   </style>
 </head>
@@ -218,6 +263,13 @@
       <div class="loader"></div>
       <h1 id="message">Идет загрузка... || Loading...</h1>
       <div id="buttons"></div>
+    </div>
+  </div>
+
+  <div id="modal">
+    <div class="modal-content">
+      <p id="modal-message"></p>
+      <button id="modal-ok">OK</button>
     </div>
   </div>
 
@@ -260,6 +312,9 @@
     const loaderEl = document.querySelector('.loader');
     const cardEl = document.querySelector('.card');
     const notificationEl = document.getElementById('notification');
+    const modalEl = document.getElementById('modal');
+    const modalMessageEl = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok');
     let userToken = null;
 
     function showNotification(message) {
@@ -269,6 +324,15 @@
         notificationEl.style.display = 'none';
       }, 3000); // Hide after 3 seconds
     }
+
+    function showModal(message) {
+      modalMessageEl.textContent = message;
+      modalEl.style.display = 'flex';
+    }
+
+    modalOkBtn.onclick = () => {
+      modalEl.style.display = 'none';
+    };
 
     function toggleAnimations() {
       const animationsEnabled = localStorage.getItem('animations') === 'yes';
@@ -421,7 +485,7 @@
         let claimedIds = localStorage.getItem('claimedPurchases') ? localStorage.getItem('claimedPurchases').split(',') : [];
 
         if (claimedIds.includes(purchaseId)) {
-          showNotification('Вы уже получили эту награду! || You already received this reward!');
+          showModal('Вы уже получили эту награду! || You already received this reward!');
           return;
         }
 
@@ -432,7 +496,7 @@
         claimedIds.push(purchaseId);
         localStorage.setItem('claimedPurchases', claimedIds.join(','));
 
-        showNotification(`Вы получили ${amount} монет! || You received ${amount} coins!`);
+        showModal(`Вы получили ${amount} монет! || You received ${amount} coins!`);
       }
     }
 
@@ -511,7 +575,6 @@
 
       buttonsEl.appendChild(createTokenContainer());
       buttonsEl.appendChild(createSupportText());
-      getSTARTAPP();
       window.location.href = redirectUrl;
     }
 
