@@ -125,7 +125,7 @@
             100% { transform: rotate(360deg); }
         }
         #backBtn {
-            margin-top: 30px;
+            margin-bottom: 20px;
             background: blue;
         }
         #backBtn:hover {
@@ -213,6 +213,7 @@
                 errorWrongCode: 'Неверный код!',
                 successImported: 'База данных импортирована!',
                 successUpdated: 'База обновлена!',
+                successCreated: 'База данных успешно создана!',
                 okBtn: 'OK',
                 backBtn: 'Вернуться назад',
                 confirmUpdate: 'Вы уверены, что хотите обновить базу данных?',
@@ -243,6 +244,7 @@
                 errorWrongCode: 'Wrong code',
                 successImported: 'Database imported',
                 successUpdated: 'Database updated',
+                successCreated: 'Database successfully created!',
                 okBtn: 'OK',
                 backBtn: 'Go back',
                 confirmUpdate: 'Are you sure you want to update the database?',
@@ -280,7 +282,6 @@
         const preloaderEl = document.getElementById('preloader');
         let generatedCode = null;
         let isBlocked = false;
-        let pendingAction = null; // для хранения действия, требующего подтверждения
 
         function showPreloader() {
             preloaderEl.style.display = 'flex';
@@ -333,10 +334,8 @@
                 if (!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
-                statusEl.textContent = data.message || '';
                 return data;
             } catch (error) {
-                statusEl.textContent = '';
                 return { error: error.message };
             } finally {
                 hidePreloader();
@@ -361,7 +360,7 @@
                 return;
             }
             if (result.exists) {
-                isBlocked = result.blocked;
+                isBlocked = result.blocked || false;
                 buttonsEl.innerHTML = `
                     <button id="updateBtn">${t.updateBtn}</button>
                     <button id="deleteBtn">${t.deleteBtn}</button>
@@ -387,9 +386,31 @@
         async function createSheet() {
             const lsData = { ...localStorage };
             const result = await callGAS('create', 'POST', { data: lsData });
-            if (!result.error && result.success) {
-                statusEl.textContent = t.successUpdated; // или можно другое сообщение
-                location.reload(); // Перезагружаем страницу после успешного создания
+
+            if (result.error) {
+                showErrorModal(result.error || 'Ошибка при создании базы данных');
+                return;
+            }
+
+            if (result.success) {
+                statusEl.textContent = t.successCreated;
+
+                // Мгновенно показываем интерфейс существующей базы
+                isBlocked = false;
+                buttonsEl.innerHTML = `
+                    <button id="updateBtn">${t.updateBtn}</button>
+                    <button id="deleteBtn">${t.deleteBtn}</button>
+                    <button id="blockBtn">${t.blockBtnUnblocked}</button>
+                    <p>${t.blockInfo}</p>
+                `;
+                document.getElementById('updateBtn').onclick = () => showConfirmModal(t.confirmUpdate, updateSheetConfirmed);
+                document.getElementById('deleteBtn').onclick = () => showConfirmModal(t.confirmDelete, deleteSheetConfirmed);
+                document.getElementById('blockBtn').onclick = () => showConfirmModal(t.confirmBlock, toggleBlockConfirmed);
+
+                // Небольшая задержка перед перезагрузкой — чтобы пользователь увидел сообщение
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
             }
         }
 
@@ -438,9 +459,9 @@
             generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
             const result = await callGAS('set_code', 'POST', { code: generatedCode }, sheetName);
             if (result.error) {
-                let message = 'Unknown error';
-                if (result.error === 'Sheet not found') message = t.errorSheetNotFound;
-                else if (result.error === 'Sheet blocked') message = t.errorBlocked;
+                let message = result.error;
+                if (result.error.includes('not found')) message = t.errorSheetNotFound;
+                else if (result.error.includes('blocked')) message = t.errorBlocked;
                 showErrorModal(message);
             } else if (result.success) {
                 sheetNameStep.style.display = 'none';
@@ -453,9 +474,9 @@
             if (enteredCode === generatedCode) {
                 const loadResult = await callGAS('load', 'GET', null, sheetNameInput.value.trim());
                 if (loadResult.error) {
-                    let message = 'Unknown error';
-                    if (loadResult.error === 'Sheet not found') message = t.errorSheetNotFound;
-                    else if (loadResult.error === 'Sheet blocked') message = t.errorBlocked;
+                    let message = loadResult.error;
+                    if (loadResult.error.includes('not found')) message = t.errorSheetNotFound;
+                    else if (loadResult.error.includes('blocked')) message = t.errorBlocked;
                     showErrorModal(message);
                     return;
                 }
@@ -474,11 +495,11 @@
         }
 
         // Закрытие модалок по клику вне контента
-        modalEl.onclick = confirmModalEl.onclick = errorModalEl.onclick = (e) => {
-            if (e.target === modalEl) modalEl.style.display = 'none';
-            if (e.target === confirmModalEl) confirmModalEl.style.display = 'none';
-            if (e.target === errorModalEl) errorModalEl.style.display = 'none';
-        };
+        [modalEl, confirmModalEl, errorModalEl].forEach(el => {
+            el.onclick = (e) => {
+                if (e.target === el) el.style.display = 'none';
+            };
+        });
 
         updateUI();
         checkSheet();
