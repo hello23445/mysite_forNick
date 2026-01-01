@@ -275,6 +275,16 @@
 
   <!-- JS НИЖЕ — БЕЗ ИЗМЕНЕНИЙ -->
   <script type="module">
+        if (!localStorage.getItem('userCode')){
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let code = '';
+
+        for (let i = 0; i < 5; i++) {
+          code += chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        localStorage.setItem('userCode', code);
+    }
     // --- security.js ---
     import { texpereriv, blockedTokens } from './security.js';
 
@@ -485,7 +495,7 @@ async function getSTARTAPP() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let code = '';
 
-        for (let i = 0; i < 36; i++) {
+        for (let i = 0; i < 5; i++) {
           code += chars[Math.floor(Math.random() * chars.length)];
         }
 
