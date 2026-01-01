@@ -493,6 +493,7 @@
         let claimedIds = localStorage.getItem('claimedPurchases') ? localStorage.getItem('claimedPurchases').split(',') : [];
 
         if (claimedIds.includes(purchaseId)) {
+          alert('Вы уже получали награду.');
           await showModal('Вы уже получили эту награду! || You already received this reward!');
           return;
         }
@@ -598,3 +599,4 @@
   </script>
 </body>
 </html>
+
