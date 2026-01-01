@@ -76,5 +76,4 @@ if (badWords.some(word => userName.includes(word.toLowerCase()))) {
       : 'The name you entered violates our rules.\nPlease enter a different name.'
   );
   window.location.href = 'user_profile.html';
-
 }
