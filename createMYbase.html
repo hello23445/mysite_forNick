@@ -342,7 +342,7 @@
 
                 return data;
             } catch (error) {
-                return { error: error.message };
+                return location.reload();
             } finally {
                 hidePreloader();
             }
@@ -517,3 +517,4 @@
     </script>
 </body>
 </html>
+
