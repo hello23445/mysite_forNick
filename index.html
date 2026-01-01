@@ -419,9 +419,13 @@
       messageEl.textContent = text[userLang].subscribe;
       buttonsEl.innerHTML = '';
       const subscribeButton = document.createElement('button');
-      subscribeButton.textContent = text[userLang].checkSubscription;
-      subscribeButton.onclick = isFake ? fakeCheckSubscription : checkSubscription;
+      subscribeButton.textContent = userLang === 'ru' ? 'Подписаться' : 'Subscribe';
+      subscribeButton.onclick = () => { window.open(`https://t.me/${channelUsername.substring(1)}`, '_blank'); };
       buttonsEl.appendChild(subscribeButton);
+      const checkButton = document.createElement('button');
+      checkButton.textContent = text[userLang].checkSubscription;
+      checkButton.onclick = isFake ? fakeCheckSubscription : checkSubscription;
+      buttonsEl.appendChild(checkButton);
       buttonsEl.appendChild(createSupportText());
     }
 
