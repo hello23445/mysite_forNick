@@ -140,6 +140,11 @@
     </div>
 
 <script>
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            window.location.href = 'main.html'
+        }
+    });
     const userToken = localStorage.getItem('userToken');
     if (!userToken || userToken.trim() === '') {
         window.location.href = 'index.html';
