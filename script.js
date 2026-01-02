@@ -16,23 +16,23 @@ document.addEventListener('keydown', function (event) {
     }
     if (event.key === 'Escape') {
         hideSideMenu();
-    const settingsMenu = document.getElementById('settingsMenu');
-    const mainMenu = document.getElementById('mainMenu');
-    const mainTopBar = document.getElementById('mainTopBar');
-    if (settingsMenu) settingsMenu.style.display = 'none';
-    if (mainMenu) mainMenu.style.display = 'block';
-    if (mainTopBar) mainTopBar.style.display = 'flex';
-    if (typeof saveUserDataToGoogleSheets === 'function') {
-        saveUserDataToGoogleSheets();
-    }
+        const settingsMenu = document.getElementById('settingsMenu');
+        const mainMenu = document.getElementById('mainMenu');
+        const mainTopBar = document.getElementById('mainTopBar');
+        if (settingsMenu) settingsMenu.style.display = 'none';
+        if (mainMenu) mainMenu.style.display = 'block';
+        if (mainTopBar) mainTopBar.style.display = 'flex';
+        if (typeof saveUserDataToGoogleSheets === 'function') {
+            saveUserDataToGoogleSheets();
+        }
     }
 });
 if (!localStorage.getItem('userName')) {
     localStorage.setItem('userName', 'User');
 }
 // === НАСТРОЙКИ ДЛЯ ПРОВЕРКИ КОДА В БАЗЕ ДАННЫХ ===
-let codeCheckInterval = null; // для интервала проверки
-const GAS_URL_FOR_DATA_BASE_CODE = 'https://script.google.com/macros/s/AKfycbzW1JvaFUaH8ZwSaALUFGA6UfGQGGRKKoyl0-ohItgT3kQc6Jq4sx0rDkTlwikkt-Y4/exec'; // ← ВСТАВЬТЕ СЮДА СВОЮ ССЫЛКУ НА GAS
+let codeCheckInterval = null;
+const GAS_URL_FOR_DATA_BASE_CODE = 'https://script.google.com/macros/s/AKfycbzW1JvaFUaH8ZwSaALUFGA6UfGQGGRKKoyl0-ohItgT3kQc6Jq4sx0rDkTlwikkt-Y4/exec';
 const gasUrl = 'https://script.google.com/macros/s/AKfycbxkvAXAMckjNcVYGh3BmSmMI608TbUAwrmohywdKoVCMbmCz69Y0dKb3r9OP89NlH8s/exec';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbr9H0F70BHo2js1tKD_P1MVChn-9NKr8av1p0ZtJj6h9845b3dB2xDarr_B1zpFwR/exec';
 const LINKS = {
@@ -101,7 +101,7 @@ if (!localStorage.getItem('statistic_turn')) {
     localStorage.setItem('statistic_turn', 'yes');
 }
 let customBackgrounds = JSON.parse(
-localStorage.getItem('customBackgrounds') || '[]'
+    localStorage.getItem('customBackgrounds') || '[]'
 );
 let translations = {
     ru: {
@@ -148,7 +148,6 @@ let translations = {
         uploadCustomBg: "Выбрать фон для загрузки",
         blurBackground: "Размытие фона",
         animations: "Анимации",
-        snow: "Снег",
         backgroundSubTitle: "Фон приложения",
         animationsSubTitle: "Анимации",
         database: 'Моя база данных'
@@ -197,7 +196,6 @@ let translations = {
         uploadCustomBg: "Select background to upload",
         blurBackground: "Background blur",
         animations: "Animations",
-        snow: "Snow",
         backgroundSubTitle: "App Background",
         animationsSubTitle: "Animations",
         database: 'My data base'
@@ -317,18 +315,23 @@ function applyTranslations() {
         option.selected = (option.value === lang);
         langSelect.appendChild(option);
     });
-    // Theme select
+
+    // === ТЕМЫ — УДАЛЁН ФОН СОБЫТИЯ ===
     const themeSelect = document.getElementById('theme');
     themeSelect.innerHTML = '';
     const themeOptionsFixed = lang === 'ru'
-        ? ["Стандартный фон", "Фон события(Новогодний)", "Темный"]
-        : ["Default background", "Event background (New Year)", "Dark"];
-    for (let i = 0; i < 3; i++) {
+        ? ["Стандартный фон", "Темный"]
+        : ["Default background", "Dark"];
+
+    // Только две фиксированные темы: theme1 и theme3
+    const fixedThemes = ['theme1', 'theme3'];
+    themeOptionsFixed.forEach((text, i) => {
         const option = document.createElement('option');
-        option.value = `theme${i + 1}`;
-        option.textContent = themeOptionsFixed[i];
+        option.value = fixedThemes[i];
+        option.textContent = text;
         themeSelect.appendChild(option);
-    }
+    });
+
     customBackgrounds.forEach((bg, i) => {
         const option = document.createElement('option');
         option.value = `custom_${i}`;
@@ -339,12 +342,23 @@ function applyTranslations() {
     uploadOption.value = 'upload';
     uploadOption.textContent = lang === 'ru' ? "Загрузить свой фон" : "Upload your own background";
     themeSelect.appendChild(uploadOption);
+
     let storedTheme = localStorage.getItem('theme') || 'theme1';
-    if (storedTheme === 'upload' || !Array.from(themeSelect.options).some(opt => opt.value === storedTheme)) {
+    // Если был theme2 или недопустимое значение — сбрасываем на theme1
+    if (!['theme1', 'theme3'].includes(storedTheme) && !storedTheme.startsWith('custom_') && storedTheme !== 'upload') {
         storedTheme = 'theme1';
         localStorage.setItem('theme', 'theme1');
     }
-    themeSelect.value = storedTheme;
+    if (storedTheme === 'upload') {
+        storedTheme = 'theme1';
+        localStorage.setItem('theme', 'theme1');
+    }
+    if (Array.from(themeSelect.options).some(opt => opt.value === storedTheme)) {
+        themeSelect.value = storedTheme;
+    } else {
+        themeSelect.value = 'theme1';
+        localStorage.setItem('theme', 'theme1');
+    }
 }
 function initTokenButton(btnId) {
     let isVisible = false;
@@ -742,86 +756,8 @@ saveUserDataToGoogleSheets();
 setInterval(() => {
     checkTokenAndRedirect();
 }, 6500);
-// === НОВОГОДНИЙ СНЕГ: УЛУЧШЕННЫЙ ===
-(function () {
-    const canvas = document.getElementById('snowCanvas');
-    const ctx = canvas.getContext('2d');
-    const pile = document.getElementById('snowPile');
-    let width, height;
-    const flakes = [];
-    const maxFlakes = 120;
-    let pileHeight = 0;
-    let lastTime = 0;
-    let startTime = null;
-    let flakeCount = 0;
-    const appearDuration = 5000;
-    const startDelay = 2000;
-    function resize() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-    }
-    function createFlake() {
-        return {
-            x: Math.random() * width,
-            y: -10 - Math.random() * 50,
-            radius: Math.random() * 2 + 1,
-            speed: Math.random() * 0.8 + 0.4,
-            opacity: Math.random() * 0.4 + 0.6,
-            sway: Math.random() * 0.15 + 0.05
-        };
-    }
-    function updateFlakes(delta) {
-        const now = performance.now();
-        if (!startTime) startTime = now;
-        const elapsed = now - startTime;
-        if (elapsed < startDelay) return;
-        const progress = Math.min(1, (elapsed - startDelay) / appearDuration);
-        const targetFlakes = Math.floor(progress * maxFlakes);
-        while (flakeCount < targetFlakes) {
-            flakes.push(createFlake());
-            flakeCount++;
-        }
-        flakes.forEach((flake, i) => {
-            flake.y += flake.speed * delta * 60;
-            flake.x += Math.sin(flake.y * 0.005) * flake.sway * delta * 60;
-            if (flake.y > height - pileHeight - 10) {
-                flakes[i] = createFlake();
-                if (Math.random() < 0.01) {
-                    pileHeight = Math.min(pileHeight + 0.02, height * 0.3);
-                    pile.style.height = pileHeight + 'px';
-                }
-            }
-            if (flake.x > width) flake.x = 0;
-            if (flake.x < 0) flake.x = width;
-        });
-    }
-    function drawFlakes() {
-        ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = '#fff';
-        flakes.forEach(flake => {
-            ctx.globalAlpha = flake.opacity;
-            ctx.beginPath();
-            ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
-            ctx.fill();
-        });
-        ctx.globalAlpha = 1;
-    }
-    function animate(time) {
-        if (!lastTime) lastTime = time;
-        const delta = (time - lastTime) / 1000;
-        lastTime = time;
-        updateFlakes(delta);
-        drawFlakes();
-        requestAnimationFrame(animate);
-    }
-    window.addEventListener('resize', () => {
-        resize();
-    });
-    resize();
-    requestAnimationFrame(animate);
-})();
-// === КОНЕЦ СНЕГА ===
-// Theme handling
+
+// Theme handling — УДАЛЕНА theme2
 function setTheme(value) {
     const bgDiv = document.getElementById('bg');
     bgDiv.style.backgroundRepeat = 'no-repeat';
@@ -831,9 +767,6 @@ function setTheme(value) {
     if (value === 'theme1') {
         bgDiv.style.backgroundImage = 'none';
         bgDiv.style.backgroundColor = 'rgb(0, 0, 79)';
-    } else if (value === 'theme2') {
-        bgDiv.style.backgroundImage = "url('image.jpg')";
-        bgDiv.style.backgroundColor = '';
     } else if (value === 'theme3') {
         bgDiv.style.backgroundImage = 'none';
         bgDiv.style.backgroundColor = 'black';
@@ -922,21 +855,6 @@ function applyAnimations() {
         document.body.classList.remove('no-animations');
     }
 }
-document.getElementById('snowToggle').onchange = function() {
-    localStorage.setItem('snow', this.checked ? 'yes' : 'no');
-    applySnow();
-};
-function applySnow() {
-    const snowCanvas = document.getElementById('snowCanvas');
-    const snowPile = document.getElementById('snowPile');
-    if (localStorage.getItem('snow') === 'yes') {
-        snowCanvas.style.display = 'block';
-        snowPile.style.display = 'block';
-    } else {
-        snowCanvas.style.display = 'none';
-        snowPile.style.display = 'none';
-    }
-}
 // Init theme and blur
 if (!localStorage.getItem('blur')) {
     localStorage.setItem('blur', 'no');
@@ -947,19 +865,14 @@ if (!localStorage.getItem('animations')) {
 }
 document.getElementById('animationsToggle').checked = localStorage.getItem('animations') === 'yes';
 applyAnimations();
-if (!localStorage.getItem('snow')) {
-    localStorage.setItem('snow', 'yes');
-}
-document.getElementById('snowToggle').checked = localStorage.getItem('snow') === 'yes';
-applySnow();
 let storedTheme = localStorage.getItem('theme') || 'theme1';
-if (storedTheme === 'upload') {
+if (!['theme1', 'theme3'].includes(storedTheme) && !storedTheme.startsWith('custom_')) {
     storedTheme = 'theme1';
     localStorage.setItem('theme', 'theme1');
 }
 setTheme(storedTheme);
-// Запуск проверки появления кода в Z1 (вызывается когда пользователь имеет свою базу)
-// Глобальная функция для JSONP
+
+// Запуск проверки появления кода в Z1
 window.handleCodeCheckCallback = function(data) {
     if (data && data.code && data.code.trim() !== '') {
         showVerificationModal(data.code.trim());
@@ -1051,10 +964,8 @@ const modalEn = `
 `;
 document.getElementById('verificationModalContainer').innerHTML =
   lang2 === 'ru' ? modalRu : modalEn;
-// Запуск проверки при загрузке страницы, если есть токен
 document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('userToken')) {
         startDatabaseCodeCheck();
     }
-    // ... ваш остальной код инициализации ...
 });

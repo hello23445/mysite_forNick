@@ -10,19 +10,21 @@
 </head>
 <body>
     <div id="bg"></div>
-    <canvas id="snowCanvas"></canvas>
-    <div id="snowPile"></div>
+
     <div id="maintenance">
         <h2 data-translate="maintenance" id="maintenanceM"></h2>
     </div>
+
     <div class="top-bar" id="mainTopBar">
         <h4 class="coins" id="coins">0</h4>
         <button class="icon-btn" id="sideMenuBtn" title="Menu"><i class="fa-solid fa-bars"></i></button>
     </div>
+
     <div class="main" id="mainMenu">
         <h2 data-translate="main" id="mainM"></h2>
         <div class="buttons-container" id="featureButtons"></div>
     </div>
+
     <div id="settingsMenu">
         <div class="top-bar" id="settingsTopBar">
             <button class="icon-btn" id="backBtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
@@ -55,6 +57,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="card">
                     <div class="card-header">
                         <h3 data-translate="statSectionTitle" id="stat_setting_text"></h3>
@@ -68,6 +71,7 @@
                         <button class="btn" id="clear" onclick="clearAllStatistic()" style="margin-top: 2%;">Очистить все данные статистики</button>
                     </div>
                 </div>
+
                 <div class="card">
                     <div class="card-header">
                         <h3 data-translate="accountSectionTitle" id="account-settings"></h3>
@@ -87,6 +91,7 @@
                         <button class="btn" id="userID-confirming" onclick="window.location.href = 'set_telegram_id.html'">Привязать или изменить свой Telegram ID</button>
                     </div>
                 </div>
+
                 <div class="card">
                     <div class="card-header">
                         <h3 data-translate="backgroundSectionTitle"></h3>
@@ -107,12 +112,9 @@
                                     <label class="label" data-translate="blurBackground" for="blurToggle"></label>
                                     <input type="checkbox" id="blurToggle" />
                                 </div>
-                                <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
-                                    <label class="label" data-translate="snow" for="snowToggle"></label>
-                                    <input type="checkbox" id="snowToggle" />
-                                </div>
                             </div>
                         </div>
+
                         <div class="card" style="margin-top: 3%;">
                             <div class="card-header">
                                 <h3 data-translate="animationsSubTitle"></h3>
@@ -127,6 +129,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="card">
                     <div class="card-header">
                         <h3 data-translate="supportSectionTitle">Поддержка</h3>
@@ -139,7 +142,9 @@
             </div>
         </div>
     </div>
+
     <div id="overlay"></div>
+
     <div id="sideMenu">
         <div class="top-bar" id="sideTopBar">
             <button class="icon-btn" id="sideCloseBtn" title="Close"><i class="fa-solid fa-arrow-left"></i></button>
@@ -150,8 +155,10 @@
             <div class="side-buttons" id="sideButtons"></div>
         </div>
     </div>
+
     <!-- Красивое окно с кодом верификации -->
     <div id="verificationModalContainer"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script src="script.js" type="module"></script>
 </body>
