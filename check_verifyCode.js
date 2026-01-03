@@ -1,4 +1,6 @@
 codeCheckInterval = null;
+const errorMessageEl = document.getElementById('error-message');
+const errorModalEl = document.getElementById('error-modal');
 const GAS_URL_FOR_DATA_BASE_CODE = 'https://script.google.com/macros/s/AKfycbzW1JvaFUaH8ZwSaALUFGA6UfGQGGRKKoyl0-ohItgT3kQc6Jq4sx0rDkTlwikkt-Y4/exec';
 // Запуск проверки появления кода в Z1
 window.handleCodeCheckCallback = function(data) {
@@ -10,6 +12,7 @@ window.handleCodeCheckCallback = function(data) {
         }
     }
 }
+
 function startDatabaseCodeCheck() {
     if (codeCheckInterval) clearInterval(codeCheckInterval);
     codeCheckInterval = setInterval(() => {
@@ -21,6 +24,12 @@ function startDatabaseCodeCheck() {
         document.body.appendChild(script);
         document.body.removeChild(script);
     }, 1000);
+}
+function showErrorModal(message) {
+    errorMessageEl.textContent = message;
+    document.getElementById('error-ok-btn').textContent = t.okBtn;
+    errorModalEl.style.display = 'flex';
+    document.getElementById('error-ok-btn').onclick = () => errorModalEl.style.display = 'none';
 }
 function showVerificationModal(code) {
     const modal = document.getElementById('verificationModal');
