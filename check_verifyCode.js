@@ -1,6 +1,12 @@
 codeCheckInterval = null;
-const errorMessageEl = document.getElementById('error-message');
-const errorModalEl = document.getElementById('error-modal');
+let errorModalEl = null;
+let errorMessageEl = null;
+
+if (!errorModalEl && !errorMessageEl) {
+  errorModalEl = document.getElementById('error-modal');
+  errorMessageEl = document.getElementById('error-message');
+}
+
 const GAS_URL_FOR_DATA_BASE_CODE = 'https://script.google.com/macros/s/AKfycbzW1JvaFUaH8ZwSaALUFGA6UfGQGGRKKoyl0-ohItgT3kQc6Jq4sx0rDkTlwikkt-Y4/exec';
 // Запуск проверки появления кода в Z1
 window.handleCodeCheckCallback = function(data) {
@@ -59,6 +65,7 @@ function showVerificationModal(code) {
                 if (window.location.pathname.endsWith('createMYbase.html')) {
                     location.reload();
                 }
+                errorModalEl.style.display = 'none';
                 blockBtn.style.display = 'none';
                 closeBtn.style.display = 'block';
             } else {
