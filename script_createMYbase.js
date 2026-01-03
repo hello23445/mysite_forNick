@@ -355,8 +355,11 @@ function startBlockCheck(sheetName) {
     blockCheckInterval = setInterval(async () => {
         const result = await callGAS('check', 'GET', null, sheetName, true);
         if (result.blocked) {
-            showErrorModal(t.errorBlocked);
             handleCancelCode();
+            showErrorModal(t.errorBlocked);
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
         }
     }, 1000);
 }

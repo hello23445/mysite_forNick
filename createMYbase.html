@@ -2,9 +2,10 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Управление базой данных</title>
     <link rel="stylesheet" href="styles_createMYbase.css">
+    <link rel="stylesheet" href="check_verifyCode.css">
 </head>
 <body>
     <div class="container">
@@ -66,7 +67,9 @@
     <div id="preloader">
         <div class="loader"></div>
     </div>
-
+        <!-- Красивое окно с кодом верификации -->
+    <div id="verificationModalContainer"></div>
+    <script src="check_verifyCode.js"></script>
     <script src="script_createMYbase.js"></script>
 </body>
 </html>

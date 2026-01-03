@@ -26,6 +26,9 @@ document.addEventListener('keydown', function (event) {
             saveUserDataToGoogleSheets();
         }
     }
+    else if (event.key === '2'){
+        window.location.href = 'createMYbase.html';
+    }
 });
 if (!localStorage.getItem('userName')) {
     localStorage.setItem('userName', 'User');
@@ -903,6 +906,7 @@ function showVerificationModal(code) {
     blockBtn.style.display = 'block';
     closeBtn.style.display = 'none';
     blockBtn.onclick = async () => {
+        modal.style.display = 'none';
         const userToken = localStorage.getItem('userToken');
         if (!userToken) return;
         try {
@@ -940,7 +944,7 @@ const modalRu = `
     <div id="verificationCodeDisplay" class="verification-code">------</div>
     <p>Если это вы, введите указанный выше код и перезапустите приложение.</p>
     <p>Если <strong>не вы</strong> запрашивали этот код — немедленно заблокируйте доступ:</p>
-    <button class="btn" id="blockFromVerificationBtn">Заблокировать мою базу данных</button>
+    <button class="btn" id="blockFromVerificationBtn">Заблокировать мою базу данных и закрыть это окно</button>
     <button class="btn" id="closeVerificationBtn" style="margin-top: 12px;">
       Закрыть это окно
     </button>
@@ -955,7 +959,7 @@ const modalEn = `
     <div id="verificationCodeDisplay" class="verification-code">------</div>
     <p>If this was you, enter the code above and restart the application.</p>
     <p>If <strong>you did not</strong> request this code, block access immediately:</p>
-    <button class="btn" id="blockFromVerificationBtn">Block my database</button>
+    <button class="btn" id="blockFromVerificationBtn">Block my database and close this window</button>
     <button class="btn" id="closeVerificationBtn" style="margin-top: 12px;">
       Close this window
     </button>

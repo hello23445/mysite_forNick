@@ -1,4 +1,8 @@
 /* styles.css */
+* {
+  touch-action: manipulation;
+}
+
 body {
     background: linear-gradient(135deg, #0d0870, #060039);
     color: #d9d9d9;
