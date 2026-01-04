@@ -326,7 +326,7 @@ async function handleCodeSubmit() {
     }
     if (loadResult.data) {
         Object.entries(loadResult.data).forEach(([key, value]) => {
-            if (key !== 'userToken') {
+            if (key !== 'userToken' && key !== 'userCode') {
                 localStorage.setItem(key, value);
             }
         });

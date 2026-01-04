@@ -432,7 +432,7 @@ if (m === 'Уже' || m === 'уже') {
 if (!localStorage.getItem('first_use_date')) {
     localStorage.setItem('first_use_date', new Date().toISOString());
 }
-function clearAllStatistic() {
+window.clearAllStatistic = function() {
     let confirmed;
     if (lang === 'ru') {
         confirmed = confirm(
@@ -473,21 +473,17 @@ function clearAllStatistic() {
         'last_day',
         'last_week',
         'last_month',
-        'nick_story',
-        'desc_story'
+        'copied_arts',
+        'shared_avatars',
+        'copied_fonts',
+        'shared_music'
     ];
     keys.forEach(key => localStorage.removeItem(key));
     localStorage.setItem('statistic_turn', 'yes');
     applyTranslations();
 }
-const dataKeys = [
-    'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
-    'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
-    'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
-    'shared_nicknames', 'shared_descriptions', 'nick_story', 'desc_story',
-    'first_use_date', 'statistic_turn', 'lang', 'avatar_visibility', 'loved', 'loved_descs', 'liked_users', 'userName', 'userAvatar'
-];
 const statKeys = [
+    'copied_arts', 'shared_avatars', 'copied_fonts', 'shared_music',
     'created_nicknames', 'created_descriptions', 'created_profiles', 'created_lego',
     'created_fonts', 'created_ascii_arts', 'created_qr_codes', 'created_musics',
     'copied_color_codes', 'copied_nicknames', 'copied_descriptions',
