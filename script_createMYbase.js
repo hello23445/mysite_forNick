@@ -1,7 +1,7 @@
 // script.js
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbz3pIkQGKR1QCs_cP7ZODqlHt_p80NtUIT7_AjTKRUfP1M06Jxfh0Rj34P7zjeeUCVW/exec';
 
-const lang = (localStorage.getItem('lang') || 'ru') === 'ru' ? 'ru' : 'en';
+const lang = (localStorage.getItem('lang') || 'en') === 'ru' ? 'ru' : 'en';
 
 const texts = {
     ru: {

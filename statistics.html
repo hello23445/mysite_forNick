@@ -237,7 +237,7 @@
 
     <div class="container">
         <div class="stats-header">
-            <h2 data-translate="totalActivity">Общая активность</h2>
+            <h2 data-translate="totalActivity"></h2>
             <div class="stats-grid" id="overallStats"></div>
         </div>
 
@@ -293,6 +293,7 @@
 
         const t = translations[lang];
         document.querySelector('[data-translate="statsTitle"]').textContent = t.statsTitle;
+        document.querySelector('[data-translate="totalActivity"]').textContent = t.totalActivity;
 
         function getPeriodStats(period) {
             const data = localStorage.getItem(`stats_${period}`);

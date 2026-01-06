@@ -281,7 +281,7 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      const lang = localStorage.getItem('lang') || 'ru';
+      const lang = localStorage.getItem('lang') || 'en';
       const trans = translations[lang];
       document.title = trans.title;
       document.querySelector('h2').textContent = trans.heading;
