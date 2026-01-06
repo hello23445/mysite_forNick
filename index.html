@@ -287,10 +287,59 @@
     }
     // --- security.js ---
     import { texpereriv, blockedTokens } from './security.js';
-
+    const filesEN = {
+      'nick': 'nickname_en.html',
+      'descr': 'description_en.html',
+      'ava': 'avatar_en.html',
+      'lego': 'lego_en.html',
+      'font': 'font_en.html',
+      'art': 'ascii_en.html',
+      'qr': 'qr_en.html',
+      'music': 'music_en.html',
+      'color': 'colors_en.html',
+      'photo': 'ai_en.html'
+    };
+    const filesRU = {
+      'nick': 'nickname.html',
+      'descr': 'description.html',
+      'ava': 'avatar.html',
+      'lego': 'lego.html',
+      'font': 'font.html',
+      'art': 'ascii.html',
+      'qr': 'qr.html',
+      'music': 'music.html',
+      'color': 'colors.html',
+      'photo': 'ai.html'
+    };
     const botToken = '6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI';
     const channelUsername = '@Nicknaymes2bot';
     const redirectUrl = 'main.html';
+    const startapp = Telegram.WebApp.initDataUnsafe.start_param;
+    if (startapp){
+      if (startapp.includes('ru') || startapp.includes('en') || startapp.includes('no') && texpereriv.toLowerCase() !== 'уже'){
+        const parts = startapp.split('_');
+        if (parts.length === 2){
+          if (parts[0] === 'ru'){
+            if (filesRU.hasOwnProperty(parts[1])){
+              window.location.href = filesRU[parts[1]];
+            }
+          } else if (parts[0] === 'en'){
+            if (filesEN.hasOwnProperty(parts[1])){
+              window.location.href = filesEN[parts[1]];
+            }
+          }
+          else if (parts[0] === 'no'){
+            if (localStorage.getItem('lang')){
+              localStorage.getItem('lang') === 'ru' ? window.location.href = filesRU[parts[1]] : window.location.href = filesEN[parts[1]];
+            }
+            else{
+              localStorage.setItem('lang', 'en');
+              window.location.href = filesEN[parts[1]];
+            }
+          }
+        }
+      }
+    }
 
     let userLang = localStorage.getItem('lang');
     
