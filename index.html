@@ -341,6 +341,7 @@
       'base': 'createMYbase.html',
       'premium': 'premium.screen.html'
     };
+    const filesWithoutLang = ['errors', 'stat', 'user', 'wishlist', 'nickList', 'descList', 'boughtList', 'base', 'premium']
     const botToken = '6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI';
     const channelUsername = '@Nicknaymes2bot';
     const redirectUrl = 'main.html';
@@ -348,13 +349,19 @@
     if (startapp){
       if (startapp.includes('ru') || startapp.includes('en') || startapp.includes('no') && texpereriv.toLowerCase() !== 'уже'){
         const parts = startapp.split('_');
-        if (parts.length === 2){
+        if (parts.length === 2 && parts[0] && parts[1]){
           if (parts[0] === 'ru'){
             if (filesRU.hasOwnProperty(parts[1])){
+              if (filesWithoutLang.includes(parts[1])){
+                localStorage.setItem('lang', parts[0])
+              }
               window.location.href = filesRU[parts[1]];
             }
           } else if (parts[0] === 'en'){
             if (filesEN.hasOwnProperty(parts[1])){
+              if (filesWithoutLang.includes(parts[1])){
+                localStorage.setItem('lang', parts[0])
+              }
               window.location.href = filesEN[parts[1]];
             }
           }
