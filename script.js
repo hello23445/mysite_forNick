@@ -31,8 +31,8 @@ if (!isTouch) {
 // ----------------- Мобильные -----------------
 if (isTouch) {
   document.addEventListener('touchstart', e => {
-    const el = e.target;
-    if (!el || !el.innerText.trim()) return;
+    const el = e.target.closest('.selectable-text');
+    if (!el) return;
 
     let pressTimer = setTimeout(() => {
       const range = document.createRange();
@@ -48,12 +48,13 @@ if (isTouch) {
       menu.style.display = 'block';
 
       currentRange = range;
-    }, 500); // 500 мс удержания
+    }, 500); // удержание 0.5 сек
 
     e.target.addEventListener('touchend', () => clearTimeout(pressTimer), { once: true });
     e.target.addEventListener('touchmove', () => clearTimeout(pressTimer), { once: true });
   });
 }
+
 
 
 // ----------------- Кнопки -----------------
@@ -70,21 +71,23 @@ copyBtn.addEventListener('click', () => {
 });
 
 selectBtn.addEventListener('click', () => {
-  const range = document.createRange();
-  if (!isTouch && targetElement) {
-    range.selectNodeContents(targetElement);
-  } else if (isTouch && currentRange) {
-    range.selectNodeContents(currentRange.commonAncestorContainer);
-  }
-
+    if (!isTouch){
+        document.body.style.userSelect = 'text'
+    }
   const sel = window.getSelection();
   sel.removeAllRanges();
-  sel.addRange(range);
 
-  menu.style.display = 'none';
-  targetElement = null;
-  currentRange = null;
+  if (currentRange) {
+    // Мобильные: выделяем текст, на который навели кастомное меню
+    sel.addRange(currentRange);
+  } else if (targetElement) {
+    // ПК: выделяем весь текст элемента
+    const range = document.createRange();
+    range.selectNodeContents(targetElement);
+    sel.addRange(range);
+  }
 });
+
 
 
 
