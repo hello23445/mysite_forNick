@@ -30,22 +30,31 @@ if (!isTouch) {
 
 // ----------------- Мобильные -----------------
 if (isTouch) {
-  document.addEventListener('selectionchange', () => {
-    const sel = window.getSelection();
+  document.addEventListener('touchstart', e => {
+    const el = e.target;
+    if (!el || !el.innerText.trim()) return;
 
-    if (!sel || sel.isCollapsed || !sel.toString().trim()) {
-      currentRange = null;
-      return; // меню не скрываем автоматически
-    }
+    let pressTimer = setTimeout(() => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
 
-    currentRange = sel.getRangeAt(0);
-    const rect = currentRange.getBoundingClientRect();
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
 
-    menu.style.display = 'block';
-    menu.style.left = rect.left + rect.width / 2 + 'px';
-    menu.style.top = rect.top - 45 + 'px';
+      const rect = range.getBoundingClientRect();
+      menu.style.left = rect.left + rect.width / 2 + 'px';
+      menu.style.top = rect.bottom + 5 + 'px';
+      menu.style.display = 'block';
+
+      currentRange = range;
+    }, 500); // 500 мс удержания
+
+    e.target.addEventListener('touchend', () => clearTimeout(pressTimer), { once: true });
+    e.target.addEventListener('touchmove', () => clearTimeout(pressTimer), { once: true });
   });
 }
+
 
 // ----------------- Кнопки -----------------
 copyBtn.addEventListener('click', () => {

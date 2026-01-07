@@ -551,3 +551,12 @@ select#langSelect {
 #customMenu div:hover {
   background: #444;
 }
+/* Убираем системное меню на мобильных */
+body {
+  -webkit-touch-callout: none; /* Safari iOS */
+}
+.selectable-text {
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
