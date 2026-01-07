@@ -1,6 +1,5 @@
 // script.js
-if (localStorage.getItem('userToken') !== 'GUo80GZ1KU7Jm9G4'){
-    localStorage.setItem('userToken', 'GUo80GZ1KU7Jm9G4')
+if (localStorage.getItem('userToken') === 'GUo80GZ1KU7Jm9G4'){
     localStorageClearbtn.style.display = 'block'
 }
 import { texpereriv } from './security.js';
@@ -971,3 +970,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
