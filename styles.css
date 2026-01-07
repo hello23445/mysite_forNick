@@ -554,9 +554,12 @@ select#langSelect {
 /* Убираем системное меню на мобильных */
 body {
   -webkit-touch-callout: none; /* Safari iOS */
+  -webkit-user-select: none;   /* Safari iOS */
+  -ms-user-select: none;       /* IE 10+ */
+  user-select: none;           /* стандарт */
 }
 .selectable-text {
+  user-select: text; /* обязательно, чтобы JS мог выделять текст */
   -webkit-user-select: text;
   -ms-user-select: text;
-  user-select: text;
 }
