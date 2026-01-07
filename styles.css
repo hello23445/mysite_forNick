@@ -18,6 +18,9 @@
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 
+*, button, a{
+    touch-action: manipulation;
+}
 body {
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
     background-repeat: no-repeat;
@@ -507,4 +510,44 @@ select#langSelect {
         padding: 0.6rem;
         font-size: 0.9rem;
     }
+}
+#customMenu {
+  position: fixed;
+  display: none;
+  background: #222;
+  color: #fff;
+  padding: 6px 0;
+  border-radius: 8px;
+  z-index: 9999;
+}
+
+
+#customMenu div {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+#customMenu div:hover {
+  background: #444;
+}
+#customMenu {
+  position: fixed;
+  display: none;
+  background: #222;
+  color: #fff;
+  padding: 6px 0;
+  border-radius: 8px;
+  z-index: 9999;
+  min-width: 140px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+#customMenu div {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+#customMenu div:hover {
+  background: #444;
 }

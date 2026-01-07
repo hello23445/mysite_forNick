@@ -2,6 +2,83 @@
 if (localStorage.getItem('userToken') === 'GUo80GZ1KU7Jm9G4'){
     localStorageClearbtn.style.display = 'block'
 }
+const menu = document.getElementById('customMenu');
+const copyBtn = document.getElementById('copyBtn');
+const selectBtn = document.getElementById('selectBtn');
+
+const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+let targetElement = null;   // для ПК — элемент под ПКМ
+let currentRange = null;    // для мобилок — выделенный текст
+document.addEventListener('click', () => {
+    menu.style.display = 'none'
+})
+// ----------------- ПК -----------------
+if (!isTouch) {
+  document.addEventListener('contextmenu', e => {
+    const el = e.target;
+    if (!el || !el.innerText.trim()) return; // только текст
+
+    e.preventDefault();
+
+    targetElement = el;
+    menu.style.display = 'block';
+    menu.style.left = e.clientX + 'px';
+    menu.style.top = e.clientY + 'px';
+  });
+}
+
+// ----------------- Мобильные -----------------
+if (isTouch) {
+  document.addEventListener('selectionchange', () => {
+    const sel = window.getSelection();
+
+    if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+      currentRange = null;
+      return; // меню не скрываем автоматически
+    }
+
+    currentRange = sel.getRangeAt(0);
+    const rect = currentRange.getBoundingClientRect();
+
+    menu.style.display = 'block';
+    menu.style.left = rect.left + rect.width / 2 + 'px';
+    menu.style.top = rect.top - 45 + 'px';
+  });
+}
+
+// ----------------- Кнопки -----------------
+copyBtn.addEventListener('click', () => {
+  if (!isTouch && targetElement) {
+    navigator.clipboard.writeText(targetElement.innerText);
+  } else if (isTouch && currentRange) {
+    navigator.clipboard.writeText(currentRange.toString());
+  }
+
+  menu.style.display = 'none';
+  targetElement = null;
+  currentRange = null;
+});
+
+selectBtn.addEventListener('click', () => {
+  const range = document.createRange();
+  if (!isTouch && targetElement) {
+    range.selectNodeContents(targetElement);
+  } else if (isTouch && currentRange) {
+    range.selectNodeContents(currentRange.commonAncestorContainer);
+  }
+
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  menu.style.display = 'none';
+  targetElement = null;
+  currentRange = null;
+});
+
+
+
 import { texpereriv } from './security.js';
 if (texpereriv === 'Скоро'){
     document.getElementById('mainM').textContent = localStorage.getItem('lang') === 'en' ? 'Soon we will start a technical break!' : 'Скоро мы начнем технический перерыв.';
@@ -968,6 +1045,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('userToken')) {
         startDatabaseCodeCheck();
     }
-
 });
-
