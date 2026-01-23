@@ -95,6 +95,7 @@ if (tg || tg !== null && window.Telegram?.WebApp){
     // Настройка кнопки Settings
     tg.SettingsButton.show();
     tg.onEvent('settingsButtonClicked', () => {
+        alert('Settings button clicked');
         showSettings();
         tg.BackButton.show();
     });
