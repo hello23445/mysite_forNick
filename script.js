@@ -88,7 +88,30 @@ selectBtn.addEventListener('click', () => {
   }
 });
 
-
+const tg = window.Telegram?.WebApp || null;
+if (tg || tg !== null && window.Telegram?.WebApp){
+    tg.ready(); // Сообщаем Telegram, что веб-приложение готово
+    tg.enableClosingConfirmation(); // Включаем подтверждение при попытке закрыть веб-приложение
+    // Настройка кнопки Settings
+    tg.SettingsButton.show();
+    tg.onEvent('settingsButtonClicked', () => {
+        showSettings();
+        tg.BackButton.show();
+    });
+    tg.onEvent('backButtonClicked', () => {
+        hideSideMenu();
+        const settingsMenu = document.getElementById('settingsMenu');
+        const mainMenu = document.getElementById('mainMenu');
+        const mainTopBar = document.getElementById('mainTopBar');
+        if (settingsMenu) settingsMenu.style.display = 'none';
+        if (mainMenu) mainMenu.style.display = 'block';
+        if (mainTopBar) mainTopBar.style.display = 'flex';
+        if (typeof saveUserDataToGoogleSheets === 'function') {
+            saveUserDataToGoogleSheets();
+        }
+        tg.BackButton.hide();
+    });
+}
 
 
 import { texpereriv } from './security.js';
