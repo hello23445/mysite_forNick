@@ -1,4 +1,5 @@
 // script.js
+const tg = window.Telegram?.WebApp || null;
 if (localStorage.getItem('userToken') === 'GUo80GZ1KU7Jm9G4'){
     localStorageClearbtn.style.display = 'block'
 }
@@ -88,15 +89,13 @@ selectBtn.addEventListener('click', () => {
   }
 });
 
-const tg = window.Telegram?.WebApp || null;
+
 if (tg || tg !== null && window.Telegram?.WebApp){
-    alert('Telegram Web App detected');
     tg.ready(); // Сообщаем Telegram, что веб-приложение готово
     tg.enableClosingConfirmation(); // Включаем подтверждение при попытке закрыть веб-приложение
     // Настройка кнопки Settings
     tg.SettingsButton.show();
     tg.onEvent('settingsButtonClicked', () => {
-        alert('Settings button clicked');
         showSettings();
         tg.BackButton.show();
     });
@@ -112,6 +111,7 @@ if (tg || tg !== null && window.Telegram?.WebApp){
             saveUserDataToGoogleSheets();
         }
         tg.BackButton.hide();
+        tg.SettingsButton.show();
     });
 }
 
@@ -739,6 +739,7 @@ function showSideMenu() {
     }, 10);
 }
 function hideSideMenu() {
+    if (tg) tg.BackButton.hide();
     sideMenu.classList.remove('open');
     setTimeout(() => {
         sideMenu.style.display = 'none';
@@ -749,6 +750,7 @@ document.getElementById('sideMenuBtn').onclick = showSideMenu;
 document.getElementById('sideCloseBtn').onclick = hideSideMenu;
 overlay.onclick = hideSideMenu;
 function showSettings() {
+    if (tg) tg.SettingsButton.hide();
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('mainTopBar').style.display = 'none';
     document.getElementById('settingsMenu').style.display = 'block';
