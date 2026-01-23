@@ -90,6 +90,7 @@ selectBtn.addEventListener('click', () => {
 
 const tg = window.Telegram?.WebApp || null;
 if (tg || tg !== null && window.Telegram?.WebApp){
+    alert('Telegram Web App detected');
     tg.ready(); // Сообщаем Telegram, что веб-приложение готово
     tg.enableClosingConfirmation(); // Включаем подтверждение при попытке закрыть веб-приложение
     // Настройка кнопки Settings
