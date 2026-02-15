@@ -282,6 +282,8 @@ if (tg || tg !== null && window.Telegram?.WebApp){
         tg.BackButton.show();
     });
     tg.onEvent('backButtonClicked', () => {
+        const backTarget = localStorage.getItem('menuBackTo');
+        if (backTarget) { localStorage.removeItem('menuBackTo'); window.location.href = backTarget; return; }
         hideSideMenu();
         const settingsMenu = document.getElementById('settingsMenu');
         const mainMenu = document.getElementById('mainMenu');
@@ -1033,6 +1035,12 @@ function applySideButtons() {
             disabled: item.disabled
         });
         sideButtons.appendChild(btn);
+        // For side-menu links (except 'home'), remember to show Telegram BackButton on target page
+        if (item.href && item.textKey !== 'home') {
+            btn.addEventListener('click', () => {
+                try { localStorage.setItem('menuBackTo', 'main.html'); } catch(e){}
+            });
+        }
     });
 }
 function checkUserID() {

@@ -1402,25 +1402,36 @@ else{
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
-<script>
-// Enforce bad-words
-(function(){
-  const banned=['говно','хейт','порно','fuck','idiot','сука','nigger'];
-  function containsBad(t){ if(!t) return false; const s=t.toLowerCase(); return banned.some(w=>s.includes(w)); }
-  document.addEventListener('DOMContentLoaded', ()=>{
-    document.querySelectorAll('input, textarea').forEach(el=>{ const h=()=>{ if(containsBad(el.value)){ alert('Поле содержит недопустимые слова.'); el.value=''; }}; el.addEventListener('input', h); el.addEventListener('blur', h); });
-  });
-})();
-</script>
-if (window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.BackButton.show();
-    tg.BackButton.onClick(() => {
-        window.location.href = 'main.html';
+  // Enforce bad-words (fallback)
+  (function(){
+    const banned=['говно','хейт','порно','fuck','idiot','сука','nigger'];
+    function containsBad(t){ if(!t) return false; const s=t.toLowerCase(); return banned.some(w=>s.includes(w)); }
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.querySelectorAll('input, textarea').forEach(el=>{
+        const h = () => {
+          if (containsBad(el.value)){
+            try {
+              if (typeof showAlertModal === 'function') showAlertModal('Поле содержит недопустимые слова.');
+              else alert('Поле содержит недопустимые слова.');
+            } catch(e){ try{ alert('Поле содержит недопустимые слова.'); }catch(_){} }
+            el.value = '';
+          }
+        };
+        el.addEventListener('input', h);
+        el.addEventListener('blur', h);
+      });
     });
-    tg.SettingsButton.hide();
-}
+  })();
+
+  if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      try { if (tg.BackButton) tg.BackButton.show(); } catch(e){}
+      if (typeof tg.onEvent === 'function') {
+          tg.onEvent('backButtonClicked', () => { window.location.href = 'main.html'; });
+      }
+      try { if (tg.SettingsButton) tg.SettingsButton.hide(); } catch(e){}
+  }
 </script>
 
 </body>
