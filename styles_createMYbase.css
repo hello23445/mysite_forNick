@@ -188,3 +188,36 @@ a {
     color: #8f87ff;
     margin-bottom: 15px;
 }
+
+/* Стили для кнопки копирования токена */
+#dbNameContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+#copyTokenBtn {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 0.9rem !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+#copyTokenBtn:active {
+    transform: scale(0.98);
+}
+
+
+.no-animations * {
+    transition: none !important;
+    animation: none !important;
+}

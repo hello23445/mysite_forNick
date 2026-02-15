@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Shop</title>
     <style>
         body {
@@ -23,7 +23,11 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            position: relative;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, darkblue, rgba(0, 0, 139, 0.95));
+            padding: 15px 0;
         }
         #title-container {
             display: flex;
@@ -995,5 +999,28 @@
             };
         };
     </script>
+
+    <script>
+    // Применяем настройки анимаций
+    function applyAnimations() {
+        if (localStorage.getItem('animations') === 'no') {
+            document.body.classList.add('no-animations');
+        } else {
+            document.body.classList.remove('no-animations');
+        }
+    }
+    applyAnimations();
+    </script>
+        <script>
+        // Enforce bad-words on shop_en
+        (function(){
+            const banned=['говно','хейт','порно','fuck','idiot','сука','nigger'];
+            function containsBad(t){ if(!t) return false; const s=t.toLowerCase(); return banned.some(w=>s.includes(w)); }
+            document.addEventListener('DOMContentLoaded', ()=>{
+                document.querySelectorAll('input, textarea').forEach(el=>{ const h=()=>{ if(containsBad(el.value)){ alert('Field contains inappropriate words.'); el.value=''; }}; el.addEventListener('input', h); el.addEventListener('blur', h); });
+            });
+        })();
+        </script>
+<script src="apply_app_view.js"></script>
 </body>
 </html>

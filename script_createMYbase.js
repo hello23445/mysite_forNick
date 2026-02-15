@@ -201,6 +201,19 @@ async function checkSheet() {
         }
         dbInfoEl.style.display = 'block';
 
+        // Добавляем обработчик для кнопки копирования токена
+        const copyTokenBtn = document.getElementById('copyTokenBtn');
+        if (copyTokenBtn) {
+            copyTokenBtn.onclick = () => {
+                navigator.clipboard.writeText(userToken);
+                const originalText = copyTokenBtn.innerHTML;
+                copyTokenBtn.innerHTML = lang === 'ru' ? '✓ Скопировано' : '✓ Copied';
+                setTimeout(() => {
+                    copyTokenBtn.innerHTML = originalText;
+                }, 2000);
+            };
+        }
+
         buttonsEl.innerHTML = `
             <button id="updateBtn">${t.updateBtn}</button>
             <button id="deleteBtn">${t.deleteBtn}</button>

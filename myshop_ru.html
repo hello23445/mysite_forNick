@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Favorites</title>
   <style>
     body {
@@ -27,16 +27,22 @@
       cursor: pointer;
       transition: 0.3s;
       font-size: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
-    #backBtn:hover {
-      background: #3a28c0;
-    }
+
 
     h1 {
       text-align: center;
       margin-bottom: 20px;
       font-size: 24px;
       line-height: 1.2;
+      position: sticky;
+      top: 50px;
+      z-index: 999;
+      background: linear-gradient(180deg, #060039, rgba(6, 0, 57, 0.95));
+      padding: 10px 0;
     }
 
     h2 {
@@ -45,6 +51,10 @@
       font-size: 18px;
       border-bottom: 1px solid #444;
       padding-bottom: 4px;
+      position: sticky;
+      top: 120px;
+      z-index: 998;
+      background: #060039;
     }
 
     .item {
@@ -60,9 +70,7 @@
       text-decoration: none;
       color: #d9d9d9;
     }
-    .item:hover {
-      background: #3a28c0;
-    }
+
 
     #names, #descs {
       max-height: 300px;
@@ -90,10 +98,7 @@
       border: 2px solid #060039;
     }
 
-    #names::-webkit-scrollbar-thumb:hover,
-    #descs::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
+
 
     #names,
     #descs {
@@ -152,6 +157,11 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    .no-animations * {
+      animation: none !important;
+      transition: none !important;
+    }
   </style>
 </head>
 <body>
@@ -199,6 +209,24 @@
     document.getElementById("namesTitle").textContent = texts[lang].namesTitle;
     document.getElementById("descsTitle").textContent = texts[lang].descsTitle;
     document.getElementById("backBtn").textContent = texts[lang].backBtn;
+
+    function showAlertModal(message) {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 10000;`;
+      const modalBox = document.createElement('div');
+      modalBox.style.cssText = `background: #251897; color: #d9d9d9; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); max-width: 300px; text-align: center; font-family: Arial, sans-serif;`;
+      const messageText = document.createElement('p');
+      messageText.textContent = message;
+      messageText.style.cssText = `margin: 0 0 15px 0; font-size: 16px;`;
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = 'OK';
+      closeBtn.style.cssText = `background: #3a28c0; color: #d9d9d9; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px;`;
+      closeBtn.addEventListener('click', () => { overlay.remove(); });
+      modalBox.appendChild(messageText);
+      modalBox.appendChild(closeBtn);
+      overlay.appendChild(modalBox);
+      document.body.appendChild(overlay);
+    }
 
     function cleanText(text) {
       return text
@@ -256,7 +284,7 @@
       } catch (error) {
         console.error('Error logging to sheet:', error);
         preloader.style.display = "none";
-        alert(texts[lang].error);
+        showAlertModal(texts[lang].error);
       }
     }
 
@@ -314,6 +342,18 @@
         descsBlock.appendChild(item);
       });
     }
+  </script>
+
+  <script>
+  // Применяем настройки анимаций
+  function applyAnimations() {
+      if (localStorage.getItem('animations') === 'no') {
+          document.body.classList.add('no-animations');
+      } else {
+          document.body.classList.remove('no-animations');
+      }
+  }
+  applyAnimations();
   </script>
 </body>
 </html>

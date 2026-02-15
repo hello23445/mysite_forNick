@@ -9,6 +9,188 @@ const selectBtn = document.getElementById('selectBtn');
 
 const isTouch = window.matchMedia('(pointer: coarse)').matches;
 
+// Список запрещённых слов для проверки во всех инпутах
+const globalBadWords = [
+  'говно', 'хейт', 'порно', 'аноним', 'admin', 'админ', 'moder', 'модер', 'модератор',
+  'продавец премиума', 'seller of premium', 'seller of premium account', 'премиум', 'премиум пользователь',
+  'premium user', 'пользователь премиума', 'user of premium', 'user of premium account', '*', '"', "'",
+  'сука', 'пидор', 'пидорас', 'мразь', 'ублюдок', 'тварь', 'хуй', 'хер', 'еблан', 'ебанат', 'даун',
+  'дебил', 'идиот', 'чмо', 'гнида', 'тупой', 'блядь', 'бля', 'хуесос', 'нахуй', 'пошел нахуй',
+  'иди нахуй', 'урод', 'скотина', 'сволочь', 'мудак', 'петух', 'шлюха', 'проститутка', 'сучка',
+  'падла', 'долбоеб', 'долбаеб', 'ебаный', 'ебать', 'залупа', 'пизда', 'пиздец', 'fuck', 'fucking',
+  'bitch', 'asshole', 'bastard', 'dick', 'cock', 'pussy', 'shit', 'slut', 'whore', 'cunt', 'motherfucker',
+  'nigger', 'nigga', 'retard', 'stupid', 'idiot', 'dumbass', 'loser', 'jerk', 'gay', 'fag', 'faggot',
+  'suck', 'sucker', 'kill yourself', 'kms', 'puta', 'gilipollas', 'mierda', 'pendejo', 'cabron', 'maricon',
+  'coño', 'idiota', 'imbecil', 'tonto', 'perra', 'arschloch', 'scheisse', 'hurensohn', 'fotze', 'wichser',
+  'dummkopf', 'connard', 'salope', 'pute', 'merde', 'enculé', 'con', 'stronzo', 'coglione', 'puttana',
+  'troia', 'cretino', 'merda', 'caralho', 'filho da puta', 'otário', 'burro', 'sharmuta', 'ibn kalb',
+  'ibn al sharmuta', 'kalb', 'khara', 'jahel', 'madarchod', 'behenchod', 'chutiya', 'bhosdike', 'lund',
+  'randi', 'harami', 'orospu', 'siktir', 'amk', 'mal', 'aptal', 'gerizekali', 'kurwa', 'pierdol', 'chuj',
+  'jebac', 'debil', 'anjing', 'bangsat', 'kontol', 'memek', 'tolol', 'bodoh', 'shabi', 'caonima', 'gou ri',
+  'sb', 'ni ma', 'ssibal', 'gaesaekki', 'jot', 'meongcheong', 'baegopa', 'хентай', 'hentai', 'минет',
+  'minet', 'эротика', 'erotica'
+];
+
+// Функция глобальной проверки на плохие слова
+function containsBadWords(text) {
+  if (!text) return false;
+  const lowerText = text.toLowerCase();
+  return globalBadWords.some(word => lowerText.includes(word));
+}
+
+// Функция для показа алертов в виде модального окна
+function showAlertModal(message) {
+    let errorModal = document.getElementById('error-modal');
+    let errorMessage = document.getElementById('error-message');
+    let errorOkBtn = document.getElementById('error-ok-btn');
+    
+    // Если модального окна нет - создаем его
+    if (!errorModal) {
+        const style = document.createElement('style');
+        style.textContent = `
+            #error-modal {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(6,8,20,0.55);
+                backdrop-filter: blur(6px) saturate(120%);
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                padding: 20px;
+            }
+            #error-modal.show { display: flex; }
+            @keyframes modalIn { from { opacity: 0; transform: translateY(-8px) scale(.995); } to { opacity: 1; transform: translateY(0) scale(1); } }
+            #error-modal-content {
+                background: linear-gradient(180deg, rgba(15,16,40,0.98), rgba(11,12,26,0.98));
+                padding: 18px 18px 14px 18px;
+                border-radius: 14px;
+                text-align: center;
+                max-width: 420px;
+                width: 100%;
+                border: 1px solid rgba(95,87,255,0.16);
+                box-shadow: 0 12px 40px rgba(3,6,20,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+                animation: modalIn .22s ease-out;
+                color: #edf0ff;
+                display: flex;
+                gap: 12px;
+                align-items: center;
+            }
+            #error-modal .modal-icon {
+                flex: 0 0 44px;
+                height: 44px;
+                width: 44px;
+                border-radius: 10px;
+                background: linear-gradient(180deg,#ff6b6b,#ff4d4d);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 6px 18px rgba(255,77,77,0.18);
+            }
+            #error-modal .modal-icon svg { width:20px; height:20px; color: #fff; }
+            #error-body { text-align:left; flex:1; }
+            #error-title { font-weight:700; font-size:16px; margin:0 0 6px 0; color:#fff; }
+            #error-message { margin:0; color: #dfe6ff; font-size:14px; line-height:1.3; word-wrap:break-word; }
+            #error-ok-btn { margin-left:12px; flex: 0 0 auto; background: linear-gradient(180deg,#5f57ff,#3b2fd6); color:#fff; border:0; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; box-shadow: 0 8px 24px rgba(59,47,214,0.18); }
+            #error-close { position:absolute; top:14px; right:16px; background:transparent; border:0; color:rgba(255,255,255,0.65); font-size:18px; cursor:pointer; }
+        `;
+        document.head.appendChild(style);
+
+        const modalHtml = `
+            <div id="error-modal" class="show">
+                <div id="error-modal-content">
+                    <div class="modal-icon" aria-hidden>
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="rgba(0,0,0,0.08)"/><path d="M12 7v6" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16h.01" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="error-body">
+                        <div id="error-title">Поле содержит недопустимые слова.</div>
+                        <p id="error-message"></p>
+                    </div>
+                    <button id="error-ok-btn">Понятно</button>
+                    <button id="error-close" aria-label="Закрыть">×</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        errorModal = document.getElementById('error-modal');
+        errorMessage = document.getElementById('error-message');
+        errorOkBtn = document.getElementById('error-ok-btn');
+        const errorClose = document.getElementById('error-close');
+
+        errorClose.onclick = () => { errorModal.classList.remove('show'); };
+    }
+    
+    // Показываем модальное окно
+    errorMessage.textContent = message;
+    errorModal.classList.add('show');
+    
+    errorOkBtn.onclick = () => { errorModal.classList.remove('show'); };
+}
+
+// Функция для показа окна подтверждения (замена confirm)
+function showConfirmModal(message) {
+    return new Promise((resolve) => {
+        let confirmModal = document.getElementById('confirm-modal');
+        let confirmMessage = document.getElementById('confirm-message');
+        let confirmYesBtn = document.getElementById('confirm-yes-btn');
+        let confirmNoBtn = document.getElementById('confirm-no-btn');
+        
+        // Если модального окна нет - создаем его
+        if (!confirmModal) {
+            const style = document.createElement('style');
+            style.textContent = `
+                #confirm-modal { display:none; position:fixed; inset:0; background: rgba(6,8,20,0.55); backdrop-filter: blur(6px); z-index:10000; padding:16px; justify-content:center; align-items:center; }
+                #confirm-modal.show{ display:flex; }
+                #confirm-modal-content{ background: linear-gradient(180deg, rgba(12,12,34,0.98), rgba(10,9,28,0.98)); padding:16px; border-radius:12px; max-width:420px; width:100%; box-shadow:0 12px 40px rgba(2,4,18,0.6); border:1px solid rgba(95,87,255,0.12); color:#eaf0ff; animation: modalIn .22s ease-out; }
+                #confirm-message{ font-weight:700; margin:0 0 12px 0; font-size:15px; color:#fff; }
+                #confirm-sub{ margin:0; font-size:13px; color:#cdd7ff; opacity:0.9; }
+                #confirm-buttons{ display:flex; gap:10px; margin-top:12px; }
+                .btn-secondary{ flex:1; background:transparent; border:1px solid rgba(255,255,255,0.06); color:#d9deff; padding:10px 12px; border-radius:10px; cursor:pointer; }
+                .btn-primary{ flex:1; background: linear-gradient(180deg,#5f57ff,#3b2fd6); color:#fff; border:0; padding:10px 12px; border-radius:10px; cursor:pointer; box-shadow:0 8px 20px rgba(59,47,214,0.16); font-weight:700; }
+            `;
+            document.head.appendChild(style);
+
+            const modalHtml = `
+                <div id="confirm-modal" class="show">
+                    <div id="confirm-modal-content">
+                        <p id="confirm-message"></p>
+                        <p id="confirm-sub" style="display:none;"></p>
+                        <div id="confirm-buttons">
+                            <button id="confirm-no-btn" class="btn-secondary">Нет</button>
+                            <button id="confirm-yes-btn" class="btn-primary">Да</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            confirmModal = document.getElementById('confirm-modal');
+            confirmMessage = document.getElementById('confirm-message');
+            confirmYesBtn = document.getElementById('confirm-yes-btn');
+            confirmNoBtn = document.getElementById('confirm-no-btn');
+        }
+        
+        // Показываем модальное окно
+        confirmMessage.textContent = message;
+        const confirmSub = document.getElementById('confirm-sub');
+        if (confirmSub) confirmSub.style.display = 'none';
+        confirmModal.classList.add('show');
+
+        confirmYesBtn.onclick = () => { confirmModal.classList.remove('show'); resolve(true); };
+        confirmNoBtn.onclick = () => { confirmModal.classList.remove('show'); resolve(false); };
+    });
+}
+
+// Функция для очистки localStorage с подтверждением
+async function clearLocalStorageWithConfirm() {
+    const confirmed = await showConfirmModal('Очистить весь localStorage?');
+    if (confirmed) {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+}
+
 let targetElement = null;   // для ПК — элемент под ПКМ
 let currentRange = null;    // для мобилок — выделенный текст
 document.addEventListener('click', () => {
@@ -136,6 +318,8 @@ document.addEventListener('keydown', function (event) {
         if (settingsMenu) settingsMenu.style.display = 'none';
         if (mainMenu) mainMenu.style.display = 'block';
         if (mainTopBar) mainTopBar.style.display = 'flex';
+        if (tg) tg.BackButton.hide();
+        if (tg) tg.SettingsButton.show();
         if (typeof saveUserDataToGoogleSheets === 'function') {
             saveUserDataToGoogleSheets();
         }
@@ -158,7 +342,6 @@ const LINKS = {
     supportEN: "https://t.me/Clickerstart_bot"
 };
 const filesRu = {
-    indexed_money: 'indexed_money.html',
     shop: 'shop_ru.html',
     nickname: 'nickname.html',
     description: 'description.html',
@@ -179,7 +362,6 @@ const filesRu = {
     ai_video: 'https://t.me/GeneratorVideos1Bot'
 };
 const filesEn = {
-    indexed_money: 'indexed_money_en.html',
     tasks: 'tasks_en.html',
     shop: 'shop_en.html',
     nickname: 'nickname_en.html',
@@ -223,9 +405,6 @@ let customBackgrounds = JSON.parse(
 let translations = {
     ru: {
         fixing: 'Режим поиска и устранения ошибок в этом приложении',
-        money: 'Играть и зарабатывать монеты',
-        task: 'Задания и награды',
-        shop: "Магазин",
         premium: 'Премиум',
         main: "Что будем создавать?",
         maintenance: "Проводится техническое обслуживание.",
@@ -254,7 +433,9 @@ let translations = {
         popular: "Популярное",
         settings: "Настройки",
         wishlist: "Мой список избранного",
+        task: "Задания и награды",
         myshop: "Мой магазин",
+        shop: "Магазин",
         statSectionTitle: "Настройки статистики",
         statCollectYes: "Собирать данные для статистики",
         statCollectNo: "Не собирать данные для статистики",
@@ -265,15 +446,16 @@ let translations = {
         uploadCustomBg: "Выбрать фон для загрузки",
         blurBackground: "Размытие фона",
         animations: "Анимации",
+        appView_normal: "Не полноэкранный(Рекомендуется)",
+        appView_fullscreen: "Полноэкранный",
+        appViewLabel: "Вид приложения",
         backgroundSubTitle: "Фон приложения",
         animationsSubTitle: "Анимации",
+        appSizeLabel: "Размер приложения",
         database: 'Моя база данных'
     },
     en: {
         fixing: 'Error Detection and Correction Mode in this App',
-        money: 'Play and earn coins',
-        task: 'Tasks and Rewards',
-        shop: "Shop",
         premium: 'Premium',
         main: "What do you want to create?",
         maintenance: "Maintenance in progress.",
@@ -302,7 +484,9 @@ let translations = {
         popular: "Popular",
         settings: "Settings",
         wishlist: "My wishlist",
+        task: "Tasks and rewards",
         myshop: "My Shop",
+        shop: "Shop",
         statSectionTitle: "Statistics settings",
         statCollectYes: "Collect data for statistics",
         statCollectNo: "Do not collect data for statistics",
@@ -315,6 +499,11 @@ let translations = {
         animations: "Animations",
         backgroundSubTitle: "App Background",
         animationsSubTitle: "Animations",
+        appView_normal: "Non-fullscreen (Recommended)",
+        appView_fullscreen: "Fullscreen",
+        appViewLabel: "Application appearance",
+        database: 'My data base',
+        appSizeLabel: "Application Size",
         database: 'My data base'
     }
 };
@@ -355,6 +544,55 @@ function createButton({ text, icon, onClick, href, newTab=false, disabled=false,
     }
     return btn;
 }
+
+// Enable toggling when clicking label text for toggle-icon elements
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('label[for]').forEach(label => {
+        const id = label.getAttribute('for');
+        if (!id) return;
+        const target = document.getElementById(id);
+        if (target && target.classList.contains('toggle-icon')) {
+            label.style.cursor = 'pointer';
+            label.addEventListener('click', () => target.click());
+        }
+    });
+
+    // App view mode select handling
+    const appSelect = document.getElementById('appViewMode');
+    function applyAppView(mode) {
+        if (mode === 'fullscreen') {
+            try { if (window.Telegram?.WebApp?.expand) window.Telegram.WebApp.expand(); } catch(e){}
+        }
+    }
+    if (appSelect) {
+        const saved = localStorage.getItem('appViewMode') || 'normal';
+        appSelect.value = saved;
+        applyAppView(saved);
+        appSelect.addEventListener('change', () => {
+            const v = appSelect.value;
+            localStorage.setItem('appViewMode', v);
+            applyAppView(v);
+        });
+    } else {
+        // If no select in DOM, still apply stored mode
+        const saved = localStorage.getItem('appViewMode');
+        if (saved) applyAppView(saved);
+    }
+    // Add bad-words validation to inputs and textareas (both on input and blur)
+    document.querySelectorAll('input, textarea').forEach(el => {
+        const handler = () => {
+            try {
+                const v = (el.value || '').toString();
+                if (containsBadWords(v)) {
+                    showAlertModal(lang === 'ru' ? 'Поле содержит недопустимые слова.' : 'Field contains inappropriate words.');
+                    el.value = '';
+                }
+            } catch (e) {}
+        };
+        el.addEventListener('blur', handler);
+        el.addEventListener('input', handler);
+    });
+});
 function applyTranslations() {
     checkUserID();
     document.getElementById('showmytokentext').style.color = 'white';
@@ -476,6 +714,22 @@ function applyTranslations() {
         themeSelect.value = 'theme1';
         localStorage.setItem('theme', 'theme1');
     }
+
+    // Populate App appearance select if present
+    const appSelectEl = document.getElementById('appViewMode');
+    if (appSelectEl) {
+        appSelectEl.innerHTML = '';
+        const o1 = document.createElement('option');
+        o1.value = 'normal';
+        o1.textContent = translations[lang].appView_normal;
+        const o2 = document.createElement('option');
+        o2.value = 'fullscreen';
+        o2.textContent = translations[lang].appView_fullscreen;
+        appSelectEl.appendChild(o1);
+        appSelectEl.appendChild(o2);
+        const savedMode = localStorage.getItem('appViewMode') || 'normal';
+        appSelectEl.value = savedMode;
+    }
 }
 function initTokenButton(btnId) {
     let isVisible = false;
@@ -506,9 +760,9 @@ function initTokenButton(btnId) {
             textArea.select();
             try {
                 document.execCommand('copy');
-                alert(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
+                showAlertModal(lang === 'ru' ? 'Токен скопирован!' : 'Token copied!');
             } catch (err) {
-                alert(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
+                showAlertModal(lang === 'ru' ? 'Не удалось скопировать токен.' : 'Failed to copy token.');
             }
             document.body.removeChild(textArea);
             isVisible = false;
@@ -539,33 +793,24 @@ document.getElementById('statSelect').onchange = function() {
 const m = localStorage.getItem('m');
 if (m === 'Уже' || m === 'уже') {
     document.querySelectorAll('div').forEach(el => el.style.display = 'none');
-    alert(lang === 'ru' ? 'Идет техническое обслуживание' : 'Maintenance in progress');
+    showAlertModal(lang === 'ru' ? 'Идет техническое обслуживание' : 'Maintenance in progress');
     document.getElementById('maintenance').style.display = 'block';
     document.getElementById('maintenanceM').textContent = translations[lang].maintenance;
 }
 if (!localStorage.getItem('first_use_date')) {
     localStorage.setItem('first_use_date', new Date().toISOString());
 }
-window.clearAllStatistic = function() {
-    let confirmed;
+window.clearAllStatistic = async function() {
+    let message;
     if (lang === 'ru') {
-        confirmed = confirm(
-            `Вы уверены, что хотите очистить всю свою статистику?\n` +
-            `Это действие нельзя будет отменить!\n` +
-            `Вся ваша статистика будет полностью обнулена, все значения станут равны нулю!\n` +
-            `ОК - Подтвердить очистку\nОтмена - Отменить очистку.`
-        );
+        message = `Вы уверены, что хотите очистить всю свою статистику?\n\nЭто действие нельзя будет отменить!\n\nВся ваша статистика будет полностью обнулена, все значения станут равны 0(нулю)!`;
     } else {
-        confirmed = confirm(
-            `Are you sure you want to clear all your statistics?\n` +
-            `This action cannot be undone!\n` +
-            `All your statistics will be completely reset; all values will be set to zero!\n` +
-            `OK - Confirm reset\nCancel - Cancel reset`
-        );
+        message = `Are you sure you want to clear all your statistics?\n\nThis action cannot be undone!\n\nAll your statistics will be completely reset; all values will be set to 0(zero)!`;
     }
+    const confirmed = await showConfirmModal(message);
     if (!confirmed) return;
     if (confirmed) {
-        alert('DONE');
+        showAlertModal('DONE');
     }
     const keys = [
         'created_nicknames',
@@ -751,6 +996,7 @@ document.getElementById('sideCloseBtn').onclick = hideSideMenu;
 overlay.onclick = hideSideMenu;
 function showSettings() {
     if (tg) tg.SettingsButton.hide();
+    if (tg) tg.BackButton.show();
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('mainTopBar').style.display = 'none';
     document.getElementById('settingsMenu').style.display = 'block';
@@ -771,7 +1017,6 @@ function applySideButtons() {
         { textKey: 'popular', icon: 'fa-solid fa-square-poll-vertical', href: files.popular },
         { textKey: 'wishlist', icon: 'fa-solid fa-clipboard-list', href: 'izbr.html' },
         { textKey: 'task', icon: 'fa-solid fa-list-check', href: files.tasks },
-        { textKey: 'money', icon: 'fa-solid fa-coins', href: files.indexed_money },
         { textKey: 'myshop', icon: 'fa-solid fa-shop', href: files.myshop },
         { textKey: 'shop', icon: 'fa-solid fa-cart-shopping', href: files.shop },
         { textKey: 'database', icon:'fa-solid fa-database', href:'createMYbase.html'},
@@ -817,7 +1062,7 @@ document.getElementById('myID').addEventListener('click', (e) => {
             }, 2500);
         })
         .catch(() => {
-            alert(lang === 'ru' ? 'Ошибка копирования' : 'Copy error');
+            showAlertModal(lang === 'ru' ? 'Ошибка копирования' : 'Copy error');
         });
 });
 async function checkTokenAndRedirect() {
@@ -950,17 +1195,27 @@ document.getElementById('uploadCustom').onclick = function() {
             };
             reader.readAsDataURL(file);
         } else {
-            alert(lang === 'ru' ? 'Пожалуйста, выберите изображение' : 'Please select an image');
+            showAlertModal(lang === 'ru' ? 'Пожалуйста, выберите изображение' : 'Please select an image');
         }
     };
     input.click();
 };
-document.getElementById('blurToggle').onchange = function() {
-    localStorage.setItem('blur', this.checked ? 'yes' : 'no');
+document.getElementById('blurToggle').onclick = function() {
+    const isChecked = this.getAttribute('data-checked') === 'true';
+    const newState = !isChecked;
+    this.setAttribute('data-checked', newState ? 'true' : 'false');
+    const icon = this.querySelector('i');
+    icon.className = newState ? 'fa-solid fa-toggle-on' : 'fa-solid fa-toggle-off';
+    localStorage.setItem('blur', newState ? 'yes' : 'no');
     applyBlur();
 };
-document.getElementById('animationsToggle').onchange = function() {
-    localStorage.setItem('animations', this.checked ? 'yes' : 'no');
+document.getElementById('animationsToggle').onclick = function() {
+    const isChecked = this.getAttribute('data-checked') === 'yes';
+    const newState = !isChecked;
+    this.setAttribute('data-checked', newState ? 'yes' : 'no');
+    const icon = this.querySelector('i');
+    icon.className = newState ? 'fa-solid fa-toggle-on' : 'fa-solid fa-toggle-off';
+    localStorage.setItem('animations', newState ? 'yes' : 'no');
     applyAnimations();
 };
 function applyAnimations() {
@@ -974,11 +1229,18 @@ function applyAnimations() {
 if (!localStorage.getItem('blur')) {
     localStorage.setItem('blur', 'no');
 }
-document.getElementById('blurToggle').checked = localStorage.getItem('blur') === 'yes';
+const blurToggleEl = document.getElementById('blurToggle');
+const blurState = localStorage.getItem('blur') === 'yes';
+blurToggleEl.setAttribute('data-checked', blurState ? 'true' : 'false');
+blurToggleEl.querySelector('i').className = blurState ? 'fa-solid fa-toggle-on' : 'fa-solid fa-toggle-off';
+
 if (!localStorage.getItem('animations')) {
     localStorage.setItem('animations', 'yes');
 }
-document.getElementById('animationsToggle').checked = localStorage.getItem('animations') === 'yes';
+const animToggleEl = document.getElementById('animationsToggle');
+const animState = localStorage.getItem('animations') === 'yes';
+animToggleEl.setAttribute('data-checked', animState ? 'yes' : 'no');
+animToggleEl.querySelector('i').className = animState ? 'fa-solid fa-toggle-on' : 'fa-solid fa-toggle-off';
 applyAnimations();
 let storedTheme = localStorage.getItem('theme') || 'theme1';
 if (!['theme1', 'theme3'].includes(storedTheme) && !storedTheme.startsWith('custom_')) {
@@ -1036,10 +1298,10 @@ function showVerificationModal(code) {
                 blockBtn.style.display = 'none';
                 closeBtn.style.display = 'block';
             } else {
-                alert('Ошибка блокировки');
+                showAlertModal('Ошибка блокировки');
             }
         } catch (err) {
-            alert('Ошибка связи с сервером');
+            showAlertModal('Ошибка связи с сервером');
         }
     };
     closeBtn.onclick = () => {

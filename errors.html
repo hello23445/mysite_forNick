@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>App Status</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="check_verifyCode.css">
@@ -276,5 +276,17 @@
     localStorage.removeItem('errors');
 </script>
 
+<script>
+// Применяем настройки анимаций
+function applyAnimations() {
+    if (localStorage.getItem('animations') === 'no') {
+        document.body.classList.add('no-animations');
+    } else {
+        document.body.classList.remove('no-animations');
+    }
+}
+applyAnimations();
+</script>
+<script src="apply_app_view.js"></script>
 </body>
 </html>

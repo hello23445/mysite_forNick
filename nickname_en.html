@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nickname Generator</title>
     <style>
         :root {
@@ -63,7 +63,7 @@
             width: 100%;
             text-align: center;
         }
-        .btn:hover { background: var(--btn-hover); }
+
         #to-decorate.hidden { display: none; }
         .examples, .decorated-list {
             display: grid;
@@ -81,7 +81,7 @@
             font-weight: 500;
             transition: background 0.2s;
         }
-        .examples span:hover { background: #3a259e; }
+
         .decorated-list button {
             background: #ffffff;
             color: var(--bg-color);
@@ -96,7 +96,7 @@
             white-space: normal;
             max-width: 100%;
         }
-        .decorated-list button:hover { background: #f0f0f0; }
+
         #final-nickname {
             margin-top: 20px;
             font-size: 1.5rem;
@@ -523,5 +523,32 @@
         }
         securityChecker()
     </script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+    if (window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => {
+            window.location.href = 'main.html';
+        });
+        tg.SettingsButton.hide();
+    }
+    </script>
+        <script>
+        // Enforce bad-words on this page (EN)
+        (function(){
+            const banned=['говно','хейт','порно','fuck','fucking','bitch','asshole','nigger','nigga','retard','idiot','сука'];
+            function containsBad(t){ if(!t) return false; const s=t.toLowerCase(); return banned.some(w=>s.includes(w)); }
+            document.addEventListener('DOMContentLoaded', ()=>{
+                document.querySelectorAll('input, textarea').forEach(el=>{
+                    const h=()=>{ if(containsBad(el.value)){ alert('Field contains inappropriate words.'); el.value=''; }};
+                    el.addEventListener('input', h); el.addEventListener('blur', h);
+                });
+            });
+        })();
+        </script>
+<script src="apply_app_view.js"></script>
 </body>
 </html>

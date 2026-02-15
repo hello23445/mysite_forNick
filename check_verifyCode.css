@@ -85,3 +85,8 @@ button {
         font-size: 0.9rem;
     }
 }
+
+.no-animations * {
+    transition: none !important;
+    animation: none !important;
+}

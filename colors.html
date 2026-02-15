@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Color Picker</title>
   <!-- Font Awesome для иконки копирования -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -68,9 +68,7 @@
       color: #fff;
       touch-action: manipulation;
     }
-    .copy-btn:hover {
-      color: #eee;
-    }
+
     .next-btn {
       background: #000;
       color: #fff;
@@ -84,9 +82,7 @@
       margin-top: 0.8em;
       align-self: center;
     }
-    .next-btn:hover {
-      background: #333;
-    }
+
     canvas {
       width: 100%;
       display: block;
@@ -466,5 +462,19 @@
       });
     });
   </script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+  if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+          window.location.href = 'main.html';
+      });
+      tg.SettingsButton.hide();
+  }
+  </script>
+  <script src="apply_app_view.js"></script>
 </body>
 </html>

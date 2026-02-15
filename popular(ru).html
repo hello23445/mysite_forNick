@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Топ-лист</title>
     <style>
         body {
@@ -38,9 +38,6 @@
             width: 300px;
             text-align: left;
             margin: 10px 0;
-        }
-        button:hover {
-            background-color: blue;
         }
         #loader {
             color: white;
@@ -130,6 +127,19 @@
 
         // Обновление каждые 2 секунды
         setInterval(fetchData, 2000);
+    </script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+    if (window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => {
+            window.location.href = 'main.html';
+        });
+        tg.SettingsButton.hide();
+    }
     </script>
 </body>
 </html>

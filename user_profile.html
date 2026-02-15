@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>User Profile</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
@@ -63,12 +63,6 @@
       transition: all .25s ease;
       box-shadow: 0 4px 12px var(--shadow);
     }
-    .icon-btn:hover {
-      transform: translateY(-2px) scale(1.05);
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #fff;
-      box-shadow: 0 6px 18px rgba(95, 87, 255, 0.45);
-    }
 
     /* Контент */
     .settings-wrap {
@@ -102,10 +96,6 @@
       box-shadow: 0 8px 24px rgba(95, 87, 255, 0.3);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    #avatarImg:hover {
-      transform: scale(1.07);
-      box-shadow: 0 12px 32px rgba(95, 87, 255, 0.5);
-    }
     .avatar-upload-btn {
       position: absolute;
       bottom: 0;
@@ -120,10 +110,6 @@
       font-size: 16px;
       box-shadow: 0 4px 12px rgba(95, 87, 255, 0.5);
       transition: all 0.25s ease;
-    }
-    .avatar-upload-btn:hover {
-      background: var(--accent-2);
-      transform: scale(1.1);
     }
     #avatarInput { display: none; }
 
@@ -158,15 +144,8 @@
       transition: all .25s ease;
       margin-right: 8px;
     }
-    .name-save-btn:hover, .avatar-delete-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(95, 87, 255, 0.35);
-    }
     .avatar-delete-btn {
       background: linear-gradient(135deg, #ff4d4d, #ff7878);
-    }
-    .avatar-delete-btn:hover {
-      box-shadow: 0 6px 18px rgba(255, 77, 77, 0.35);
     }
 
     /* Карточки секций */
@@ -294,6 +273,112 @@
   </div>
 
   <script>
+    // Список запрещённых слов для проверки
+    const globalBadWords = [
+      'говно', 'хейт', 'порно', 'аноним', 'admin', 'админ', 'moder', 'модер', 'модератор',
+      'продавец премиума', 'seller of premium', 'seller of premium account', 'премиум', 'премиум пользователь',
+      'premium user', 'пользователь премиума', 'user of premium', 'user of premium account', '*', '"', "'",
+      'сука', 'пидор', 'пидорас', 'мразь', 'ублюдок', 'тварь', 'хуй', 'хер', 'еблан', 'ебанат', 'даун',
+      'дебил', 'идиот', 'чмо', 'гнида', 'тупой', 'блядь', 'бля', 'хуесос', 'нахуй', 'пошел нахуй',
+      'иди нахуй', 'урод', 'скотина', 'сволочь', 'мудак', 'петух', 'шлюха', 'проститутка', 'сучка',
+      'падла', 'долбоеб', 'долбаеб', 'ебаный', 'ебать', 'залупа', 'пизда', 'пиздец', 'fuck', 'fucking',
+      'bitch', 'asshole', 'bastard', 'dick', 'cock', 'pussy', 'shit', 'slut', 'whore', 'cunt', 'motherfucker',
+      'nigger', 'nigga', 'retard', 'stupid', 'idiot', 'dumbass', 'loser', 'jerk', 'gay', 'fag', 'faggot',
+      'suck', 'sucker', 'kill yourself', 'kms', 'puta', 'gilipollas', 'mierda', 'pendejo', 'cabron', 'maricon',
+      'coño', 'idiota', 'imbecil', 'tonto', 'perra', 'arschloch', 'scheisse', 'hurensohn', 'fotze', 'wichser',
+      'dummkopf', 'connard', 'salope', 'pute', 'merde', 'enculé', 'con', 'stronzo', 'coglione', 'puttana',
+      'troia', 'cretino', 'merda', 'caralho', 'filho da puta', 'otário', 'burro', 'sharmuta', 'ibn kalb',
+      'ibn al sharmuta', 'kalb', 'khara', 'jahel', 'madarchod', 'behenchod', 'chutiya', 'bhosdike', 'lund',
+      'randi', 'harami', 'orospu', 'siktir', 'amk', 'mal', 'aptal', 'gerizekali', 'kurwa', 'pierdol', 'chuj',
+      'jebac', 'debil', 'anjing', 'bangsat', 'kontol', 'memek', 'tolol', 'bodoh', 'shabi', 'caonima', 'gou ri',
+      'sb', 'ni ma', 'ssibal', 'gaesaekki', 'jot', 'meongcheong', 'baegopa', 'хентай', 'hentai', 'минет',
+      'minet', 'эротика', 'erotica'
+    ];
+
+    // Функция проверки на плохие слова
+    function containsBadWords(text) {
+      if (!text) return false;
+      const lowerText = text.toLowerCase();
+      return globalBadWords.some(word => lowerText.includes(word));
+    }
+
+    // Функция для показа алертов в виде модального окна
+    function showAlertModal(message) {
+        let errorModal = document.getElementById('error-modal');
+        let errorMessage = document.getElementById('error-message');
+        let errorOkBtn = document.getElementById('error-ok-btn');
+        
+        // Если модального окна нет - создаем его
+        if (!errorModal) {
+            const style = document.createElement('style');
+            style.textContent = `
+                #error-modal {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.7);
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10000;
+                }
+                #error-modal.show {
+                    display: flex;
+                }
+                #error-modal-content {
+                    background: linear-gradient(180deg, #0d0870, #0b0862);
+                    padding: 25px;
+                    border-radius: 16px;
+                    text-align: center;
+                    max-width: 400px;
+                    width: 90%;
+                    border: 1px solid #5f57ff;
+                    box-shadow: 0 0 30px rgba(95,87,255,0.3);
+                }
+                #error-message {
+                    color: #e0e0ff;
+                    margin-bottom: 20px;
+                    word-wrap: break-word;
+                }
+                #error-ok-btn {
+                    background: linear-gradient(180deg, #251897, #1b1280);
+                    color: #d9d9d9;
+                    border: 1px solid rgba(255,255,255,0.08);
+                    padding: 10px 20px;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+                }
+            `;
+            document.head.appendChild(style);
+            
+            const modalHtml = `
+                <div id="error-modal" class="show">
+                    <div id="error-modal-content">
+                        <p id="error-message"></p>
+                        <button id="error-ok-btn">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            errorModal = document.getElementById('error-modal');
+            errorMessage = document.getElementById('error-message');
+            errorOkBtn = document.getElementById('error-ok-btn');
+        }
+        
+        // Показываем модальное окно
+        errorMessage.textContent = message;
+        errorModal.classList.add('show');
+        
+        errorOkBtn.onclick = () => {
+            errorModal.classList.remove('show');
+        };
+    }
     
     document.addEventListener("click", function (event) {
     const t = event.target;
@@ -311,6 +396,9 @@
     });
     document.getElementById("nameInput").addEventListener("input", function () {
         this.value = this.value.replace(/[^a-zA-Zа-яА-ЯёЁ0-9\-\_\s]/g, "");
+        if (containsBadWords(this.value)) {
+          this.value = this.value.replace(/[а-яА-ЯёЁa-zA-Z0-9\-\_\s]/g, '').length > 0 ? this.value.slice(0, -1) : this.value;
+        }
     });
 
     let lang = localStorage.getItem('lang') || 'en';
@@ -424,10 +512,10 @@
       const newName = nameInput.value.trim();
       if (newName) {
         localStorage.setItem('userName', newName);
-        alert(lang === 'ru' ? 'Имя сохранено!' : 'Name saved!');
+        showAlertModal(lang === 'ru' ? 'Имя сохранено!' : 'Name saved!');
         document.getElementById('userTitle').textContent = newName;
       } else {
-        alert(lang === 'ru' ? 'Введите имя!' : 'Enter a name!');
+        showAlertModal(lang === 'ru' ? 'Введите имя!' : 'Enter a name!');
       }
     }
 
@@ -436,7 +524,7 @@
       if (confirm(confirmMessage)) {
         localStorage.setItem('userAvatar', DEFAULT_AVATAR);
         document.getElementById('avatarImg').src = DEFAULT_AVATAR;
-        alert(lang === 'ru' ? 'Аватарка удалена!' : 'Avatar deleted!');
+        showAlertModal(lang === 'ru' ? 'Аватарка удалена!' : 'Avatar deleted!');
       }
     }
 
@@ -448,7 +536,7 @@
           const dataURL = e.target.result;
           document.getElementById('avatarImg').src = dataURL;
           localStorage.setItem('userAvatar', dataURL);
-          alert(lang === 'ru' ? 'Аватарка обновлена!' : 'Avatar updated!');
+          showAlertModal(lang === 'ru' ? 'Аватарка обновлена!' : 'Avatar updated!');
         };
         reader.readAsDataURL(file);
       }
@@ -507,5 +595,17 @@
       }
   </script>
 
+  <script>
+  // Применяем настройки анимаций
+  function applyAnimations() {
+      if (localStorage.getItem('animations') === 'no') {
+          document.body.classList.add('no-animations');
+      } else {
+          document.body.classList.remove('no-animations');
+      }
+  }
+  applyAnimations();
+  </script>
+  <script src="apply_app_view.js"></script>
 </body>
 </html>

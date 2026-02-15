@@ -113,10 +113,6 @@
       margin: 0 5px;
     }
 
-    .rating button:hover {
-      background-color: #3b45a0;
-    }
-
     /* Стили для неактивных элементов */
     .disabled {
       opacity: 0.5;
@@ -179,15 +175,9 @@
       margin-right: 5px;
       transition: background-color 0.2s;
     }
-    .modal button:hover {
-      background-color: #3b45a0;
-    }
     .modal button.cancel {
       background-color: #ccc;
       color: #333;
-    }
-    .modal button.cancel:hover {
-      background-color: #b3b3b3;
     }
 
     .chat-input {
@@ -210,10 +200,6 @@
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
       border-radius: 0 10px 10px 0;
-    }
-    .chat-input button:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     /* Стили индикатора печати (маленькие кружочки) */
@@ -453,16 +439,27 @@
     }
 
     function containsForbiddenWords(text) {
-    // Приводим весь текст к нижнему регистру
     const lowerText = text.toLowerCase();
-    // Список запрещённых слов (все в нижнем регистре)
     const forbiddenWords = [
-      'блядь', 'сука', 'хуй', 'пиздец', 'ебать', 'нахуй', 'говно', 'дерьмо', 'пизда', 'идиот', 'тупой',
-      'мразь', 'ублюдок', 'пидор', 'пидорас', 'сволочь', 'гандон', 'пиздюк', 'долбоеб',
-      'ебанутый', 'мудак', 'конченый', 'хер', 'жопа', 'тварь', 'лох', 'гей', 'лесбиянка', 'тупой', 'еблан', 'ебан', 'ебанашка'
+      'говно', 'хейт', 'порно', 'аноним', 'admin', 'админ', 'moder', 'модер', 'модератор',
+      'продавец премиума', 'seller of premium', 'seller of premium account', 'премиум', 'премиум пользователь',
+      'premium user', 'пользователь премиума', 'user of premium', 'user of premium account', '*', '"', "'",
+      'сука', 'пидор', 'пидорас', 'мразь', 'ублюдок', 'тварь', 'хуй', 'хер', 'еблан', 'ебанат', 'даун',
+      'дебил', 'идиот', 'чмо', 'гнида', 'тупой', 'блядь', 'бля', 'хуесос', 'нахуй', 'пошел нахуй',
+      'иди нахуй', 'урод', 'скотина', 'сволочь', 'мудак', 'петух', 'шлюха', 'проститутка', 'сучка',
+      'падла', 'долбоеб', 'долбаеб', 'ебаный', 'ебать', 'залупа', 'пизда', 'пиздец', 'fuck', 'fucking',
+      'bitch', 'asshole', 'bastard', 'dick', 'cock', 'pussy', 'shit', 'slut', 'whore', 'cunt', 'motherfucker',
+      'nigger', 'nigga', 'retard', 'stupid', 'idiot', 'dumbass', 'loser', 'jerk', 'gay', 'fag', 'faggot',
+      'suck', 'sucker', 'kill yourself', 'kms', 'puta', 'gilipollas', 'mierda', 'pendejo', 'cabron', 'maricon',
+      'coño', 'idiota', 'imbecil', 'tonto', 'perra', 'arschloch', 'scheisse', 'hurensohn', 'fotze', 'wichser',
+      'dummkopf', 'connard', 'salope', 'pute', 'merde', 'enculé', 'con', 'stronzo', 'coglione', 'puttana',
+      'troia', 'cretino', 'merda', 'caralho', 'filho da puta', 'otário', 'burro', 'sharmuta', 'ibn kalb',
+      'ibn al sharmuta', 'kalb', 'khara', 'jahel', 'madarchod', 'behenchod', 'chutiya', 'bhosdike', 'lund',
+      'randi', 'harami', 'orospu', 'siktir', 'amk', 'mal', 'aptal', 'gerizekali', 'kurwa', 'pierdol', 'chuj',
+      'jebac', 'debil', 'anjing', 'bangsat', 'kontol', 'memek', 'tolol', 'bodoh', 'shabi', 'caonima', 'gou ri',
+      'sb', 'ni ma', 'ssibal', 'gaesaekki', 'jot', 'meongcheong', 'baegopa', 'хентай', 'hentai', 'минет',
+      'minet', 'эротика', 'erotica'
     ];
-    
-    // Если хотя бы одно из запрещённых слов содержится в строке, возвращаем true
     return forbiddenWords.some(word => lowerText.includes(word));
   }
 
@@ -731,5 +728,31 @@
       }
     });
   </script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+  if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+          window.location.href = 'main.html';
+      });
+      tg.SettingsButton.hide();
+  }
+  </script>
+
+  <script>
+  // Применяем настройки анимаций
+  function applyAnimations() {
+      if (localStorage.getItem('animations') === 'no') {
+          document.body.classList.add('no-animations');
+      } else {
+          document.body.classList.remove('no-animations');
+      }
+  }
+  applyAnimations();
+  </script>
+  <script src="apply_app_view.js"></script>
 </body>
 </html>

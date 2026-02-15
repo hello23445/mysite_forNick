@@ -69,10 +69,10 @@ function showVerificationModal(code) {
                 blockBtn.style.display = 'none';
                 closeBtn.style.display = 'block';
             } else {
-                alert('Ошибка блокировки');
+                showErrorModal('Ошибка блокировки');
             }
         } catch (err) {
-            alert('Ошибка связи с сервером');
+            showErrorModal('Ошибка связи с сервером');
         }
     };
     closeBtn.onclick = () => {

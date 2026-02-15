@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Avatar Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Raleway&family=Inter&family=Playfair+Display&family=Lato&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
     /* General styles */
     * {
@@ -279,13 +280,7 @@
 </head>
 <body>
 
-  <!-- Landscape mode warning -->
-  <div id="orientation-warning">
-    <div>
-      <p>Some elements may not display in landscape mode<br/>We recommend rotating your phone to portrait mode.</p>
-      <button id="orientation-ok">OK</button>
-    </div>
-  </div>
+  <!-- orientation warning removed -->
 
   <!-- Modal window for drawing custom shape -->
   <div id="customShapeModal">
@@ -383,8 +378,10 @@
       <label for="textOpacity"><b>Text Opacity:</b></label>
       <input type="range" id="textOpacity" min="0" max="1" step="0.01" value="1" />
 
-      <label for="dragTextMode"><b>Free Text Movement:</b></label>
-      <input type="checkbox" id="dragTextMode" />
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <label for="dragTextMode"><b>Free Text Movement:</b></label>
+        <div class="toggle-icon" id="dragTextMode" data-checked="false"><i class="fa-solid fa-toggle-off"></i></div>
+      </div>
 
       <label for="shapeSelect"><b>Avatar Shape:</b></label>
       <select id="shapeSelect">
@@ -412,8 +409,10 @@
       <button id="removeImageBtn" class="btn-remove" style="display:none;"><b>REMOVE PHOTO</b></button>
 
       <div id="mediaSettings">
-        <label for="alignCheckbox"><b>Align Photo:</b></label>
-        <input type="checkbox" id="alignCheckbox" />
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <label for="alignCheckbox"><b>Align Photo:</b></label>
+          <div class="toggle-icon" id="alignCheckbox" data-checked="false"><i class="fa-solid fa-toggle-off"></i></div>
+        </div>
 
         <label for="qualitySelect"><b>Photo Quality:</b></label>
         <select id="qualitySelect">
@@ -438,28 +437,113 @@
         <label for="imageOpacity"><b>Photo Opacity:</b></label>
         <input type="range" id="imageOpacity" min="0" max="1" step="0.01" value="1" />
 
-        <label for="grayscale"><b>Grayscale Photo:</b></label>
-        <input type="checkbox" id="grayscale" />
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <label for="grayscale"><b>Grayscale Photo:</b></label>
+          <div class="toggle-icon" id="grayscale" data-checked="false"><i class="fa-solid fa-toggle-off"></i></div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    /* ========= 0. Device orientation check ========= */
-    function checkOrientationWarning() {
-      if (window.innerWidth > window.innerHeight) {
-        orientationWarning.style.display = 'flex';
-      } else {
-        orientationWarning.style.display = 'none';
-      }
+    // Function to show alerts as modal windows
+    function showModal(message) {
+        let errorModal = document.getElementById('modal-alert');
+        let errorMessage = document.getElementById('modal-alert-message');
+        let errorOkBtn = document.getElementById('modal-alert-ok');
+        
+        // If modal doesn't exist - create it
+        if (!errorModal) {
+            const style = document.createElement('style');
+            style.textContent = `
+                #modal-alert {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.7);
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10000;
+                }
+                #modal-alert.show {
+                    display: flex;
+                }
+                #modal-alert-content {
+                    background: linear-gradient(180deg, #0d0870, #0b0862);
+                    padding: 25px;
+                    border-radius: 16px;
+                    text-align: center;
+                    max-width: 400px;
+                    width: 90%;
+                    border: 1px solid #5f57ff;
+                    box-shadow: 0 0 30px rgba(95,87,255,0.3);
+                }
+                #modal-alert-message {
+                    color: #e0e0ff;
+                    margin-bottom: 20px;
+                    word-wrap: break-word;
+                }
+                #modal-alert-ok {
+                    background: linear-gradient(180deg, #251897, #1b1280);
+                    color: #d9d9d9;
+                    border: 1px solid rgba(255,255,255,0.08);
+                    padding: 10px 20px;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+                }
+
+            `;
+            document.head.appendChild(style);
+            
+            const modalHtml = `
+                <div id="modal-alert" class="show">
+                    <div id="modal-alert-content">
+                        <p id="modal-alert-message"></p>
+                        <button id="modal-alert-ok">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            errorModal = document.getElementById('modal-alert');
+            errorMessage = document.getElementById('modal-alert-message');
+            errorOkBtn = document.getElementById('modal-alert-ok');
+        }
+        
+        // Show modal
+        errorMessage.textContent = message;
+        errorModal.classList.add('show');
+        
+        errorOkBtn.onclick = () => {
+            errorModal.classList.remove('show');
+        };
     }
-    const orientationWarning = document.getElementById('orientation-warning');
-    const orientationOk = document.getElementById('orientation-ok');
-    orientationOk.addEventListener('click', () => {
-      orientationWarning.style.display = 'none';
-    });
-    window.addEventListener('load', checkOrientationWarning);
-    window.addEventListener('resize', checkOrientationWarning);
+      // Bad-words check (English page)
+      const globalBadWordsEn = ['fuck','fucking','bitch','asshole','bastard','dick','cock','pussy','shit','slut','whore','cunt','motherfucker','nigger','nigga','retard','stupid','idiot','dumbass','loser','jerk','gay','fag','faggot','porn','hate'];
+      function containsBadWordsLocal(text) {
+        if (!text) return false;
+        const lower = text.toLowerCase();
+        return globalBadWordsEn.some(word => lower.includes(word));
+      }
+      document.querySelectorAll('input, textarea').forEach(el => {
+        el.addEventListener('blur', () => {
+          try {
+            if (containsBadWordsLocal(el.value || '')) {
+              showModal('Field contains inappropriate words.');
+              el.value = '';
+              try { if (typeof drawAvatar === 'function') drawAvatar(); } catch(e) {}
+            }
+          } catch (e) {}
+        });
+      });
+    
+    /* orientation warning removed */
 
     /* ========= 1. Getting elements ========= */
     const canvas = document.getElementById('avatarCanvas');
@@ -615,7 +699,7 @@
     /* ========= 8. Function to draw media ========= */
     function drawMedia(media) {
       const qualityVal = qualitySelect.value;
-      const align = alignCheckbox.checked;
+      const align = alignCheckbox.getAttribute('data-checked') === 'true';
       const blurVal = blurRange.value;
 
       let mediaWidth, mediaHeight;
@@ -641,7 +725,7 @@
       ctx.translate(-canvas.width / 2, -canvas.height / 2);
       ctx.globalAlpha = imageOpacityInput.value;
       let filter = '';
-      if (grayscaleCheckbox.checked) {
+      if (grayscaleCheckbox.getAttribute('data-checked') === 'true') {
         filter += 'grayscale(100%) ';
       }
       if (blurVal > 0) {
@@ -910,7 +994,7 @@
       let files = e.target.files;
       if (!files || files.length === 0) return;
       if (files.length > 1) {
-        alert("Please upload one font file, not a folder.");
+        showModal("Please upload one font file, not a folder.");
         return;
       }
       let fontFile = null;
@@ -957,11 +1041,11 @@
       if (!files || files.length === 0) return;
       if (/\.(ttf|otf)$/i.test(files[0].name)) {
         if (!isPremium) {
-          alert("Premium required for font upload");
+          showModal("Premium required for font upload");
           return;
         }
         if (files.length > 1) {
-          alert("Please drag one font file, not a folder.");
+          showModal("Please drag one font file, not a folder.");
           return;
         }
         const file = files[0];
@@ -1212,6 +1296,14 @@
     function updateCharCount() {
       document.getElementById('charCount').textContent = formatNumber(textInput.value.length) + "/" + formatNumber(10000);
     }
+    /* Text input validation for bad words */
+    textInput.addEventListener('blur', () => {
+      if (containsBadWordsLocal(textInput.value || '')) {
+        showModal('Field contains inappropriate words.');
+        textInput.value = '';
+        try { if (typeof drawAvatar === 'function') drawAvatar(); } catch(e) {}
+      }
+    });
     textInput.addEventListener('input', updateCharCount);
 
     let cursorX = 0;
@@ -1240,7 +1332,7 @@
 
     /* ========= Text dragging logic ========= */
     function handleMouseDown(e) {
-      if (!dragTextMode.checked) return;
+      if (dragTextMode.getAttribute('data-checked') !== 'true') return;
       isDraggingText = true;
       const rect = canvas.getBoundingClientRect();
       startDragX = e.clientX - rect.left;
@@ -1250,7 +1342,7 @@
     }
 
     function handleMouseMove(e) {
-      if (!isDraggingText || !dragTextMode.checked) return;
+      if (!isDraggingText || dragTextMode.getAttribute('data-checked') !== 'true') return;
       const rect = canvas.getBoundingClientRect();
       const currentX = e.clientX - rect.left;
       const currentY = e.clientY - rect.top;
@@ -1264,7 +1356,7 @@
     }
 
     function handleTouchStart(e) {
-      if (!dragTextMode.checked) return;
+      if (dragTextMode.getAttribute('data-checked') !== 'true') return;
       e.preventDefault();
       const touch = e.touches[0];
       const rect = canvas.getBoundingClientRect();
@@ -1276,7 +1368,7 @@
     }
 
     function handleTouchMove(e) {
-      if (!isDraggingText || !dragTextMode.checked) return;
+      if (!isDraggingText || dragTextMode.getAttribute('data-checked') !== 'true') return;
       e.preventDefault();
       const touch = e.touches[0];
       const rect = canvas.getBoundingClientRect();
@@ -1314,8 +1406,13 @@
       canvas.style.cursor = 'default';
     }
 
-    dragTextMode.addEventListener('change', () => {
-      if (dragTextMode.checked) {
+    dragTextMode.addEventListener('click', () => {
+      const isChecked = dragTextMode.getAttribute('data-checked') === 'true';
+      dragTextMode.setAttribute('data-checked', isChecked ? 'false' : 'true');
+      const icon = dragTextMode.querySelector('i');
+      icon.className = isChecked ? 'fa-solid fa-toggle-off' : 'fa-solid fa-toggle-on';
+      
+      if (!isChecked) {
         enableTextDragging();
       } else {
         disableTextDragging();
@@ -1325,9 +1422,66 @@
     /* ========= 17. Initialization ========= */
     updateMediaSettingsVisibility();
     drawAvatar();
-    if (document.getElementById('shareAvatar').disabled === true) {
-      document.getElementById('shareAvatar').style.background = 'gray';
+    const shareBtnLocal = document.getElementById('shareAvatar');
+    if (shareBtnLocal && shareBtnLocal.disabled === true) {
+      shareBtnLocal.style.background = 'gray';
     }
+
+    // enable label clicks for toggle-icon elements on this page
+    document.querySelectorAll('label[for]').forEach(label => {
+      const id = label.getAttribute('for');
+      if (!id) return;
+      const target = document.getElementById(id);
+      if (target && target.classList && target.classList.contains('toggle-icon')) {
+        label.style.cursor = 'pointer';
+        label.addEventListener('click', () => target.click());
+      }
+    });
+
+    // attach input validation for avatar EN page inputs/textareas
+    document.querySelectorAll('input, textarea').forEach(el => {
+      const handler = () => {
+        try {
+          if (containsBadWordsLocal(el.value || '')) {
+            showModal('Field contains inappropriate words.');
+            el.value = '';
+          }
+        } catch (e) {}
+      };
+      el.addEventListener('blur', handler);
+      el.addEventListener('input', handler);
+    });
+
+    // Add click handlers for alignCheckbox and grayscaleCheckbox
+    alignCheckbox.addEventListener('click', () => {
+      const isChecked = alignCheckbox.getAttribute('data-checked') === 'true';
+      alignCheckbox.setAttribute('data-checked', isChecked ? 'false' : 'true');
+      const icon = alignCheckbox.querySelector('i');
+      icon.className = isChecked ? 'fa-solid fa-toggle-off' : 'fa-solid fa-toggle-on';
+      drawAvatar();
+    });
+
+    grayscaleCheckbox.addEventListener('click', () => {
+      const isChecked = grayscaleCheckbox.getAttribute('data-checked') === 'true';
+      grayscaleCheckbox.setAttribute('data-checked', isChecked ? 'false' : 'true');
+      const icon = grayscaleCheckbox.querySelector('i');
+      icon.className = isChecked ? 'fa-solid fa-toggle-off' : 'fa-solid fa-toggle-on';
+      drawAvatar();
+    });
   </script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+  if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+          window.location.href = 'main.html';
+      });
+      tg.SettingsButton.hide();
+  }
+  </script>
+  <script src="apply_app_view.js"></script>
 </body>
 </html>

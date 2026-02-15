@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Statistics</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="check_verifyCode.css">
@@ -267,10 +267,6 @@
                 copied: "Скопировано",
                 shared: "Отправлено",
                 topGenerators: "Топ-3 генераторов",
-                periodStats: "Создано за период",
-                week: "За неделю",
-                month: "За месяц",
-                year: "За год",
                 noData: "Недостаточно данных"
             },
             en: {
@@ -283,10 +279,6 @@
                 copied: "Copied",
                 shared: "Shared",
                 topGenerators: "Top 3 generators",
-                periodStats: "Created over period",
-                week: "This week",
-                month: "This month",
-                year: "This year",
                 noData: "Not enough data"
             }
         };
@@ -294,11 +286,6 @@
         const t = translations[lang];
         document.querySelector('[data-translate="statsTitle"]').textContent = t.statsTitle;
         document.querySelector('[data-translate="totalActivity"]').textContent = t.totalActivity;
-
-        function getPeriodStats(period) {
-            const data = localStorage.getItem(`stats_${period}`);
-            return data ? JSON.parse(data) : null;
-        }
 
         function createSection(title, icon, items, total, totalLabel) {
             return `
@@ -321,8 +308,8 @@
             const createdItems = [
                 {key: 'created_nicknames', name: lang === 'ru' ? 'Никнеймы' : 'Nicknames', icon: 'fa-user'},
                 {key: 'created_descriptions', name: lang === 'ru' ? 'Описания' : 'Descriptions', icon: 'fa-align-left'},
-                {key: 'created_profiles', name: lang === 'ru' ? 'Фото' : 'Photos', icon: 'fa-image'},
-                {key: 'created_lego', name: 'Lego', icon: 'fa-cubes'},
+                {key: 'created_profiles', name: lang === 'ru' ? 'Аватарка' : 'Avatar', icon: 'fa-image'},
+                {key: 'created_lego', name: lang === 'ru' ? 'Лего' : 'Lego', icon: 'fa-cubes'},
                 {key: 'created_fonts', name: lang === 'ru' ? 'Шрифты' : 'Fonts', icon: 'fa-font'},
                 {key: 'created_ascii_arts', name: lang === 'ru' ? 'Символ-арты' : 'ASCII arts', icon: 'fa-keyboard'},
                 {key: 'created_qr_codes', name: 'QR-' + (lang === 'ru' ? 'коды' : 'codes'), icon: 'fa-qrcode'},
@@ -346,7 +333,8 @@
             const sharedItems = [
                 {key: 'shared_nicknames', name: lang === 'ru' ? 'Никнеймы' : 'Nicknames', icon: 'fa-share'},
                 {key: 'shared_descriptions', name: lang === 'ru' ? 'Описания' : 'Descriptions', icon: 'fa-share'},
-                {key: 'shared_avatars', name: lang === 'ru' ? 'Фото' : 'Photos', icon: 'fa-image'},
+                {key: 'shared_avatars', name: lang === 'ru' ? 'Аватарка' : 'Avatar', icon: 'fa-image'},
+                {key: 'shared_qr_codes', name: lang === 'ru' ? 'QR-кодов' : 'QR codes', icon: 'fa-qrcode'},
                 {key: 'shared_music', name: lang === 'ru' ? 'Музыка' : 'Music', icon: 'fa-music'}
             ];
             sharedItems.forEach(i => i.count = parseInt(localStorage.getItem(i.key) || '0'));
@@ -381,20 +369,6 @@
                 </ul>
             </div>`;
 
-            // Статистика по периодам
-            html += `<div class="section-card">
-                <div class="section-title"><i class="fa-solid fa-calendar"></i> ${t.periodStats}</div>`;
-            ['week', 'month', 'year'].forEach(p => {
-                const data = getPeriodStats(p);
-                const value = data && data.generated !== undefined ? data.generated : t.noData;
-                html += `<div class="stat-item">
-                    <i class="fa-solid fa-clock"></i>
-                    <span class="label">${t[p]}</span>
-                    <span class="value">${typeof value === 'number' ? value : `<span class="no-data">${value}</span>`}</span>
-                </div>`;
-            });
-            html += `</div>`;
-
             document.getElementById('sections').innerHTML = html;
         }
 
@@ -403,6 +377,27 @@
         document.getElementById('statsBackBtn').onclick = () => {
             window.history.back();
         };
+        
+        // Скрываем BackButton и SettingsButton на этой странице
+        if (window.Telegram?.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.BackButton.hide();
+            tg.SettingsButton.hide();
+        }
     </script>
+
+    <script>
+    // Применяем настройки анимаций
+    function applyAnimations() {
+        if (localStorage.getItem('animations') === 'no') {
+            document.body.classList.add('no-animations');
+        } else {
+            document.body.classList.remove('no-animations');
+        }
+    }
+    applyAnimations();
+    </script>
+<script src="apply_app_view.js"></script>
 </body>
 </html>

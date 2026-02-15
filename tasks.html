@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1.0, user-scalable=no">
   <title>Ежедневные задания и награды</title>
   <style>
     :root{
@@ -16,7 +16,7 @@
     }
     html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
     .app{max-width:1100px;margin:24px auto;padding:20px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:1000;background:linear-gradient(180deg,var(--bg),rgba(6,0,57,0.95));padding:16px 0;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05)}
     .back-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);padding:10px 14px;border-radius:12px;text-decoration:none;font-weight:600}
     .coins{font-weight:700}
     main{display:grid;grid-template-columns:1fr 420px;gap:20px;margin-top:20px}
@@ -35,7 +35,6 @@
     .task .buttons{display:flex;gap:8px;margin-top:10px}
     .btn{padding:8px 10px;border-radius:10px;border:none;background:var(--accent);color:white;font-weight:700;cursor:pointer;transition: background 0.2s;}
     .btn.alt{background:transparent;border:1px solid rgba(255,255,255,0.06);transition: border-color 0.2s;}
-    .btn.alt:hover{border-color:rgba(255,255,255,0.12);}
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:1000;transition: opacity 0.3s ease;}
     .modal.mobile{bottom:0;top:auto;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.6);}
     .modal.mobile::before{content:'';position:absolute;top:0;left:0;width:100%;height:30%;background:linear-gradient(to bottom,rgba(0,0,0,0.6),transparent);}
@@ -58,7 +57,6 @@
     .toast.error .toast-icon{background:rgba(239,68,68,0.2);color:var(--error);}
     .toast-text{margin-left:12px;font-size:16px;font-weight:500;flex:1;}
     .toast-close{margin-left:auto;background:none;border:none;color:var(--text);opacity:0.6;cursor:pointer;padding:0 8px;transition:opacity 0.2s;}
-    .toast-close:hover{opacity:1;}
     .toast svg{width:20px;height:20px;}
     .side{position:sticky;top:20px}
     .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:14px}
@@ -995,5 +993,31 @@
       resetCycleIfNeeded();
     }, 1000);
   </script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+  if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+          window.location.href = 'main.html';
+      });
+      tg.SettingsButton.hide();
+  }
+  </script>
+
+  <script>
+  // Применяем настройки анимаций
+  function applyAnimations() {
+      if (localStorage.getItem('animations') === 'no') {
+          document.body.classList.add('no-animations');
+      } else {
+          document.body.classList.remove('no-animations');
+      }
+  }
+  applyAnimations();
+  </script>
+  <script src="apply_app_view.js"></script>
 </body>
 </html>

@@ -2,8 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
     <title>Управление базой данных</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles_createMYbase.css">
     <link rel="stylesheet" href="check_verifyCode.css">
 </head>
@@ -15,7 +16,12 @@
         
         <div id="buttons"></div>
         <div id="dbInfo" style="display: none;">
-            <p id="dbName"></p>
+            <div id="dbNameContainer" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                <p id="dbName" style="flex: 1;"></p>
+                <button id="copyTokenBtn" style="width: auto; margin: 0; padding: 8px 12px; font-size: 0.9rem;">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
             <p id="dbCount"></p>
             <p id="dbStatus"></p>
             <p id="dbLastUpdate"></p>
@@ -69,7 +75,29 @@
     </div>
         <!-- Красивое окно с кодом верификации -->
     <div id="verificationModalContainer"></div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Скрываем BackButton и SettingsButton на этой странице
+        if (window.Telegram?.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.BackButton.hide();
+            tg.SettingsButton.hide();
+        }
+    </script>
     <script src="check_verifyCode.js"></script>
     <script src="script_createMYbase.js"></script>
+
+    <script>
+    // Применяем настройки анимаций
+    function applyAnimations() {
+        if (localStorage.getItem('animations') === 'no') {
+            document.body.classList.add('no-animations');
+        } else {
+            document.body.classList.remove('no-animations');
+        }
+    }
+    applyAnimations();
+    </script>
 </body>
 </html>

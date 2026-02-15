@@ -130,10 +130,6 @@ body {
     border-radius: 5px;
 }
 
-.main::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-}
-
 h2 { margin: 8px 0 6px; font-weight: 800; font-size: 18px; }
 
 .buttons-container {
@@ -165,10 +161,13 @@ h2 { margin: 8px 0 6px; font-weight: 800; font-size: 18px; }
     box-shadow: 0 4px 12px var(--shadow);
 }
 
-.btn:disabled {
+.btn:disabled,
+.backButton[disabled],
+.btn[disabled] {
     opacity: .6;
     cursor: not-allowed;
     background: var(--disabled);
+    filter: grayscale(.6);
 }
 
 .btn .left-icon { margin-right: 6px; }
@@ -235,7 +234,7 @@ select#langSelect {
     width: 100%;
 }
 
-#statSelect, #avatarVisibilitySelect, #theme {
+#statSelect, #avatarVisibilitySelect, #theme, #appViewMode {
     flex: 1;
     min-width: 140px;
     padding: 10px;
@@ -312,10 +311,6 @@ select#langSelect {
     border-radius: 5px;
 }
 
-#sideMenu::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-}
-
 @media (max-width: 400px) {
     #sideMenu { width: 100%; }
 }
@@ -386,10 +381,6 @@ select#langSelect {
 .settings-wrap::-webkit-scrollbar-thumb {
     background: var(--scrollbar-thumb);
     border-radius: 5px;
-}
-
-.settings-wrap::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
 }
 
 #settingsMenu .card {
@@ -526,10 +517,6 @@ select#langSelect {
   padding: 8px 16px;
   cursor: pointer;
 }
-
-#customMenu div:hover {
-  background: #444;
-}
 #customMenu {
   position: fixed;
   display: none;
@@ -547,10 +534,6 @@ select#langSelect {
   padding: 6px 12px;
   cursor: pointer;
 }
-
-#customMenu div:hover {
-  background: #444;
-}
 /* Убираем системное меню на мобильных */
 body {
   -webkit-touch-callout: none; /* Safari iOS */
@@ -563,3 +546,26 @@ body {
   -webkit-user-select: text;
   -ms-user-select: text;
 }
+
+/* Стили для toggle иконок (замена checkbox) */
+.toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 28px;
+  color: #a29bfe;
+  transition: color 0.3s ease, transform 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.toggle-icon[data-checked="true"] {
+  color: #7b61ff;
+}
+
+.toggle-icon i {
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+

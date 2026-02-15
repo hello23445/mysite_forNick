@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Генератор описаний</title>
   <!-- Добавлена ссылка для Google Fonts (новые шрифты будут работать, если доступны) -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Lato&family=Oswald&family=Merriweather&display=swap" rel="stylesheet">
@@ -915,11 +915,11 @@ style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size:
 
   <div id="decorationSettings">
     <label>
-      <input type="checkbox" id="leftDecoration" checked>
+      <div class="toggle-icon" id="leftDecoration" data-checked="true" style="margin-right: 8px;"><i class="fa-solid fa-toggle-on"></i></div>
       <b>Установить украшение слева</b>
     </label>
     <label>
-      <input type="checkbox" id="rightDecoration" checked>
+      <div class="toggle-icon" id="rightDecoration" data-checked="true" style="margin-right: 8px;"><i class="fa-solid fa-toggle-on"></i></div>
       <b>Установить украшение справа</b>
     </label>
   </div>
@@ -1221,13 +1221,21 @@ shadowRange.addEventListener('input', () => {
   updatePreview();
 });
 
-leftDecoration.addEventListener('change', () => {
-  selectedDecorationLeft = leftDecoration.checked;
+leftDecoration.addEventListener('click', () => {
+  const isChecked = leftDecoration.getAttribute('data-checked') === 'true';
+  leftDecoration.setAttribute('data-checked', isChecked ? 'false' : 'true');
+  const icon = leftDecoration.querySelector('i');
+  icon.className = isChecked ? 'fa-solid fa-toggle-off' : 'fa-solid fa-toggle-on';
+  selectedDecorationLeft = !isChecked;
   updatePreview();
 });
 
-rightDecoration.addEventListener('change', () => {
-  selectedDecorationRight = rightDecoration.checked;
+rightDecoration.addEventListener('click', () => {
+  const isChecked = rightDecoration.getAttribute('data-checked') === 'true';
+  rightDecoration.setAttribute('data-checked', isChecked ? 'false' : 'true');
+  const icon = rightDecoration.querySelector('i');
+  icon.className = isChecked ? 'fa-solid fa-toggle-off' : 'fa-solid fa-toggle-on';
+  selectedDecorationRight = !isChecked;
   updatePreview();
 });
 
@@ -1257,11 +1265,13 @@ next1.addEventListener('click', () => {
   }
 
   if (descriptionInput.value.includes('👑') || descriptionInput.value.includes('Премиум') || descriptionInput.value.includes('Premium')){
-    if(confirm('Описание содержит запрещённые слова. Пожалуйста, измените описание нажав на "Отмена" или нажмите "Ок" чтобы убрать автоматически.')){
-      descriptionInput.value = descriptionInput.value.replace(/👑/g, '').replace(/Премиум/g, '').replace(/Premium/g, '');
-      next1.disabled = 'true';
-      return;
-    }
+    showConfirmModal('Описание содержит запрещённые слова. Пожалуйста, измените описание нажав на "Отмена" или нажмите "Ок" чтобы убрать автоматически.')
+      .then(confirmed => {
+        if (confirmed) {
+          descriptionInput.value = descriptionInput.value.replace(/👑/g, '').replace(/Премиум/g, '').replace(/Premium/g, '');
+          next1.disabled = true;
+        }
+      });
     return;
   }
   else{
@@ -1387,6 +1397,29 @@ if (localStorage.getItem('premium') === 'yes'){
 }
 else{
   descriptionInput.maxLength = 200;
+}
+</script>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+<script>
+// Enforce bad-words
+(function(){
+  const banned=['говно','хейт','порно','fuck','idiot','сука','nigger'];
+  function containsBad(t){ if(!t) return false; const s=t.toLowerCase(); return banned.some(w=>s.includes(w)); }
+  document.addEventListener('DOMContentLoaded', ()=>{
+    document.querySelectorAll('input, textarea').forEach(el=>{ const h=()=>{ if(containsBad(el.value)){ alert('Поле содержит недопустимые слова.'); el.value=''; }}; el.addEventListener('input', h); el.addEventListener('blur', h); });
+  });
+})();
+</script>
+if (window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.BackButton.show();
+    tg.BackButton.onClick(() => {
+        window.location.href = 'main.html';
+    });
+    tg.SettingsButton.hide();
 }
 </script>
 

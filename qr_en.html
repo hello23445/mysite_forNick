@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>QR Code Generator</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" async></script>
@@ -193,10 +193,6 @@
       align-self: center;
     }
 
-    .generate:hover, .backButton:hover {
-      background-color: var(--primary-hover);
-    }
-
     .info-button {
       padding: 6px 10px;
       font-size: 12px;
@@ -207,8 +203,11 @@
       border-radius: 5px;
     }
 
-    .info-button:hover {
-      background-color: var(--primary-hover);
+    .backButton:disabled {
+      background-color: #888 !important;
+      color: #eee !important;
+      cursor: not-allowed !important;
+      filter: grayscale(.6);
     }
 
     .modal {
@@ -241,7 +240,6 @@
       cursor: pointer;
     }
 
-    .close:hover,
     .close:focus {
       color: #000;
     }
@@ -263,10 +261,6 @@
       color: #fff;
       border: none;
       border-radius: 3px;
-    }
-
-    #warningInfoBtn:hover {
-      background-color: var(--primary-hover);
     }
 
     .qr-settings label {
@@ -308,6 +302,17 @@
       font-size: 16px;
     }
   </style>
+    <script>
+    // Global bad-words enforcement for inputs/textarea on this page (EN)
+    (function(){
+      const banned = ['говно','хейт','порно','fuck','fucking','bitch','asshole','nigger','nigga','retard','idiot','сука'];
+      function containsBad(text){ if(!text) return false; const s=text.toLowerCase(); return banned.some(w=>s.includes(w)); }
+      function handler(e){ const el=e.target; if(containsBad(el.value)){ alert('Field contains inappropriate words.'); el.value=''; }}
+      document.addEventListener('DOMContentLoaded', ()=>{
+        document.querySelectorAll('input, textarea').forEach(el=>{ el.addEventListener('input', handler); el.addEventListener('blur', handler); });
+      });
+    })();
+    </script>
 </head>
 <body>
   <div id="statusMessage"></div>
@@ -740,6 +745,7 @@
       <div class="qr-preview-wrapper">
         <div id="qrcode" class="qr-preview"></div>
         <div id="warningMessage"></div>
+        <button class="backButton" id="shareQRBtnEn" style="display: none;">Share QR code</button>
         <button class="backButton" id="backButton" style="display: none;" onclick="goBack()">Back</button>
       </div>
     </div>
@@ -1441,5 +1447,56 @@
       defaultBgColor.classList.add("selected");
       setSelectedBorder(defaultBgColor);
     });
+
+    // Setup Share QR button and premium gating (EN)
+    (function(){
+      const shareBtn = document.getElementById('shareQRBtnEn');
+      function updateShareBtn() {
+        const isPremium = localStorage.getItem('premium') === 'yes';
+        if (!shareBtn) return;
+        shareBtn.style.display = 'inline-block';
+        if (!isPremium) {
+          shareBtn.disabled = true;
+          if (!shareBtn.textContent.includes('Premium')) shareBtn.textContent += ' (Premium)';
+        } else {
+          shareBtn.disabled = false;
+          shareBtn.textContent = 'Share QR code';
+        }
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', updateShareBtn);
+      else updateShareBtn();
+      if (shareBtn) shareBtn.addEventListener('click', () => {
+        if (shareBtn.disabled) {
+          window.location.href = 'premium.screen.html';
+          return;
+        }
+        // share logic: reuse canvas from qrcode
+        const canvas = document.querySelector('#qrcode canvas');
+        if (!canvas) return;
+        canvas.toBlob(blob => {
+          const file = new File([blob], 'qr-code.png', { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: 'My QR code', text: 'Check this QR code I generated' }).catch(console.error);
+            localStorage.setItem('shared_qr_codes', String(Number(localStorage.getItem('shared_qr_codes') || '0') + 1));
+          } else {
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'qr-code.png'; a.click();
+          }
+        });
+      });
+    })();
   </script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+  if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+          window.location.href = 'main.html';
+      });
+      tg.SettingsButton.hide();
+  }
+  </script>
+  <script src="apply_app_view.js"></script>
 </body>

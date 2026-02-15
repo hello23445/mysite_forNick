@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Возможности Премиума</title>
   <style>
     body {
@@ -66,10 +66,6 @@
       transform: scale(0.97);
     }
 
-    button:hover {
-      background-color: #FFA500;
-    }
-
     .modal {
       display: none;
       position: fixed;
@@ -103,6 +99,10 @@
       to {opacity: 1; transform: scale(1);}
     }
 
+    .no-animations * {
+      animation: none !important;
+    }
+
     .close {
       color: rgba(255, 255, 255, 0.7);
       float: right;
@@ -111,7 +111,6 @@
       margin-top: -5px;
     }
 
-    .close:hover,
     .close:focus {
       color: white;
       text-decoration: none;
@@ -138,10 +137,6 @@
       color: #FFD700;
       text-decoration: none;
       word-break: break-all;
-    }
-
-    a:hover {
-      text-decoration: underline;
     }
 
     /* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
@@ -204,10 +199,11 @@
       <li>2. Максимальное количество символов в генераторе "Никнейм" увеличевается с 18 до 60</li>
       <li>3. Возможность делиться созданной музыкой в генераторе "Музыка"</li>
       <li>4. Возможность делиться созданной аватаркой в генераторе "Аватарка"</li>
-      <li>5. Возможность загружать свой шрифт в генераторе "Аватарка"</li>
-      <li>6. Возможность рисовать свою форму аватарки в генераторе "Аватарка"</li>
-      <li>7. Обновление магазина будет происходить не каждые 2 минуты, а каждую 1 минуту в "Магазин"</li>
-      <li>8. Возможность собирать пропущенные награды в разделе "Задания и награды"</li>
+      <li>5. Возможность делиться созданным QR-кодом</li>
+      <li>6. Возможность загружать свой шрифт в генераторе "Аватарка"</li>
+      <li>7. Возможность рисовать свою форму аватарки в генераторе "Аватарка"</li>
+      <li>8. Обновление магазина будет происходить не каждые 2 минуты, а каждую 1 минуту в "Магазин"</li>
+      <li>9. Возможность собирать пропущенные награды в разделе "Задания и награды"</li>
       <li id="premiumAction"><button id="buyPremium">Купить Премиум</button></li>
     </ul>
   </div>
@@ -223,6 +219,233 @@
   </div>
 
   <script>
+    // Функция для показа алертов в виде модального окна
+    function showAlertModal(message) {
+        let errorModal = document.getElementById('error-modal');
+        let errorMessage = document.getElementById('error-message');
+        let errorOkBtn = document.getElementById('error-ok-btn');
+        
+        // Если модального окна нет - создаем его
+        if (!errorModal) {
+            const style = document.createElement('style');
+            style.textContent = `
+                #error-modal {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.7);
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10000;
+                }
+                #error-modal.show {
+                    display: flex;
+                }
+                #error-modal-content {
+                    background: linear-gradient(180deg, #0d0870, #0b0862);
+                    padding: 25px;
+                    border-radius: 16px;
+                    text-align: center;
+                    max-width: 400px;
+                    width: 90%;
+                    border: 1px solid #5f57ff;
+                    box-shadow: 0 0 30px rgba(95,87,255,0.3);
+                }
+                #error-message {
+                    color: #e0e0ff;
+                    margin-bottom: 20px;
+                    word-wrap: break-word;
+                }
+                #error-ok-btn {
+                    background: linear-gradient(180deg, #251897, #1b1280);
+                    color: #d9d9d9;
+                    border: 1px solid rgba(255,255,255,0.08);
+                    padding: 10px 20px;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+                }
+            `;
+            document.head.appendChild(style);
+            
+            const modalHtml = `
+                <div id="error-modal" class="show">
+                    <div id="error-modal-content">
+                        <p id="error-message"></p>
+                        <button id="error-ok-btn">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            errorModal = document.getElementById('error-modal');
+            errorMessage = document.getElementById('error-message');
+            errorOkBtn = document.getElementById('error-ok-btn');
+        }
+        
+        // Показываем модальное окно
+        errorMessage.textContent = message;
+        errorModal.classList.add('show');
+        
+        errorOkBtn.onclick = () => {
+            errorModal.classList.remove('show');
+        };
+    }
+
+    // Список запрещённых слов для проверки
+    const globalBadWords = [
+      'говно', 'хейт', 'порно', 'аноним', 'admin', 'админ', 'moder', 'модер', 'модератор',
+      'продавец премиума', 'seller of premium', 'seller of premium account', 'премиум', 'премиум пользователь',
+      'premium user', 'пользователь премиума', 'user of premium', 'user of premium account', '*', '"', "'",
+      'сука', 'пидор', 'пидорас', 'мразь', 'ублюдок', 'тварь', 'хуй', 'хер', 'еблан', 'ебанат', 'даун',
+      'дебил', 'идиот', 'чмо', 'гнида', 'тупой', 'блядь', 'бля', 'хуесос', 'нахуй', 'пошел нахуй',
+      'иди нахуй', 'урод', 'скотина', 'сволочь', 'мудак', 'петух', 'шлюха', 'проститутка', 'сучка',
+      'падла', 'долбоеб', 'долбаеб', 'ебаный', 'ебать', 'залупа', 'пизда', 'пиздец', 'fuck', 'fucking',
+      'bitch', 'asshole', 'bastard', 'dick', 'cock', 'pussy', 'shit', 'slut', 'whore', 'cunt', 'motherfucker',
+      'nigger', 'nigga', 'retard', 'stupid', 'idiot', 'dumbass', 'loser', 'jerk', 'gay', 'fag', 'faggot',
+      'suck', 'sucker', 'kill yourself', 'kms', 'puta', 'gilipollas', 'mierda', 'pendejo', 'cabron', 'maricon',
+      'coño', 'idiota', 'imbecil', 'tonto', 'perra', 'arschloch', 'scheisse', 'hurensohn', 'fotze', 'wichser',
+      'dummkopf', 'connard', 'salope', 'pute', 'merde', 'enculé', 'con', 'stronzo', 'coglione', 'puttana',
+      'troia', 'cretino', 'merda', 'caralho', 'filho da puta', 'otário', 'burro', 'sharmuta', 'ibn kalb',
+      'ibn al sharmuta', 'kalb', 'khara', 'jahel', 'madarchod', 'behenchod', 'chutiya', 'bhosdike', 'lund',
+      'randi', 'harami', 'orospu', 'siktir', 'amk', 'mal', 'aptal', 'gerizekali', 'kurwa', 'pierdol', 'chuj',
+      'jebac', 'debil', 'anjing', 'bangsat', 'kontol', 'memek', 'tolol', 'bodoh', 'shabi', 'caonima', 'gou ri',
+      'sb', 'ni ma', 'ssibal', 'gaesaekki', 'jot', 'meongcheong', 'baegopa', 'хентай', 'hentai', 'минет',
+      'minet', 'эротика', 'erotica'
+    ];
+
+    // Функция проверки на плохие слова
+    function containsBadWords(text) {
+      if (!text) return false;
+      const lowerText = text.toLowerCase();
+      return globalBadWords.some(word => lowerText.includes(word));
+    }
+
+    // Функция для модального ввода текста (замена prompt)
+    function showInputModal(message, placeholderText = '') {
+        return new Promise((resolve) => {
+            let inputModal = document.getElementById('input-modal');
+            
+            if (!inputModal) {
+                const style = document.createElement('style');
+                style.textContent = `
+                    #input-modal {
+                        display: none;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.7);
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 10000;
+                    }
+                    #input-modal.show {
+                        display: flex;
+                    }
+                    #input-modal-content {
+                        background: linear-gradient(180deg, #0d0870, #0b0862);
+                        padding: 25px;
+                        border-radius: 16px;
+                        text-align: center;
+                        max-width: 400px;
+                        width: 90%;
+                        border: 1px solid #5f57ff;
+                        box-shadow: 0 0 30px rgba(95,87,255,0.3);
+                    }
+                    #input-modal-message {
+                        color: #e0e0ff;
+                        margin-bottom: 15px;
+                        word-wrap: break-word;
+                    }
+                    #input-modal-input {
+                        width: 100%;
+                        padding: 10px;
+                        margin-bottom: 15px;
+                        border: 1px solid rgba(255,255,255,0.3);
+                        border-radius: 8px;
+                        background: rgba(255,255,255,0.1);
+                        color: #e0e0ff;
+                        font-size: 1rem;
+                        box-sizing: border-box;
+                    }
+                    #input-modal-input::placeholder {
+                        color: rgba(255,255,255,0.5);
+                    }
+                    #input-modal-buttons {
+                        display: flex;
+                        gap: 10px;
+                        justify-content: center;
+                    }
+                    .input-modal-btn {
+                        background: linear-gradient(180deg, #251897, #1b1280);
+                        color: #d9d9d9;
+                        border: 1px solid rgba(255,255,255,0.08);
+                        padding: 10px 20px;
+                        border-radius: 12px;
+                        cursor: pointer;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+                        flex: 1;
+                        max-width: 120px;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                const modalHtml = `
+                    <div id="input-modal">
+                        <div id="input-modal-content">
+                            <p id="input-modal-message"></p>
+                            <input id="input-modal-input" type="text">
+                            <div id="input-modal-buttons">
+                                <button class="input-modal-btn" id="input-modal-ok">OK</button>
+                                <button class="input-modal-btn" id="input-modal-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                inputModal = document.getElementById('input-modal');
+                const okBtn = document.getElementById('input-modal-ok');
+                const cancelBtn = document.getElementById('input-modal-cancel');
+                const inputField = document.getElementById('input-modal-input');
+                
+                okBtn.addEventListener('click', () => {
+                    inputModal.classList.remove('show');
+                    resolve(inputField.value);
+                });
+                
+                cancelBtn.addEventListener('click', () => {
+                    inputModal.classList.remove('show');
+                    resolve(null);
+                });
+                
+                inputField.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        inputModal.classList.remove('show');
+                        resolve(inputField.value);
+                    }
+                });
+            }
+            
+            inputModal = document.getElementById('input-modal');
+            const inputField = document.getElementById('input-modal-input');
+            document.getElementById('input-modal-message').textContent = message;
+            inputField.placeholder = placeholderText;
+            inputField.value = '';
+            inputModal.classList.add('show');
+            inputField.focus();
+        });
+    }
+    
     const translations = {
       en: {
         title: "Premium Features",
@@ -233,10 +456,11 @@
           '2. The maximum number of characters in the "Nickname" generator increases from 18 to 60.',
           '3. Ability to share created music in the "Music" generator.',
           '4. Ability to share created avatar in the "Avatar" generator.',
-          '5. Ability to upload your own font in the "Avatar" generator.',
-          '6. Ability to draw your own avatar shape in the "Avatar" generator.',
-          '7. The shop will update every 1 minute instead of every 2 minutes in the "Shop".',
-          '8. Ability to collect missed rewards in the "Tasks and Rewards" section.'
+          '5. Ability to share created QR codes in the "QR" generator.',
+          '6. Ability to upload your own font in the "Avatar" generator.',
+          '7. Ability to draw your own avatar shape in the "Avatar" generator.',
+          '8. The shop will update every 1 minute instead of every 2 minutes in the "Shop".',
+          '9. Ability to collect missed rewards in the "Tasks and Rewards" section.'
         ],
         buyButton: "Buy Premium",
         removePremiumButton: "Remove Premium",
@@ -260,10 +484,11 @@
           '2. Максимальное количество символов в генераторе "Никнейм" увеличевается с 18 до 60',
           '3. Возможность делиться созданной музыкой в генераторе "Музыка"',
           '4. Возможность делиться созданной аватаркой в генераторе "Аватарка"',
-          '5. Возможность загружать свой шрифт в генераторе "Аватарка"',
-          '6. Возможность рисовать свою форму аватарки в генераторе "Аватарка"',
-          '7. Обновление магазина будет происходить не каждые 2 минуты, а каждую 1 минуту в "Магазин"',
-          '8. Возможность собирать пропущенные награды в разделе "Задания и награды"'
+          '5. Возможность делиться созданным QR-кодом',
+          '6. Возможность загружать свой шрифт в генераторе "Аватарка"',
+          '7. Возможность рисовать свою форму аватарки в генераторе "Аватарка"',
+          '8. Обновление магазина будет происходить не каждые 2 минуты, а каждую 1 минуту в "Магазин"',
+          '9. Возможность собирать пропущенные награды в разделе "Задания и награды"'
         ],
         buyButton: "Купить Премиум",
         removePremiumButton: "Убрать Премиум",
@@ -309,14 +534,14 @@
         const premiumLi = document.getElementById('premiumAction');
         if (isPremium) {
           premiumLi.innerHTML = `<button id="removePremium">${trans.removePremiumButton}</button>`;
-          document.getElementById('removePremium').addEventListener('click', () => {
-            const confirmInput = prompt(trans.confirmRemovePrompt);
+          document.getElementById('removePremium').addEventListener('click', async () => {
+            const confirmInput = await showInputModal(trans.confirmRemovePrompt);
             const requiredWord = lang === 'ru' ? 'УБРАТЬ' : 'REMOVE';
             if (confirmInput && confirmInput.toUpperCase() === requiredWord) {
               localStorage.removeItem('premium');
-              alert(trans.removeSuccess);
+              showAlertModal(trans.removeSuccess);
               updatePremiumStatus();
-            } else alert(trans.removeCancelled);
+            } else if (confirmInput !== null) showAlertModal(trans.removeCancelled);
           });
         } else {
           premiumLi.innerHTML = `<button id="buyPremium">${trans.buyButton}</button>`;
@@ -335,17 +560,33 @@
 
       submitPromo.addEventListener('click', () => {
         const code = promoInput.value.trim();
+        if (containsBadWords(code)) {
+          showAlertModal(trans.error);
+          promoInput.value = '';
+          return;
+        }
         promoInput.value = '';
         setTimeout(() => {
           if (code === "QWERTY") {
             localStorage.setItem('premium', 'yes');
-            alert(trans.success);
+            showAlertModal(trans.success);
             modal.style.display = 'none';
             updatePremiumStatus();
-          } else alert(trans.error);
+          } else showAlertModal(trans.error);
         }, 1000);
       });
+
+      // Применяем настройки анимаций
+      function applyAnimations() {
+        if (localStorage.getItem('animations') === 'no') {
+          document.body.classList.add('no-animations');
+        } else {
+          document.body.classList.remove('no-animations');
+        }
+      }
+      applyAnimations();
     });
   </script>
+<script src="apply_app_view.js"></script>
 </body>
 </html>

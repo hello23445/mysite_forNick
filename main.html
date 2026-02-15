@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Main</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles.css" />
@@ -87,14 +87,14 @@
                                 <button id="myID" class="btn">Ваш Telegram ID</button>
                             </div>
                         </div>
-                        <button class="btn" id="localStorageClearbtn" style="display: none; margin-top: 2%;" onclick="if (confirm('Очистить весь localStorage?')){localStorage.clear(); window.location.href = 'index.html'}">Очистить весь localStorage</button>
+                        <button class="btn" id="localStorageClearbtn" style="display: none; margin-top: 2%;" onclick="clearLocalStorageWithConfirm()">Очистить весь localStorage</button>
                         <button class="btn" id="userID-confirming" onclick="window.location.href = 'set_telegram_id.html'">Привязать или изменить свой Telegram ID</button>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
-                        <h3 data-translate="backgroundSectionTitle"></h3>
+                        <h3 data-translate="appViewLabel">Вид приложения</h3>
                         <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                     </div>
                     <div style="display: none;">
@@ -108,9 +108,9 @@
                                 <div id="customUpload" style="display:none; margin-top:8px;">
                                     <button class="btn" id="uploadCustom" data-translate="uploadCustomBg"></button>
                                 </div>
-                                <div style="margin-top:8px; display:flex; align-items:center; gap:8px;" id="blurBackground_settingShow">
+                                <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between;" id="blurBackground_settingShow">
                                     <label class="label" data-translate="blurBackground" for="blurToggle"></label>
-                                    <input type="checkbox" id="blurToggle" />
+                                    <div class="toggle-icon" id="blurToggle" data-checked="false"><i class="fa-solid fa-toggle-off"></i></div>
                                 </div>
                             </div>
                         </div>
@@ -121,10 +121,21 @@
                                 <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
                             </div>
                             <div style="display: none; margin-top: 2%;">
-                                <div style="display:flex; align-items:center; gap:8px;">
+                                <div style="display:flex; align-items:center; justify-content:space-between;">
                                     <label class="label" data-translate="animations" for="animationsToggle"></label>
-                                    <input type="checkbox" id="animationsToggle" />
+                                    <div class="toggle-icon" id="animationsToggle" data-checked="yes"><i class="fa-solid fa-toggle-on"></i></div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-top: 3%;">
+                            <div class="card-header">
+                                <h3 data-translate="appSizeLabel">Размер приложения</h3>
+                                <button class="icon-btn toggle-btn"><i class="fa-solid fa-caret-down"></i></button>
+                            </div>
+                            <div style="display: none; margin-top: 2%;">
+                                <label class="label" data-translate="appViewLabel" for="appViewMode"></label>
+                                <select id="appViewMode" style="margin-top:8px; width:100%; padding:8px; border-radius:8px;"></select>
                             </div>
                         </div>
                     </div>
@@ -165,5 +176,14 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script src="script.js" type="module"></script>
+
+    <script>
+    if (window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.BackButton.hide();
+        tg.SettingsButton.show();
+    }
+    </script>
 </body>
 </html>

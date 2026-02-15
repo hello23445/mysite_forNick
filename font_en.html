@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Font Creation for Text</title>
   <style>
     /* Page background – gradient from ultraviolet to blue */
@@ -63,9 +63,7 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    button.arrow:hover {
-      background: #1565C0;
-    }
+
     /* Options block with unfolding animation */
     .options-container {
       overflow: hidden;
@@ -122,15 +120,11 @@
     .btn-copy {
       background: #1B5E20; /* dark green */
     }
-    .btn-copy:hover {
-      background: #388E3C;
-    }
+
     .btn-telegram {
       background: #0D47A1; /* dark blue */
     }
-    .btn-telegram:hover {
-      background: #1565C0;
-    }
+
     center h4 {
       margin: 0;
       padding: 5px;
@@ -723,6 +717,26 @@
 
       window.open(telegramUrl, '_blank');
     });
+
+    // Bad-words validation
+    const badWords = ['говно','хейт','порно','сука','пидор','мразь','ублюдок','тварь','хуй','хер','еблан','ебанат','даун','дебил','идиот','чмо','гнида','тупой','блядь','бля','хуесос','нахуй','пошел нахуй','урод','скотина','сволочь','мудак','петух','шлюха','проститутка','падла','долбоеб','ебаный','ебать','залупа','пизда','пиздец','fuck','fucking','bitch','asshole','bastard','dick','cock','pussy','shit','slut','whore','cunt','motherfucker','nigger','nigga','retard','stupid','idiot','dumbass','loser','jerk','gay','fag','faggot'];
+    function containsBadWords(t) { if(!t) return false; const s=t.toLowerCase(); return badWords.some(w=>s.includes(w)); }
+    userTextInput.addEventListener('input', () => { if(containsBadWords(userTextInput.value)) { alert('Field contains inappropriate words.'); userTextInput.value=''; } });
+    userTextInput.addEventListener('blur', () => { if(containsBadWords(userTextInput.value)) { alert('Field contains inappropriate words.'); userTextInput.value=''; } });
   </script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+  if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+          window.location.href = 'main.html';
+      });
+      tg.SettingsButton.hide();
+  }
+  </script>
+  <script src="apply_app_view.js"></script>
 </body> 
 </html>

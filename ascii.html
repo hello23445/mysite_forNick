@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
   <title>Генератор ASCII Арт</title>
   <style>
     /* Общие стили */
@@ -196,9 +196,7 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .variant-item:hover {
-      background-color: #0056b3;
-    }
+
     /* Контейнер для пагинации */
     #variantPagination {
       text-align: center;
@@ -254,7 +252,7 @@
     <!-- Настройка сброса страниц (галочка по умолчанию установлена) -->
     <div class="reset-setting">
       <label>
-        <input type="checkbox" id="resetPages" checked>
+        <div class="toggle-icon" id="resetPages" data-checked="true" style="margin-right: 8px;"><i class="fa-solid fa-toggle-on"></i></div>
         Сбрасывать страницы
       </label>
     </div>
@@ -1057,7 +1055,7 @@ W ← + → E
           nextBtn.disabled = descriptionInput.value.trim() === "";
           // При выборе варианта закрываем меню
           // Если настройка сброса страниц включена – сбрасываем currentPage
-          if (resetPagesCheckbox.checked) {
+          if (resetPagesCheckbox.getAttribute('data-checked') === 'true') {
             currentPage = 1;
           }
           variantMenu.classList.remove("active");
@@ -1092,7 +1090,7 @@ W ← + → E
     });
     closeMenuBtn.addEventListener("click", function() {
       // При закрытии меню, если галочка установлена, сбрасываем currentPage
-      if (resetPagesCheckbox.checked) {
+      if (resetPagesCheckbox.getAttribute('data-checked') === 'true') {
         currentPage = 1;
       }
       variantMenu.classList.remove("active");
@@ -1116,5 +1114,29 @@ W ← + → E
     }
     securityChecker()
   </script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+  if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+          window.location.href = 'main.html';
+      });
+      tg.SettingsButton.hide();
+  }
+  </script>
+  <script>
+  // Enforce bad-words
+  (function(){
+    const banned=['говно','хейт','порно','fuck','idiot','сука'];
+    function containsBad(t){ if(!t) return false; const s=t.toLowerCase(); return banned.some(w=>s.includes(w)); }
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.querySelectorAll('input, textarea').forEach(el=>{ const h=()=>{ if(containsBad(el.value)){ alert('Поле содержит недопустимые слова.'); el.value=''; }}; el.addEventListener('input', h); el.addEventListener('blur', h); });
+    });
+  })();
+  </script>
+<script src="apply_app_view.js"></script>
 </body>
 </html>
