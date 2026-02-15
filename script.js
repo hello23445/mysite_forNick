@@ -562,13 +562,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // App view mode select handling
     const appSelect = document.getElementById('appViewMode');
     function applyAppView(mode) {
-        if (mode === 'fullscreen') {
-            try { 
-                if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.expand === 'function') {
-                    window.Telegram.WebApp.expand();
+        try{
+            if (mode === 'fullscreen') {
+                if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.requestFullscreen === 'function') {
+                    window.Telegram.WebApp.requestFullscreen();
                 }
-            } catch(e){}
-        }
+            } else {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    if (typeof window.Telegram.WebApp.expand === 'function') window.Telegram.WebApp.expand();
+                    if (typeof window.Telegram.WebApp.exitFullscreen === 'function') window.Telegram.WebApp.exitFullscreen();
+                }
+            }
+        } catch(e){}
     }
     if (appSelect) {
         const saved = localStorage.getItem('appViewMode') || 'normal';
@@ -747,16 +752,18 @@ function applyTranslations() {
         appSelectEl.addEventListener('change', (e) => {
             const v = e.target.value;
             localStorage.setItem('appViewMode', v);
-            function applyAppView(mode) {
-                if (mode === 'fullscreen') {
-                    try { 
-                        if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.expand === 'function') {
-                            window.Telegram.WebApp.expand();
-                        }
-                    } catch(e){}
+            try{
+                if (v === 'fullscreen') {
+                    if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.requestFullscreen === 'function') {
+                        window.Telegram.WebApp.requestFullscreen();
+                    }
+                } else {
+                    if (window.Telegram && window.Telegram.WebApp) {
+                        if (typeof window.Telegram.WebApp.expand === 'function') window.Telegram.WebApp.expand();
+                        if (typeof window.Telegram.WebApp.exitFullscreen === 'function') window.Telegram.WebApp.exitFullscreen();
+                    }
                 }
-            }
-            applyAppView(v);
+            } catch(e){}
         });
     }
 }

@@ -3,13 +3,18 @@
   try {
     var mode = localStorage.getItem('appViewMode');
     function applyMode(){
-      if (mode === 'fullscreen'){
-        try{ 
-          if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.expand === 'function') {
-            window.Telegram.WebApp.expand();
+      try{
+        if (mode === 'fullscreen'){
+          if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.requestFullscreen === 'function') {
+            window.Telegram.WebApp.requestFullscreen();
           }
-        }catch(e){}
-      }
+        } else {
+          if (window.Telegram && window.Telegram.WebApp) {
+            if (typeof window.Telegram.WebApp.expand === 'function') window.Telegram.WebApp.expand();
+            if (typeof window.Telegram.WebApp.exitFullscreen === 'function') window.Telegram.WebApp.exitFullscreen();
+          }
+        }
+      }catch(e){}
     }
 
     // Bad-words enforcement (both RU and EN) for pages that load this helper
