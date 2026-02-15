@@ -594,6 +594,12 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('blur', handler);
         el.addEventListener('input', handler);
     });
+        // If navigation came from side menu, show Telegram BackButton to return to main
+        try {
+            if (tg && localStorage.getItem('menuBackTo')) {
+                try { if (tg.BackButton) tg.BackButton.show(); } catch(e){}
+            }
+        } catch(e){}
 });
 function applyTranslations() {
     checkUserID();
@@ -1037,7 +1043,7 @@ function applySideButtons() {
         sideButtons.appendChild(btn);
         // For side-menu links (except 'home'), remember to show Telegram BackButton on target page
         if (item.href && item.textKey !== 'home') {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('pointerdown', () => {
                 try { localStorage.setItem('menuBackTo', 'main.html'); } catch(e){}
             });
         }
