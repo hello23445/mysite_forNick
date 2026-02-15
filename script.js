@@ -563,15 +563,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const appSelect = document.getElementById('appViewMode');
     function applyAppView(mode) {
         if (mode === 'fullscreen') {
-            try { if (window.Telegram?.WebApp?.expand) window.Telegram.WebApp.expand(); } catch(e){}
+            try { 
+                if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.expand === 'function') {
+                    window.Telegram.WebApp.expand();
+                }
+            } catch(e){}
         }
     }
     if (appSelect) {
         const saved = localStorage.getItem('appViewMode') || 'normal';
         appSelect.value = saved;
         applyAppView(saved);
-        appSelect.addEventListener('change', () => {
-            const v = appSelect.value;
+        appSelect.addEventListener('change', (e) => {
+            const v = e.target.value;
             localStorage.setItem('appViewMode', v);
             applyAppView(v);
         });
@@ -737,6 +741,23 @@ function applyTranslations() {
         appSelectEl.appendChild(o2);
         const savedMode = localStorage.getItem('appViewMode') || 'normal';
         appSelectEl.value = savedMode;
+        
+        // Re-attach the change event listener after clearing innerHTML
+        appSelectEl.onchange = null; // Clear any previous listeners
+        appSelectEl.addEventListener('change', (e) => {
+            const v = e.target.value;
+            localStorage.setItem('appViewMode', v);
+            function applyAppView(mode) {
+                if (mode === 'fullscreen') {
+                    try { 
+                        if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.expand === 'function') {
+                            window.Telegram.WebApp.expand();
+                        }
+                    } catch(e){}
+                }
+            }
+            applyAppView(v);
+        });
     }
 }
 function initTokenButton(btnId) {

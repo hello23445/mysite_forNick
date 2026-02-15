@@ -4,7 +4,11 @@
     var mode = localStorage.getItem('appViewMode');
     function applyMode(){
       if (mode === 'fullscreen'){
-        try{ if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.expand === 'function') window.Telegram.WebApp.expand(); }catch(e){}
+        try{ 
+          if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.expand === 'function') {
+            window.Telegram.WebApp.expand();
+          }
+        }catch(e){}
       }
     }
 
