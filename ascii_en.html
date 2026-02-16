@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
   <title>ASCII Art Generator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
   <style>
     /* General Styles */
     body {
@@ -17,6 +19,23 @@
       justify-content: center;
       min-height: 100vh;
       position: relative;
+    }
+    body.no-animations * {
+      animation: none !important;
+      transition: none !important;
+    }
+    /* When animations are disabled, make ascii art visible (avoid initial opacity:0) */
+    body.no-animations .ascii-art {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
+    body.no-animations .screen.active {
+      animation: none !important;
+    }
+    /* Ensure labels and text on this page are black */
+    body, .container, #variantMenu, label, .message, .art-header h2, #variantMenu h3 {
+      color: #000 !important;
     }
     .container {
       background: #fff;
@@ -318,6 +337,22 @@
     const filterCategory = document.getElementById("filterCategory");
     const pageSelect = document.getElementById("pageSelect");
     const resetPagesCheckbox = document.getElementById("resetPages");
+
+    // Fix: make Reset pages toggle interactive (click on icon or label)
+    if (resetPagesCheckbox) {
+      const resetLabel = document.querySelector('.reset-setting label');
+      const toggleReset = (e) => {
+        if (e) e.preventDefault();
+        const el = resetPagesCheckbox;
+        const isChecked = el.getAttribute('data-checked') === 'true';
+        el.setAttribute('data-checked', isChecked ? 'false' : 'true');
+        const icon = el.querySelector('i');
+        if (icon) icon.className = isChecked ? 'fa-solid fa-toggle-off' : 'fa-solid fa-toggle-on';
+      };
+      resetPagesCheckbox.style.cursor = 'pointer';
+      resetPagesCheckbox.addEventListener('click', function(e) { e.stopPropagation(); toggleReset(e); });
+      if (resetLabel) resetLabel.addEventListener('click', toggleReset);
+    }
 
     // Mapping of descriptions to ASCII art (translated)
     const asciiArtMapping = {
@@ -1127,6 +1162,18 @@ W ← + → E
     });
   })();
   </script>
+  <script>
+  // Применяем настройки анимаций
+  function applyAnimations() {
+    if (localStorage.getItem('animations') === 'no') {
+      document.body.classList.add('no-animations');
+    } else {
+      document.body.classList.remove('no-animations');
+    }
+  }
+  applyAnimations();
+  </script>
+<script src="script.js" type="module"></script>
 <script src="apply_app_view.js"></script>
 </body>
 </html>

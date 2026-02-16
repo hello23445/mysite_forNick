@@ -862,6 +862,7 @@ window.clearAllStatistic = async function() {
         'copied_descriptions',
         'shared_nicknames',
         'shared_descriptions',
+        'shared_qr_codes',
         'usage_day',
         'usage_week',
         'usage_month',
@@ -1045,6 +1046,7 @@ function applySideButtons() {
     sideButtons.innerHTML = '';
     const files = lang === 'ru' ? filesRu : filesEn;
     const isStatsDisabled = localStorage.getItem('statistic_turn') === 'no';
+    const isEn = lang === 'en';
     const items = [
         { textKey: 'home', icon: 'fa-solid fa-house', onClick: hideSideMenu },
         { textKey: 'fixing', icon: 'fa-solid fa-hammer', onClick: fixingFunction },
@@ -1052,9 +1054,9 @@ function applySideButtons() {
         { textKey: 'profile', icon: 'fa-solid fa-user', href: 'user_profile.html' },
         { textKey: 'popular', icon: 'fa-solid fa-square-poll-vertical', href: files.popular },
         { textKey: 'wishlist', icon: 'fa-solid fa-clipboard-list', href: 'izbr.html' },
-        { textKey: 'task', icon: 'fa-solid fa-list-check', href: files.tasks },
+        { textKey: 'task', icon: 'fa-solid fa-list-check', href: files.tasks, disabled: isEn },
         { textKey: 'myshop', icon: 'fa-solid fa-shop', href: files.myshop },
-        { textKey: 'shop', icon: 'fa-solid fa-cart-shopping', href: files.shop },
+        { textKey: 'shop', icon: 'fa-solid fa-cart-shopping', href: files.shop, disabled: isEn },
         { textKey: 'database', icon:'fa-solid fa-database', href:'createMYbase.html'},
         { textKey: 'premium', icon: 'fa-solid fa-crown', href: 'premium.screen.html' },
         { textKey: 'settings', icon: 'fa-solid fa-gear', onClick: () => { hideSideMenu(); showSettings(); } }

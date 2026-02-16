@@ -1327,7 +1327,7 @@ else{
   const banned=['говно','хейт','порно','fuck','idiot','сука','nigger'];
   function containsBad(t){ if(!t) return false; const s=t.toLowerCase(); return banned.some(w=>s.includes(w)); }
   document.addEventListener('DOMContentLoaded', ()=>{
-    document.querySelectorAll('input, textarea').forEach(el=>{ const h=()=>{ if(containsBad(el.value)){ alert('Field contains inappropriate words.'); el.value=''; }}; el.addEventListener('input', h); el.addEventListener('blur', h); });
+    document.querySelectorAll('input, textarea').forEach(el=>{ const h=()=>{ if(containsBad(el.value)){ if (typeof showAlertModal === 'function') showAlertModal('Field contains inappropriate words.'); el.value=''; }}; el.addEventListener('input', h); el.addEventListener('blur', h); });
   });
 })();
 if (window.Telegram?.WebApp) {

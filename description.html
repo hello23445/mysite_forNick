@@ -1410,10 +1410,7 @@ else{
       document.querySelectorAll('input, textarea').forEach(el=>{
         const h = () => {
           if (containsBad(el.value)){
-            try {
-              if (typeof showAlertModal === 'function') showAlertModal('Поле содержит недопустимые слова.');
-              else alert('Поле содержит недопустимые слова.');
-            } catch(e){ try{ alert('Поле содержит недопустимые слова.'); }catch(_){} }
+            if (typeof showAlertModal === 'function') showAlertModal('Поле содержит недопустимые слова.');
             el.value = '';
           }
         };

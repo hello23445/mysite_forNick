@@ -249,6 +249,15 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content #details-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
         @media (max-width: 600px) {
             body {
                 padding: 5px;
@@ -461,6 +470,7 @@
         let currentDesc = null;
         let currentQty = null;
         let currentUserCode = null;
+        let currentProductType = null;
         let nextUpdateTime = null;
 
         function fetchData(silent = false) {
@@ -551,15 +561,15 @@
                 buyBtn.className = 'buy-btn';
                 if (isAvailable) {
                     if (qty > 1) {
-                        buyBtn.textContent = `Купить 1/${qty} за ${price}🪙`;
+                        buyBtn.textContent = `Купить 1/${qty} за ${formatPrice(price)}🪙`;
                     } else {
-                        buyBtn.textContent = `Купить за ${price}🪙`;
+                        buyBtn.textContent = `Купить за ${formatPrice(price)}🪙`;
                     }
                     buyBtn.onclick = () => {
                         checkCoinsAndBuy(rowNum, price, name, card, seller);
                     };
                 } else {
-                    buyBtn.textContent = `Куплено за ${price}🪙`;
+                    buyBtn.textContent = `Куплено за ${formatPrice(price)}🪙`;
                     buyBtn.disabled = true;
                 }
                 card.appendChild(buyBtn);
@@ -588,6 +598,7 @@
                     currentDesc = desc;
                     currentQty = qty;
                     currentRow = rowNum;
+                    currentProductType = productType;
                     document.getElementById('more-modal').style.display = 'flex';
                 };
                 card.appendChild(moreBtn);
@@ -641,11 +652,11 @@
                 showMessage("У вас уже есть этот бейдж!");
                 return;
             }
-            let confirmText = `Вы хотите купить "${name}" за ${price}🪙?`;
+            let confirmText = `Вы хотите купить "${name}" за ${formatPrice(price)}🪙?`;
             if (name === "Премиум" && !isOfficial) {
-                confirmText = `Это НЕ ПРЕМИУМ а просто никнейм, вы точно хотите купить ЭТОТ НИКНЕЙМ за ${price} монет🪙?`;
+                confirmText = `Это НЕ ПРЕМИУМ а просто никнейм, вы точно хотите купить ЭТОТ НИКНЕЙМ за ${formatPrice(price)} монет🪙?`;
             } else if (name === "Бейдж \"👑Премиум\" к профилю" && !isOfficial) {
-                confirmText = `Это не Бейдж, а просто никнейм, вы точно хотите его купить за ${price} монет🪙?`;
+                confirmText = `Это не Бейдж, а просто никнейм, вы точно хотите его купить за ${formatPrice(price)} монет🪙?`;
             }
             showConfirmModal(rowIndex, price, name, confirmText);
         }
@@ -810,6 +821,19 @@
             document.getElementById('confirm-modal').style.display = 'none';
         }
 
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
         function updateCoinsDisplay() {
             const coins = localStorage.getItem('coins') || '0';
             document.getElementById('coins').innerHTML = `🪙 ${coins}`;
@@ -873,12 +897,13 @@
             content.innerHTML = '';
             
             const items = [
-                {label: 'Дата размещения', value: currentDate},
+                {label: 'Дата размещения', value: formatDate(currentDate)},
                 {label: 'Продавец', value: currentSeller},
+                {label: 'Тип товара', value: currentProductType},
                 {label: 'Продукт', value: currentName},
-                {label: 'Цена', value: currentPrice},
+                {label: 'Цена', value: formatPrice(currentPrice)},
                 {label: 'Описание', value: currentDesc},
-                {label: 'Осталось еще:', value: currentQty}
+                {label: 'Осталось еще', value: currentQty}
             ];
             
             items.forEach(item => {

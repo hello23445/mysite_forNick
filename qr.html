@@ -1143,6 +1143,20 @@
           });
           document.getElementById('qrSettings').style.display = 'block';
           applyFrameStyle(qrcodeDiv.querySelector('canvas'));
+          // Ensure Share button is visible and correctly gated after each generation
+          (function(){
+            const shareBtn = document.getElementById('shareQRBtn');
+            if (!shareBtn) return;
+            shareBtn.style.display = 'inline-block';
+            const isPremium = localStorage.getItem('premium') === 'yes';
+            shareBtn.disabled = !isPremium;
+            const curLang = localStorage.getItem('lang') || (typeof lang !== 'undefined' ? lang : 'ru');
+            if (!isPremium) {
+              shareBtn.textContent = curLang === 'ru' ? 'Поделиться QR-кодом (Премиум)' : 'Share QR code (Premium)';
+            } else {
+              shareBtn.textContent = curLang === 'ru' ? 'Поделиться QR-кодом' : 'Share QR code';
+            }
+          })();
         } catch (err) {
           showWarning("Ошибка генерации", "Произошла ошибка при генерации QR кода. Проверьте данные.");
           document.getElementById('qrSettings').style.display = 'none';

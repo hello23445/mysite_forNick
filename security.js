@@ -1,10 +1,11 @@
 export const blockedTokens = ['awsuoDiAt6U4LR8j', 'lgtrdfhreedghtesghtss', ''];
-export const texpereriv = 'Уже' //Уже, Скоро, ...
+export const texpereriv = '' //Уже, Скоро, ...
 localStorage.setItem('m', texpereriv);
 
 // список запрещённых слов (только уникальные формы, без дублей)
 export const badWords = [
   // русские
+  'лох', 'л0х',
   'говно', 'хейт', 'порно', 'аноним', 'секс',
   'admin', 'админ', 'moder', 'модер', 'модератор',
   'продавец премиума', 'seller of premium', 'seller of premium account',
@@ -100,5 +101,4 @@ if (badWords.some(word => userName.includes(word.toLowerCase()))) {
     showAlertModal(msg);
     window.location.href = 'user_profile.html';
   }
-
 }

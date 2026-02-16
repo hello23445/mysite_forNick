@@ -249,6 +249,15 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content #details-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
         @media (max-width: 600px) {
             body {
                 padding: 5px;
@@ -460,6 +469,8 @@
         let currentDate = null;
         let currentDesc = null;
         let currentQty = null;
+        let currentUserCode = null;
+        let currentProductType = null;
         let nextUpdateTime = null;
 
         function fetchData(silent = false) {
@@ -547,9 +558,9 @@
                 buyBtn.className = 'buy-btn';
                 if (isAvailable) {
                     if (qty > 1) {
-                        buyBtn.textContent = `Buy 1/${qty} for ${price}🪙`;
+                        buyBtn.textContent = `Buy 1/${qty} for ${formatPrice(price)}🪙`;
                     } else {
-                        buyBtn.textContent = `Buy for ${price}🪙`;
+                        buyBtn.textContent = `Buy for ${formatPrice(price)}🪙`;
                     }
                     buyBtn.onclick = () => {
                         if (isScam) {
@@ -559,7 +570,7 @@
                         }
                     };
                 } else {
-                    buyBtn.textContent = `Bought for ${price}🪙`;
+                    buyBtn.textContent = `Bought for ${formatPrice(price)}🪙`;
                     buyBtn.disabled = true;
                 }
                 card.appendChild(buyBtn);
@@ -588,6 +599,7 @@
                     currentDesc = desc;
                     currentQty = qty;
                     currentRow = rowNum;
+                    currentProductType = productType;
                     document.getElementById('more-modal').style.display = 'flex';
                 };
                 card.appendChild(moreBtn);
@@ -645,7 +657,7 @@
             currentRow = rowIndex;
             currentPrice = price;
             currentName = name;
-            document.getElementById('confirm-text').textContent = `Do you want to buy "${name}" for ${price}🪙?`;
+            document.getElementById('confirm-text').textContent = `Do you want to buy "${name}" for ${formatPrice(price)}🪙?`;
             document.getElementById('confirm-modal').style.display = 'flex';
         }
 
@@ -799,6 +811,19 @@
             document.getElementById('confirm-modal').style.display = 'none';
         }
 
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
         function updateCoinsDisplay() {
             const coins = localStorage.getItem('coins') || '0';
             document.getElementById('coins').innerHTML = `🪙 ${coins}`;
@@ -862,10 +887,11 @@
             content.innerHTML = '';
             
             const items = [
-                {label: 'Posting Date', value: currentDate},
+                {label: 'Posting Date', value: formatDate(currentDate)},
                 {label: 'Seller', value: currentSeller},
+                {label: 'Product Type', value: currentProductType},
                 {label: 'Product', value: currentName},
-                {label: 'Price', value: currentPrice},
+                {label: 'Price', value: formatPrice(currentPrice)},
                 {label: 'Description', value: currentDesc},
                 {label: 'Remaining:', value: currentQty}
             ];
