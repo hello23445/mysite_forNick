@@ -130,7 +130,8 @@
 
             <div class="glass p-5 rounded-2xl flex-shrink-0">
                 <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">3. Цвет корпуса</h3>
-                <div class="flex flex-wrap gap-2" id="colorPalette"></div>
+                <div class="flex flex-wrap gap-2 items-center" id="colorPalette"></div>
+                <input type="color" id="customColorPicker" class="hidden" value="#3b82f6">
             </div>
 
             <div class="glass p-5 rounded-2xl flex-shrink-0">
@@ -206,19 +207,7 @@
             "Samsung Galaxy M55":       { w: 288, h: 605, r: '42px', b: '9px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy C55":       { w: 285, h: 600, r: '41px', b: '9px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy M15":       { w: 268, h: 575, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy M25":       { w: 276, h: 588, r: '41px', b: '8px', type: 'hole', category: 'Samsung' },
-            
-            // Windows Laptops
-            "Dell XPS 13":       { w: 520, h: 330, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
-            "Microsoft Surface Laptop 7": { w: 520, h: 335, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
-            "Lenovo ThinkPad X1 Carbon": { w: 530, h: 340, r: '18px', b: '8px', type: 'laptop', category: 'Laptop' },
-            "HP Pavilion 14":    { w: 525, h: 335, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
-            "Asus VivoBook 15":  { w: 540, h: 345, r: '22px', b: '8px', type: 'laptop', category: 'Laptop' },
-            "Acer Swift 3":      { w: 515, h: 325, r: '18px', b: '8px', type: 'laptop', category: 'Laptop' },
-            "Dell Inspiron 14":  { w: 522, h: 332, r: '19px', b: '8px', type: 'laptop', category: 'Laptop' },
-            "Lenovo IdeaPad 5":  { w: 528, h: 338, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
-            "HP Envy 13":        { w: 518, h: 328, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
-            "MSI Prestige 14":   { w: 535, h: 342, r: '21px', b: '8px', type: 'laptop', category: 'Laptop' }
+            "Samsung Galaxy M25":       { w: 276, h: 588, r: '41px', b: '8px', type: 'hole', category: 'Samsung' }
         };
 
         const colors = [
@@ -353,6 +342,32 @@
                 btn.classList.add('ring-2', 'ring-blue-500');
             };
             document.getElementById('colorPalette').appendChild(btn);
+        });
+
+        // Добавляем кнопку для выбора собственного цвета
+        const customColorBtn = document.createElement('button');
+        customColorBtn.className = "px-3 py-1.5 rounded-lg text-[10px] bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 hover:shadow-lg hover:shadow-blue-500/50 transition-all font-bold text-white border border-blue-400 relative group whitespace-nowrap flex items-center gap-1.5";
+        customColorBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.5a2 2 0 00-1 .267M7 21H5a2 2 0 01-2-2v-4m14 0h2.5m0 0V9m0 4v6"></path></svg> Свой цвет`;
+        customColorBtn.title = 'Выбрать произвольный цвет';
+        customColorBtn.type = 'button';
+        customColorBtn.onclick = () => {
+            document.getElementById('customColorPicker').click();
+        };
+        
+        document.getElementById('colorPalette').appendChild(customColorBtn);
+
+        // Обработчик для color picker
+        document.getElementById('customColorPicker').addEventListener('change', function(e) {
+            const color = e.target.value.toUpperCase();
+            frame.style.borderColor = color;
+            
+            // Убираем выделение с предыдущих цветов
+            document.querySelectorAll('#colorPalette button:not(:last-child)').forEach(b => {
+                b.classList.remove('ring-2', 'ring-blue-500');
+            });
+            
+            // Подсвечиваем кнопку
+            customColorBtn.classList.add('ring-2', 'ring-blue-500');
         });
 
         // Генерируем Позиции
