@@ -105,7 +105,7 @@
 
     <header class="py-4 border-b border-gray-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 px-6">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-tighter">MOCKUP<span class="text-blue-500">3D</span></h1>
+            <h1 class="text-xl font-bold tracking-tighter">MOCKUP<span class="text-blue-500">GEN</span></h1>
             <span class="text-[10px] text-gray-500 font-mono border border-gray-800 px-2 py-1 rounded">PRO EDITION v3</span>
         </div>
     </header>
@@ -344,30 +344,63 @@
             document.getElementById('colorPalette').appendChild(btn);
         });
 
-        // Добавляем кнопку для выбора собственного цвета
-        const customColorBtn = document.createElement('button');
-        customColorBtn.className = "px-3 py-1.5 rounded-lg text-[10px] bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 hover:shadow-lg hover:shadow-blue-500/50 transition-all font-bold text-white border border-blue-400 relative group whitespace-nowrap flex items-center gap-1.5";
-        customColorBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.5a2 2 0 00-1 .267M7 21H5a2 2 0 01-2-2v-4m14 0h2.5m0 0V9m0 4v6"></path></svg> Свой цвет`;
-        customColorBtn.title = 'Выбрать произвольный цвет';
-        customColorBtn.type = 'button';
-        customColorBtn.onclick = () => {
-            document.getElementById('customColorPicker').click();
-        };
+        // Контейнер для выбора своего цвета
+        const customColorContainer = document.createElement('div');
+        customColorContainer.className = "flex items-center gap-2 border border-slate-800 rounded-lg px-3 py-1 bg-slate-900/30";
         
-        document.getElementById('colorPalette').appendChild(customColorBtn);
+        const colorSquare = document.createElement('label');
+        colorSquare.htmlFor = 'customColorPicker';
+        colorSquare.className = "w-7 h-7 rounded-md border-2 border-slate-700 cursor-pointer hover:border-slate-500 transition-all";
+        colorSquare.style.backgroundColor = '#3b82f6';
+        colorSquare.title = 'Выбрать цвет';
+        
+        const hexInput = document.createElement('input');
+        hexInput.type = 'text';
+        hexInput.placeholder = 'HEX';
+        hexInput.className = "w-12 text-[9px] bg-transparent border-0 outline-none text-white placeholder-slate-500 uppercase font-mono input-custom";
+        hexInput.maxLength = '7';
+        hexInput.value = '#3b82f6';
+        
+        customColorContainer.appendChild(colorSquare);
+        customColorContainer.appendChild(hexInput);
+        document.getElementById('colorPalette').appendChild(customColorContainer);
 
         // Обработчик для color picker
         document.getElementById('customColorPicker').addEventListener('change', function(e) {
             const color = e.target.value.toUpperCase();
             frame.style.borderColor = color;
+            colorSquare.style.backgroundColor = color;
+            hexInput.value = color;
             
-            // Убираем выделение с предыдущих цветов
-            document.querySelectorAll('#colorPalette button:not(:last-child)').forEach(b => {
+            document.querySelectorAll('#colorPalette button').forEach(b => {
                 b.classList.remove('ring-2', 'ring-blue-500');
             });
+        });
+        
+        // Обработчик для HEX input
+        hexInput.addEventListener('input', function(e) {
+            let hex = e.target.value.toUpperCase();
             
-            // Подсвечиваем кнопку
-            customColorBtn.classList.add('ring-2', 'ring-blue-500');
+            // Автоматически добавляем # если его нет
+            if (hex && !hex.startsWith('#')) {
+                hex = '#' + hex;
+            }
+            
+            // Проверяем валидность HEX кода
+            if (/^#[0-9A-F]{6}$/.test(hex)) {
+                frame.style.borderColor = hex;
+                colorSquare.style.backgroundColor = hex;
+                if (!e.target.value.startsWith('#')) {
+                    e.target.value = hex;
+                }
+            }
+        });
+        
+        // Синхронизация с color picker
+        hexInput.addEventListener('blur', function(e) {
+            if (!e.target.value.startsWith('#')) {
+                e.target.value = '#' + e.target.value;
+            }
         });
 
         // Генерируем Позиции
