@@ -431,25 +431,46 @@
                 // Преобразуем в blob для поделиться
                 canvas.toBlob(async (blob) => {
                     try {
-                        // Используем встроенный Share API
-                        if (navigator.share) {
-                            const file = new File([blob], 'mockup.png', { type: 'image/png' });
+                        // Проверяем поддержку Share API
+                        if (navigator.share && navigator.canShare) {
+                            try {
+                                // Пытаемся поделиться с файлом
+                                await navigator.share({
+                                    files: [new File([blob], 'mockup.png', { type: 'image/png' })],
+                                    title: 'Мой мокап',
+                                    text: 'Посмотрите мой мокап!'
+                                });
+                            } catch (fileShareError) {
+                                // Если не работает с файлом, пытаемся без файла
+                                console.log('File share не работает, пытаемся без файла');
+                                await navigator.share({
+                                    title: 'Мой мокап',
+                                    text: 'Посмотрите мой мокап!',
+                                    url: window.location.href
+                                });
+                            }
+                        } else if (navigator.share) {
+                            // Fallback без проверки canShare
                             await navigator.share({
-                                files: [file],
                                 title: 'Мой мокап',
-                                text: 'Посмотрите мой мокап!'
+                                text: 'Посмотрите мой мокап!',
+                                url: window.location.href
                             });
                         } else {
                             alert('Функция поделиться недоступна в вашем браузере');
                         }
                     } catch (e) {
                         console.error('Ошибка поделиться:', e);
+                        if (e.name !== 'AbortError') {
+                            alert('Ошибка при попытке поделиться');
+                        }
                     } finally {
                         btn.disabled = false;
                         btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ОТПРАВИТЬ`;
                     }
                 }, 'image/png');
             } catch (e) {
+                console.error('Ошибка при рендеринге:', e);
                 alert("Ошибка при рендеринге.");
                 btn.disabled = false;
                 btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ОТПРАВИТЬ`;
