@@ -348,16 +348,20 @@
         const customColorContainer = document.createElement('div');
         customColorContainer.className = "flex items-center gap-2 border border-slate-800 rounded-lg px-3 py-1 bg-slate-900/30";
         
-        const colorSquare = document.createElement('label');
-        colorSquare.htmlFor = 'customColorPicker';
-        colorSquare.className = "w-7 h-7 rounded-md border-2 border-slate-700 cursor-pointer hover:border-slate-500 transition-all";
+        const colorSquare = document.createElement('button');
+        colorSquare.className = "w-7 h-7 rounded-md border-2 border-slate-700 cursor-pointer hover:border-slate-500 transition-all flex-shrink-0";
         colorSquare.style.backgroundColor = '#3b82f6';
         colorSquare.title = 'Выбрать цвет';
+        colorSquare.type = 'button';
+        colorSquare.onclick = (e) => {
+            e.stopPropagation();
+            document.getElementById('customColorPicker').click();
+        };
         
         const hexInput = document.createElement('input');
         hexInput.type = 'text';
         hexInput.placeholder = 'HEX';
-        hexInput.className = "w-12 text-[9px] bg-transparent border-0 outline-none text-white placeholder-slate-500 uppercase font-mono input-custom";
+        hexInput.className = "w-12 text-[9px] bg-transparent border-0 outline-none text-white placeholder-slate-500 uppercase font-mono";
         hexInput.maxLength = '7';
         hexInput.value = '#3b82f6';
         
