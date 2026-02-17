@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mockup Studio Pro | 3D Perspective</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0b0f19; color: white; margin: 0; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Стилизация списка */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+
+        /* Контейнер для 3D */
+        .perspective-container {
+            perspective: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #device-frame {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease;
+            transform-style: preserve-3d;
+            border-style: solid;
+        }
+
+        .active-btn { 
+            border-color: #3b82f6 !important; 
+            background: rgba(59, 130, 246, 0.2) !important; 
+            color: #fff !important;
+        }
+
+        /* Экраны */
+        #screen-bg {
+            width: 100%; height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            transition: background-image 0.3s;
+        }
+
+        /* Анимация отправки */
+        @keyframes toast {
+            0% { transform: translateY(100px); opacity: 0; }
+            10% { transform: translateY(0); opacity: 1; }
+            90% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(100px); opacity: 0; }
+        }
+        #toast { display: none; animation: toast 3s forwards; }
+
+        /* Drag and Drop */
+        .drag-over {
+            border-color: #3b82f6 !important;
+            background: rgba(59, 130, 246, 0.3) !important;
+        }
+
+        /* Скрол для списка устройств */
+        .device-scroll { max-height: 200px; overflow-y: auto; }
+
+        /* Клавиатура для ноутбуков */
+        #keyboard { 
+            display: none; 
+            width: 100%; 
+            height: 60px; 
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%); 
+            border-radius: 0 0 inherit inherit; 
+            position: absolute; 
+            bottom: 0; 
+            left: 0;
+            padding: 8px;
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            align-content: flex-start;
+            overflow: hidden;
+        }
+        
+        #keyboard::before {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            top: 0;
+            left: 5%;
+        }
+        
+        .key {
+            width: 8%; height: 18px; background: #333; border: 1px solid #222; border-radius: 2px; flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-green-500 text-white px-8 py-4 rounded-2xl shadow-2xl font-bold flex items-center gap-3">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        Мокап готов!
+    </div>
+
+    <header class="py-4 border-b border-gray-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 px-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tighter">MOCKUP<span class="text-blue-500">3D</span></h1>
+            <span class="text-[10px] text-gray-500 font-mono border border-gray-800 px-2 py-1 rounded">PRO EDITION v3</span>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
+        
+        <div class="lg:col-span-4 space-y-3 pr-2">
+            
+            <div class="glass p-5 rounded-2xl flex-shrink-0">
+                <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">1. Контент экрана</h3>
+                <input type="file" id="imageUpload" class="hidden" accept="image/*" />
+                <div id="dropZone" class="w-full py-3 border-2 border-dashed border-slate-700 rounded-xl text-xs text-slate-400 hover:border-blue-500 hover:text-blue-400 transition-all cursor-pointer text-center"
+                     ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('imageUpload').click()">
+                    📎 Перетащите фото или нажмите
+                </div>
+            </div>
+
+            <div class="glass p-5 rounded-2xl flex-shrink-0">
+                <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">2. Модель устройства</h3>
+                <div class="device-scroll grid grid-cols-1 gap-1" id="deviceList"></div>
+            </div>
+
+            <div class="glass p-5 rounded-2xl flex-shrink-0">
+                <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">3. Цвет корпуса</h3>
+                <div class="flex flex-wrap gap-2" id="colorPalette"></div>
+            </div>
+
+            <div class="glass p-5 rounded-2xl flex-shrink-0">
+                <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">4. Положение в пространстве</h3>
+                <div class="grid grid-cols-2 gap-2" id="positionList"></div>
+            </div>
+
+            <button onclick="sendMockup()" id="sendBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-white shadow-xl shadow-blue-900/30 transition-all transform active:scale-95 flex items-center justify-center gap-3 flex-shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                ПОДЕЛИТЬСЯ
+            </button>
+        </div>
+
+        <div class="lg:col-span-8 glass rounded-[2.5rem] flex items-center justify-center relative bg-slate-950 overflow-auto p-4" style="min-height: calc(100vh - 120px);">
+            <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px); background-size: 40px 40px;"></div>
+            
+            <div id="capture-area" class="perspective-container py-12">
+                <div id="device-frame" class="relative shadow-[0_50px_100px_-20px_rgba(0,0,0,1)]">
+                    <div id="notch" class="absolute left-1/2 -translate-x-1/2 bg-black z-20"></div>
+                    <div id="screen" class="absolute top-0 left-0 w-full overflow-hidden bg-black" style="height: 100%;">
+                        <div id="screen-bg" style="background-image: url('https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1000');"></div>
+                    </div>
+                    <div class="absolute inset-0 pointer-events-none z-30 bg-gradient-to-tr from-white/5 via-transparent to-transparent rounded-[inherit]"></div>
+                    <div id="keyboard"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const devices = {
+            // iPhone
+            "iPhone 11":        { w: 278, h: 580, r: '40px', b: '10px', type: 'notch', category: 'iPhone' },
+            "iPhone 12":        { w: 280, h: 590, r: '40px', b: '10px', type: 'notch', category: 'iPhone' },
+            "iPhone 12 Pro":    { w: 280, h: 590, r: '40px', b: '10px', type: 'island', category: 'iPhone' },
+            "iPhone 13":        { w: 290, h: 600, r: '42px', b: '10px', type: 'notch', category: 'iPhone' },
+            "iPhone 13 Pro":    { w: 290, h: 600, r: '42px', b: '10px', type: 'island', category: 'iPhone' },
+            "iPhone 13 Pro Max":{ w: 320, h: 660, r: '46px', b: '12px', type: 'island', category: 'iPhone' },
+            "iPhone 14":        { w: 292, h: 605, r: '43px', b: '9px',  type: 'notch', category: 'iPhone' },
+            "iPhone 14 Plus":   { w: 320, h: 665, r: '48px', b: '12px', type: 'notch', category: 'iPhone' },
+            "iPhone 14 Pro":    { w: 295, h: 610, r: '46px', b: '8px',  type: 'island', category: 'iPhone' },
+            "iPhone 14 Pro Max":{ w: 325, h: 670, r: '50px', b: '12px', type: 'island', category: 'iPhone' },
+            "iPhone 15":        { w: 293, h: 608, r: '44px', b: '8px',  type: 'notch', category: 'iPhone' },
+            "iPhone 15 Plus":   { w: 322, h: 668, r: '48px', b: '12px', type: 'notch', category: 'iPhone' },
+            "iPhone 15 Pro":    { w: 295, h: 610, r: '48px', b: '7px',  type: 'island', category: 'iPhone' },
+            "iPhone 15 Pro Max":{ w: 325, h: 670, r: '52px', b: '10px', type: 'island', category: 'iPhone' },
+            "iPhone 16":        { w: 295, h: 615, r: '45px', b: '8px',  type: 'notch', category: 'iPhone' },
+            "iPhone 16 Plus":   { w: 325, h: 675, r: '49px', b: '12px', type: 'notch', category: 'iPhone' },
+            "iPhone 16 Pro":    { w: 298, h: 618, r: '48px', b: '7px',  type: 'island', category: 'iPhone' },
+            "iPhone 16 Pro Max":{ w: 340, h: 700, r: '52px', b: '5px',  type: 'island', category: 'iPhone' },
+            "iPhone 17 Pro Max":{ w: 345, h: 710, r: '54px', b: '4px',  type: 'island', category: 'iPhone' },
+            
+            // Samsung
+            "Samsung Galaxy S24":       { w: 280, h: 600, r: '44px', b: '10px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S24+":      { w: 300, h: 630, r: '46px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S24 Ultra": { w: 320, h: 680, r: '48px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S23":       { w: 278, h: 598, r: '44px', b: '9px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S23+":      { w: 298, h: 628, r: '46px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S23 Ultra": { w: 318, h: 678, r: '48px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S22":       { w: 275, h: 595, r: '43px', b: '9px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S22+":      { w: 295, h: 625, r: '45px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S22 Ultra": { w: 315, h: 675, r: '48px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy A54":       { w: 270, h: 580, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy A53":       { w: 268, h: 578, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy A34":       { w: 265, h: 570, r: '38px', b: '8px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy Z Fold 6":  { w: 310, h: 650, r: '32px', b: '10px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy Z Flip 6":  { w: 165, h: 310, r: '20px', b: '6px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy Note 20":   { w: 295, h: 630, r: '44px', b: '9px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy F15":       { w: 270, h: 575, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy F25":       { w: 278, h: 590, r: '42px', b: '9px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy f25 5G":    { w: 282, h: 595, r: '43px', b: '9px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy M35":       { w: 275, h: 585, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy M55":       { w: 288, h: 605, r: '42px', b: '9px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy C55":       { w: 285, h: 600, r: '41px', b: '9px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy M15":       { w: 268, h: 575, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy M25":       { w: 276, h: 588, r: '41px', b: '8px', type: 'hole', category: 'Samsung' },
+            
+            // Windows Laptops
+            "Dell XPS 13":       { w: 520, h: 330, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
+            "Microsoft Surface Laptop 7": { w: 520, h: 335, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
+            "Lenovo ThinkPad X1 Carbon": { w: 530, h: 340, r: '18px', b: '8px', type: 'laptop', category: 'Laptop' },
+            "HP Pavilion 14":    { w: 525, h: 335, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
+            "Asus VivoBook 15":  { w: 540, h: 345, r: '22px', b: '8px', type: 'laptop', category: 'Laptop' },
+            "Acer Swift 3":      { w: 515, h: 325, r: '18px', b: '8px', type: 'laptop', category: 'Laptop' },
+            "Dell Inspiron 14":  { w: 522, h: 332, r: '19px', b: '8px', type: 'laptop', category: 'Laptop' },
+            "Lenovo IdeaPad 5":  { w: 528, h: 338, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
+            "HP Envy 13":        { w: 518, h: 328, r: '20px', b: '8px', type: 'laptop', category: 'Laptop' },
+            "MSI Prestige 14":   { w: 535, h: 342, r: '21px', b: '8px', type: 'laptop', category: 'Laptop' }
+        };
+
+        const colors = [
+            // Базовые
+            { name: 'Titanium', hex: '#373737' },
+            { name: 'Silver', hex: '#e2e2e2' },
+            { name: 'Gold', hex: '#f5e3c7' },
+            { name: 'Midnight', hex: '#1c1c1e' },
+            // Новые цвета
+            { name: 'Deep Purple', hex: '#4b3d54' },
+            { name: 'Alpine Green', hex: '#4f5d4e' },
+            { name: 'Rose Pink', hex: '#e8a3b0' },
+            { name: 'Ocean Blue', hex: '#0066cc' },
+            { name: 'Sunset Orange', hex: '#ff6b35' },
+            { name: 'Forest Green', hex: '#2d5016' },
+            { name: 'Burgundy', hex: '#800020' },
+            { name: 'Turquoise', hex: '#40e0d0' },
+            { name: 'Coral', hex: '#ff6f61' },
+            { name: 'Cream', hex: '#fffdd0' },
+            { name: 'Space Gray', hex: '#2c3e50' }
+        ];
+
+        const positions = {
+            "Ровно": "rotateX(0deg) rotateY(0deg) rotateZ(0deg)",
+            "В левой руке": "rotateX(5deg) rotateY(25deg) rotateZ(-5deg)",
+            "В правой руке": "rotateX(5deg) rotateY(-25deg) rotateZ(5deg)",
+            "Смотрит влево": "rotateY(30deg)",
+            "Смотрит вправо": "rotateY(-30deg)",
+            "Смотрит вверх": "rotateX(30deg)",
+            "Смотрит вниз": "rotateX(-30deg)",
+            "Наклон": "rotateX(15deg) rotateY(15deg) rotateZ(5deg)"
+        };
+
+        const frame = document.getElementById('device-frame');
+        const screen = document.getElementById('screen');
+        const notch = document.getElementById('notch');
+        const screenBg = document.getElementById('screen-bg');
+        const keyboard = document.getElementById('keyboard');
+
+        // Генерируем Модели по категориям
+        let currentCategory = null;
+        Object.keys(devices).forEach(name => {
+            const device = devices[name];
+            const category = device.category;
+            
+            let container = document.getElementById('deviceList');
+            
+            // Добавляем заголовок категории
+            if (currentCategory !== category) {
+                const header = document.createElement('div');
+                header.className = "text-[9px] font-bold text-blue-300 mt-3 mb-2 px-2 uppercase tracking-widest";
+                header.innerText = '━━ ' + category + ' ━━';
+                container.appendChild(header);
+                currentCategory = category;
+            }
+            
+            const btn = document.createElement('button');
+            btn.className = "w-full text-left px-3 py-1.5 rounded-lg text-[10px] text-slate-300 border border-slate-800 hover:border-slate-600 transition-all";
+            btn.innerText = name;
+            btn.onclick = () => {
+                document.querySelectorAll('#deviceList button').forEach(b => b.classList.remove('active-btn'));
+                btn.classList.add('active-btn');
+                const d = devices[name];
+                frame.style.width = d.w + 'px';
+                frame.style.height = d.h + 'px';
+                frame.style.borderRadius = d.r;
+                frame.style.borderWidth = d.b;
+                
+                // Очищаем клавиатуру
+                keyboard.innerHTML = '';
+                
+                // Настройка notch/hole в зависимости от типа
+                if (d.type === 'island') {
+                    notch.style.width = '85px';
+                    notch.style.height = '25px';
+                    notch.style.top = '10px';
+                    notch.style.borderRadius = '20px';
+                    notch.style.display = '';
+                    screen.style.height = '100%';
+                    screen.style.borderRadius = `calc(${d.r} - ${d.b})`;
+                    keyboard.style.display = 'none';
+                } else if (d.type === 'notch') {
+                    notch.style.width = '110px';
+                    notch.style.height = '28px';
+                    notch.style.top = '0px';
+                    notch.style.borderRadius = '0 0 15px 15px';
+                    notch.style.display = '';
+                    screen.style.height = '100%';
+                    screen.style.borderRadius = `calc(${d.r} - ${d.b})`;
+                    keyboard.style.display = 'none';
+                } else if (d.type === 'hole') {
+                    notch.style.width = '20px';
+                    notch.style.height = '20px';
+                    notch.style.top = '12px';
+                    notch.style.left = '50%';
+                    notch.style.borderRadius = '50%';
+                    notch.style.display = '';
+                    screen.style.height = '100%';
+                    screen.style.borderRadius = `calc(${d.r} - ${d.b})`;
+                    keyboard.style.display = 'none';
+                } else if (d.type === 'laptop') {
+                    notch.style.display = 'none';
+                    // Для ноутбука: экран занимает 70% высоты, клавиатура 30%
+                    screen.style.height = '70%';
+                    screen.style.borderRadius = `calc(${d.r} - ${d.b}) calc(${d.r} - ${d.b}) 0 0`;
+                    keyboard.style.display = 'flex';
+                    // Генерируем клавиши
+                    for (let i = 0; i < 35; i++) {
+                        const key = document.createElement('div');
+                        key.className = 'key';
+                        keyboard.appendChild(key);
+                    }
+                }
+            };
+            container.appendChild(btn);
+        });
+        
+        // Выбираем первый iPhone по умолчанию
+        const firstBtn = document.querySelector('#deviceList button');
+        if (firstBtn) firstBtn.click();
+
+        // Генерируем Цвета
+        colors.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = "w-7 h-7 rounded-full border-2 border-slate-700 hover:scale-110 transition-transform relative group";
+            btn.style.backgroundColor = c.hex;
+            btn.title = c.name;
+            btn.type = 'button';
+            btn.onclick = () => {
+                frame.style.borderColor = c.hex;
+                document.querySelectorAll('#colorPalette button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
+                btn.classList.add('ring-2', 'ring-blue-500');
+            };
+            document.getElementById('colorPalette').appendChild(btn);
+        });
+
+        // Генерируем Позиции
+        Object.keys(positions).forEach(pos => {
+            const btn = document.createElement('button');
+            btn.className = "px-2 py-1.5 rounded-lg text-[9px] bg-slate-800/50 border border-slate-700 hover:bg-slate-700 transition-all";
+            btn.innerText = pos;
+            btn.onclick = () => {
+                frame.style.transform = positions[pos];
+                document.querySelectorAll('#positionList button').forEach(b => b.classList.remove('active-btn'));
+                btn.classList.add('active-btn');
+            };
+            document.getElementById('positionList').appendChild(btn);
+            if(pos === "Ровно") btn.classList.add('active-btn');
+        });
+
+        // Drag and Drop для загрузки фото
+        const dropZone = document.getElementById('dropZone');
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    loadImage(file);
+                }
+            }
+        }
+        
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => screenBg.style.backgroundImage = `url('${ev.target.result}')`;
+            reader.readAsDataURL(file);
+        }
+
+        // Загрузка фото через input
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadImage(file);
+            }
+        });
+
+        // Функция отправки с поделиться
+        async function sendMockup() {
+            const btn = document.getElementById('sendBtn');
+            const toast = document.getElementById('toast');
+            
+            btn.disabled = true;
+            btn.innerHTML = `<span class="animate-spin">🌀</span> ОТПРАВКА...`;
+
+            try {
+                // Делаем скриншот через html2canvas
+                const canvas = await html2canvas(document.getElementById('capture-area'), {
+                    backgroundColor: '#0b0f19',
+                    scale: 2,
+                    useCORS: true
+                });
+
+                // Преобразуем в blob для поделиться
+                canvas.toBlob(async (blob) => {
+                    try {
+                        // Используем встроенный Share API
+                        if (navigator.share) {
+                            const file = new File([blob], 'mockup.png', { type: 'image/png' });
+                            await navigator.share({
+                                files: [file],
+                                title: 'Мой мокап',
+                                text: 'Посмотрите мой мокап!'
+                            });
+                        } else {
+                            alert('Функция поделиться недоступна в вашем браузере');
+                        }
+                    } catch (e) {
+                        console.error('Ошибка поделиться:', e);
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ОТПРАВИТЬ`;
+                    }
+                }, 'image/png');
+            } catch (e) {
+                alert("Ошибка при рендеринге.");
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ОТПРАВИТЬ`;
+            }
+        }
+    </script>
+</body>
+</html>
