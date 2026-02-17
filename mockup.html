@@ -353,10 +353,18 @@
         colorSquare.style.backgroundColor = '#3b82f6';
         colorSquare.title = 'Выбрать цвет';
         colorSquare.type = 'button';
-        colorSquare.onclick = (e) => {
-            e.stopPropagation();
-            document.getElementById('customColorPicker').click();
+        
+        // Функция для открытия color picker
+        const openColorPicker = () => {
+            const input = document.getElementById('customColorPicker');
+            input.click();
         };
+        
+        colorSquare.addEventListener('click', openColorPicker);
+        colorSquare.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            openColorPicker();
+        });
         
         const hexInput = document.createElement('input');
         hexInput.type = 'text';
