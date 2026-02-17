@@ -131,9 +131,6 @@
             <div class="glass p-5 rounded-2xl flex-shrink-0">
                 <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">3. Цвет корпуса</h3>
                 <div class="flex flex-wrap gap-2 items-center" id="colorPalette"></div>
-                <input type="color" id="customColorPicker"
-style="position:absolute; opacity:0; width:0; height:0; pointer-events:none;"
-value="#3b82f6">
             </div>
 
             <div class="glass p-5 rounded-2xl flex-shrink-0">
@@ -348,47 +345,43 @@ value="#3b82f6">
 
         // Контейнер для выбора своего цвета
         const customColorContainer = document.createElement('div');
-        customColorContainer.className = "flex items-center gap-2 border border-slate-800 rounded-lg px-3 py-1 bg-slate-900/30";
+        customColorContainer.className = "flex items-center gap-1";
         
-        const colorSquare = document.createElement('button');
-        colorSquare.className = "w-7 h-7 rounded-md border-2 border-slate-700 cursor-pointer hover:border-slate-500 transition-all flex-shrink-0";
-        colorSquare.style.backgroundColor = '#3b82f6';
-        colorSquare.title = 'Выбрать цвет';
-        colorSquare.type = 'button';
+        const customColorPicker = document.createElement('input');
+        customColorPicker.type = 'color';
+        customColorPicker.id = 'customColorPicker';
+        customColorPicker.className = "w-7 h-7 rounded-md border-2 border-slate-700 cursor-pointer hover:border-slate-500 transition-all";
+        customColorPicker.style.padding = '2px';
+        customColorPicker.value = '#3b82f6';
         
-        // Функция для открытия color picker
-        const openColorPicker = () => {
-            const input = document.getElementById('customColorPicker');
-            input.click();
-        };
+        customColorContainer.appendChild(customColorPicker);
+        document.getElementById('colorPalette').appendChild(customColorContainer);
         
-        colorSquare.addEventListener('click', openColorPicker);
-        colorSquare.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            openColorPicker();
-        });
-        
+        // HEX input справа
         const hexInput = document.createElement('input');
         hexInput.type = 'text';
         hexInput.placeholder = 'HEX';
-        hexInput.className = "w-12 text-[9px] bg-transparent border-0 outline-none text-white placeholder-slate-500 uppercase font-mono";
+        hexInput.className = "w-16 text-[9px] bg-slate-900/30 border border-slate-800 rounded-lg px-2 py-1 outline-none text-white placeholder-slate-500 uppercase font-mono";
         hexInput.maxLength = '7';
         hexInput.value = '#3b82f6';
-        
-        customColorContainer.appendChild(colorSquare);
-        customColorContainer.appendChild(hexInput);
-        document.getElementById('colorPalette').appendChild(customColorContainer);
+        hexInput.style.marginLeft = 'auto';
+        document.getElementById('colorPalette').appendChild(hexInput);
 
         // Обработчик для color picker
-        document.getElementById('customColorPicker').addEventListener('change', function(e) {
+        customColorPicker.addEventListener('change', function(e) {
             const color = e.target.value.toUpperCase();
             frame.style.borderColor = color;
-            colorSquare.style.backgroundColor = color;
             hexInput.value = color;
             
             document.querySelectorAll('#colorPalette button').forEach(b => {
                 b.classList.remove('ring-2', 'ring-blue-500');
             });
+        });
+        
+        customColorPicker.addEventListener('input', function(e) {
+            const color = e.target.value.toUpperCase();
+            frame.style.borderColor = color;
+            hexInput.value = color;
         });
         
         // Обработчик для HEX input
@@ -403,7 +396,7 @@ value="#3b82f6">
             // Проверяем валидность HEX кода
             if (/^#[0-9A-F]{6}$/.test(hex)) {
                 frame.style.borderColor = hex;
-                colorSquare.style.backgroundColor = hex;
+                customColorPicker.value = hex;
                 if (!e.target.value.startsWith('#')) {
                     e.target.value = hex;
                 }
