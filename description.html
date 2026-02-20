@@ -4,15 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Генератор описаний</title>
+  
   <!-- Добавлена ссылка для Google Fonts (новые шрифты будут работать, если доступны) -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Lato&family=Oswald&family=Merriweather&display=swap" rel="stylesheet">
   <!-- Font Awesome для иконок-тогглов -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-3yY1Qm6k6YkzVY3y1s2+u4k2Qm1g0X1q5j6Q0s6k9v1YVx1Qm6k6YkzVY3y1s2+u4k2Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     * {
       box-sizing: border-box;
     }
     body {
+      user-select: none;
       font-family: 'Arial', sans-serif;
       /* Фон изменён на светло-синий */
       background: linear-gradient(135deg, #74ABE2, #5563DE);
@@ -94,6 +96,11 @@
     .formatting-container {
       margin-top: 20px;
     }
+      /* Toggle styling */
+      .toggle-row { display:flex; align-items:center; gap:8px; cursor:pointer; }
+      .toggle-icon { width:36px; height:22px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background:#e5e7eb; color:#111; }
+      .toggle-icon[data-checked="true"] { background:#10b981; color:#fff; }
+      .toggle-row b { margin:0; }
     /* Контейнер для ползунка настройки тени */
     #shadowRangeContainer {
       margin-top: 10px;
@@ -916,12 +923,12 @@ style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size:
   </div>
 
   <div id="decorationSettings">
-    <label>
-      <div class="toggle-icon" id="leftDecoration" data-checked="true" style="margin-right: 8px;"><i class="fa-solid fa-toggle-on"></i></div>
+    <label id="leftDecorationLabel" class="toggle-row">
+      <div class="toggle-icon" id="leftDecoration" data-checked="true"><i class="fa-solid fa-toggle-on"></i></div>
       <b>Установить украшение слева</b>
     </label>
-    <label>
-      <div class="toggle-icon" id="rightDecoration" data-checked="true" style="margin-right: 8px;"><i class="fa-solid fa-toggle-on"></i></div>
+    <label id="rightDecorationLabel" class="toggle-row">
+      <div class="toggle-icon" id="rightDecoration" data-checked="true"><i class="fa-solid fa-toggle-on"></i></div>
       <b>Установить украшение справа</b>
     </label>
   </div>
@@ -1239,6 +1246,31 @@ rightDecoration.addEventListener('click', () => {
   icon.className = isChecked ? 'fa-solid fa-toggle-off' : 'fa-solid fa-toggle-on';
   selectedDecorationRight = !isChecked;
   updatePreview();
+});
+
+// Make clicking the label text toggle the corresponding switch
+const leftLabel = document.getElementById('leftDecorationLabel');
+if (leftLabel) leftLabel.addEventListener('click', (e) => { if (e.target !== leftDecoration) leftDecoration.click(); });
+const rightLabel = document.getElementById('rightDecorationLabel');
+if (rightLabel) rightLabel.addEventListener('click', (e) => { if (e.target !== rightDecoration) rightDecoration.click(); });
+
+// helper functions to toggle programmatically (used by other buttons)
+function toggleLeftDecoration(){
+  if (typeof leftDecoration !== 'undefined') leftDecoration.click();
+}
+function toggleRightDecoration(){
+  if (typeof rightDecoration !== 'undefined') rightDecoration.click();
+}
+
+// Bind any explicit buttons that may exist with matching text to toggle the switches
+document.querySelectorAll('button').forEach(btn => {
+  const t = (btn.textContent || '').trim();
+  if (t === 'Установить украшение справа' || t === 'Add decoration on the right') {
+    btn.addEventListener('click', (e) => { e.preventDefault(); toggleRightDecoration(); });
+  }
+  if (t === 'Установить украшение слева' || t === 'Add decoration on the left') {
+    btn.addEventListener('click', (e) => { e.preventDefault(); toggleLeftDecoration(); });
+  }
 });
 
 generateBtn.addEventListener('click', () => {

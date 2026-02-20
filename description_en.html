@@ -6,6 +6,8 @@
   <title>Description Generator</title>
   <!-- Link to Google Fonts (new fonts will work if available) -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Lato&family=Oswald&family=Merriweather&display=swap" rel="stylesheet">
+  <!-- Font Awesome for toggle icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     * {
       box-sizing: border-box;
@@ -92,6 +94,11 @@
     .formatting-container {
       margin-top: 20px;
     }
+    /* Toggle styling */
+    .toggle-row { display:flex; align-items:center; gap:8px; cursor:pointer; }
+    .toggle-icon { width:36px; height:22px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background:#e5e7eb; color:#111; }
+    .toggle-icon[data-checked="true"] { background:#10b981; color:#fff; }
+    .toggle-row b { margin:0; }
     /* Container for shadow slider */
     #shadowRangeContainer {
       margin-top: 10px;
@@ -914,12 +921,12 @@
   </div>
 
   <div id="decorationSettings">
-    <label>
-      <div class="toggle-icon" id="leftDecoration" data-checked="true" style="margin-right: 8px;"><i class="fa-solid fa-toggle-on"></i></div>
+    <label id="leftDecorationLabel" class="toggle-row">
+      <div class="toggle-icon" id="leftDecoration" data-checked="true"><i class="fa-solid fa-toggle-on"></i></div>
       <b>Add decoration on the left</b>
     </label>
-    <label>
-      <div class="toggle-icon" id="rightDecoration" data-checked="true" style="margin-right: 8px;"><i class="fa-solid fa-toggle-on"></i></div>
+    <label id="rightDecorationLabel" class="toggle-row">
+      <div class="toggle-icon" id="rightDecoration" data-checked="true"><i class="fa-solid fa-toggle-on"></i></div>
       <b>Add decoration on the right</b>
     </label>
   </div>
@@ -1159,6 +1166,31 @@ rightDecoration.addEventListener('click', () => {
   icon.className = isChecked ? 'fa-solid fa-toggle-off' : 'fa-solid fa-toggle-on';
   selectedDecorationRight = !isChecked;
   updatePreview();
+});
+
+// Make clicking the label text toggle the corresponding switch
+const leftLabelEn = document.getElementById('leftDecorationLabel');
+if (leftLabelEn) leftLabelEn.addEventListener('click', (e) => { if (e.target !== leftDecoration) leftDecoration.click(); });
+const rightLabelEn = document.getElementById('rightDecorationLabel');
+if (rightLabelEn) rightLabelEn.addEventListener('click', (e) => { if (e.target !== rightDecoration) rightDecoration.click(); });
+
+// helper functions to toggle programmatically (used by other buttons)
+function toggleLeftDecorationEn(){
+  if (typeof leftDecoration !== 'undefined') leftDecoration.click();
+}
+function toggleRightDecorationEn(){
+  if (typeof rightDecoration !== 'undefined') rightDecoration.click();
+}
+
+// Bind any explicit buttons that may exist with matching text to toggle the switches
+document.querySelectorAll('button').forEach(btn => {
+  const t = (btn.textContent || '').trim();
+  if (t === 'Add decoration on the right' || t === 'Установить украшение справа') {
+    btn.addEventListener('click', (e) => { e.preventDefault(); toggleRightDecorationEn(); });
+  }
+  if (t === 'Add decoration on the left' || t === 'Установить украшение слева') {
+    btn.addEventListener('click', (e) => { e.preventDefault(); toggleLeftDecorationEn(); });
+  }
 });
 
 generateBtn.addEventListener('click', () => {
