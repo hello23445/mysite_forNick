@@ -644,28 +644,41 @@
 
                 drawFrame();
 
-                const stream = canvas.captureStream(30);
-                let options = { mimeType: 'video/webm;codecs=vp9' };
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
-                const recorder = new MediaRecorder(stream, options);
-                const chunks = [];
-                recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
-                recorder.start(500);
-
+                // Убедимся, что preview готов и не в loop во время записи
+                const origLoop = preview.loop;
+                try { preview.loop = false; } catch(e){}
                 try { preview.currentTime = 0; await preview.play().catch(()=>{}); } catch(e){}
 
+                // Небольшая пауза чтобы первый кадр попал в canvas
+                await new Promise(res => setTimeout(res, 150));
+
+                const stream = canvas.captureStream(30);
+                let options = { mimeType: 'video/webm;codecs=vp9' };
+                try {
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
+                } catch(e) { options = {}; }
+                let recorder;
+                try { recorder = options && options.mimeType ? new MediaRecorder(stream, options) : new MediaRecorder(stream); } catch(e) { recorder = new MediaRecorder(stream); }
+                const chunks = [];
+                recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+
+                // Старт записи
+                try { recorder.start(200); } catch(e) { try { recorder.start(); } catch(e2) { console.error('recorder.start failed', e2); } }
+
                 const maxDur = Math.min(preview.duration || 20, 20);
-                await new Promise(res => {
+                const stopPromise = new Promise(res => {
                     const t = setTimeout(() => {
-                        if (recorder.state === 'recording') recorder.stop();
+                        try { recorder.requestData(); } catch(e){}
+                        try { if (recorder.state === 'recording') recorder.stop(); } catch(e){}
                     }, Math.ceil(maxDur * 1000) + 500);
-                    recorder.onstop = () => { clearTimeout(t); res(); };
+                    recorder.onstop = () => { clearTimeout(t); res(new Blob(chunks, { type: chunks[0]?.type || options?.mimeType || 'video/webm' })); };
                 });
 
+                const blob = await stopPromise;
                 cancelAnimationFrame(rafId);
-                const blob = new Blob(chunks, { type: chunks[0]?.type || 'video/webm' });
-                stream.getTracks().forEach(t => t.stop());
+                try { preview.loop = origLoop; } catch(e){}
+                try { stream.getTracks().forEach(t => t.stop()); } catch(e){}
                 readyRecordedBlob = blob;
                 console.log('✅ Видео подготовлено в фоне. Размер:', blob.size);
             } catch(e) {
@@ -682,6 +695,9 @@
         // ====================== ОТПРАВКА (ИСПРАВЛЕНО) ======================
         async function sendMockup() {
             const btn = document.getElementById('sendBtn');
+            const origBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="animate-spin">🌀</span> Подготовка...`;
 
             if (currentContentType === 'video') {
                 if (!isPremium) { await showMessage('Требуется Premium для отправки видео'); return; }
@@ -689,6 +705,7 @@
 
                 if (readyRecordedBlob) {
                     try {
+                        btn.innerHTML = `<span class="animate-spin">🌀</span> Отправка...`;
                         const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: readyRecordedBlob.type || 'video/webm' });
                         if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
                             await navigator.share({ files: [outFile], title: 'Моё видео (мокап)' });
@@ -698,11 +715,15 @@
                         return;
                     } catch (err) {
                         console.error(err);
+                        await showMessage('Не удалось отправить подготовленное видео');
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = origBtnHtml;
                     }
                 }
 
                 // === FALLBACK: запись на лету (тоже исправлена) ===
-                btn.disabled = true;
+                // Уже заблокировали кнопку выше, обновим текст
                 btn.innerHTML = `<span class="animate-spin">🌀</span> Подготовка видео...`;
 
                 try {
@@ -717,10 +738,11 @@
                     }
 
                     await new Promise(r => {
-                        if (preview.readyState >= 2) r();
-                        else preview.onloadeddata = r;
+                        if (preview.readyState >= 2) return r();
+                        preview.addEventListener('canplay', () => r(), { once: true });
                     });
-                    await preview.play().catch(() => {});
+                    preview.muted = true;
+                    try { await preview.play().catch(()=>{}); } catch(e) {}
 
                     const w = Math.ceil(parseFloat(getComputedStyle(frame).width));
                     const h = Math.ceil(parseFloat(getComputedStyle(frame).height));
@@ -753,18 +775,28 @@
                         ctx.stroke();
                     }
 
-                    const stream = canvas.captureStream(30);
-                    let options = { mimeType: 'video/webm;codecs=vp9' };
-                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
-                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
-                    const recorder = new MediaRecorder(stream, options);
-                    const chunks = [];
-                    recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+                    // Убедимся, что preview не в loop и цикл отрисовки запущен до старта записи
+                    const origLoop = preview.loop;
+                    try { preview.loop = false; } catch(e){}
 
-                    recorder.start(100);
                     let rafId;
                     const drawLoop = () => { drawFrame(); rafId = requestAnimationFrame(drawLoop); };
                     drawLoop();
+                    // Небольшая пауза чтобы первый кадр гарантированно попал в canvas
+                    await new Promise(res => setTimeout(res, 120));
+
+                    const stream = canvas.captureStream(30);
+                    let options = { mimeType: 'video/webm;codecs=vp9' };
+                    try {
+                        if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
+                        if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
+                    } catch(e) { options = {}; }
+                    let recorder;
+                    try { recorder = options && options.mimeType ? new MediaRecorder(stream, options) : new MediaRecorder(stream); } catch(e) { recorder = new MediaRecorder(stream); }
+                    const chunks = [];
+                    recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+
+                    try { recorder.start(200); } catch(e) { try { recorder.start(); } catch(e2) { console.error('recorder.start failed', e2); } }
 
                     await new Promise(resolve => {
                         let resolved = false;
@@ -774,23 +806,33 @@
                         setTimeout(() => { if (!resolved) { resolved = true; resolve(); } }, Math.ceil(maxDur * 1000) + 500);
                     });
 
-                    const stopPromise = new Promise(res => recorder.onstop = () => res(new Blob(chunks, { type: 'video/webm' })));
-                    recorder.stop();
+                    const stopPromise = new Promise(res => recorder.onstop = () => res(new Blob(chunks, { type: chunks[0]?.type || options?.mimeType || 'video/webm' })));
+                    try { recorder.requestData(); } catch(e){}
+                    try { recorder.stop(); } catch(e) { console.warn('recorder.stop error', e); }
                     cancelAnimationFrame(rafId);
                     const recordedBlob = await stopPromise;
-                    stream.getTracks().forEach(t => t.stop());
+                    try { stream.getTracks().forEach(t => t.stop()); } catch(e) {}
+                    try { preview.loop = origLoop; } catch(e){}
 
-                    if (createdTemp) { preview.pause(); preview.src = ''; }
+                    if (createdTemp) { try { preview.pause(); preview.src = ''; } catch(e){} }
 
-                    if (!recordedBlob || recordedBlob.size < 1000) {
+                    if (!recordedBlob || recordedBlob.size < 1500) {
+                        console.warn('recordedBlob small, size=', recordedBlob?.size);
                         await showMessage('Не удалось подготовить видео. Попробуйте ещё раз.');
                     } else {
                         readyRecordedBlob = recordedBlob;
-                        const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: 'video/webm' });
-                        if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
-                            await navigator.share({ files: [outFile], title: 'Моё видео (мокап)' });
-                        } else if (navigator.share) {
-                            await navigator.share({ title: 'Моё видео (мокап)', text: 'Посмотрите мой мокап-видео' });
+                        const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: recordedBlob.type || 'video/webm' });
+                        try {
+                            if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
+                                await navigator.share({ files: [outFile], title: 'Моё видео (мокап)' });
+                            } else if (navigator.share) {
+                                await navigator.share({ title: 'Моё видео (мокап)', text: 'Посмотрите мой мокап-видео' });
+                            } else {
+                                await showMessage('Функция поделиться недоступна в вашем браузере');
+                            }
+                        } catch (e) {
+                            console.error('Ошибка при шаринге:', e);
+                            await showMessage('Не удалось поделиться видео');
                         }
                     }
                 } catch (e) {
@@ -798,7 +840,7 @@
                     await showMessage('Ошибка при подготовке видео');
                 } finally {
                     btn.disabled = false;
-                    btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ПОДЕЛИТЬСЯ`;
+                    btn.innerHTML = origBtnHtml;
                 }
                 return;
             }
