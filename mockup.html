@@ -264,14 +264,16 @@
         ];
 
         const positions = {
-            "Ровно": { transform: "rotateX(0deg) rotateY(0deg) rotateZ(0deg)", premium: false },
-            "В левой руке": { transform: "rotateX(5deg) rotateY(25deg) rotateZ(-5deg)", premium: false },
-            "В правой руке": { transform: "rotateX(5deg) rotateY(-25deg) rotateZ(5deg)", premium: false },
-            "Смотрит влево": { transform: "rotateY(30deg)", premium: false },
-            "Смотрит вправо": { transform: "rotateY(-30deg)", premium: false },
-            "Смотрит вверх": { transform: "rotateX(30deg)", premium: false },
-            "Смотрит вниз": { transform: "rotateX(-30deg)", premium: false },
-            "Наклон": { transform: "rotateX(15deg) rotateY(15deg) rotateZ(5deg)", premium: true }
+            "Ровно": { transform: "rotateX(0deg) rotateY(0deg) rotateZ(0deg)", premium: false, landscape: false },
+            "В левой руке": { transform: "rotateX(5deg) rotateY(25deg) rotateZ(-5deg)", premium: false, landscape: false },
+            "В правой руке": { transform: "rotateX(5deg) rotateY(-25deg) rotateZ(5deg)", premium: false, landscape: false },
+            "Смотрит влево": { transform: "rotateY(30deg)", premium: false, landscape: false },
+            "Смотрит вправо": { transform: "rotateY(-30deg)", premium: false, landscape: false },
+            "Смотрит вверх": { transform: "rotateX(30deg)", premium: false, landscape: false },
+            "Смотрит вниз": { transform: "rotateX(-30deg)", premium: false, landscape: false },
+            "Наклон": { transform: "rotateX(15deg) rotateY(15deg) rotateZ(5deg)", premium: true, landscape: false },
+            "Горизонтально(Справа)": { transform: "rotateZ(90deg)", premium: false, landscape: true },
+            "Горизонтально(Слева)": { transform: "rotateZ(-90deg)", premium: false, landscape: true }
         };
 
         const frame = document.getElementById('device-frame');
@@ -503,14 +505,35 @@
                     document.querySelectorAll('#positionList button').forEach(b => b.classList.remove('active-btn'));
                     btn.classList.add('active-btn');
                     currentBaseTransform = posData.transform;
-                    if (pos === 'Ровно') {
+                    
+                    // Применяем горизонтальное положение
+                    if (posData.landscape) {
+                        screenBg.style.backgroundSize = 'cover';
+                        screenBg.style.backgroundPosition = 'center';
+                        screenBg.style.backgroundRepeat = 'no-repeat';
+                        // Компенсируем вращение фрейма для фото
+                        if (currentBaseTransform.includes('rotateZ(90deg)')) {
+                            screenBg.style.transform = 'rotateZ(-90deg)';
+                        } else if (currentBaseTransform.includes('rotateZ(-90deg)')) {
+                            screenBg.style.transform = 'rotateZ(90deg)';
+                        } else {
+                            screenBg.style.transform = 'none';
+                        }
                         positionControl.style.display = 'none';
                         frame.style.transform = currentBaseTransform;
                     } else {
-                        positionControl.style.display = '';
-                        document.getElementById('positionRange').value = 100;
-                        document.getElementById('positionValue').innerText = '100%';
-                        applyScaledTransform(currentBaseTransform, 100);
+                        screenBg.style.backgroundSize = 'cover';
+                        screenBg.style.backgroundPosition = 'center';
+                        screenBg.style.transform = 'none';
+                        if (pos === 'Ровно') {
+                            positionControl.style.display = 'none';
+                            frame.style.transform = currentBaseTransform;
+                        } else {
+                            positionControl.style.display = '';
+                            document.getElementById('positionRange').value = 100;
+                            document.getElementById('positionValue').innerText = '100%';
+                            applyScaledTransform(currentBaseTransform, 100);
+                        }
                     }
                 };
             }
