@@ -53,6 +53,18 @@
         }
         #toast { display: none; animation: toast 3s forwards; }
 
+        /* Прелоадер видео */
+        .spinner { width:28px; height:28px; border:3px solid rgba(255,255,255,0.08); border-top-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Модальные окна */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:60}
+        .modal{background:#0f1724;padding:18px;border-radius:12px;max-width:420px;color:#e6edf3;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+        .modal .modal-title{font-weight:600;margin-bottom:8px;color:#60a5fa}
+        .modal .modal-body{font-size:13px;color:#cbd5e1;margin-bottom:12px}
+        .modal .modal-actions{display:flex;gap:8px;justify-content:flex-end}
+        .modal .btn{padding:8px 12px;border-radius:8px;background:#111827;color:#fff;border:1px solid rgba(255,255,255,0.04);cursor:pointer}
+        .modal .btn.primary{background:#3b82f6}
+
         /* Drag and Drop */
         .drag-over {
             border-color: #3b82f6 !important;
@@ -63,44 +75,28 @@
         .device-scroll { max-height: 200px; overflow-y: auto; }
 
         /* Клавиатура для ноутбуков */
-                try {
-                            // Рендерим готовое видео с выбранными параметрами (рамка, положение и т.д.)
-                            let processedBlob;
-                            try {
-                                processedBlob = await renderVideoWithMockup(currentContentFile);
-                            } catch (renderErr) {
-                                console.error('Ошибка при рендере видео:', renderErr);
-                                alert('Не удалось подготовить видео для отправки');
-                                processedBlob = null;
-                            }
-
-                            if (!processedBlob) {
-                                throw new Error('Processed video not available');
-                            }
-
-                            const processedFile = new File([processedBlob], 'mockup_video.webm', { type: processedBlob.type || 'video/webm' });
-
-                            if (navigator.share) {
-                                let shareSuccess = false;
-                                try {
-                                    if (navigator.canShare && navigator.canShare({ files: [processedFile] })) {
-                                        await navigator.share({ files: [processedFile], title: 'Моё видео' });
-                                        shareSuccess = true;
-                                    }
-                                } catch (fileError) {
-                                    console.log('Не удалось поделиться готовым видео-файлом', fileError);
-                                }
-
-                                if (!shareSuccess) {
-                                    try {
-                                        await navigator.share({ title: 'Моё видео', text: 'Посмотрите моё видео' });
-                                    } catch (textError) {
-                                        if (textError.name !== 'AbortError') console.error('Ошибка поделиться:', textError);
-                                    }
-                                }
-                            } else {
-                                alert('Функция поделиться недоступна в вашем браузере');
-                            }
+        #keyboard { 
+            display: none; 
+            width: 100%; 
+            height: 60px; 
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%); 
+            border-radius: 0 0 inherit inherit; 
+            position: absolute; 
+            bottom: 0; 
+            left: 0;
+            padding: 8px;
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            align-content: flex-start;
+            overflow: hidden;
+        }
+        
+        #keyboard::before {
+            content: '';
+            position: absolute;
+            width: 90%;
             height: 2px;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
             top: 0;
@@ -268,6 +264,61 @@
         let currentContentFile = null; // File
         let currentContentType = null; // 'image' | 'video' | null
         let videoReady = false; // true когда видео загружено и проверено
+        let readyRecordedBlob = null; // blob подготовленного видео
+
+        // --- Модальные окна ---
+        (function(){
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal" role="dialog">
+                    <div class="modal-title" id="modalTitle"></div>
+                    <div class="modal-body" id="modalBody"></div>
+                    <div class="modal-actions" id="modalActions"></div>
+                </div>`;
+            document.body.appendChild(overlay);
+
+            window.createModal = function(title, message, buttons){
+                return new Promise(resolve => {
+                    const t = overlay.querySelector('#modalTitle');
+                    const b = overlay.querySelector('#modalBody');
+                    const actions = overlay.querySelector('#modalActions');
+                    t.textContent = title || '';
+                    b.textContent = message || '';
+                    actions.innerHTML = '';
+                    buttons.forEach(btn => {
+                        const el = document.createElement('button');
+                        el.className = 'btn' + (btn.primary? ' primary':'');
+                        el.textContent = btn.label || 'OK';
+                        el.onclick = () => {
+                            overlay.style.display = 'none';
+                            try{ if (btn.onClick) btn.onClick(); }catch(e){console.error(e)}
+                            resolve(btn.value !== undefined ? btn.value : btn.label);
+                        };
+                        actions.appendChild(el);
+                    });
+                    overlay.style.display = 'flex';
+                });
+            };
+
+            window.showMessage = function(text){ return createModal('', text, [{label:'ОК', value:'ok', primary:true}]); };
+            // Функция шаринга подготовленного видео (вызов из обработчика клика модального окна)
+            window.sharePreparedBlob = async function(){
+                if (!readyRecordedBlob) { showMessage('Нет подготовленного видео для шаринга.'); return; }
+                const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: readyRecordedBlob.type || 'video/webm' });
+                if (!navigator.share) { showMessage('Функция поделиться недоступна в вашем браузере'); return; }
+                try {
+                    if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
+                        await navigator.share({ files: [outFile], title: 'Моё видео (мокап)' });
+                    } else {
+                        await navigator.share({ title: 'Моё видео (мокап)', text: 'Посмотрите мой мокап-видео' });
+                    }
+                } catch (err) {
+                    console.error('Ошибка при шаринге готового видео:', err);
+                    showMessage('Не удалось поделиться готовым видео.');
+                }
+            };
+        })();
 
         // Генерируем Модели по категориям
         let currentCategory = null;
@@ -579,7 +630,7 @@
             // Проверяем длительность
             video.onloadedmetadata = function() {
                 if (video.duration > 20) {
-                    alert('Видео слишком длинное! Максимальная длительность: 20 секунд. Ваше видео: ' + Math.round(video.duration) + ' секунд.');
+                    showMessage('Видео слишком длинное! Максимальная длительность: 20 секунд. Ваше видео: ' + Math.round(video.duration) + ' секунд.');
                     currentContentFile = null;
                     currentContentType = null;
                     videoReady = false;
@@ -587,127 +638,94 @@
                 }
                 // Читаем файл в dataURL для отображения превью
                 const reader = new FileReader();
+                // Показываем прелоадер на экране телефона
+                screenBg.style.backgroundImage = 'none';
+                screen.innerHTML = `<div id="contentPreloader" class="flex items-center justify-center w-full h-full"><div class="spinner"></div></div>`;
+                // добавим простые стили для .spinner, если ещё не добавлены
                 reader.onload = (ev) => {
-                    screenBg.style.backgroundImage = 'none';
+                    // Заменяем прелоадер на видео
                     screen.innerHTML = `<video id="previewVideo" style="width:100%; height:100%; object-fit:cover;" src="${ev.target.result}" autoplay loop muted playsinline></video>`;
                     videoReady = true;
+                    // Запуск фоновой подготовки "готового" видео для последующего шаринга
+                    setTimeout(() => {
+                        const pv = document.getElementById('previewVideo');
+                        if (pv) {
+                            try { prepareRenderedVideoInBackground(pv); } catch(e){ console.error('prepareRenderedVideoInBackground error', e);}    
+                        }
+                    }, 300);
                 };
                 reader.readAsDataURL(file);
             };
             video.src = URL.createObjectURL(file);
         }
 
-        // Рендерим видео вместе с макетом в canvas и возвращаем Blob видео (webm)
-        function renderVideoWithMockup(file) {
-            return new Promise((resolve, reject) => {
+        // Подготовка отображаемого видео (рендер на canvas + MediaRecorder) в фоне
+        async function prepareRenderedVideoInBackground(preview){
+            try {
+                readyRecordedBlob = null;
+                // Подготовим canvas по размерам фрейма
                 const frameRect = frame.getBoundingClientRect();
-                const outW = Math.ceil(frameRect.width) + 80;
-                const outH = Math.ceil(frameRect.height) + 80;
-
-                const offCanvas = document.createElement('canvas');
-                offCanvas.width = outW;
-                offCanvas.height = outH;
-                const ctx = offCanvas.getContext('2d');
-
-                const vid = document.createElement('video');
-                vid.muted = true;
-                vid.playsInline = true;
-                vid.src = URL.createObjectURL(file);
-                vid.crossOrigin = 'anonymous';
-
-                // Получаем стили рамки
-                const frameStyle = getComputedStyle(frame);
-                const borderColor = frameStyle.borderColor || '#373737';
-                const borderWidth = parseFloat(frameStyle.borderWidth) || 10;
-                const radius = parseFloat(frameStyle.borderRadius) || 40;
-
-                const innerX = 40 + borderWidth;
-                const innerY = 40 + borderWidth;
-                const innerW = outW - innerX * 2;
-                const innerH = outH - innerY * 2;
-
-                // запись с canvas
-                const stream = offCanvas.captureStream(30);
-                let recorder;
-                try {
-                    recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
-                } catch (e) {
-                    try { recorder = new MediaRecorder(stream); } catch (err) { reject(err); return; }
-                }
-
-                const chunks = [];
-                recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
-                recorder.onstop = () => {
-                    const blob = new Blob(chunks, { type: 'video/webm' });
-                    resolve(blob);
-                };
-
-                // Рисуем кадры из видео по requestAnimationFrame
-                function drawFrame() {
-                    // фон
-                    ctx.fillStyle = '#0b0f19';
-                    ctx.fillRect(0, 0, outW, outH);
-
-                    // рамка корпуса
-                    ctx.fillStyle = borderColor;
-                    roundRect(ctx, 40, 40, outW - 80, outH - 80, radius);
-                    ctx.fill();
-
-                    // клип внутрь скруглённого экрана
-                    ctx.save();
-                    const clipR = Math.max(0, radius - borderWidth);
-                    roundRect(ctx, innerX, innerY, innerW, innerH, clipR);
-                    ctx.clip();
-
-                    // нарисовать текущий кадр видео в зоне экрана с object-fit: cover
-                    if (vid.videoWidth && vid.videoHeight) {
-                        const vw = vid.videoWidth;
-                        const vh = vid.videoHeight;
-                        const scale = Math.max(innerW / vw, innerH / vh);
-                        const dw = vw * scale;
-                        const dh = vh * scale;
-                        const dx = innerX - (dw - innerW) / 2;
-                        const dy = innerY - (dh - innerH) / 2;
-                        try { ctx.drawImage(vid, dx, dy, dw, dh); } catch(e) {}
-                    }
-
-                    ctx.restore();
-                }
-
-                // helper: рисуем скруглённый прямоугольник путь
-                function roundRect(ctx, x, y, w, h, r) {
-                    const radius = Math.max(0, r);
-                    ctx.beginPath();
-                    ctx.moveTo(x + radius, y);
-                    ctx.arcTo(x + w, y, x + w, y + h, radius);
-                    ctx.arcTo(x + w, y + h, x, y + h, radius);
-                    ctx.arcTo(x, y + h, x, y, radius);
-                    ctx.arcTo(x, y, x + w, y, radius);
-                    ctx.closePath();
-                }
+                const w = Math.ceil(frameRect.width);
+                const h = Math.ceil(frameRect.height);
+                const canvas = document.createElement('canvas');
+                const dpr = Math.max(1, window.devicePixelRatio || 1);
+                canvas.width = w * dpr;
+                canvas.height = h * dpr;
+                canvas.style.width = w + 'px';
+                canvas.style.height = h + 'px';
+                const ctx = canvas.getContext('2d');
+                ctx.scale(dpr, dpr);
 
                 let rafId = null;
-                function loop() {
-                    drawFrame();
-                    rafId = requestAnimationFrame(loop);
+                function drawFrame(){
+                    // clear
+                    ctx.fillStyle = '#0b0f19';
+                    ctx.fillRect(0,0,w,h);
+                    // draw video centered and cover
+                    let vw = preview.videoWidth || w;
+                    let vh = preview.videoHeight || h;
+                    const ratio = Math.max(w / vw, h / vh);
+                    const dw = vw * ratio;
+                    const dh = vh * ratio;
+                    const dx = (w - dw) / 2;
+                    const dy = (h - dh) / 2;
+                    try { ctx.drawImage(preview, dx, dy, dw, dh); } catch(e){}
+                    // draw rounded frame border
+                    const br = parseInt(getComputedStyle(frame).borderRadius) || 20;
+                    const bw = parseInt(getComputedStyle(frame).borderWidth) || 10;
+                    ctx.lineWidth = bw;
+                    ctx.strokeStyle = getComputedStyle(frame).borderColor || '#000';
+                    roundRect(ctx, bw/2, bw/2, w-bw, h-bw, br);
+                    rafId = requestAnimationFrame(drawFrame);
                 }
 
-                vid.onplay = () => {
-                    recorder.start();
-                    loop();
-                };
+                drawFrame();
 
-                vid.onended = () => {
-                    // стоп рендер и запись
-                    if (rafId) cancelAnimationFrame(rafId);
-                    setTimeout(() => { try { recorder.stop(); } catch(e){} }, 100);
-                };
+                const stream = canvas.captureStream(30);
+                const mime = 'video/webm';
+                const recorder = new MediaRecorder(stream, { mimeType: mime });
+                const chunks = [];
+                recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+                recorder.start(1000);
 
-                vid.onerror = (e) => { reject(e); };
+                // Убедимся, что видео проигрывается с начала
+                try { preview.currentTime = 0; await preview.play().catch(()=>{}); } catch(e){}
 
-                // Запускаем воспроизведение
-                vid.play().catch(err => { reject(err); });
-            });
+                const maxDur = Math.min(preview.duration || 20, 20);
+                await new Promise(res => {
+                    const t = setTimeout(()=>{
+                        try{ if (recorder.state === 'recording') recorder.stop(); }catch(e){}
+                    }, Math.ceil(maxDur*1000)+300);
+                    recorder.onstop = () => { clearTimeout(t); res(); };
+                });
+
+                cancelAnimationFrame(rafId);
+                const blob = new Blob(chunks, { type: chunks[0]?.type || 'video/webm' });
+                readyRecordedBlob = blob;
+                console.log('Подготовлено готовое видео (фон).');
+            } catch(e){
+                console.error('Ошибка фоновой подготовки видео:', e);
+            }
         }
 
         // Загрузка контента через input
@@ -721,7 +739,7 @@
                     loadImage(file);
                 } else if (file.type.startsWith('video/')) {
                     if (!isPremium) {
-                        alert('Требуется Premium для загрузки видео');
+                        showMessage('Требуется Premium для загрузки видео');
                         return;
                     }
                     currentContentType = 'video';
@@ -737,8 +755,26 @@
 
             // Если текущий контент - видео, отправляем как видео (только для Premium)
             if (currentContentType === 'video') {
-                if (!isPremium) { alert('Требуется Premium для отправки видео'); return; }
-                if (!videoReady) { alert('Видео ещё загружается. Подождите, пожалуйста.'); return; }
+                if (!isPremium) { await showMessage('Требуется Premium для отправки видео'); return; }
+                if (!videoReady) { await showMessage('Видео ещё загружается. Подождите, пожалуйста.'); return; }
+
+                // Если готовый blob уже подготовлен в фоне — сразу шарим (в том же пользовательском жесте)
+                if (readyRecordedBlob) {
+                    try {
+                        const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: readyRecordedBlob.type || 'video/webm' });
+                        if (!navigator.share) { await showMessage('Функция поделиться недоступна в вашем браузере'); return; }
+                        if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
+                            await navigator.share({ files: [outFile], title: 'Моё видео (мокап)' });
+                        } else {
+                            await navigator.share({ title: 'Моё видео (мокап)', text: 'Посмотрите мой мокап-видео' });
+                        }
+                        return;
+                    } catch (err) {
+                        console.error('Ошибка при шаринге готового видео:', err);
+                        await showMessage('Не удалось поделиться готовым видео.');
+                        return;
+                    }
+                }
 
                 btn.disabled = true;
                 btn.dataset._origBg = btn.style.backgroundColor || '';
@@ -746,33 +782,141 @@
                 btn.classList.add('opacity-70');
                 btn.style.backgroundColor = '#9ca3af';
                 btn.style.cursor = 'not-allowed';
-                btn.innerHTML = `<span class="animate-spin">🌀</span> Отправка...`;
+                btn.innerHTML = `<span class="animate-spin">🌀</span> Подготовка видео...`;
 
                 try {
-                    if (navigator.share) {
-                        let shareSuccess = false;
-                        try {
-                            const file = currentContentFile;
-                            if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-                                await navigator.share({ files: [file], title: 'Моё видео' });
-                                shareSuccess = true;
-                            }
-                        } catch (fileError) {
-                            console.log('Не удалось поделиться видео-файлом', fileError);
-                        }
-
-                        if (!shareSuccess) {
-                            try {
-                                await navigator.share({ title: 'Моё видео', text: 'Посмотрите моё видео' });
-                            } catch (textError) {
-                                if (textError.name !== 'AbortError') console.error('Ошибка поделиться:', textError);
-                            }
-                        }
-                    } else {
-                        alert('Функция поделиться недоступна в вашем браузере');
+                    // Найдём видео-превью в экране
+                    let preview = document.getElementById('previewVideo');
+                    let createdTemp = false;
+                    if (!preview) {
+                        preview = document.createElement('video');
+                        preview.src = URL.createObjectURL(currentContentFile);
+                        preview.muted = true;
+                        preview.playsInline = true;
+                        createdTemp = true;
                     }
+
+                    // Ожидаем готовности к воспроизведению
+                    await preview.play().catch(() => {});
+
+                    const frameRect = frame.getBoundingClientRect();
+                    const w = Math.ceil(frameRect.width);
+                    const h = Math.ceil(frameRect.height);
+
+                    const canvas = document.createElement('canvas');
+                    const dpr = Math.max(1, window.devicePixelRatio || 1);
+                    canvas.width = w * dpr;
+                    canvas.height = h * dpr;
+                    canvas.style.width = w + 'px';
+                    canvas.style.height = h + 'px';
+                    const ctx = canvas.getContext('2d');
+                    ctx.scale(dpr, dpr);
+
+                    // Функция рисования кадра (включая рамку)
+                    function drawFrame() {
+                        // clear
+                        ctx.fillStyle = '#0b0f19';
+                        ctx.fillRect(0,0,w,h);
+                        // draw video centered and cover
+                        let vw = preview.videoWidth || w;
+                        let vh = preview.videoHeight || h;
+                        const ratio = Math.max(w / vw, h / vh);
+                        const dw = vw * ratio;
+                        const dh = vh * ratio;
+                        const dx = (w - dw) / 2;
+                        const dy = (h - dh) / 2;
+                        try { ctx.drawImage(preview, dx, dy, dw, dh); } catch(e) {}
+                        // draw rounded frame border
+                        const br = parseInt(getComputedStyle(frame).borderRadius) || 20;
+                        const bw = parseInt(getComputedStyle(frame).borderWidth) || 10;
+                        ctx.lineWidth = bw;
+                        ctx.strokeStyle = getComputedStyle(frame).borderColor || '#000';
+                        roundRect(ctx, bw/2, bw/2, w-bw, h-bw, br);
+                        ctx.stroke();
+                    }
+
+                    function roundRect(ctx, x, y, width, height, radius) {
+                        ctx.beginPath();
+                        ctx.moveTo(x + radius, y);
+                        ctx.arcTo(x + width, y, x + width, y + radius, radius);
+                        ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+                        ctx.arcTo(x, y + height, x, y + height - radius, radius);
+                        ctx.arcTo(x, y, x + radius, y, radius);
+                        ctx.closePath();
+                    }
+
+                    const stream = canvas.captureStream(30);
+                    let options = { mimeType: 'video/webm;codecs=vp9' };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
+                    const recorder = new MediaRecorder(stream, options);
+                    const chunks = [];
+                    recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+
+                    recorder.start(100);
+
+                    // Запускаем цикл рисования
+                    let rafId;
+                    const drawLoop = () => { drawFrame(); rafId = requestAnimationFrame(drawLoop); };
+                    drawLoop();
+
+                    // Останавливаем запись по окончании видео
+                    await new Promise(resolve => {
+                        let resolved = false;
+                        const onEnd = () => { if (!resolved) { resolved = true; resolve(); } };
+                        preview.onended = onEnd;
+                        // На случай если preview.duration неизвестен, ставим таймаут на длительность файла
+                        const maxDur = Math.min(preview.duration || 20, 20);
+                        setTimeout(() => { if (!resolved) { resolved = true; resolve(); } }, Math.ceil(maxDur*1000)+500);
+                    });
+
+                    // Остановим запись
+                    recorder.stop();
+                    // остановим рисование
+                    cancelAnimationFrame(rafId);
+
+                    const recordedBlob = await new Promise(res => recorder.onstop = () => res(new Blob(chunks, { type: chunks[0]?.type || 'video/webm' })));
+
+                    // Очистка
+                    if (createdTemp) {
+                        preview.pause();
+                        preview.src = '';
+                    }
+
+                    // Сохраним подготовленное видео и предложим пользователю поделиться
+                    readyRecordedBlob = recordedBlob;
+                    try {
+                        await createModal('Видео готово', 'Видео подготовлено. Хотите поделиться?', [
+                            { label: 'Отмена', value: 'cancel' },
+                            { label: 'Поделиться', primary: true, onClick: () => {
+                                try {
+                                    if (!readyRecordedBlob) { showMessage('Нет подготовленного видео для шаринга.'); return; }
+                                    const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: readyRecordedBlob.type || 'video/webm' });
+                                    if (!navigator.share) { showMessage('Функция поделиться недоступна в вашем браузере'); return; }
+                                    if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
+                                        navigator.share({ files: [outFile], title: 'Моё видео (мокап)' }).catch(err => {
+                                            console.error('Ошибка при шаринге готового видео:', err);
+                                            showMessage('Не удалось поделиться готовым видео.');
+                                        });
+                                    } else {
+                                        navigator.share({ title: 'Моё видео (мокап)', text: 'Посмотрите мой мокап-видео' }).catch(err => {
+                                            console.error('Ошибка при шаринге готового видео (текст):', err);
+                                        });
+                                    }
+                                } catch (err) {
+                                    console.error('Ошибка при попытке шаринга из модального окна:', err);
+                                    showMessage('Не удалось поделиться готовым видео.');
+                                }
+                            }, value: 'share' }
+                        ]);
+                    } catch (mErr) {
+                        console.error('Ошибка при показе модального окна шаринга:', mErr);
+                        showMessage('Не удалось открыть окно шаринга.');
+                    }
+
                 } catch (e) {
-                    console.error('Ошибка при отправке видео:', e);
+                    console.error('Ошибка при создании готового видео:', e);
+                        showMessage('Ошибка при подготовке видео');
                 } finally {
                     btn.disabled = false;
                     btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ПОДЕЛИТЬСЯ`;
@@ -867,7 +1011,7 @@
                                 }
                             }
                         } else {
-                            alert('Функция поделиться недоступна в вашем браузере');
+                            showMessage('Функция поделиться недоступна в вашем браузере');
                         }
                     } catch (e) {
                         console.error('Ошибка:', e);
@@ -884,7 +1028,7 @@
                 }, 'image/png');
             } catch (e) {
                 console.error('Ошибка при рендеринге:', e);
-                alert("Ошибка при создании мокапа");
+                showMessage("Ошибка при создании мокапа");
                 btn.disabled = false;
                 btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ПОДЕЛИТЬСЯ`;
             }
