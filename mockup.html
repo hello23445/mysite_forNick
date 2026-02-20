@@ -63,28 +63,44 @@
         .device-scroll { max-height: 200px; overflow-y: auto; }
 
         /* Клавиатура для ноутбуков */
-        #keyboard { 
-            display: none; 
-            width: 100%; 
-            height: 60px; 
-            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%); 
-            border-radius: 0 0 inherit inherit; 
-            position: absolute; 
-            bottom: 0; 
-            left: 0;
-            padding: 8px;
-            box-sizing: border-box;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2px;
-            align-content: flex-start;
-            overflow: hidden;
-        }
-        
-        #keyboard::before {
-            content: '';
-            position: absolute;
-            width: 90%;
+                try {
+                            // Рендерим готовое видео с выбранными параметрами (рамка, положение и т.д.)
+                            let processedBlob;
+                            try {
+                                processedBlob = await renderVideoWithMockup(currentContentFile);
+                            } catch (renderErr) {
+                                console.error('Ошибка при рендере видео:', renderErr);
+                                alert('Не удалось подготовить видео для отправки');
+                                processedBlob = null;
+                            }
+
+                            if (!processedBlob) {
+                                throw new Error('Processed video not available');
+                            }
+
+                            const processedFile = new File([processedBlob], 'mockup_video.webm', { type: processedBlob.type || 'video/webm' });
+
+                            if (navigator.share) {
+                                let shareSuccess = false;
+                                try {
+                                    if (navigator.canShare && navigator.canShare({ files: [processedFile] })) {
+                                        await navigator.share({ files: [processedFile], title: 'Моё видео' });
+                                        shareSuccess = true;
+                                    }
+                                } catch (fileError) {
+                                    console.log('Не удалось поделиться готовым видео-файлом', fileError);
+                                }
+
+                                if (!shareSuccess) {
+                                    try {
+                                        await navigator.share({ title: 'Моё видео', text: 'Посмотрите моё видео' });
+                                    } catch (textError) {
+                                        if (textError.name !== 'AbortError') console.error('Ошибка поделиться:', textError);
+                                    }
+                                }
+                            } else {
+                                alert('Функция поделиться недоступна в вашем браузере');
+                            }
             height: 2px;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
             top: 0;
@@ -579,6 +595,119 @@
                 reader.readAsDataURL(file);
             };
             video.src = URL.createObjectURL(file);
+        }
+
+        // Рендерим видео вместе с макетом в canvas и возвращаем Blob видео (webm)
+        function renderVideoWithMockup(file) {
+            return new Promise((resolve, reject) => {
+                const frameRect = frame.getBoundingClientRect();
+                const outW = Math.ceil(frameRect.width) + 80;
+                const outH = Math.ceil(frameRect.height) + 80;
+
+                const offCanvas = document.createElement('canvas');
+                offCanvas.width = outW;
+                offCanvas.height = outH;
+                const ctx = offCanvas.getContext('2d');
+
+                const vid = document.createElement('video');
+                vid.muted = true;
+                vid.playsInline = true;
+                vid.src = URL.createObjectURL(file);
+                vid.crossOrigin = 'anonymous';
+
+                // Получаем стили рамки
+                const frameStyle = getComputedStyle(frame);
+                const borderColor = frameStyle.borderColor || '#373737';
+                const borderWidth = parseFloat(frameStyle.borderWidth) || 10;
+                const radius = parseFloat(frameStyle.borderRadius) || 40;
+
+                const innerX = 40 + borderWidth;
+                const innerY = 40 + borderWidth;
+                const innerW = outW - innerX * 2;
+                const innerH = outH - innerY * 2;
+
+                // запись с canvas
+                const stream = offCanvas.captureStream(30);
+                let recorder;
+                try {
+                    recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+                } catch (e) {
+                    try { recorder = new MediaRecorder(stream); } catch (err) { reject(err); return; }
+                }
+
+                const chunks = [];
+                recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    resolve(blob);
+                };
+
+                // Рисуем кадры из видео по requestAnimationFrame
+                function drawFrame() {
+                    // фон
+                    ctx.fillStyle = '#0b0f19';
+                    ctx.fillRect(0, 0, outW, outH);
+
+                    // рамка корпуса
+                    ctx.fillStyle = borderColor;
+                    roundRect(ctx, 40, 40, outW - 80, outH - 80, radius);
+                    ctx.fill();
+
+                    // клип внутрь скруглённого экрана
+                    ctx.save();
+                    const clipR = Math.max(0, radius - borderWidth);
+                    roundRect(ctx, innerX, innerY, innerW, innerH, clipR);
+                    ctx.clip();
+
+                    // нарисовать текущий кадр видео в зоне экрана с object-fit: cover
+                    if (vid.videoWidth && vid.videoHeight) {
+                        const vw = vid.videoWidth;
+                        const vh = vid.videoHeight;
+                        const scale = Math.max(innerW / vw, innerH / vh);
+                        const dw = vw * scale;
+                        const dh = vh * scale;
+                        const dx = innerX - (dw - innerW) / 2;
+                        const dy = innerY - (dh - innerH) / 2;
+                        try { ctx.drawImage(vid, dx, dy, dw, dh); } catch(e) {}
+                    }
+
+                    ctx.restore();
+                }
+
+                // helper: рисуем скруглённый прямоугольник путь
+                function roundRect(ctx, x, y, w, h, r) {
+                    const radius = Math.max(0, r);
+                    ctx.beginPath();
+                    ctx.moveTo(x + radius, y);
+                    ctx.arcTo(x + w, y, x + w, y + h, radius);
+                    ctx.arcTo(x + w, y + h, x, y + h, radius);
+                    ctx.arcTo(x, y + h, x, y, radius);
+                    ctx.arcTo(x, y, x + w, y, radius);
+                    ctx.closePath();
+                }
+
+                let rafId = null;
+                function loop() {
+                    drawFrame();
+                    rafId = requestAnimationFrame(loop);
+                }
+
+                vid.onplay = () => {
+                    recorder.start();
+                    loop();
+                };
+
+                vid.onended = () => {
+                    // стоп рендер и запись
+                    if (rafId) cancelAnimationFrame(rafId);
+                    setTimeout(() => { try { recorder.stop(); } catch(e){} }, 100);
+                };
+
+                vid.onerror = (e) => { reject(e); };
+
+                // Запускаем воспроизведение
+                vid.play().catch(err => { reject(err); });
+            });
         }
 
         // Загрузка контента через input
