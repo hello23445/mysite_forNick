@@ -702,8 +702,10 @@
                 drawFrame();
 
                 const stream = canvas.captureStream(30);
-                const mime = 'video/webm';
-                const recorder = new MediaRecorder(stream, { mimeType: mime });
+                let options = { mimeType: 'video/webm;codecs=vp9' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
+                const recorder = new MediaRecorder(stream, options);
                 const chunks = [];
                 recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
                 recorder.start(1000);
@@ -720,9 +722,11 @@
                 });
 
                 cancelAnimationFrame(rafId);
-                const blob = new Blob(chunks, { type: chunks[0]?.type || 'video/webm' });
+                const blob = new Blob(chunks, { type: chunks[0]?.type || options.mimeType || 'video/webm' });
+                // Остановим tracks
+                try { stream.getTracks().forEach(t=>t.stop()); } catch(e){}
                 readyRecordedBlob = blob;
-                console.log('Подготовлено готовое видео (фон).');
+                console.log('Подготовлено готовое видео (фон). size=', blob.size);
             } catch(e){
                 console.error('Ошибка фоновой подготовки видео:', e);
             }
@@ -883,35 +887,27 @@
                         preview.src = '';
                     }
 
-                    // Сохраним подготовленное видео и предложим пользователю поделиться
-                    readyRecordedBlob = recordedBlob;
-                    try {
-                        await createModal('Видео готово', 'Видео подготовлено. Хотите поделиться?', [
-                            { label: 'Отмена', value: 'cancel' },
-                            { label: 'Поделиться', primary: true, onClick: () => {
-                                try {
-                                    if (!readyRecordedBlob) { showMessage('Нет подготовленного видео для шаринга.'); return; }
-                                    const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: readyRecordedBlob.type || 'video/webm' });
-                                    if (!navigator.share) { showMessage('Функция поделиться недоступна в вашем браузере'); return; }
-                                    if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
-                                        navigator.share({ files: [outFile], title: 'Моё видео (мокап)' }).catch(err => {
-                                            console.error('Ошибка при шаринге готового видео:', err);
-                                            showMessage('Не удалось поделиться готовым видео.');
-                                        });
-                                    } else {
-                                        navigator.share({ title: 'Моё видео (мокап)', text: 'Посмотрите мой мокап-видео' }).catch(err => {
-                                            console.error('Ошибка при шаринге готового видео (текст):', err);
-                                        });
-                                    }
-                                } catch (err) {
-                                    console.error('Ошибка при попытке шаринга из модального окна:', err);
-                                    showMessage('Не удалось поделиться готовым видео.');
-                                }
-                            }, value: 'share' }
-                        ]);
-                    } catch (mErr) {
-                        console.error('Ошибка при показе модального окна шаринга:', mErr);
-                        showMessage('Не удалось открыть окно шаринга.');
+                    // Сохраним подготовленное видео и попробуем сразу поделиться (внутри обработчика sendMockup)
+                    // Проверим размер blob — если он очень маленький, считаем запись неудачной
+                    if (!recordedBlob || (recordedBlob.size || 0) < 1000) {
+                        console.error('Подготовленный blob слишком маленький или пустой, size=', recordedBlob?.size);
+                        await showMessage('Не удалось корректно подготовить видео. Попробуйте ещё раз.');
+                    } else {
+                        readyRecordedBlob = recordedBlob;
+                        try {
+                            const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: readyRecordedBlob.type || 'video/webm' });
+                            if (!navigator.share) { await showMessage('Функция поделиться недоступна в вашем браузере'); }
+                            else if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
+                                try { await navigator.share({ files: [outFile], title: 'Моё видео (мокап)' }); }
+                                catch (err) { console.error('Ошибка при шаринге готового видео:', err); await showMessage('Не удалось поделиться готовым видео.'); }
+                            } else {
+                                try { await navigator.share({ title: 'Моё видео (мокап)', text: 'Посмотрите мой мокап-видео' }); }
+                                catch (err) { console.error('Ошибка при шаринге готового видео (текст):', err); }
+                            }
+                        } catch (err) {
+                            console.error('Ошибка при попытке шаринга готового видео:', err);
+                            await showMessage('Не удалось поделиться готовым видео.');
+                        }
                     }
 
                 } catch (e) {

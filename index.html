@@ -416,6 +416,22 @@
       }
     };
 
+    // Скрыть кнопку Назад Telegram WebApp на экране загрузки
+    if (window.Telegram?.WebApp) {
+      try {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        if (tg.BackButton && typeof tg.BackButton.hide === 'function') tg.BackButton.hide();
+        const observer = new MutationObserver(() => {
+          const card = document.querySelector('.card');
+          if (card && card.style.display !== 'none') {
+            try { if (tg.BackButton && typeof tg.BackButton.hide === 'function') tg.BackButton.hide(); } catch(e){}
+          }
+        });
+        observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['style'] });
+      } catch(e) { console.error('Telegram BackButton hide error', e); }
+    }
+
     function showNotification(message) {
       notificationEl.textContent = message;
       notificationEl.style.display = 'block';
