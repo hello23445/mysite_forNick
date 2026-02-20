@@ -116,11 +116,14 @@
             
             <div class="glass p-5 rounded-2xl flex-shrink-0">
                 <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">1. Контент экрана</h3>
-                <input type="file" id="imageUpload" class="hidden" accept="image/*" />
+                <input type="file" id="contentUpload" class="hidden" />
                 <div id="dropZone" class="w-full py-3 border-2 border-dashed border-slate-700 rounded-xl text-xs text-slate-400 hover:border-blue-500 hover:text-blue-400 transition-all cursor-pointer text-center"
-                     ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('imageUpload').click()">
-                    📎 Перетащите фото или нажмите
+                     ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('contentUpload').click()">
+                    📎 <span id="dropZoneText">Перетащите фото или нажмите</span>
                 </div>
+                <p id="premiumMessage" class="text-[8px] font-bold text-blue-400 mt-2 uppercase tracking-widest text-center" style="display:none;">
+                    Купите Premium, чтобы загружать видео
+                </p>
             </div>
 
             <div class="glass p-5 rounded-2xl flex-shrink-0">
@@ -211,22 +214,22 @@
 
         const colors = [
             // Базовые
-            { name: 'Titanium', hex: '#373737' },
-            { name: 'Silver', hex: '#e2e2e2' },
-            { name: 'Gold', hex: '#f5e3c7' },
-            { name: 'Midnight', hex: '#1c1c1e' },
+            { name: 'Titanium', nameRu: 'Титан', hex: '#373737' },
+            { name: 'Silver', nameRu: 'Серебро', hex: '#e2e2e2' },
+            { name: 'Gold', nameRu: 'Золото', hex: '#f5e3c7' },
+            { name: 'Midnight', nameRu: 'Полночь', hex: '#1c1c1e' },
             // Новые цвета
-            { name: 'Deep Purple', hex: '#4b3d54' },
-            { name: 'Alpine Green', hex: '#4f5d4e' },
-            { name: 'Rose Pink', hex: '#e8a3b0' },
-            { name: 'Ocean Blue', hex: '#0066cc' },
-            { name: 'Sunset Orange', hex: '#ff6b35' },
-            { name: 'Forest Green', hex: '#2d5016' },
-            { name: 'Burgundy', hex: '#800020' },
-            { name: 'Turquoise', hex: '#40e0d0' },
-            { name: 'Coral', hex: '#ff6f61' },
-            { name: 'Cream', hex: '#fffdd0' },
-            { name: 'Space Gray', hex: '#2c3e50' }
+            { name: 'Deep Purple', nameRu: 'Глубокий фиолетовый', hex: '#4b3d54' },
+            { name: 'Alpine Green', nameRu: 'Альпийский зелёный', hex: '#4f5d4e' },
+            { name: 'Rose Pink', nameRu: 'Розовый', hex: '#e8a3b0' },
+            { name: 'Ocean Blue', nameRu: 'Морской синий', hex: '#0066cc' },
+            { name: 'Sunset Orange', nameRu: 'Оранжевый закат', hex: '#ff6b35' },
+            { name: 'Forest Green', nameRu: 'Лесной зелёный', hex: '#2d5016' },
+            { name: 'Burgundy', nameRu: 'Бордовый', hex: '#800020' },
+            { name: 'Turquoise', nameRu: 'Бирюзовый', hex: '#40e0d0' },
+            { name: 'Coral', nameRu: 'Коралл', hex: '#ff6f61' },
+            { name: 'Cream', nameRu: 'Кремовый', hex: '#fffdd0' },
+            { name: 'Space Gray', nameRu: 'Космический серый', hex: '#2c3e50' }
         ];
 
         const positions = {
@@ -329,19 +332,30 @@
         if (firstBtn) firstBtn.click();
 
         // Генерируем Цвета
+        let midnightBtn = null;
         colors.forEach(c => {
             const btn = document.createElement('button');
             btn.className = "w-7 h-7 rounded-full border-2 border-slate-700 hover:scale-110 transition-transform relative group";
             btn.style.backgroundColor = c.hex;
-            btn.title = c.name;
+            btn.title = c.nameRu || c.name;
             btn.type = 'button';
             btn.onclick = () => {
                 frame.style.borderColor = c.hex;
                 document.querySelectorAll('#colorPalette button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
                 btn.classList.add('ring-2', 'ring-blue-500');
             };
+            // Сохраняем ссылку на Midnight для выбора по умолчанию
+            if (c.name === 'Midnight') {
+                midnightBtn = btn;
+            }
             document.getElementById('colorPalette').appendChild(btn);
         });
+        
+        // Выбираем Midnight (черный) как цвет по умолчанию
+        if (midnightBtn) {
+            frame.style.borderColor = '#1c1c1e';
+            midnightBtn.classList.add('ring-2', 'ring-blue-500');
+        }
 
         // Контейнер для выбора своего цвета
         const customColorContainer = document.createElement('div');
@@ -410,18 +424,75 @@
             }
         });
 
-        // Генерируем Позиции
+        // Генерируем Позиции + контрол для настройки интенсивности
+        const positionListEl = document.getElementById('positionList');
+        // Контрол ползунка (появляется при выборе позиции)
+        const positionControl = document.createElement('div');
+        positionControl.id = 'positionControl';
+        positionControl.className = 'mt-2';
+        positionControl.style.display = 'none';
+        positionControl.innerHTML = `
+            <div class="flex items-center gap-2">
+                <label id="positionLabel" class="text-[10px] text-slate-300">Интенсивность</label>
+                <input id="positionRange" type="range" min="0" max="200" value="100" step="1" class="flex-1">
+                <span id="positionValue" class="text-[10px] text-slate-400">100%</span>
+            </div>
+        `;
+        positionListEl.parentNode.insertBefore(positionControl, positionListEl.nextSibling);
+
+        let currentBaseTransform = '';
+        function applyScaledTransform(baseTransform, percent) {
+            // scale numeric degree values inside rotateX/Y/Z(...) by percent/100
+            const scale = percent / 100;
+            const scaled = baseTransform.replace(/rotate([XYZ])\((-?\d+(?:\.\d+)?)deg\)/g, (m, axis, val) => {
+                const num = parseFloat(val);
+                const scaledNum = +(num * scale).toFixed(2);
+                return `rotate${axis}(${scaledNum}deg)`;
+            });
+            frame.style.transform = scaled;
+        }
+
+        // Создаём кнопки позиций
         Object.keys(positions).forEach(pos => {
             const btn = document.createElement('button');
             btn.className = "px-2 py-1.5 rounded-lg text-[9px] bg-slate-800/50 border border-slate-700 hover:bg-slate-700 transition-all";
             btn.innerText = pos;
             btn.onclick = () => {
-                frame.style.transform = positions[pos];
+                // Активируем кнопку
                 document.querySelectorAll('#positionList button').forEach(b => b.classList.remove('active-btn'));
                 btn.classList.add('active-btn');
+
+                // Устанавливаем базовую трансформацию и обрабатываем контрол
+                currentBaseTransform = positions[pos];
+                if (pos === 'Ровно') {
+                    // для ровно скрываем контрол и просто устанавливаем transform
+                    positionControl.style.display = 'none';
+                    frame.style.transform = currentBaseTransform;
+                } else {
+                    // показываем контрол и сбрасываем значение
+                    positionControl.style.display = '';
+                    document.getElementById('positionRange').value = 100;
+                    document.getElementById('positionValue').innerText = '100%';
+                    applyScaledTransform(currentBaseTransform, 100);
+                }
             };
-            document.getElementById('positionList').appendChild(btn);
-            if(pos === "Ровно") btn.classList.add('active-btn');
+            positionListEl.appendChild(btn);
+            if(pos === "Ровно") {
+                btn.classList.add('active-btn');
+                // для Ровно скрываем контрол по умолчанию и применяем трансформацию
+                currentBaseTransform = positions[pos];
+                positionControl.style.display = 'none';
+                frame.style.transform = currentBaseTransform;
+            }
+        });
+
+        // Обработка ползунка
+        const range = document.getElementById('positionRange');
+        const valueLabel = document.getElementById('positionValue');
+        range.addEventListener('input', function() {
+            const v = parseInt(this.value, 10);
+            valueLabel.innerText = v + '%';
+            if (currentBaseTransform) applyScaledTransform(currentBaseTransform, v);
         });
 
         // Drag and Drop для загрузки фото
@@ -433,6 +504,23 @@
             dropZone.classList.add('drag-over');
         }
         
+        // Проверка premium статуса
+        const isPremium = localStorage.getItem('premium') === 'yes';
+        const contentUpload = document.getElementById('contentUpload');
+        const dropZoneText = document.getElementById('dropZoneText');
+        const premiumMessage = document.getElementById('premiumMessage');
+        
+        // Устанавливаем accept атрибут в зависимости от premium статуса
+        if (isPremium) {
+            contentUpload.accept = 'image/*,video/*';
+            dropZoneText.textContent = 'Перетащите фото или видео (до 30 сек) или нажмите';
+            premiumMessage.style.display = 'none';
+        } else {
+            contentUpload.accept = 'image/*';
+            dropZoneText.textContent = 'Перетащите фото или нажмите';
+            premiumMessage.style.display = 'block';
+        }
+
         function handleDragLeave(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -449,6 +537,8 @@
                 const file = files[0];
                 if (file.type.startsWith('image/')) {
                     loadImage(file);
+                } else if (file.type.startsWith('video/') && isPremium) {
+                    loadVideo(file);
                 }
             }
         }
@@ -459,11 +549,32 @@
             reader.readAsDataURL(file);
         }
 
-        // Загрузка фото через input
-        document.getElementById('imageUpload').addEventListener('change', function(e) {
+        function loadVideo(file) {
+            const video = document.createElement('video');
+            video.onloadedmetadata = function() {
+                if (video.duration > 30) {
+                    alert('Видео слишком длинное! Максимальная длительность: 30 секунд. Ваше видео: ' + Math.round(video.duration) + ' секунд.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    screenBg.style.backgroundImage = 'none';
+                    screen.innerHTML = `<video style="width:100%; height:100%; object-fit:cover;" src="${ev.target.result}" autoplay loop muted></video>`;
+                };
+                reader.readAsDataURL(file);
+            };
+            video.src = URL.createObjectURL(file);
+        }
+
+        // Загрузка контента через input
+        contentUpload.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                loadImage(file);
+                if (file.type.startsWith('image/')) {
+                    loadImage(file);
+                } else if (file.type.startsWith('video/') && isPremium) {
+                    loadVideo(file);
+                }
             }
         });
 
@@ -481,12 +592,40 @@
             btn.innerHTML = `<span class="animate-spin">🌀</span> Отправка...`;
 
             try {
+                // Перед созданием скриншота временно расширим область захвата
+                const capture = document.getElementById('capture-area');
+                const frameRect = frame.getBoundingClientRect();
+                // Сохраним оригинальные стили чтобы потом восстановить
+                const origStyles = {
+                    width: capture.style.width || '',
+                    height: capture.style.height || '',
+                    padding: capture.style.padding || '',
+                    display: capture.style.display || '',
+                    alignItems: capture.style.alignItems || '',
+                    justifyContent: capture.style.justifyContent || ''
+                };
+                // Установим размеры, чтобы вокруг телефона был отступ 40px
+                capture.style.display = 'flex';
+                capture.style.alignItems = 'center';
+                capture.style.justifyContent = 'center';
+                capture.style.width = (Math.ceil(frameRect.width) + 80) + 'px';
+                capture.style.height = (Math.ceil(frameRect.height) + 80) + 'px';
+                capture.style.padding = '40px';
+
                 // Делаем скриншот через html2canvas
-                const canvas = await html2canvas(document.getElementById('capture-area'), {
+                const canvas = await html2canvas(capture, {
                     backgroundColor: '#0b0f19',
                     scale: 2,
                     useCORS: true
                 });
+
+                // Восстанавливаем стили сразу после рендера (до конвертации в blob не обязательно держать изменения)
+                capture.style.width = origStyles.width;
+                capture.style.height = origStyles.height;
+                capture.style.padding = origStyles.padding;
+                capture.style.display = origStyles.display;
+                capture.style.alignItems = origStyles.alignItems;
+                capture.style.justifyContent = origStyles.justifyContent;
 
                 // Преобразуем в blob для поделиться
                 canvas.toBlob(async (blob) => {

@@ -193,8 +193,19 @@
     if (window.Telegram?.WebApp) {
         const tg = window.Telegram.WebApp;
         tg.ready();
+        // Гарантированное скрытие кнопки Назад при загрузке главного меню
         tg.BackButton.hide();
         tg.SettingsButton.show();
+        
+        // Также скрывать BackButton каждый раз, когда mainMenu становится видимым
+        const observer = new MutationObserver(function(mutations) {
+            const mainMenu = document.getElementById('mainMenu');
+            if (mainMenu && mainMenu.style.display === 'block') {
+                tg.BackButton.hide();
+            }
+        });
+        
+        observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['style'] });
     }
     </script>
 </body>
