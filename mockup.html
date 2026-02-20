@@ -11,16 +11,53 @@
     <style>
         body { font-family: 'Inter', sans-serif; background: #0b0f19; color: white; margin: 0; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Стилизация списка */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
-        .perspective-container { perspective: 1200px; display: flex; align-items: center; justify-content: center; }
-        #device-frame { transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease; transform-style: preserve-3d; border-style: solid; }
-        .active-btn { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.2) !important; color: #fff !important; }
-        #screen-bg { width: 100%; height: 100%; background-position: center; background-repeat: no-repeat; background-size: cover; transition: background-image 0.3s; }
-        @keyframes toast { 0% { transform: translateY(100px); opacity: 0; } 10% { transform: translateY(0); opacity: 1; } 90% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(100px); opacity: 0; } }
+
+        /* Контейнер для 3D */
+        .perspective-container {
+            perspective: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #device-frame {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease;
+            transform-style: preserve-3d;
+            border-style: solid;
+        }
+
+        .active-btn { 
+            border-color: #3b82f6 !important; 
+            background: rgba(59, 130, 246, 0.2) !important; 
+            color: #fff !important;
+        }
+
+        /* Экраны */
+        #screen-bg {
+            width: 100%; height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            transition: background-image 0.3s;
+        }
+
+        /* Анимация отправки */
+        @keyframes toast {
+            0% { transform: translateY(100px); opacity: 0; }
+            10% { transform: translateY(0); opacity: 1; }
+            90% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(100px); opacity: 0; }
+        }
         #toast { display: none; animation: toast 3s forwards; }
+
+        /* Прелоадер видео */
         .spinner { width:28px; height:28px; border:3px solid rgba(255,255,255,0.08); border-top-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        /* Модальные окна */
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:60}
         .modal{background:#0f1724;padding:18px;border-radius:12px;max-width:420px;color:#e6edf3;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
         .modal .modal-title{font-weight:600;margin-bottom:8px;color:#60a5fa}
@@ -28,11 +65,48 @@
         .modal .modal-actions{display:flex;gap:8px;justify-content:flex-end}
         .modal .btn{padding:8px 12px;border-radius:8px;background:#111827;color:#fff;border:1px solid rgba(255,255,255,0.04);cursor:pointer}
         .modal .btn.primary{background:#3b82f6}
-        .drag-over { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.3) !important; }
+
+        /* Drag and Drop */
+        .drag-over {
+            border-color: #3b82f6 !important;
+            background: rgba(59, 130, 246, 0.3) !important;
+        }
+
+        /* Скрол для списка устройств */
         .device-scroll { max-height: 200px; overflow-y: auto; }
-        #keyboard { display: none; width: 100%; height: 60px; background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%); border-radius: 0 0 inherit inherit; position: absolute; bottom: 0; left: 0; padding: 8px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 2px; align-content: flex-start; overflow: hidden; }
-        #keyboard::before { content: ''; position: absolute; width: 90%; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); top: 0; left: 5%; }
-        .key { width: 8%; height: 18px; background: #333; border: 1px solid #222; border-radius: 2px; flex-shrink: 0; }
+
+        /* Клавиатура для ноутбуков */
+        #keyboard { 
+            display: none; 
+            width: 100%; 
+            height: 60px; 
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%); 
+            border-radius: 0 0 inherit inherit; 
+            position: absolute; 
+            bottom: 0; 
+            left: 0;
+            padding: 8px;
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            align-content: flex-start;
+            overflow: hidden;
+        }
+        
+        #keyboard::before {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            top: 0;
+            left: 5%;
+        }
+        
+        .key {
+            width: 8%; height: 18px; background: #333; border: 1px solid #222; border-radius: 2px; flex-shrink: 0;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -103,7 +177,20 @@
     </main>
 
     <script>
+        alert('Обновлено успешно!');
+        // ====================== ГЛОБАЛЬНЫЕ УТИЛИТЫ ======================
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.arcTo(x + width, y, x + width, y + radius, radius);
+            ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+            ctx.arcTo(x, y + height, x, y + height - radius, radius);
+            ctx.arcTo(x, y, x + radius, y, radius);
+            ctx.closePath();
+        }
+
         const devices = {
+            // iPhone
             "iPhone 11":        { w: 278, h: 580, r: '40px', b: '10px', type: 'notch', category: 'iPhone' },
             "iPhone 12":        { w: 280, h: 590, r: '40px', b: '10px', type: 'notch', category: 'iPhone' },
             "iPhone 12 Pro":    { w: 280, h: 590, r: '40px', b: '10px', type: 'island', category: 'iPhone' },
@@ -123,6 +210,8 @@
             "iPhone 16 Pro":    { w: 298, h: 618, r: '48px', b: '7px',  type: 'island', category: 'iPhone' },
             "iPhone 16 Pro Max":{ w: 340, h: 700, r: '52px', b: '5px',  type: 'island', category: 'iPhone' },
             "iPhone 17 Pro Max":{ w: 345, h: 710, r: '54px', b: '4px',  type: 'island', category: 'iPhone' },
+            
+            // Samsung
             "Samsung Galaxy S24":       { w: 280, h: 600, r: '44px', b: '10px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy S24+":      { w: 300, h: 630, r: '46px', b: '12px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy S24 Ultra": { w: 320, h: 680, r: '48px', b: '12px', type: 'hole', category: 'Samsung' },
@@ -182,12 +271,13 @@
         const notch = document.getElementById('notch');
         const screenBg = document.getElementById('screen-bg');
         const keyboard = document.getElementById('keyboard');
+
         let currentContentFile = null;
         let currentContentType = null;
         let videoReady = false;
         let readyRecordedBlob = null;
-        let backgroundPrepPromise = null; // промис текущей фоновой подготовки
 
+        // ====================== МОДАЛЬНЫЕ ОКНА ======================
         (function(){
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
@@ -240,12 +330,14 @@
             };
         })();
 
-        // генерация UI (devices, colors, positions) — оставляем без изменений
+        // ====================== ГЕНЕРАЦИЯ УСТРОЙСТВ ======================
         let currentCategory = null;
         Object.keys(devices).forEach(name => {
             const device = devices[name];
             const category = device.category;
+            
             let container = document.getElementById('deviceList');
+            
             if (currentCategory !== category) {
                 const header = document.createElement('div');
                 header.className = "text-[9px] font-bold text-blue-300 mt-3 mb-2 px-2 uppercase tracking-widest";
@@ -253,6 +345,7 @@
                 container.appendChild(header);
                 currentCategory = category;
             }
+            
             const btn = document.createElement('button');
             btn.className = "w-full text-left px-3 py-1.5 rounded-lg text-[10px] text-slate-300 border border-slate-800 hover:border-slate-600 transition-all";
             btn.innerText = name;
@@ -264,7 +357,9 @@
                 frame.style.height = d.h + 'px';
                 frame.style.borderRadius = d.r;
                 frame.style.borderWidth = d.b;
+                
                 keyboard.innerHTML = '';
+                
                 if (d.type === 'island') {
                     notch.style.width = '85px';
                     notch.style.height = '25px';
@@ -293,45 +388,35 @@
                     screen.style.height = '100%';
                     screen.style.borderRadius = `calc(${d.r} - ${d.b})`;
                     keyboard.style.display = 'none';
-                } else if (d.type === 'laptop') {
-                    notch.style.display = 'none';
-                    screen.style.height = '70%';
-                    screen.style.borderRadius = `calc(${d.r} - ${d.b}) calc(${d.r} - ${d.b}) 0 0`;
-                    keyboard.style.display = 'flex';
-                    for (let i = 0; i < 35; i++) {
-                        const key = document.createElement('div');
-                        key.className = 'key';
-                        keyboard.appendChild(key);
-                    }
                 }
             };
             container.appendChild(btn);
         });
+        
         const firstBtn = document.querySelector('#deviceList button');
         if (firstBtn) firstBtn.click();
 
-        // Цвета
+        // ====================== ЦВЕТА ======================
         let midnightBtn = null;
         colors.forEach(c => {
             const btn = document.createElement('button');
             btn.className = "w-7 h-7 rounded-full border-2 border-slate-700 hover:scale-110 transition-transform relative group";
             btn.style.backgroundColor = c.hex;
             btn.title = c.nameRu || c.name;
-            btn.type = 'button';
             btn.onclick = () => {
                 frame.style.borderColor = c.hex;
                 document.querySelectorAll('#colorPalette button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
                 btn.classList.add('ring-2', 'ring-blue-500');
             };
-            if (c.name === 'Midnight') {
-                midnightBtn = btn;
-            }
+            if (c.name === 'Midnight') midnightBtn = btn;
             document.getElementById('colorPalette').appendChild(btn);
         });
+        
         if (midnightBtn) {
             frame.style.borderColor = '#1c1c1e';
             midnightBtn.classList.add('ring-2', 'ring-blue-500');
         }
+
         const customColorContainer = document.createElement('div');
         customColorContainer.className = "flex items-center gap-1";
         const customColorPicker = document.createElement('input');
@@ -342,6 +427,7 @@
         customColorPicker.value = '#3b82f6';
         customColorContainer.appendChild(customColorPicker);
         document.getElementById('colorPalette').appendChild(customColorContainer);
+        
         const hexInput = document.createElement('input');
         hexInput.type = 'text';
         hexInput.placeholder = 'HEX';
@@ -350,13 +436,12 @@
         hexInput.value = '#3b82f6';
         hexInput.style.marginLeft = 'auto';
         document.getElementById('colorPalette').appendChild(hexInput);
+
         customColorPicker.addEventListener('change', function(e) {
             const color = e.target.value.toUpperCase();
             frame.style.borderColor = color;
             hexInput.value = color;
-            document.querySelectorAll('#colorPalette button').forEach(b => {
-                b.classList.remove('ring-2', 'ring-blue-500');
-            });
+            document.querySelectorAll('#colorPalette button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
         });
         customColorPicker.addEventListener('input', function(e) {
             const color = e.target.value.toUpperCase();
@@ -365,18 +450,17 @@
         });
         hexInput.addEventListener('input', function(e) {
             let hex = e.target.value.toUpperCase();
-            if (hex && !hex.startsWith('#')) { hex = '#' + hex; }
+            if (hex && !hex.startsWith('#')) hex = '#' + hex;
             if (/^#[0-9A-F]{6}$/.test(hex)) {
                 frame.style.borderColor = hex;
                 customColorPicker.value = hex;
-                if (!e.target.value.startsWith('#')) { e.target.value = hex; }
             }
         });
         hexInput.addEventListener('blur', function(e) {
-            if (!e.target.value.startsWith('#')) { e.target.value = '#' + e.target.value; }
+            if (!e.target.value.startsWith('#')) e.target.value = '#' + e.target.value;
         });
 
-        // Позиции
+        // ====================== ПОЗИЦИИ ======================
         const positionListEl = document.getElementById('positionList');
         const positionControl = document.createElement('div');
         positionControl.id = 'positionControl';
@@ -390,6 +474,7 @@
             </div>
         `;
         positionListEl.parentNode.insertBefore(positionControl, positionListEl.nextSibling);
+
         let currentBaseTransform = '';
         function applyScaledTransform(baseTransform, percent) {
             const scale = percent / 100;
@@ -400,6 +485,7 @@
             });
             frame.style.transform = scaled;
         }
+
         Object.keys(positions).forEach(pos => {
             const btn = document.createElement('button');
             btn.className = "px-2 py-1.5 rounded-lg text-[9px] bg-slate-800/50 border border-slate-700 hover:bg-slate-700 transition-all";
@@ -426,6 +512,7 @@
                 frame.style.transform = currentBaseTransform;
             }
         });
+
         const range = document.getElementById('positionRange');
         const valueLabel = document.getElementById('positionValue');
         range.addEventListener('input', function() {
@@ -434,16 +521,16 @@
             if (currentBaseTransform) applyScaledTransform(currentBaseTransform, v);
         });
 
-        // Drag & drop
+        // ====================== DRAG & DROP ======================
         const dropZone = document.getElementById('dropZone');
         function handleDragOver(e) { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('drag-over'); }
         function handleDragLeave(e) { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('drag-over'); }
 
-        // premium check
         const isPremium = localStorage.getItem('premium') === 'yes';
         const contentUpload = document.getElementById('contentUpload');
         const dropZoneText = document.getElementById('dropZoneText');
         const premiumMessage = document.getElementById('premiumMessage');
+        
         if (isPremium) {
             contentUpload.accept = 'image/*,video/*';
             dropZoneText.textContent = 'Перетащите фото или видео (до 20 сек) или нажмите';
@@ -458,30 +545,28 @@
             e.preventDefault();
             e.stopPropagation();
             dropZone.classList.remove('drag-over');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                const file = files[0];
-                currentContentFile = file;
-                if (file.type.startsWith('image/')) {
-                    currentContentType = 'image';
-                    videoReady = true;
-                    loadImage(file);
-                } else if (file.type.startsWith('video/') && isPremium) {
-                    currentContentType = 'video';
-                    videoReady = false;
-                    loadVideo(file);
-                }
+            const file = e.dataTransfer.files[0];
+            if (file) processFile(file);
+        }
+
+        function processFile(file) {
+            currentContentFile = file;
+            if (file.type.startsWith('image/')) {
+                currentContentType = 'image';
+                videoReady = true;
+                loadImage(file);
+            } else if (file.type.startsWith('video/') && isPremium) {
+                currentContentType = 'video';
+                videoReady = false;
+                loadVideo(file);
+            } else if (file.type.startsWith('video/') && !isPremium) {
+                showMessage('Требуется Premium для загрузки видео');
             }
         }
 
         function loadImage(file) {
             const reader = new FileReader();
-            reader.onload = (ev) => {
-                screenBg.style.backgroundImage = `url('${ev.target.result}')`;
-                // remove any existing preview video element
-                const pv = document.getElementById('previewVideo');
-                if (pv) { pv.pause(); pv.src = ''; pv.remove(); }
-            };
+            reader.onload = (ev) => screenBg.style.backgroundImage = `url('${ev.target.result}')`;
             reader.readAsDataURL(file);
         }
 
@@ -489,182 +574,112 @@
             currentContentFile = file;
             currentContentType = 'video';
             videoReady = false;
-            readyRecordedBlob = null;
-            // очистим возможный старый preview
-            const old = document.getElementById('previewVideo');
-            if (old) { old.pause(); old.src = ''; old.remove(); }
-            const reader = new FileReader();
-            // Показываем прелоадер
-            screenBg.style.backgroundImage = 'none';
-            screen.innerHTML = `<div id="contentPreloader" class="flex items-center justify-center w-full h-full"><div class="spinner"></div></div>`;
-            reader.onload = (ev) => {
-                // Создаем элемент видео в DOM, чтобы пользователь видел превью
-                const videoEl = document.createElement('video');
-                videoEl.id = 'previewVideo';
-                videoEl.style.width = '100%';
-                videoEl.style.height = '100%';
-                videoEl.style.objectFit = 'cover';
-                videoEl.src = ev.target.result;
-                videoEl.autoplay = true;
-                videoEl.loop = true;
-                videoEl.muted = true;
-                videoEl.playsInline = true;
-                videoEl.controls = false;
-                // Очистим экран и вставим видео
-                screen.innerHTML = '';
-                screen.appendChild(videoEl);
-                // дождёмся метаданных и старта воспроизведения, потом запустим фоновую подготовку
-                videoEl.addEventListener('loadedmetadata', async () => {
-                    try { await videoEl.play().catch(()=>{}); } catch(e){}
-                    videoReady = true;
-                    // запускаем фоновую подготовку, но сохраняем промис чтобы можно было ожидать
-                    backgroundPrepPromise = prepareRenderedVideoInBackground(videoEl).catch(err => { console.error('background prep failed', err); return null; });
-                }, { once: true });
-            };
-            reader.readAsDataURL(file);
-        }
 
-        // Функция подготовки видео (возвращает Promise<Blob|null>)
-        async function prepareRenderedVideoInBackground(preview){
-            // Возвращаем уже подготовленный blob если есть
-            if (readyRecordedBlob) return readyRecordedBlob;
-            // Если уже идёт подготовка — ждём её
-            if (backgroundPrepPromise) {
-                await backgroundPrepPromise;
-                return readyRecordedBlob;
-            }
-            // создаём промис подготовки
-            backgroundPrepPromise = (async () => {
-                try {
-                    // Убедимся, что preview готов
-                    if (!preview) throw new Error('Нет элемента preview для подготовки');
-                    // ждём metadata
-                    if (!preview.videoWidth || !preview.videoHeight) {
-                        await new Promise((res) => {
-                            const t = setTimeout(res, 2000);
-                            preview.addEventListener('loadedmetadata', () => { clearTimeout(t); res(); }, { once: true });
-                        });
-                    }
-                    try { preview.currentTime = 0; await preview.play().catch(()=>{}); } catch(e){}
-                    // размеры устройства (frame)
-                    const frameRect = frame.getBoundingClientRect();
-                    const w = Math.max(1, Math.ceil(frameRect.width));
-                    const h = Math.max(1, Math.ceil(frameRect.height));
-                    const canvas = document.createElement('canvas');
-                    const dpr = Math.max(1, window.devicePixelRatio || 1);
-                    canvas.width = w * dpr;
-                    canvas.height = h * dpr;
-                    canvas.style.width = w + 'px';
-                    canvas.style.height = h + 'px';
-                    const ctx = canvas.getContext('2d');
-                    ctx.scale(dpr, dpr);
-
-                    let rafId = null;
-                    const brPx = parseInt(getComputedStyle(frame).borderRadius) || 20;
-                    const bw = parseInt(getComputedStyle(frame).borderWidth) || 10;
-
-                    function roundRectPath(ctx, x, y, width, height, radius) {
-                        ctx.beginPath();
-                        ctx.moveTo(x + radius, y);
-                        ctx.arcTo(x + width, y, x + width, y + radius, radius);
-                        ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
-                        ctx.arcTo(x, y + height, x, y + height - radius, radius);
-                        ctx.arcTo(x, y, x + radius, y, radius);
-                        ctx.closePath();
-                    }
-
-                    function drawFrame(){
-                        // clear
-                        ctx.clearRect(0,0,w,h);
-                        // фон
-                        ctx.fillStyle = '#0b0f19';
-                        ctx.fillRect(0,0,w,h);
-
-                        // clip to rounded rect for the video area
-                        ctx.save();
-                        roundRectPath(ctx, bw/2, bw/2, w - bw, h - bw, brPx);
-                        ctx.clip();
-
-                        // draw video centered and cover
-                        let vw = preview.videoWidth || w;
-                        let vh = preview.videoHeight || h;
-                        const ratio = Math.max(w / vw, h / vh);
-                        const dw = vw * ratio;
-                        const dh = vh * ratio;
-                        const dx = (w - dw) / 2;
-                        const dy = (h - dh) / 2;
-                        try { ctx.drawImage(preview, dx, dy, dw, dh); } catch(e){ /* может быть, если ещё не готово */ }
-
-                        ctx.restore();
-
-                        // draw rounded frame border
-                        ctx.lineWidth = bw;
-                        ctx.strokeStyle = getComputedStyle(frame).borderColor || '#000';
-                        roundRectPath(ctx, bw/2, bw/2, w - bw, h - bw, brPx);
-                        ctx.stroke();
-
-                        rafId = requestAnimationFrame(drawFrame);
-                    }
-
-                    drawFrame();
-
-                    const stream = canvas.captureStream(30);
-                    let options = { mimeType: 'video/webm;codecs=vp9' };
-                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
-                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
-                    const recorder = new MediaRecorder(stream, options);
-                    const chunks = [];
-                    recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
-                    recorder.start(250); // чанк раз в 250ms
-
-                    // Определим длительность записи (по длительности видео или 20s max)
-                    const maxDur = Math.min(preview.duration || 20, 20);
-                    await new Promise(res => {
-                        const t = setTimeout(()=> {
-                            try{ if (recorder.state === 'recording') recorder.stop(); }catch(e){}
-                        }, Math.ceil(maxDur*1000)+600);
-                        recorder.onstop = () => { clearTimeout(t); res(); };
-                    });
-
-                    cancelAnimationFrame(rafId);
-                    const blob = new Blob(chunks, { type: chunks[0]?.type || options.mimeType || 'video/webm' });
-                    try { stream.getTracks().forEach(t => t.stop()); } catch(e){}
-                    readyRecordedBlob = blob;
-                    console.log('Подготовлено готовое видео (фон). size=', blob.size);
-                    return blob;
-                } catch (err) {
-                    console.error('Ошибка фоновой подготовки видео:', err);
-                    return null;
-                } finally {
-                    backgroundPrepPromise = null;
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.onloadedmetadata = function() {
+                if (video.duration > 20) {
+                    showMessage('Видео слишком длинное! Максимальная длительность: 20 секунд. Ваше видео: ' + Math.round(video.duration) + ' секунд.');
+                    currentContentFile = null;
+                    currentContentType = null;
+                    videoReady = false;
+                    return;
                 }
-            })();
 
-            return backgroundPrepPromise;
+                screenBg.style.backgroundImage = 'none';
+                screen.innerHTML = `<div id="contentPreloader" class="flex items-center justify-center w-full h-full"><div class="spinner"></div></div>`;
+
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    screen.innerHTML = `<video id="previewVideo" style="width:100%; height:100%; object-fit:cover;" src="${ev.target.result}" autoplay loop muted playsinline></video>`;
+                    videoReady = true;
+                    setTimeout(() => {
+                        const pv = document.getElementById('previewVideo');
+                        if (pv) prepareRenderedVideoInBackground(pv);
+                    }, 500);
+                };
+                reader.readAsDataURL(file);
+            };
+            video.src = URL.createObjectURL(file);
         }
 
-        // input change
+        // ====================== ПОДГОТОВКА ВИДЕО В ФОНЕ (ИСПРАВЛЕНО) ======================
+        async function prepareRenderedVideoInBackground(preview) {
+            try {
+                readyRecordedBlob = null;
+
+                const w = Math.ceil(parseFloat(getComputedStyle(frame).width));
+                const h = Math.ceil(parseFloat(getComputedStyle(frame).height));
+
+                const canvas = document.createElement('canvas');
+                const dpr = Math.max(1, window.devicePixelRatio || 1);
+                canvas.width = w * dpr;
+                canvas.height = h * dpr;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(dpr, dpr);
+
+                let rafId = null;
+                function drawFrame() {
+                    ctx.fillStyle = '#0b0f19';
+                    ctx.fillRect(0, 0, w, h);
+
+                    let vw = preview.videoWidth || w;
+                    let vh = preview.videoHeight || h;
+                    const ratio = Math.max(w / vw, h / vh);
+                    const dw = vw * ratio;
+                    const dh = vh * ratio;
+                    const dx = (w - dw) / 2;
+                    const dy = (h - dh) / 2;
+                    try { ctx.drawImage(preview, dx, dy, dw, dh); } catch(e){}
+
+                    const br = parseInt(getComputedStyle(frame).borderRadius) || 20;
+                    const bw = parseInt(getComputedStyle(frame).borderWidth) || 10;
+                    ctx.lineWidth = bw;
+                    ctx.strokeStyle = getComputedStyle(frame).borderColor || '#000';
+                    roundRect(ctx, bw/2, bw/2, w - bw, h - bw, br);
+                    ctx.stroke();                    // ← ИСПРАВЛЕНИЕ: добавлен stroke
+
+                    rafId = requestAnimationFrame(drawFrame);
+                }
+
+                drawFrame();
+
+                const stream = canvas.captureStream(30);
+                let options = { mimeType: 'video/webm;codecs=vp9' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
+                const recorder = new MediaRecorder(stream, options);
+                const chunks = [];
+                recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+                recorder.start(500);
+
+                try { preview.currentTime = 0; await preview.play().catch(()=>{}); } catch(e){}
+
+                const maxDur = Math.min(preview.duration || 20, 20);
+                await new Promise(res => {
+                    const t = setTimeout(() => {
+                        if (recorder.state === 'recording') recorder.stop();
+                    }, Math.ceil(maxDur * 1000) + 500);
+                    recorder.onstop = () => { clearTimeout(t); res(); };
+                });
+
+                cancelAnimationFrame(rafId);
+                const blob = new Blob(chunks, { type: chunks[0]?.type || 'video/webm' });
+                stream.getTracks().forEach(t => t.stop());
+                readyRecordedBlob = blob;
+                console.log('✅ Видео подготовлено в фоне. Размер:', blob.size);
+            } catch(e) {
+                console.error('Ошибка фоновой подготовки видео:', e);
+            }
+        }
+
+        // ====================== ЗАГРУЗКА ЧЕРЕЗ INPUT ======================
         contentUpload.addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
-                currentContentFile = file;
-                if (file.type.startsWith('image/')) {
-                    currentContentType = 'image';
-                    videoReady = true;
-                    loadImage(file);
-                } else if (file.type.startsWith('video/')) {
-                    if (!isPremium) {
-                        showMessage('Требуется Premium для загрузки видео');
-                        return;
-                    }
-                    currentContentType = 'video';
-                    videoReady = false;
-                    loadVideo(file);
-                }
-            }
+            if (file) processFile(file);
         });
 
-        // sendMockup — упрощённая и надёжная логика для видео: используем готовый readyRecordedBlob или ждём prepareRenderedVideoInBackground
+        // ====================== ОТПРАВКА (ИСПРАВЛЕНО) ======================
         async function sendMockup() {
             const btn = document.getElementById('sendBtn');
 
@@ -672,35 +687,25 @@
                 if (!isPremium) { await showMessage('Требуется Premium для отправки видео'); return; }
                 if (!videoReady) { await showMessage('Видео ещё загружается. Подождите, пожалуйста.'); return; }
 
-                // Если готовый blob уже есть — шарим его
-                if (readyRecordedBlob && (readyRecordedBlob.size || 0) > 1000) {
+                if (readyRecordedBlob) {
                     try {
                         const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: readyRecordedBlob.type || 'video/webm' });
-                        if (!navigator.share) { await showMessage('Функция поделиться недоступна в вашем браузере'); return; }
                         if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
                             await navigator.share({ files: [outFile], title: 'Моё видео (мокап)' });
-                        } else {
+                        } else if (navigator.share) {
                             await navigator.share({ title: 'Моё видео (мокап)', text: 'Посмотрите мой мокап-видео' });
                         }
                         return;
                     } catch (err) {
-                        console.error('Ошибка при шаринге готового видео:', err);
-                        await showMessage('Не удалось поделиться готовым видео.');
-                        return;
+                        console.error(err);
                     }
                 }
 
-                // Показываем индикацию подготовки
+                // === FALLBACK: запись на лету (тоже исправлена) ===
                 btn.disabled = true;
-                btn.dataset._origBg = btn.style.backgroundColor || '';
-                btn.dataset._origCursor = btn.style.cursor || '';
-                btn.classList.add('opacity-70');
-                btn.style.backgroundColor = '#9ca3af';
-                btn.style.cursor = 'not-allowed';
                 btn.innerHTML = `<span class="animate-spin">🌀</span> Подготовка видео...`;
 
                 try {
-                    // Найдём превью (если есть)
                     let preview = document.getElementById('previewVideo');
                     let createdTemp = false;
                     if (!preview) {
@@ -708,72 +713,98 @@
                         preview.src = URL.createObjectURL(currentContentFile);
                         preview.muted = true;
                         preview.playsInline = true;
-                        preview.loop = false;
-                        preview.autoplay = false;
                         createdTemp = true;
-                        // ждём метаданных
-                        await new Promise(res => {
-                            const t = setTimeout(res, 2000);
-                            preview.addEventListener('loadedmetadata', () => { clearTimeout(t); res(); }, { once: true });
-                            preview.load();
-                        });
                     }
 
-                    // Убедимся, что элемент играет
-                    try { await preview.play().catch(()=>{}); } catch(e){}
+                    await new Promise(r => {
+                        if (preview.readyState >= 2) r();
+                        else preview.onloadeddata = r;
+                    });
+                    await preview.play().catch(() => {});
 
-                    // Запускаем фоновую подготовку и ждём результата (если уже запущена, функция вернёт готовый)
-                    const blob = await prepareRenderedVideoInBackground(preview);
+                    const w = Math.ceil(parseFloat(getComputedStyle(frame).width));
+                    const h = Math.ceil(parseFloat(getComputedStyle(frame).height));
 
-                    if (!blob || (blob.size || 0) < 1000) {
-                        console.error('Подготовленный blob слишком маленький или отсутствует', blob);
-                        await showMessage('Не удалось корректно подготовить видео. Попробуйте ещё раз или загрузите другое видео.');
-                        return;
+                    const canvas = document.createElement('canvas');
+                    const dpr = Math.max(1, window.devicePixelRatio || 1);
+                    canvas.width = w * dpr;
+                    canvas.height = h * dpr;
+                    const ctx = canvas.getContext('2d');
+                    ctx.scale(dpr, dpr);
+
+                    function drawFrame() {
+                        ctx.fillStyle = '#0b0f19';
+                        ctx.fillRect(0, 0, w, h);
+
+                        let vw = preview.videoWidth || w;
+                        let vh = preview.videoHeight || h;
+                        const ratio = Math.max(w / vw, h / vh);
+                        const dw = vw * ratio;
+                        const dh = vh * ratio;
+                        const dx = (w - dw) / 2;
+                        const dy = (h - dh) / 2;
+                        try { ctx.drawImage(preview, dx, dy, dw, dh); } catch(e){}
+
+                        const br = parseInt(getComputedStyle(frame).borderRadius) || 20;
+                        const bw = parseInt(getComputedStyle(frame).borderWidth) || 10;
+                        ctx.lineWidth = bw;
+                        ctx.strokeStyle = getComputedStyle(frame).borderColor || '#000';
+                        roundRect(ctx, bw/2, bw/2, w - bw, h - bw, br);
+                        ctx.stroke();
                     }
 
-                    readyRecordedBlob = blob;
+                    const stream = canvas.captureStream(30);
+                    let options = { mimeType: 'video/webm;codecs=vp9' };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
+                    const recorder = new MediaRecorder(stream, options);
+                    const chunks = [];
+                    recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
 
-                    // Шарим
-                    try {
-                        const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: readyRecordedBlob.type || 'video/webm' });
-                        if (!navigator.share) { await showMessage('Функция поделиться недоступна в вашем браузере'); return; }
+                    recorder.start(100);
+                    let rafId;
+                    const drawLoop = () => { drawFrame(); rafId = requestAnimationFrame(drawLoop); };
+                    drawLoop();
+
+                    await new Promise(resolve => {
+                        let resolved = false;
+                        const onEnd = () => { if (!resolved) { resolved = true; resolve(); } };
+                        preview.onended = onEnd;
+                        const maxDur = Math.min(preview.duration || 20, 20);
+                        setTimeout(() => { if (!resolved) { resolved = true; resolve(); } }, Math.ceil(maxDur * 1000) + 500);
+                    });
+
+                    const stopPromise = new Promise(res => recorder.onstop = () => res(new Blob(chunks, { type: 'video/webm' })));
+                    recorder.stop();
+                    cancelAnimationFrame(rafId);
+                    const recordedBlob = await stopPromise;
+                    stream.getTracks().forEach(t => t.stop());
+
+                    if (createdTemp) { preview.pause(); preview.src = ''; }
+
+                    if (!recordedBlob || recordedBlob.size < 1000) {
+                        await showMessage('Не удалось подготовить видео. Попробуйте ещё раз.');
+                    } else {
+                        readyRecordedBlob = recordedBlob;
+                        const outFile = new File([readyRecordedBlob], 'mockup-video.webm', { type: 'video/webm' });
                         if (navigator.canShare && navigator.canShare({ files: [outFile] })) {
                             await navigator.share({ files: [outFile], title: 'Моё видео (мокап)' });
-                        } else {
+                        } else if (navigator.share) {
                             await navigator.share({ title: 'Моё видео (мокап)', text: 'Посмотрите мой мокап-видео' });
                         }
-                    } catch (err) {
-                        console.error('Ошибка при шаринге видео после подготовки:', err);
-                        await showMessage('Не удалось поделиться готовым видео.');
-                    } finally {
-                        if (createdTemp) {
-                            try { preview.pause(); preview.src = ''; } catch(e){}
-                        }
                     }
-
                 } catch (e) {
-                    console.error('Ошибка при подготовке видео в sendMockup:', e);
+                    console.error(e);
                     await showMessage('Ошибка при подготовке видео');
                 } finally {
                     btn.disabled = false;
                     btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ПОДЕЛИТЬСЯ`;
-                    btn.style.backgroundColor = btn.dataset._origBg || '';
-                    btn.style.cursor = btn.dataset._origCursor || '';
-                    btn.classList.remove('opacity-70');
-                    delete btn.dataset._origBg;
-                    delete btn.dataset._origCursor;
                 }
-
                 return;
             }
 
-            // --- Поведение для картинок (без изменений) ---
+            // ====================== ИЗОБРАЖЕНИЕ (без изменений) ======================
             btn.disabled = true;
-            btn.dataset._origBg = btn.style.backgroundColor || '';
-            btn.dataset._origCursor = btn.style.cursor || '';
-            btn.classList.add('opacity-70');
-            btn.style.backgroundColor = '#9ca3af';
-            btn.style.cursor = 'not-allowed';
             btn.innerHTML = `<span class="animate-spin">🌀</span> Отправка...`;
 
             try {
@@ -787,6 +818,7 @@
                     alignItems: capture.style.alignItems || '',
                     justifyContent: capture.style.justifyContent || ''
                 };
+
                 capture.style.display = 'flex';
                 capture.style.alignItems = 'center';
                 capture.style.justifyContent = 'center';
@@ -810,32 +842,24 @@
                 canvas.toBlob(async (blob) => {
                     try {
                         if (navigator.share) {
-                            let shareSuccess = false;
-                            try {
-                                const file = new File([blob], 'mockup.png', { type: 'image/png' });
-                                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                                    await navigator.share({ files: [file], title: 'Мой мокап' });
-                                    shareSuccess = true;
-                                }
-                            } catch (fileError) { console.log('Файл не может быть поделен, пытаемся другой способ'); }
-                            if (!shareSuccess) {
-                                try { await navigator.share({ title: 'Мой мокап', text: 'Посмотрите мой мокап!' }); } catch (textError) { if (textError.name !== 'AbortError') { console.error('Ошибка поделиться:', textError); } }
+                            const file = new File([blob], 'mockup.png', { type: 'image/png' });
+                            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                                await navigator.share({ files: [file], title: 'Мой мокап' });
+                            } else {
+                                await navigator.share({ title: 'Мой мокап', text: 'Посмотрите мой мокап!' });
                             }
                         } else {
                             showMessage('Функция поделиться недоступна в вашем браузере');
                         }
-                    } catch (e) { console.error('Ошибка:', e); } finally {
+                    } catch (e) {
+                        console.error(e);
+                    } finally {
                         btn.disabled = false;
                         btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ПОДЕЛИТЬСЯ`;
-                        btn.style.backgroundColor = btn.dataset._origBg || '';
-                        btn.style.cursor = btn.dataset._origCursor || '';
-                        btn.classList.remove('opacity-70');
-                        delete btn.dataset._origBg;
-                        delete btn.dataset._origCursor;
                     }
                 }, 'image/png');
             } catch (e) {
-                console.error('Ошибка при рендеринге:', e);
+                console.error(e);
                 showMessage("Ошибка при создании мокапа");
                 btn.disabled = false;
                 btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ПОДЕЛИТЬСЯ`;
