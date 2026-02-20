@@ -660,78 +660,103 @@
             video.src = URL.createObjectURL(file);
         }
 
-        // Подготовка отображаемого видео (рендер на canvas + MediaRecorder) в фоне
-        async function prepareRenderedVideoInBackground(preview){
-            try {
-                readyRecordedBlob = null;
-                // Подготовим canvas по размерам фрейма
-                const frameRect = frame.getBoundingClientRect();
-                const w = Math.ceil(frameRect.width);
-                const h = Math.ceil(frameRect.height);
-                const canvas = document.createElement('canvas');
-                const dpr = Math.max(1, window.devicePixelRatio || 1);
-                canvas.width = w * dpr;
-                canvas.height = h * dpr;
-                canvas.style.width = w + 'px';
-                canvas.style.height = h + 'px';
-                const ctx = canvas.getContext('2d');
-                ctx.scale(dpr, dpr);
+async function prepareRenderedVideoInBackground(preview) {
+    try {
+        readyRecordedBlob = null;
 
-                let rafId = null;
-                function drawFrame(){
-                    // clear
-                    ctx.fillStyle = '#0b0f19';
-                    ctx.fillRect(0,0,w,h);
-                    // draw video centered and cover
-                    let vw = preview.videoWidth || w;
-                    let vh = preview.videoHeight || h;
-                    const ratio = Math.max(w / vw, h / vh);
-                    const dw = vw * ratio;
-                    const dh = vh * ratio;
-                    const dx = (w - dw) / 2;
-                    const dy = (h - dh) / 2;
-                    try { ctx.drawImage(preview, dx, dy, dw, dh); } catch(e){}
-                    // draw rounded frame border
-                    const br = parseInt(getComputedStyle(frame).borderRadius) || 20;
-                    const bw = parseInt(getComputedStyle(frame).borderWidth) || 10;
-                    ctx.lineWidth = bw;
-                    ctx.strokeStyle = getComputedStyle(frame).borderColor || '#000';
-                    roundRect(ctx, bw/2, bw/2, w-bw, h-bw, br);
-                    rafId = requestAnimationFrame(drawFrame);
-                }
+        const frameRect = frame.getBoundingClientRect();
+        const w = Math.ceil(frameRect.width);
+        const h = Math.ceil(frameRect.height);
 
-                drawFrame();
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
 
-                const stream = canvas.captureStream(30);
-                let options = { mimeType: 'video/webm;codecs=vp9' };
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm;codecs=vp8' };
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
-                const recorder = new MediaRecorder(stream, options);
-                const chunks = [];
-                recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
-                recorder.start(1000);
+        const ctx = canvas.getContext('2d');
 
-                // Убедимся, что видео проигрывается с начала
-                try { preview.currentTime = 0; await preview.play().catch(()=>{}); } catch(e){}
+        function drawFrame() {
+            ctx.clearRect(0, 0, w, h);
 
-                const maxDur = Math.min(preview.duration || 20, 20);
-                await new Promise(res => {
-                    const t = setTimeout(()=>{
-                        try{ if (recorder.state === 'recording') recorder.stop(); }catch(e){}
-                    }, Math.ceil(maxDur*1000)+300);
-                    recorder.onstop = () => { clearTimeout(t); res(); };
-                });
+            const vw = preview.videoWidth;
+            const vh = preview.videoHeight;
 
-                cancelAnimationFrame(rafId);
-                const blob = new Blob(chunks, { type: chunks[0]?.type || options.mimeType || 'video/webm' });
-                // Остановим tracks
-                try { stream.getTracks().forEach(t=>t.stop()); } catch(e){}
-                readyRecordedBlob = blob;
-                console.log('Подготовлено готовое видео (фон). size=', blob.size);
-            } catch(e){
-                console.error('Ошибка фоновой подготовки видео:', e);
-            }
+            const ratio = Math.max(w / vw, h / vh);
+            const dw = vw * ratio;
+            const dh = vh * ratio;
+            const dx = (w - dw) / 2;
+            const dy = (h - dh) / 2;
+
+            ctx.drawImage(preview, dx, dy, dw, dh);
+
+            const br = parseInt(getComputedStyle(frame).borderRadius) || 20;
+            const bw = parseInt(getComputedStyle(frame).borderWidth) || 10;
+
+            ctx.lineWidth = bw;
+            ctx.strokeStyle = getComputedStyle(frame).borderColor;
+            roundRect(ctx, bw / 2, bw / 2, w - bw, h - bw, br);
+            ctx.stroke();
         }
+
+        // Запуск анимации
+        const stream = canvas.captureStream(30);
+
+        // 🔥 ТОЛЬКО video/webm без codec
+        const recorder = new MediaRecorder(stream, {
+            mimeType: 'video/webm'
+        });
+
+        const chunks = [];
+
+        recorder.ondataavailable = e => {
+            if (e.data && e.data.size > 0) {
+                chunks.push(e.data);
+            }
+        };
+
+        recorder.start();
+
+        await preview.play().catch(()=>{});
+
+        const duration = Math.min(preview.duration || 20, 20);
+
+        const start = Date.now();
+
+        await new Promise(resolve => {
+            function loop() {
+                drawFrame();
+                if (Date.now() - start < duration * 1000) {
+                    requestAnimationFrame(loop);
+                } else {
+                    recorder.stop();
+                    resolve();
+                }
+            }
+            loop();
+        });
+
+        await new Promise(resolve => {
+            recorder.onstop = resolve;
+        });
+
+        if (!chunks.length) {
+            console.error('MediaRecorder не записал данные');
+            return;
+        }
+
+        const blob = new Blob(chunks, { type: 'video/webm' });
+
+        if (blob.size === 0) {
+            console.error('Blob пустой');
+            return;
+        }
+
+        readyRecordedBlob = blob;
+        console.log('Видео подготовлено. Размер:', blob.size);
+
+    } catch (e) {
+        console.error('Ошибка подготовки видео:', e);
+    }
+}
 
         // Загрузка контента через input
         contentUpload.addEventListener('change', function(e) {
