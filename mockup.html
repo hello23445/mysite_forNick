@@ -48,14 +48,7 @@
             transition: background-image 0.3s;
         }
 
-        /* Анимация отправки */
-        @keyframes toast {
-            0% { transform: translateY(100px); opacity: 0; }
-            10% { transform: translateY(0); opacity: 1; }
-            90% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(100px); opacity: 0; }
-        }
-        #toast { display: none; animation: toast 3s forwards; }
+
 
         /* Прелоадер видео */
         .spinner { width:28px; height:28px; border:3px solid rgba(255,255,255,0.08); border-top-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; }
@@ -114,15 +107,12 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-green-500 text-white px-8 py-4 rounded-2xl shadow-2xl font-bold flex items-center gap-3">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-        Мокап готов!
-    </div>
+
 
     <header class="py-4 border-b border-gray-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 px-6">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold tracking-tighter">MOCKUP<span class="text-blue-500">GEN</span></h1>
-            <span class="text-[10px] text-gray-500 font-mono border border-gray-800 px-2 py-1 rounded">PRO EDITION v3</span>
+            <span class="text-[10px] text-gray-500 font-mono border border-gray-800 px-2 py-1 rounded">PRO EDITION v1</span>
         </div>
     </header>
 
@@ -195,10 +185,10 @@
             // iPhone
             "iPhone 11":        { w: 278, h: 580, r: '40px', b: '10px', type: 'notch', category: 'iPhone' },
             "iPhone 12":        { w: 280, h: 590, r: '40px', b: '10px', type: 'notch', category: 'iPhone' },
-            "iPhone 12 Pro":    { w: 280, h: 590, r: '40px', b: '10px', type: 'island', category: 'iPhone' },
+            "iPhone 12 Pro":    { w: 280, h: 590, r: '40px', b: '10px', type: 'island', category: 'iPhone', premium: true },
             "iPhone 13":        { w: 290, h: 600, r: '42px', b: '10px', type: 'notch', category: 'iPhone' },
             "iPhone 13 Pro":    { w: 290, h: 600, r: '42px', b: '10px', type: 'island', category: 'iPhone' },
-            "iPhone 13 Pro Max":{ w: 320, h: 660, r: '46px', b: '12px', type: 'island', category: 'iPhone' },
+            "iPhone 13 Pro Max":{ w: 320, h: 660, r: '46px', b: '12px', type: 'island', category: 'iPhone', premium: true },
             "iPhone 14":        { w: 292, h: 605, r: '43px', b: '9px',  type: 'notch', category: 'iPhone' },
             "iPhone 14 Plus":   { w: 320, h: 665, r: '48px', b: '12px', type: 'notch', category: 'iPhone', premium: true },
             "iPhone 14 Pro":    { w: 295, h: 610, r: '46px', b: '8px',  type: 'island', category: 'iPhone' },
@@ -232,12 +222,12 @@
             "Samsung Galaxy A54":       { w: 270, h: 580, r: '40px', b: '8px', type: 'hole', category: 'Samsung', premium: true },
             "Samsung Galaxy A53":       { w: 268, h: 578, r: '40px', b: '8px', type: 'hole', category: 'Samsung', premium: true },
             "Samsung Galaxy A34":       { w: 265, h: 570, r: '38px', b: '8px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy Z Fold 6":  { w: 310, h: 650, r: '32px', b: '10px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy Z Flip 6":  { w: 165, h: 310, r: '20px', b: '6px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy Z Fold 6":  { w: 310, h: 650, r: '32px', b: '10px', type: 'hole', category: 'Samsung', premium: true },
+            "Samsung Galaxy Z Flip 6":  { w: 165, h: 310, r: '20px', b: '6px', type: 'hole', category: 'Samsung', premium: true },
             "Samsung Galaxy Note 20":   { w: 295, h: 630, r: '44px', b: '9px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy F15":       { w: 270, h: 575, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy F25":       { w: 278, h: 590, r: '42px', b: '9px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy f25 5G":    { w: 282, h: 595, r: '43px', b: '9px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy f25 5G":    { w: 282, h: 595, r: '43px', b: '9px', type: 'hole', category: 'Samsung', premium: true },
             "Samsung Galaxy M35":       { w: 275, h: 585, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy M55":       { w: 288, h: 605, r: '42px', b: '9px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy C55":       { w: 285, h: 600, r: '41px', b: '9px', type: 'hole', category: 'Samsung' },
@@ -283,6 +273,22 @@
         const keyboard = document.getElementById('keyboard');
 
         let currentContentFile = null;
+        let currentDevice = null;
+
+        // ====================== СБРОС КОНТЕНТА ЭКРАНА (ВАЖНО ДЛЯ ГОРИЗОНТАЛЬНЫХ РЕЖИМОВ) ======================
+        function resetScreenContent() {
+            if (!screenBg) return;
+            screenBg.style.position = '';
+            screenBg.style.left = '';
+            screenBg.style.top = '';
+            screenBg.style.width = '100%';
+            screenBg.style.height = '100%';
+            screenBg.style.transformOrigin = '';
+            screenBg.style.transform = 'none';
+            screenBg.style.backgroundSize = 'cover';
+            screenBg.style.backgroundPosition = 'center';
+            screenBg.style.backgroundRepeat = 'no-repeat';
+        }
 
         // ====================== МОДАЛЬНЫЕ ОКНА ======================
         (function(){
@@ -321,6 +327,8 @@
 
             window.showMessage = function(text){ return createModal('', text, [{label:'ОК', value:'ok', primary:true}]); };
         })();
+
+
 
         // ====================== ГЕНЕРАЦИЯ УСТРОЙСТВ ======================
         const isPremium = localStorage.getItem('premium') === 'yes';
@@ -391,6 +399,19 @@
                         screen.style.borderRadius = `calc(${d.r} - ${d.b})`;
                         keyboard.style.display = 'none';
                     }
+
+                    // === НОВОЕ: сохраняем текущее устройство + сбрасываем на "Ровно" при смене устройства ===
+                    currentDevice = d;
+                    resetScreenContent();
+                    frame.style.transform = positions["Ровно"].transform;
+
+                    // сбрасываем активную кнопку позиции (если список уже создан)
+                    const posList = document.getElementById('positionList');
+                    if (posList && posList.children.length > 0) {
+                        document.querySelectorAll('#positionList button').forEach(b => b.classList.remove('active-btn'));
+                        const rovnoBtn = Array.from(posList.querySelectorAll('button')).find(b => b.innerText.trim() === 'Ровно');
+                        if (rovnoBtn) rovnoBtn.classList.add('active-btn');
+                    }
                 };
             }
             container.appendChild(btn);
@@ -421,37 +442,67 @@
         }
 
         const customColorContainer = document.createElement('div');
-        customColorContainer.className = "flex items-center gap-1";
+        customColorContainer.className = "flex items-center gap-2";
         const customColorPicker = document.createElement('input');
         customColorPicker.type = 'color';
         customColorPicker.id = 'customColorPicker';
-        customColorPicker.className = "w-7 h-7 rounded-md border-2 border-slate-700 cursor-pointer hover:border-slate-500 transition-all";
+        customColorPicker.className = "w-7 h-7 rounded-md border-2 border-slate-700 hover:border-slate-500 transition-all";
         customColorPicker.style.padding = '2px';
         customColorPicker.value = '#3b82f6';
-        customColorContainer.appendChild(customColorPicker);
-        document.getElementById('colorPalette').appendChild(customColorContainer);
-        
+
         const hexInput = document.createElement('input');
         hexInput.type = 'text';
         hexInput.placeholder = 'HEX';
         hexInput.className = "w-16 text-[9px] bg-slate-900/30 border border-slate-800 rounded-lg px-2 py-1 outline-none text-white placeholder-slate-500 uppercase font-mono";
         hexInput.maxLength = '7';
         hexInput.value = '#3b82f6';
-        hexInput.style.marginLeft = 'auto';
-        document.getElementById('colorPalette').appendChild(hexInput);
+
+        // Если пользователь не в Premium — пометка рядом с выбором цвета и блокировка полей
+        if (!isPremium) {
+            customColorPicker.disabled = true;
+            customColorPicker.className += ' cursor-not-allowed opacity-60';
+            customColorPicker.title = 'Доступно в Premium';
+
+            const lockBadge = document.createElement('span');
+            lockBadge.className = 'ml-1 text-[10px] text-blue-400 flex items-center gap-1';
+            lockBadge.innerHTML = '<i class="fa-solid fa-lock"></i> <span class="ml-1">Premium</span>';
+
+            hexInput.disabled = true;
+            hexInput.className += ' opacity-60 cursor-not-allowed';
+            hexInput.title = 'Доступно в Premium';
+
+            customColorPicker.addEventListener('click', function(e){
+                e.preventDefault();
+                showMessage('Выбор собственного цвета доступен только в Premium');
+            });
+            hexInput.addEventListener('focus', function(e){ e.target.blur(); showMessage('Доступно в Premium'); });
+
+            customColorContainer.appendChild(customColorPicker);
+            customColorContainer.appendChild(lockBadge);
+            customColorContainer.appendChild(hexInput);
+        } else {
+            // Premium: обычное поведение
+            customColorContainer.appendChild(customColorPicker);
+            customColorContainer.appendChild(hexInput);
+        }
+
+        document.getElementById('colorPalette').appendChild(customColorContainer);
 
         customColorPicker.addEventListener('change', function(e) {
+            if (!isPremium) return;
             const color = e.target.value.toUpperCase();
             frame.style.borderColor = color;
             hexInput.value = color;
             document.querySelectorAll('#colorPalette button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
         });
         customColorPicker.addEventListener('input', function(e) {
+            if (!isPremium) return;
             const color = e.target.value.toUpperCase();
             frame.style.borderColor = color;
             hexInput.value = color;
         });
         hexInput.addEventListener('input', function(e) {
+            if (!isPremium) return;
             let hex = e.target.value.toUpperCase();
             if (hex && !hex.startsWith('#')) hex = '#' + hex;
             if (/^#[0-9A-F]{6}$/.test(hex)) {
@@ -465,29 +516,6 @@
 
         // ====================== ПОЗИЦИИ ======================
         const positionListEl = document.getElementById('positionList');
-        const positionControl = document.createElement('div');
-        positionControl.id = 'positionControl';
-        positionControl.className = 'mt-2';
-        positionControl.style.display = 'none';
-        positionControl.innerHTML = `
-            <div class="flex items-center gap-2">
-                <label id="positionLabel" class="text-[10px] text-slate-300">Интенсивность</label>
-                <input id="positionRange" type="range" min="0" max="200" value="100" step="1" class="flex-1">
-                <span id="positionValue" class="text-[10px] text-slate-400">100%</span>
-            </div>
-        `;
-        positionListEl.parentNode.insertBefore(positionControl, positionListEl.nextSibling);
-
-        let currentBaseTransform = positions['Ровно'].transform;
-        function applyScaledTransform(baseTransform, percent) {
-            const scale = percent / 100;
-            const scaled = baseTransform.replace(/rotate([XYZ])\((-?\d+(?:\.\d+)?)deg\)/g, (m, axis, val) => {
-                const num = parseFloat(val);
-                const scaledNum = +(num * scale).toFixed(2);
-                return `rotate${axis}(${scaledNum}deg)`;
-            });
-            frame.style.transform = scaled;
-        }
 
         Object.keys(positions).forEach(pos => {
             const posData = positions[pos];
@@ -506,34 +534,50 @@
                     btn.classList.add('active-btn');
                     currentBaseTransform = posData.transform;
                     
-                    // Применяем горизонтальное положение
                     if (posData.landscape) {
                         screenBg.style.backgroundSize = 'cover';
                         screenBg.style.backgroundPosition = 'center';
                         screenBg.style.backgroundRepeat = 'no-repeat';
-                        // Компенсируем вращение фрейма для фото
-                        if (currentBaseTransform.includes('rotateZ(90deg)')) {
-                            screenBg.style.transform = 'rotateZ(-90deg)';
-                        } else if (currentBaseTransform.includes('rotateZ(-90deg)')) {
-                            screenBg.style.transform = 'rotateZ(90deg)';
+
+                        // === ИСПРАВЛЕНИЕ 1: полное заполнение экрана в горизонтальных режимах (убираем чёрные поля) ===
+                        const isRight = currentBaseTransform.includes('rotateZ(90deg)');
+                        const compensationDeg = isRight ? -90 : 90;
+                        const contentLayoutW = currentDevice.h;   // ширина контента в layout = высота устройства (portrait)
+                        const contentLayoutH = currentDevice.w;   // высота контента в layout = ширина устройства
+
+                        screenBg.style.position = 'absolute';
+                        screenBg.style.left = '50%';
+                        screenBg.style.top = '50%';
+                        screenBg.style.width = contentLayoutW + 'px';
+                        screenBg.style.height = contentLayoutH + 'px';
+                        screenBg.style.transformOrigin = 'center center';
+                        screenBg.style.transform = `translate(-50%, -50%) rotate(${compensationDeg}deg)`;
+
+                        // === ИСПРАВЛЕНИЕ 2: оптимизация для мобильных устройств ===
+                        const isMobile = window.innerWidth <= 768;
+                        if (isMobile) {
+                            const visualWidth = currentDevice.h; // после поворота 90° визуальная ширина = высота устройства
+                            const previewContainer = document.getElementById('capture-area').parentNode;
+                            let availableWidth = previewContainer.clientWidth - 160;
+                            if (availableWidth < 200) availableWidth = previewContainer.clientWidth * 0.88;
+                            const scaleFactor = Math.min(1, availableWidth / visualWidth);
+                            if (scaleFactor < 0.98) {
+                                frame.style.transform = `${currentBaseTransform} scale(${scaleFactor.toFixed(3)})`;
+                            } else {
+                                frame.style.transform = currentBaseTransform;
+                            }
                         } else {
-                            screenBg.style.transform = 'none';
+                            frame.style.transform = currentBaseTransform;
                         }
+
                         positionControl.style.display = 'none';
-                        frame.style.transform = currentBaseTransform;
                     } else {
+                        resetScreenContent();
                         screenBg.style.backgroundSize = 'cover';
                         screenBg.style.backgroundPosition = 'center';
+                        screenBg.style.backgroundRepeat = 'no-repeat';
                         screenBg.style.transform = 'none';
-                        if (pos === 'Ровно') {
-                            positionControl.style.display = 'none';
-                            frame.style.transform = currentBaseTransform;
-                        } else {
-                            positionControl.style.display = '';
-                            document.getElementById('positionRange').value = 100;
-                            document.getElementById('positionValue').innerText = '100%';
-                            applyScaledTransform(currentBaseTransform, 100);
-                        }
+                        frame.style.transform = posData.transform;
                     }
                 };
             }
@@ -542,19 +586,10 @@
             
             if(pos === "Ровно") {
                 btn.classList.add('active-btn');
-                currentBaseTransform = posData.transform;
-                positionControl.style.display = 'none';
-                frame.style.transform = currentBaseTransform;
+                frame.style.transform = posData.transform;
             }
         });
-
-        const range = document.getElementById('positionRange');
-        const valueLabel = document.getElementById('positionValue');
-        range.addEventListener('input', function() {
-            const v = parseInt(this.value, 10);
-            valueLabel.innerText = v + '%';
-            if (currentBaseTransform) applyScaledTransform(currentBaseTransform, v);
-        });
+        
 
         // ====================== DRAG & DROP ======================
         const dropZone = document.getElementById('dropZone');
@@ -591,8 +626,6 @@
             reader.onload = (ev) => screenBg.style.backgroundImage = `url('${ev.target.result}')`;
             reader.readAsDataURL(file);
         }
-
-
 
         // ====================== ЗАГРУЗКА ЧЕРЕЗ INPUT ======================
         contentUpload.addEventListener('change', function(e) {
