@@ -1403,7 +1403,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 setInterval(() => {
-    if (window.Telegram.WebApp){
-        Telegram.WebApp.BackButton.hide();
+    if (window.Telegram?.WebApp) {
+        const settingsMenu = document.getElementById('settingsMenu');
+        if (!settingsMenu || settingsMenu.style.display === 'none') {
+            Telegram.WebApp.BackButton.hide();
+        }
     }
 }, 1000);
