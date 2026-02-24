@@ -120,6 +120,10 @@
         
         <div class="lg:col-span-4 space-y-3 pr-2">
             
+            <button onclick="window.location.href = 'main.html'" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-white shadow-xl shadow-blue-900/30 transition-all transform active:scale-95">
+                ← ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ
+            </button>
+            
             <div class="glass p-5 rounded-2xl flex-shrink-0">
                 <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">1. Контент экрана</h3>
                 <input type="file" id="contentUpload" class="hidden" />
@@ -700,6 +704,19 @@
                 btn.classList.remove('opacity-50', 'cursor-not-allowed');
                 btn.innerHTML = origBtnHtml;
             }
+        }
+    </script>
+
+    <script>
+        if (window.Telegram?.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            // Показываем BackButton на странице mockup
+            tg.BackButton.show();
+            // При нажатии на BackButton открываем main.html
+            tg.BackButton.onClick(() => {
+                window.location.href = 'main.html';
+            });
         }
     </script>
 </body>
