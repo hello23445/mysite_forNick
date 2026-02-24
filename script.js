@@ -1402,3 +1402,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startDatabaseCodeCheck();
     }
 });
+if (window.Telegram.WebApp){
+    Telegram.WebApp.BackButton.hide();
+}
