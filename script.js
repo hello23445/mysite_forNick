@@ -1404,4 +1404,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 if (window.Telegram.WebApp){
     Telegram.WebApp.BackButton.hide();
+    alert('changed')
 }
+alert('ap')
