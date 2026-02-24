@@ -450,10 +450,11 @@ let translations = {
         animations: "Анимации",
         appView_normal: "Не полноэкранный(Рекомендуется)",
         appView_fullscreen: "Полноэкранный",
-        appViewLabel: "Вид приложения",
+        appSizeFieldLabel: "Размер приложения:",
         backgroundSubTitle: "Фон приложения",
         animationsSubTitle: "Анимации",
         appSizeLabel: "Размер приложения",
+        appSizeNotSupportedOnIphone: "Не поддерживается на iPhone, но скоро получит поддержку",
         database: 'Моя база данных'
     },
     en: {
@@ -503,9 +504,9 @@ let translations = {
         animationsSubTitle: "Animations",
         appView_normal: "Non-fullscreen (Recommended)",
         appView_fullscreen: "Fullscreen",
-        appViewLabel: "Application appearance",
-        database: 'My data base',
+        appSizeFieldLabel: "Application Size:",
         appSizeLabel: "Application Size",
+        appSizeNotSupportedOnIphone: "Not supported on iPhone, but coming soon",
         database: 'My data base'
     }
 };
@@ -766,6 +767,16 @@ function applyTranslations() {
             } catch(e){}
         });
     }
+if (/iPhone/i.test(navigator.userAgent)) {
+    document.getElementById('appViewMode').disabled = true;
+    const headerElement = document.getElementById('appSizeTextViewer');
+    const lang = localStorage.getItem('lang') || 'ru';
+    const messages = {
+        ru: 'Размер приложения: (Данная функция не поддерживается на iPhone, но скоро получит поддержку)',
+        en: 'Application size:(This feature is not supported on iPhone, but coming soon)'
+    };
+    headerElement.textContent = messages[lang] || messages['ru'];
+}
 }
 function initTokenButton(btnId) {
     let isVisible = false;
