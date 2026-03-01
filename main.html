@@ -17,6 +17,8 @@
             /* Ensure main containers respect safe area when in fullscreen */
             .main, .container, #mainMenu {
                 min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
         </style>
 </head>
