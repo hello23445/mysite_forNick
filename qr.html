@@ -90,9 +90,9 @@
 
     @media (min-width: 768px) {
       #backToMain {
-        position: absolute;
-        bottom: 10px;
-        left: 10px;
+        position: static;
+        margin: 0 0 10px 0;
+        display: block;
       }
     }
 
@@ -319,7 +319,7 @@
   
   <div class="container">
     <div class="form-container">
-      <button id="backToMain" onclick="window.location.href = 'main.html'">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</button>
+      <button id="backToMain" onclick="window.location.href = 'main.html'" style="background-color: var(--primary-color); color: white;">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</button>
       <select id="qrType" onchange="updateForm()">
         <option value="url">Ссылка</option>
         <option value="wifi">Сеть WiFi</option>
@@ -586,6 +586,7 @@
       <button type="button" class="generate" onclick="generateQRCode()">Сгенерировать</button>
     </div>
     <div class="qr-container" id="qrContainer">
+      <button id="backToMain" onclick="window.location.href = 'main.html'" style="background-color: var(--primary-color); color: white;">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</button>
       <div class="qr-settings" id="qrSettings">
         <label for="qrSize">Размер QR-кода:</label>
         <input type="range" id="qrSize" min="100" max="300" value="200">
@@ -825,9 +826,6 @@
       document.getElementById("qrContainer").style.display = "flex";
       document.querySelector('.form-container').style.display = 'none';
       document.getElementById('backButton').style.display = 'block';
-      // Move backToMain to qrSettings top
-      const backToMain = document.getElementById('backToMain');
-      document.getElementById('qrSettings').insertBefore(backToMain, document.getElementById('qrSettings').firstChild);
       
       var type = document.getElementById("qrType").value;
       var qrText = "";
@@ -1353,10 +1351,6 @@
       document.getElementById('shareQRBtn').style.display = 'none';
       clearWarning();
       document.getElementById('qrSettings').style.display = 'block';
-      // Move backToMain back to form-container top
-      const backToMain = document.getElementById('backToMain');
-      const formContainer = document.querySelector('.form-container');
-      formContainer.insertBefore(backToMain, formContainer.firstChild);
     }
 
     function shareQRCode() {

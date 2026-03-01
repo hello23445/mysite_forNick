@@ -131,17 +131,37 @@
         font-size: 0.9em;
       }
     }
+    .back-btn {
+      display: block;
+      margin-bottom: 15px;
+      width: 100%;
+      padding: 10px 20px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .back-btn:hover {
+      background: #333;
+    }
+    @media (max-width: 480px) {
+      .back-btn {
+        font-size: 0.85rem;
+        padding: 8px 15px;
+        margin-bottom: 10px;
+      }
+    }
   </style>
 </head>
 <body>
-  <button 
-    onclick="window.location.href = 'main.html'" 
-    style="position: absolute; top: 10px; left: 10px; padding: 10px 20px; font-size: 16px;"
-  >
-    RETURN TO MAIN MENU
-  </button>
-
   <div class="picker">
+    <button class="back-btn" onclick="window.location.href = 'main.html'">
+      RETURN TO MAIN MENU
+    </button>
     <div class="format-buttons">
       <button data-format="HEX" class="active"><b>HEX</b></button>
       <button data-format="RGB"><b>RGB(A)</b></button>

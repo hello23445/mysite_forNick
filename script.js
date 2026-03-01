@@ -361,7 +361,8 @@ const filesRu = {
     popular: 'popular(ru).html',
     myshop: 'myshop_ru.html',
     tasks: 'tasks.html',
-    ai_video: 'https://t.me/GeneratorVideos1Bot'
+    ai_video: 'https://t.me/GeneratorVideos1Bot',
+    mockup: 'mockup.html'
 };
 const filesEn = {
     tasks: 'tasks_en.html',
@@ -381,7 +382,8 @@ const filesEn = {
     connection: 'connection_en.html',
     popular: 'popular(en).html',
     myshop: 'myshop_ru.html',
-    ai_video: 'https://t.me/GeneratorVideos1Bot'
+    ai_video: 'https://t.me/GeneratorVideos1Bot',
+    mockup: 'mockup_en.html'
 };
 let storedCoins = parseInt(localStorage.getItem('coins'));
 if (!localStorage.getItem('coins') || storedCoins < 0) {
@@ -419,7 +421,7 @@ let translations = {
         privacyLabel: "Кто может видеть мою аватарку:",
         featureButtons: [
             "Никнейм","Описание","Аватарка","Лeгo","Шрифт","Сайт",
-            "Символ-арт","QR-код","Музыка","Цвета","ИИ-Генератор фото", "ИИ-Генератор видео"
+            "Символ-арт","QR-код","Музыка","Цвета","Мокап", "ИИ-Генератор фото", "ИИ-Генератор видео"
         ],
         settingsButtons: ["Поддержка","Проверка соединения"],
         langOptions: ["Русский","English"],
@@ -471,7 +473,7 @@ let translations = {
         privacyLabel: "Who can see my avatar:",
         featureButtons: [
             "Nickname","Description","Profile","Lego","Font","Sites",
-            "ASCII-art","QR-code","Music","Colors","AI-Photo Generator", "AI-Video Generator"
+            "ASCII-art","QR-code","Music","Colors","Mockup","AI-Photo Generator", "AI-Video Generator"
         ],
         settingsButtons: ["Support","Connection check"],
         langOptions: ["Русский","English"],
@@ -630,7 +632,7 @@ function applyTranslations() {
     });
     const featureContainer = document.getElementById('featureButtons');
     featureContainer.innerHTML = '';
-    const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','ai', 'ai_video'];
+    const featureKeys = ['nickname','description','profile','lego','font','sites','ascii','qr','music','colors','mockup','ai', 'ai_video'];
     translations[lang].featureButtons.forEach((text, i) => {
         const url = files[featureKeys[i]];
         const isExternal = /^https?:\/\//i.test(url);

@@ -1,9 +1,23 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mockup Studio Pro | 3D Perspective</title>
+    <meta name="description" content="MockupGen — абсолютно бесплатный онлайн 3D генератор мокапов смартфонов от CrN PhotoAI. Создавайте реалистичные мокапы с перспективой, выбором цвета корпуса, положением в пространстве и загрузкой своего изображения. Быстро, удобно и бесплатно.">
+
+    <meta name="keywords" content="mockup generator, 3D mockup, iPhone mockup, Samsung mockup, phone mockup online, device mockup, perspective mockup, mockup creator">
+
+    <meta name="author" content="MockupGen">
+
+    <meta property="og:title" content="MockupGen – 3D Phone Mockup Generator">
+    <meta property="og:description" content="Создавайте реалистичные 3D мокапы iPhone и Samsung онлайн. Перспектива, цвет корпуса, наклон и загрузка своего изображения.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://your-site.com/preview.jpg">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MockupGen – 3D Phone Mockup Generator">
+    <meta name="twitter:description" content="Онлайн генератор 3D мокапов смартфонов с реалистичной перспективой.">
     <script src="https://cdn.tailwindcss.com"></script>
     <head>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -15,11 +29,11 @@
         body { font-family: 'Inter', sans-serif; background: #0b0f19; color: white; margin: 0; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         
-        /* Стилизация списка */
+        /* List styling */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
 
-        /* Контейнер для 3D */
+        /* 3D container */
         .perspective-container {
             perspective: 1200px;
             display: flex;
@@ -39,7 +53,7 @@
             color: #fff !important;
         }
 
-        /* Экраны */
+        /* Screens */
         #screen-bg {
             width: 100%; height: 100%;
             background-position: center;
@@ -50,10 +64,10 @@
 
 
 
-        /* Прелоадер видео */
+        /* Video preloader */
         .spinner { width:28px; height:28px; border:3px solid rgba(255,255,255,0.08); border-top-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        /* Модальные окна */
+        /* Modal windows */
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:60}
         .modal{background:#0f1724;padding:18px;border-radius:12px;max-width:420px;color:#e6edf3;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
         .modal .modal-title{font-weight:600;margin-bottom:8px;color:#60a5fa}
@@ -68,10 +82,10 @@
             background: rgba(59, 130, 246, 0.3) !important;
         }
 
-        /* Скрол для списка устройств */
+        /* Scroll for device list */
         .device-scroll { max-height: 200px; overflow-y: auto; }
 
-        /* Клавиатура для ноутбуков */
+        /* Keyboard for laptops */
         #keyboard { 
             display: none; 
             width: 100%; 
@@ -111,7 +125,13 @@
 
     <header class="py-4 border-b border-gray-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 px-6">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-tighter">MOCKUP<span class="text-blue-500">GEN</span></h1>
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold tracking-tighter">MOCKUP<span class="text-blue-500">GEN</span></h1>
+                <div class="ml-4 flex gap-2 text-sm">
+                    <button id="lang-ru" onclick="setLanguage('ru')" class="text-gray-400 hover:text-white">RU</button>
+                    <button id="lang-en" onclick="setLanguage('en')" class="text-gray-400 hover:text-white">EN</button>
+                </div>
+            </div>
             <span class="text-[10px] text-gray-500 font-mono border border-gray-800 px-2 py-1 rounded">PRO EDITION v1</span>
         </div>
     </header>
@@ -120,40 +140,36 @@
         
         <div class="lg:col-span-4 space-y-3 pr-2">
             
-            <button onclick="window.location.href = 'main.html'" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-white shadow-xl shadow-blue-900/30 transition-all transform active:scale-95">
-                ← ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ
-            </button>
-            
             <div class="glass p-5 rounded-2xl flex-shrink-0">
-                <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">1. Контент экрана</h3>
+                <h3 data-i18n="screenContent" class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">1. Screen Content</h3>
                 <input type="file" id="contentUpload" class="hidden" />
                 <div id="dropZone" class="w-full py-3 border-2 border-dashed border-slate-700 rounded-xl text-xs text-slate-400 hover:border-blue-500 hover:text-blue-400 transition-all cursor-pointer text-center"
                      ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('contentUpload').click()">
-                    📎 <span id="dropZoneText">Перетащите фото или нажмите</span>
+                    📎 <span id="dropZoneText" data-i18n="dropZone">Drag photo or click</span>
                 </div>
-                <p id="premiumMessage" class="text-[8px] font-bold text-blue-400 mt-2 uppercase tracking-widest text-center" style="display:none;">
-                    Купите Premium, чтобы загружать видео
+                <p id="premiumMessage" data-i18n="premiumMsg" class="text-[8px] font-bold text-blue-400 mt-2 uppercase tracking-widest text-center" style="display:none;">
+                    Buy Premium to upload videos
                 </p>
             </div>
 
             <div class="glass p-5 rounded-2xl flex-shrink-0">
-                <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">2. Модель устройства</h3>
+                <h3 data-i18n="deviceModel" class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">2. Device Model</h3>
                 <div class="device-scroll grid grid-cols-1 gap-1" id="deviceList"></div>
             </div>
 
             <div class="glass p-5 rounded-2xl flex-shrink-0">
-                <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">3. Цвет корпуса</h3>
+                <h3 data-i18n="bodyColor" class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">3. Body Color</h3>
                 <div class="flex flex-wrap gap-2 items-center" id="colorPalette"></div>
             </div>
 
             <div class="glass p-5 rounded-2xl flex-shrink-0">
-                <h3 class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">4. Положение в пространстве</h3>
+                <h3 data-i18n="positionSpace" class="text-[10px] font-bold text-blue-400 mb-3 uppercase tracking-widest">4. Position in Space</h3>
                 <div class="grid grid-cols-2 gap-2" id="positionList"></div>
             </div>
 
-            <button onclick="sendMockup()" id="sendBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-white shadow-xl shadow-blue-900/30 transition-all transform active:scale-95 flex items-center justify-center gap-3 flex-shrink-0">
+            <button onclick="sendMockup()" id="sendBtn" data-i18n="share" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-white shadow-xl shadow-blue-900/30 transition-all transform active:scale-95 flex items-center justify-center gap-3 flex-shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                ПОДЕЛИТЬСЯ
+                SHARE
             </button>
         </div>
 
@@ -174,7 +190,7 @@
     </main>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // ====================== ГЛОБАЛЬНЫЕ УТИЛИТЫ ======================
+        // ====================== GLOBAL UTILITIES ======================
         function roundRect(ctx, x, y, width, height, radius) {
             ctx.beginPath();
             ctx.moveTo(x + radius, y);
@@ -189,49 +205,49 @@
             // iPhone
             "iPhone 11":        { w: 278, h: 580, r: '40px', b: '10px', type: 'notch', category: 'iPhone' },
             "iPhone 12":        { w: 280, h: 590, r: '40px', b: '10px', type: 'notch', category: 'iPhone' },
-            "iPhone 12 Pro":    { w: 280, h: 590, r: '40px', b: '10px', type: 'island', category: 'iPhone', premium: true },
+            "iPhone 12 Pro":    { w: 280, h: 590, r: '40px', b: '10px', type: 'island', category: 'iPhone' },
             "iPhone 13":        { w: 290, h: 600, r: '42px', b: '10px', type: 'notch', category: 'iPhone' },
             "iPhone 13 Pro":    { w: 290, h: 600, r: '42px', b: '10px', type: 'island', category: 'iPhone' },
-            "iPhone 13 Pro Max":{ w: 320, h: 660, r: '46px', b: '12px', type: 'island', category: 'iPhone', premium: true },
+            "iPhone 13 Pro Max":{ w: 320, h: 660, r: '46px', b: '12px', type: 'island', category: 'iPhone' },
             "iPhone 14":        { w: 292, h: 605, r: '43px', b: '9px',  type: 'notch', category: 'iPhone' },
-            "iPhone 14 Plus":   { w: 320, h: 665, r: '48px', b: '12px', type: 'notch', category: 'iPhone', premium: true },
+            "iPhone 14 Plus":   { w: 320, h: 665, r: '48px', b: '12px', type: 'notch', category: 'iPhone' },
             "iPhone 14 Pro":    { w: 295, h: 610, r: '46px', b: '8px',  type: 'island', category: 'iPhone' },
-            "iPhone 14 Pro Max":{ w: 325, h: 670, r: '50px', b: '12px', type: 'island', category: 'iPhone', premium: true },
+            "iPhone 14 Pro Max":{ w: 325, h: 670, r: '50px', b: '12px', type: 'island', category: 'iPhone' },
             "iPhone 15":        { w: 293, h: 608, r: '44px', b: '8px',  type: 'notch', category: 'iPhone' },
-            "iPhone 15 Plus":   { w: 322, h: 668, r: '48px', b: '12px', type: 'notch', category: 'iPhone', premium: true },
+            "iPhone 15 Plus":   { w: 322, h: 668, r: '48px', b: '12px', type: 'notch', category: 'iPhone' },
             "iPhone 15 Pro":    { w: 295, h: 610, r: '48px', b: '7px',  type: 'island', category: 'iPhone' },
             "iPhone 15 Pro Max":{ w: 325, h: 670, r: '52px', b: '10px', type: 'island', category: 'iPhone', premium: true },
             "iPhone 16":        { w: 295, h: 615, r: '45px', b: '8px',  type: 'notch', category: 'iPhone' },
-            "iPhone 16 Plus":   { w: 325, h: 675, r: '49px', b: '12px', type: 'notch', category: 'iPhone', premium: true },
+            "iPhone 16 Plus":   { w: 325, h: 675, r: '49px', b: '12px', type: 'notch', category: 'iPhone' },
             "iPhone 16 Pro":    { w: 298, h: 618, r: '48px', b: '7px',  type: 'island', category: 'iPhone' },
             "iPhone 16 Pro Max":{ w: 340, h: 700, r: '52px', b: '5px',  type: 'island', category: 'iPhone', premium: true },
             "iPhone 17":        { w: 297, h: 617, r: '45px', b: '8px',  type: 'notch', category: 'iPhone' },
             "iPhone 17 Pro":    { w: 300, h: 620, r: '48px', b: '7px',  type: 'island', category: 'iPhone' },
-            "iPhone 17 Pro Max":{ w: 345, h: 710, r: '54px', b: '4px',  type: 'island', category: 'iPhone', premium: true },
+            "iPhone 17 Pro Max":{ w: 345, h: 710, r: '54px', b: '4px',  type: 'island', category: 'iPhone' },
             "iPhone Air":       { w: 310, h: 655, r: '47px', b: '10px', type: 'island', category: 'iPhone' },
             
             // Samsung
             "Samsung Galaxy S25":       { w: 283, h: 603, r: '44px', b: '10px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy S25+":      { w: 303, h: 633, r: '46px', b: '12px', type: 'hole', category: 'Samsung', premium: true },
-            "Samsung Galaxy S25 Ultra": { w: 322, h: 682, r: '48px', b: '12px', type: 'hole', category: 'Samsung', premium: true },
+            "Samsung Galaxy S25+":      { w: 303, h: 633, r: '46px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S25 Ultra": { w: 322, h: 682, r: '48px', b: '12px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy S24":       { w: 280, h: 600, r: '44px', b: '10px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy S24+":      { w: 300, h: 630, r: '46px', b: '12px', type: 'hole', category: 'Samsung', premium: true },
-            "Samsung Galaxy S24 Ultra": { w: 320, h: 680, r: '48px', b: '12px', type: 'hole', category: 'Samsung', premium: true },
+            "Samsung Galaxy S24+":      { w: 300, h: 630, r: '46px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S24 Ultra": { w: 320, h: 680, r: '48px', b: '12px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy S23":       { w: 278, h: 598, r: '44px', b: '9px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy S23+":      { w: 298, h: 628, r: '46px', b: '12px', type: 'hole', category: 'Samsung', premium: true },
-            "Samsung Galaxy S23 Ultra": { w: 318, h: 678, r: '48px', b: '12px', type: 'hole', category: 'Samsung', premium: true },
+            "Samsung Galaxy S23+":      { w: 298, h: 628, r: '46px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S23 Ultra": { w: 318, h: 678, r: '48px', b: '12px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy S22":       { w: 275, h: 595, r: '43px', b: '9px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy S22+":      { w: 295, h: 625, r: '45px', b: '12px', type: 'hole', category: 'Samsung', premium: true },
-            "Samsung Galaxy S22 Ultra": { w: 315, h: 675, r: '48px', b: '12px', type: 'hole', category: 'Samsung', premium: true },
-            "Samsung Galaxy A54":       { w: 270, h: 580, r: '40px', b: '8px', type: 'hole', category: 'Samsung', premium: true },
-            "Samsung Galaxy A53":       { w: 268, h: 578, r: '40px', b: '8px', type: 'hole', category: 'Samsung', premium: true },
+            "Samsung Galaxy S22+":      { w: 295, h: 625, r: '45px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy S22 Ultra": { w: 315, h: 675, r: '48px', b: '12px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy A54":       { w: 270, h: 580, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy A53":       { w: 268, h: 578, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy A34":       { w: 265, h: 570, r: '38px', b: '8px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy Z Fold 6":  { w: 310, h: 650, r: '32px', b: '10px', type: 'hole', category: 'Samsung', premium: true },
-            "Samsung Galaxy Z Flip 6":  { w: 165, h: 310, r: '20px', b: '6px', type: 'hole', category: 'Samsung', premium: true },
+            "Samsung Galaxy Z Fold 6":  { w: 310, h: 650, r: '32px', b: '10px', type: 'hole', category: 'Samsung' },
+            "Samsung Galaxy Z Flip 6":  { w: 165, h: 310, r: '20px', b: '6px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy Note 20":   { w: 295, h: 630, r: '44px', b: '9px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy F15":       { w: 270, h: 575, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy F25":       { w: 278, h: 590, r: '42px', b: '9px', type: 'hole', category: 'Samsung' },
-            "Samsung Galaxy f25 5G":    { w: 282, h: 595, r: '43px', b: '9px', type: 'hole', category: 'Samsung', premium: true },
+            "Samsung Galaxy f25 5G":    { w: 282, h: 595, r: '43px', b: '9px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy M35":       { w: 275, h: 585, r: '40px', b: '8px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy M55":       { w: 288, h: 605, r: '42px', b: '9px', type: 'hole', category: 'Samsung' },
             "Samsung Galaxy C55":       { w: 285, h: 600, r: '41px', b: '9px', type: 'hole', category: 'Samsung' },
@@ -257,17 +273,60 @@
             { name: 'Space Gray', nameRu: 'Космический серый', hex: '#2c3e50' }
         ];
 
-        const positions = {
-            "Ровно": { transform: "rotateX(0deg) rotateY(0deg) rotateZ(0deg)", premium: false, landscape: false },
-            "В левой руке": { transform: "rotateX(5deg) rotateY(25deg) rotateZ(-5deg)", premium: false, landscape: false },
-            "В правой руке": { transform: "rotateX(5deg) rotateY(-25deg) rotateZ(5deg)", premium: false, landscape: false },
-            "Смотрит влево": { transform: "rotateY(30deg)", premium: false, landscape: false },
-            "Смотрит вправо": { transform: "rotateY(-30deg)", premium: false, landscape: false },
-            "Смотрит вверх": { transform: "rotateX(30deg)", premium: false, landscape: false },
-            "Смотрит вниз": { transform: "rotateX(-30deg)", premium: false, landscape: false },
-            "Наклон": { transform: "rotateX(15deg) rotateY(15deg) rotateZ(5deg)", premium: true, landscape: false },
-            "Горизонтально(Справа)": { transform: "rotateZ(90deg)", premium: false, landscape: true },
-            "Горизонтально(Слева)": { transform: "rotateZ(-90deg)", premium: false, landscape: true }
+        const positionData = {
+            "straight": { transform: "rotateX(0deg) rotateY(0deg) rotateZ(0deg)", premium: false, landscape: false, names: {en: "Straight", ru: "Ровно"} },
+            "leftHand": { transform: "rotateX(5deg) rotateY(25deg) rotateZ(-5deg)", premium: false, landscape: false, names: {en: "In left hand", ru: "В левой руке"} },
+            "rightHand": { transform: "rotateX(5deg) rotateY(-25deg) rotateZ(5deg)", premium: false, landscape: false, names: {en: "In right hand", ru: "В правой руке"} },
+            "lookLeft": { transform: "rotateY(30deg)", premium: false, landscape: false, names: {en: "Looking left", ru: "Смотрит влево"} },
+            "lookRight": { transform: "rotateY(-30deg)", premium: false, landscape: false, names: {en: "Looking right", ru: "Смотрит вправо"} },
+            "lookUp": { transform: "rotateX(30deg)", premium: false, landscape: false, names: {en: "Looking up", ru: "Смотрит вверх"} },
+            "lookDown": { transform: "rotateX(-30deg)", premium: false, landscape: false, names: {en: "Looking down", ru: "Смотрит вниз"} },
+            "tilt": { transform: "rotateX(15deg) rotateY(15deg) rotateZ(5deg)", landscape: false, names: {en: "Tilt", ru: "Наклон"} },
+            "horizontalRight": { transform: "rotateZ(90deg)", premium: false, landscape: true, names: {en: "Horizontal (Right)", ru: "Горизонтально(Справа)"} },
+            "horizontalLeft": { transform: "rotateZ(-90deg)", premium: false, landscape: true, names: {en: "Horizontal (Left)", ru: "Горизонтально(Слева)"} }
+        };
+
+        const texts = {
+            en: {
+                title: 'Mockup Studio Pro | 3D Perspective',
+                screenContent: '1. Screen Content',
+                dropZone: 'Drag photo here or click here to upload from gallery',
+                premiumMsg: 'Buy Premium to upload videos',
+                deviceModel: '2. Device Model',
+                bodyColor: '3. Body Color',
+                positionSpace: '4. Position in Space',
+                share: 'SHARE',
+                premium: 'PREMIUM',
+                ok: 'OK',
+                messages: {
+                    onlyImages: 'Only images are supported',
+                    customColorPremium: 'Custom color selection is available only in Premium',
+                    availablePremium: 'Available in Premium',
+                    shareNotAvailable: 'Share function is not available in your browser',
+                    error: 'Error creating mockup',
+                    premiumFeature: 'This feature is available in Premium'
+                }
+            },
+            ru: {
+                title: 'Mockup Studio Pro | 3D Perspective',
+                screenContent: '1. Контент экрана',
+                dropZone: 'Перетащите сюда фото или нажмите сюда чтобы загрузить из галереи',
+                premiumMsg: 'Купите Premium, чтобы загружать видео',
+                deviceModel: '2. Модель устройства',
+                bodyColor: '3. Цвет корпуса',
+                positionSpace: '4. Положение в пространстве',
+                share: 'ПОДЕЛИТЬСЯ',
+                premium: 'PREMIUM',
+                ok: 'ОК',
+                messages: {
+                    onlyImages: 'Поддерживаются только изображения',
+                    customColorPremium: 'Выбор собственного цвета доступен только в Premium',
+                    availablePremium: 'Доступно в Premium',
+                    shareNotAvailable: 'Функция поделиться недоступна в вашем браузере',
+                    error: 'Ошибка при создании мокапа',
+                    premiumFeature: 'Эта функция доступна в Premium'
+                }
+            }
         };
 
         const frame = document.getElementById('device-frame');
@@ -278,8 +337,9 @@
 
         let currentContentFile = null;
         let currentDevice = null;
+        let currentLang = localStorage.getItem('lang') || 'en';
 
-        // ====================== СБРОС КОНТЕНТА ЭКРАНА (ВАЖНО ДЛЯ ГОРИЗОНТАЛЬНЫХ РЕЖИМОВ) ======================
+        // ====================== RESET SCREEN CONTENT (IMPORTANT FOR HORIZONTAL MODES) ======================
         function resetScreenContent() {
             if (!screenBg) return;
             screenBg.style.position = '';
@@ -294,7 +354,7 @@
             screenBg.style.backgroundRepeat = 'no-repeat';
         }
 
-        // ====================== МОДАЛЬНЫЕ ОКНА ======================
+        // ====================== MODAL WINDOWS ======================
         (function(){
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
@@ -317,7 +377,7 @@
                     buttons.forEach(btn => {
                         const el = document.createElement('button');
                         el.className = 'btn' + (btn.primary? ' primary':'');
-                        el.textContent = btn.label || 'OK';
+                        el.textContent = btn.label || texts[currentLang].ok;
                         el.onclick = () => {
                             overlay.style.display = 'none';
                             try{ if (btn.onClick) btn.onClick(); }catch(e){console.error(e)}
@@ -329,40 +389,51 @@
                 });
             };
 
-            window.showMessage = function(text){ return createModal('', text, [{label:'ОК', value:'ok', primary:true}]); };
+            window.showMessage = function(key){ return createModal('', texts[currentLang].messages[key], [{label: texts[currentLang].ok, value:'ok', primary:true}]); };
         })();
 
+        // ====================== LANGUAGE SWITCH ======================
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.title = texts[lang].title;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = texts[lang][el.dataset.i18n];
+            });
+            document.getElementById('dropZoneText').textContent = texts[lang].dropZone;
+            document.getElementById('premiumMessage').textContent = texts[lang].premiumMsg;
+            document.getElementById('sendBtn').innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> ${texts[lang].share}`;
+            buildDeviceList();
+            buildColorPalette();
+            buildPositionList();
+            document.getElementById('lang-ru').classList.toggle('text-white', lang === 'ru');
+            document.getElementById('lang-ru').classList.toggle('text-gray-400', lang !== 'ru');
+            document.getElementById('lang-en').classList.toggle('text-white', lang === 'en');
+            document.getElementById('lang-en').classList.toggle('text-gray-400', lang !== 'en');
+        }
 
-
-        // ====================== ГЕНЕРАЦИЯ УСТРОЙСТВ ======================
-        const isPremium = localStorage.getItem('premium') === 'yes';
-        let currentCategory = null;
-        Object.keys(devices).forEach(name => {
-            const device = devices[name];
-            const category = device.category;
-            const isDevicePremium = device.premium === true && !isPremium;
-            
-            let container = document.getElementById('deviceList');
-            
-            if (currentCategory !== category) {
-                const header = document.createElement('div');
-                header.className = "text-[9px] font-bold text-blue-300 mt-3 mb-2 px-2 uppercase tracking-widest";
-                header.innerText = '━━ ' + category + ' ━━';
-                container.appendChild(header);
-                currentCategory = category;
-            }
-            
-            const btn = document.createElement('button');
-            if (isDevicePremium) {
-                btn.className = "w-full text-left px-3 py-1.5 rounded-lg text-[10px] text-slate-500 border border-slate-700/50 hover:border-slate-600 transition-all opacity-65 cursor-not-allowed flex items-center justify-between";
-                btn.disabled = true;
-                btn.innerHTML = `<span>${name}</span><span class="text-[8px] text-blue-400 font-bold flex items-center gap-1"><i class="fa-solid fa-lock" style="color: rgb(10, 98, 255);"></i>PREMIUM</span>`;
-            } else {
+        // ====================== BUILD DEVICE LIST ======================
+        function buildDeviceList() {
+            const container = document.getElementById('deviceList');
+            container.innerHTML = '';
+            let currentCategory = null;
+            Object.keys(devices).forEach(name => {
+                const device = devices[name];
+                const category = device.category;
+                
+                if (currentCategory !== category) {
+                    const header = document.createElement('div');
+                    header.className = "text-[9px] font-bold text-blue-300 mt-3 mb-2 px-2 uppercase tracking-widest";
+                    header.innerText = '━━ ' + category + ' ━━';
+                    container.appendChild(header);
+                    currentCategory = category;
+                }
+                
+                const btn = document.createElement('button');
                 btn.className = "w-full text-left px-3 py-1.5 rounded-lg text-[10px] text-slate-300 border border-slate-800 hover:border-slate-600 transition-all";
                 btn.innerText = name;
-            }
-            
-            if (!isDevicePremium) {
+                
                 btn.onclick = () => {
                     document.querySelectorAll('#deviceList button').forEach(b => b.classList.remove('active-btn'));
                     btn.classList.add('active-btn');
@@ -404,150 +475,118 @@
                         keyboard.style.display = 'none';
                     }
 
-                    // === НОВОЕ: сохраняем текущее устройство + сбрасываем на "Ровно" при смене устройства ===
+                    // === NEW: save current device + reset to "straight" when changing device ===
                     currentDevice = d;
                     resetScreenContent();
-                    frame.style.transform = positions["Ровно"].transform;
+                    frame.style.transform = positionData["straight"].transform;
 
-                    // сбрасываем активную кнопку позиции (если список уже создан)
-                    const posList = document.getElementById('positionList');
-                    if (posList && posList.children.length > 0) {
-                        document.querySelectorAll('#positionList button').forEach(b => b.classList.remove('active-btn'));
-                        const rovnoBtn = Array.from(posList.querySelectorAll('button')).find(b => b.innerText.trim() === 'Ровно');
-                        if (rovnoBtn) rovnoBtn.classList.add('active-btn');
-                    }
+                    // reset active position button
+                    document.querySelectorAll('#positionList button').forEach(b => b.classList.remove('active-btn'));
+                    const straightBtn = Array.from(document.querySelectorAll('#positionList button')).find(b => b.dataset.pos === 'straight');
+                    if (straightBtn) straightBtn.classList.add('active-btn');
                 };
-            }
-            container.appendChild(btn);
-        });
-        
-        const firstBtn = document.querySelector('#deviceList button');
-        if (firstBtn) firstBtn.click();
-
-        // ====================== ЦВЕТА ======================
-        let midnightBtn = null;
-        colors.forEach(c => {
-            const btn = document.createElement('button');
-            btn.className = "w-7 h-7 rounded-full border-2 border-slate-700 hover:scale-110 transition-transform relative group";
-            btn.style.backgroundColor = c.hex;
-            btn.title = c.nameRu || c.name;
-            btn.onclick = () => {
-                frame.style.borderColor = c.hex;
-                document.querySelectorAll('#colorPalette button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
-                btn.classList.add('ring-2', 'ring-blue-500');
-            };
-            if (c.name === 'Midnight') midnightBtn = btn;
-            document.getElementById('colorPalette').appendChild(btn);
-        });
-        
-        if (midnightBtn) {
-            frame.style.borderColor = '#1c1c1e';
-            midnightBtn.classList.add('ring-2', 'ring-blue-500');
-        }
-
-        const customColorContainer = document.createElement('div');
-        customColorContainer.className = "flex items-center gap-2";
-        const customColorPicker = document.createElement('input');
-        customColorPicker.type = 'color';
-        customColorPicker.id = 'customColorPicker';
-        customColorPicker.className = "w-7 h-7 rounded-md border-2 border-slate-700 hover:border-slate-500 transition-all";
-        customColorPicker.style.padding = '2px';
-        customColorPicker.value = '#3b82f6';
-
-        const hexInput = document.createElement('input');
-        hexInput.type = 'text';
-        hexInput.placeholder = 'HEX';
-        hexInput.className = "w-16 text-[9px] bg-slate-900/30 border border-slate-800 rounded-lg px-2 py-1 outline-none text-white placeholder-slate-500 uppercase font-mono";
-        hexInput.maxLength = '7';
-        hexInput.value = '#3b82f6';
-
-        // Если пользователь не в Premium — пометка рядом с выбором цвета и блокировка полей
-        if (!isPremium) {
-            customColorPicker.disabled = true;
-            customColorPicker.className += ' cursor-not-allowed opacity-60';
-            customColorPicker.title = 'Доступно в Premium';
-
-            const lockBadge = document.createElement('span');
-            lockBadge.className = 'ml-1 text-[10px] text-blue-400 flex items-center gap-1';
-            lockBadge.innerHTML = '<i class="fa-solid fa-lock"></i> <span class="ml-1">Premium</span>';
-
-            hexInput.disabled = true;
-            hexInput.className += ' opacity-60 cursor-not-allowed';
-            hexInput.title = 'Доступно в Premium';
-
-            customColorPicker.addEventListener('click', function(e){
-                e.preventDefault();
-                showMessage('Выбор собственного цвета доступен только в Premium');
+                container.appendChild(btn);
             });
-            hexInput.addEventListener('focus', function(e){ e.target.blur(); showMessage('Доступно в Premium'); });
-
-            customColorContainer.appendChild(customColorPicker);
-            customColorContainer.appendChild(lockBadge);
-            customColorContainer.appendChild(hexInput);
-        } else {
-            // Premium: обычное поведение
-            customColorContainer.appendChild(customColorPicker);
-            customColorContainer.appendChild(hexInput);
+            const firstBtn = document.querySelector('#deviceList button:not([disabled])');
+            if (firstBtn) firstBtn.click();
         }
 
-        document.getElementById('colorPalette').appendChild(customColorContainer);
-
-        customColorPicker.addEventListener('change', function(e) {
-            if (!isPremium) return;
-            const color = e.target.value.toUpperCase();
-            frame.style.borderColor = color;
-            hexInput.value = color;
-            document.querySelectorAll('#colorPalette button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
-        });
-        customColorPicker.addEventListener('input', function(e) {
-            if (!isPremium) return;
-            const color = e.target.value.toUpperCase();
-            frame.style.borderColor = color;
-            hexInput.value = color;
-        });
-        hexInput.addEventListener('input', function(e) {
-            if (!isPremium) return;
-            let hex = e.target.value.toUpperCase();
-            if (hex && !hex.startsWith('#')) hex = '#' + hex;
-            if (/^#[0-9A-F]{6}$/.test(hex)) {
-                frame.style.borderColor = hex;
-                customColorPicker.value = hex;
-            }
-        });
-        hexInput.addEventListener('blur', function(e) {
-            if (!e.target.value.startsWith('#')) e.target.value = '#' + e.target.value;
-        });
-
-        // ====================== ПОЗИЦИИ ======================
-        const positionListEl = document.getElementById('positionList');
-
-        Object.keys(positions).forEach(pos => {
-            const posData = positions[pos];
-            const isPosPremium = posData.premium === true && !isPremium;
-            const btn = document.createElement('button');
+        // ====================== BUILD COLOR PALETTE ======================
+        function buildColorPalette() {
+            const palette = document.getElementById('colorPalette');
+            palette.innerHTML = '';
+            let midnightBtn = null;
+            colors.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = "w-7 h-7 rounded-full border-2 border-slate-700 hover:scale-110 transition-transform relative group";
+                btn.style.backgroundColor = c.hex;
+                btn.title = currentLang === 'ru' ? (c.nameRu || c.name) : (c.name || c.nameRu);
+                btn.onclick = () => {
+                    frame.style.borderColor = c.hex;
+                    document.querySelectorAll('#colorPalette button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
+                    btn.classList.add('ring-2', 'ring-blue-500');
+                };
+                if (c.name === 'Midnight') midnightBtn = btn;
+                palette.appendChild(btn);
+            });
             
-            if (isPosPremium) {
-                btn.className = "px-2 py-1.5 rounded-lg text-[9px] bg-slate-800/30 border border-slate-700/50 transition-all opacity-60 cursor-not-allowed";
-                btn.innerHTML = '<div class="text-[7px] text-blue-400 font-bold"><i class="fa-solid fa-lock" style="color: rgb(10, 98, 255);"></i> PREMIUM</div>' + pos;
-                btn.disabled = true;
-            } else {
+            if (midnightBtn) {
+                frame.style.borderColor = '#1c1c1e';
+                midnightBtn.classList.add('ring-2', 'ring-blue-500');
+            }
+
+            const customColorContainer = document.createElement('div');
+            customColorContainer.className = "flex items-center gap-2";
+            const customColorPicker = document.createElement('input');
+            customColorPicker.type = 'color';
+            customColorPicker.id = 'customColorPicker';
+            customColorPicker.className = "w-7 h-7 rounded-md border-2 border-slate-700 hover:border-slate-500 transition-all";
+            customColorPicker.style.padding = '2px';
+            customColorPicker.value = '#3b82f6';
+
+            const hexInput = document.createElement('input');
+            hexInput.type = 'text';
+            hexInput.placeholder = 'HEX';
+            hexInput.className = "w-16 text-[9px] bg-slate-900/30 border border-slate-800 rounded-lg px-2 py-1 outline-none text-white placeholder-slate-500 uppercase font-mono";
+            hexInput.maxLength = '7';
+            hexInput.value = '#3b82f6';
+
+            customColorContainer.appendChild(customColorPicker);
+            customColorContainer.appendChild(hexInput);
+
+            customColorPicker.addEventListener('change', function(e) {
+                const color = e.target.value.toUpperCase();
+                frame.style.borderColor = color;
+                hexInput.value = color;
+                document.querySelectorAll('#colorPalette button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
+            });
+            customColorPicker.addEventListener('input', function(e) {
+                const color = e.target.value.toUpperCase();
+                frame.style.borderColor = color;
+                hexInput.value = color;
+            });
+            hexInput.addEventListener('input', function(e) {
+                let hex = e.target.value.toUpperCase();
+                if (hex && !hex.startsWith('#')) hex = '#' + hex;
+                if (/^#[0-9A-F]{6}$/.test(hex)) {
+                    frame.style.borderColor = hex;
+                    customColorPicker.value = hex;
+                }
+            });
+            hexInput.addEventListener('blur', function(e) {
+                if (!e.target.value.startsWith('#')) e.target.value = '#' + e.target.value;
+            });
+
+            palette.appendChild(customColorContainer);
+        }
+
+        // ====================== BUILD POSITION LIST ======================
+        function buildPositionList() {
+            const positionListEl = document.getElementById('positionList');
+            positionListEl.innerHTML = '';
+
+            Object.keys(positionData).forEach(posKey => {
+                const pos = positionData[posKey];
+                const btn = document.createElement('button');
+                btn.dataset.pos = posKey;
+                
                 btn.className = "px-2 py-1.5 rounded-lg text-[9px] bg-slate-800/50 border border-slate-700 hover:bg-slate-700 transition-all";
-                btn.innerText = pos;
+                btn.innerText = pos.names[currentLang];
                 btn.onclick = () => {
                     document.querySelectorAll('#positionList button').forEach(b => b.classList.remove('active-btn'));
                     btn.classList.add('active-btn');
-                    currentBaseTransform = posData.transform;
+                    currentBaseTransform = pos.transform;
                     
-                    if (posData.landscape) {
+                    if (pos.landscape) {
                         screenBg.style.backgroundSize = 'cover';
                         screenBg.style.backgroundPosition = 'center';
                         screenBg.style.backgroundRepeat = 'no-repeat';
 
-                        // === ИСПРАВЛЕНИЕ 1: полное заполнение экрана в горизонтальных режимах (убираем чёрные поля) ===
+                        // === FIX 1: full screen fill in horizontal modes (remove black bars) ===
                         const isRight = currentBaseTransform.includes('rotateZ(90deg)');
                         const compensationDeg = isRight ? -90 : 90;
-                        const contentLayoutW = currentDevice.h;   // ширина контента в layout = высота устройства (portrait)
-                        const contentLayoutH = currentDevice.w;   // высота контента в layout = ширина устройства
+                        const contentLayoutW = currentDevice.h;   // content layout width = device height (portrait)
+                        const contentLayoutH = currentDevice.w;   // content layout height = device width
 
                         screenBg.style.position = 'absolute';
                         screenBg.style.left = '50%';
@@ -557,9 +596,9 @@
                         screenBg.style.transformOrigin = 'center center';
                         screenBg.style.transform = `translate(-50%, -50%) rotate(${compensationDeg}deg)`;
 
-                        // === ИСПРАВЛЕНИЕ 2: оптимизация для мобильных устройств ===
+                        // === FIX 2: optimization for mobile devices ===
                         const previewContainer = document.getElementById('capture-area').parentNode;
-                        const visualWidth = currentDevice.h; // после поворота 90° визуальная ширина = высота устройства
+                        const visualWidth = currentDevice.h; // after 90° rotation visual width = device height
                         let availableWidth = previewContainer.clientWidth - 160;
                         if (availableWidth < 200) availableWidth = previewContainer.clientWidth * 0.88;
                         const scaleFactor = Math.min(1, availableWidth / visualWidth);
@@ -568,8 +607,6 @@
                         } else {
                             frame.style.transform = currentBaseTransform;
                         }
-
-                        positionControl.style.display = 'none';
                     } else {
                         resetScreenContent();
                         screenBg.style.backgroundSize = 'cover';
@@ -577,7 +614,7 @@
                         screenBg.style.backgroundRepeat = 'no-repeat';
                         screenBg.style.transform = 'none';
                         // apply base transform first
-                        frame.style.transform = posData.transform;
+                        frame.style.transform = pos.transform;
 
                         // if the rotated device would overflow its preview container, scale it down
                         const previewContainer = document.getElementById('capture-area').parentNode;
@@ -586,20 +623,19 @@
                         let availH = previewContainer.clientHeight - 80;
                         const scaleFactor = Math.min(1, availW / bbox.width, availH / bbox.height);
                         if (scaleFactor < 0.98) {
-                            frame.style.transform = `${posData.transform} scale(${scaleFactor.toFixed(3)})`;
+                            frame.style.transform = `${pos.transform} scale(${scaleFactor.toFixed(3)})`;
                         }
                     }
                 };
-            }
-            
-            positionListEl.appendChild(btn);
-            
-            if(pos === "Ровно") {
-                btn.classList.add('active-btn');
-                frame.style.transform = posData.transform;
-            }
-        });
-        
+                
+                positionListEl.appendChild(btn);
+                
+                if(posKey === "straight") {
+                    btn.classList.add('active-btn');
+                    frame.style.transform = pos.transform;
+                }
+            });
+        }
 
         // ====================== DRAG & DROP ======================
         const dropZone = document.getElementById('dropZone');
@@ -607,12 +643,7 @@
         function handleDragLeave(e) { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('drag-over'); }
 
         const contentUpload = document.getElementById('contentUpload');
-        const dropZoneText = document.getElementById('dropZoneText');
-        const premiumMessage = document.getElementById('premiumMessage');
-        
         contentUpload.accept = 'image/*';
-        dropZoneText.textContent = 'Перетащите сюда фото или нажмите сюда чтобы загрузить из галереи';
-        premiumMessage.style.display = 'none';
 
         function handleDrop(e) {
             e.preventDefault();
@@ -627,7 +658,7 @@
                 currentContentFile = file;
                 loadImage(file);
             } else {
-                showMessage('Поддерживаются только изображения');
+                showMessage('onlyImages');
             }
         }
 
@@ -637,19 +668,19 @@
             reader.readAsDataURL(file);
         }
 
-        // ====================== ЗАГРУЗКА ЧЕРЕЗ INPUT ======================
+        // ====================== UPLOAD VIA INPUT ======================
         contentUpload.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) processFile(file);
         });
 
-        // ====================== ОТПРАВКА ======================
+        // ====================== SENDING ======================
         async function sendMockup() {
             const btn = document.getElementById('sendBtn');
             const origBtnHtml = btn.innerHTML;
             btn.disabled = true;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
-            btn.innerHTML = `<span class="animate-spin">🌀</span> Отправка...`;
+            btn.innerHTML = `<span class="animate-spin">🌀</span> Sending...`; // Note: This is not translated, as it's temporary
 
             try {
                 const capture = document.getElementById('capture-area');
@@ -692,12 +723,12 @@
                         if (navigator.share) {
                             const file = new File([blob], 'mockup.png', { type: 'image/png' });
                             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                                await navigator.share({ files: [file], title: 'Мой мокап' });
+                                await navigator.share({ files: [file], title: 'My Mockup' });
                             } else {
-                                await navigator.share({ title: 'Мой мокап', text: 'Посмотрите мой мокап!' });
+                                await navigator.share({ title: 'My Mockup', text: 'Check out my mockup!' });
                             }
                         } else {
-                            showMessage('Функция поделиться недоступна в вашем браузере');
+                            showMessage('shareNotAvailable');
                         }
                     } catch (e) {
                         console.error(e);
@@ -709,22 +740,23 @@
                 }, 'image/png');
             } catch (e) {
                 console.error(e);
-                showMessage("Ошибка при создании мокапа");
+                showMessage('error');
                 btn.disabled = false;
                 btn.classList.remove('opacity-50', 'cursor-not-allowed');
                 btn.innerHTML = origBtnHtml;
             }
         }
+
+        // Initialize
+        setLanguage(currentLang);
+        document.getElementById('premiumMessage').style.display = 'none';
     </script>
 
     <script>
         if (window.Telegram?.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
-            tg.BackButton.show();
-            tg.BackButton.onClick(() => {
-                window.location.href = 'main.html';
-            });
+            tg.BackButton.hide();
             tg.SettingsButton.hide();
         }
     </script>
