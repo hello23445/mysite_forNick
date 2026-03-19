@@ -724,7 +724,6 @@
         });
         const createdMockupsCount = Number(localStorage.getItem('created_mockups') || 0) + 1;
         localStorage.setItem('created_mockups', String(createdMockupsCount));
-        alert ('Создано! : ' + localStorage.getItem('created_mockups'));
         if (window.Telegram?.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();

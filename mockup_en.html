@@ -718,6 +718,12 @@
     </script>
 
     <script>
+        sendBtn.addEventListener('click', () => {
+            const sharedCount = Number(localStorage.getItem('shared_mockups') || 0) + 1;
+            localStorage.setItem('shared_mockups', String(sharedCount));
+        });
+        const createdMockupsCount = Number(localStorage.getItem('created_mockups') || 0) + 1;
+        localStorage.setItem('created_mockups', String(createdMockupsCount));
         if (window.Telegram?.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
