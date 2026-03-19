@@ -542,7 +542,6 @@ body {
   -webkit-touch-callout: none; /* Safari iOS */
   -webkit-user-select: none;   /* Safari iOS */
   -ms-user-select: none;       /* IE 10+ */
-  user-select: none;           /* стандарт */
 }
 .selectable-text {
   user-select: text; /* обязательно, чтобы JS мог выделять текст */
@@ -571,4 +570,12 @@ body {
   display: inline-block;
   transition: all 0.3s ease;
 }
+body.fullscreen-app .main,
+body.fullscreen-app #sideMenu {
+  margin-top: 6%;
+}
 
+body.fullscreen-app.ios .main,
+body.fullscreen-app.ios #sideMenu {
+  margin-top: 10%;
+}

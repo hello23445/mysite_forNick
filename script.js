@@ -769,16 +769,7 @@ function applyTranslations() {
             } catch(e){}
         });
     }
-if (/iPhone/i.test(navigator.userAgent)) {
-    document.getElementById('appViewMode').disabled = true;
-    const headerElement = document.getElementById('appSizeTextViewer');
-    const lang = localStorage.getItem('lang') || 'ru';
-    const messages = {
-        ru: 'Размер приложения: (Данная функция не поддерживается на iPhone, но скоро получит поддержку)',
-        en: 'Application size:(This feature is not supported on iPhone, but coming soon)'
-    };
-    headerElement.textContent = messages[lang] || messages['ru'];
-}
+
 }
 function initTokenButton(btnId) {
     let isVisible = false;

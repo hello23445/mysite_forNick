@@ -313,7 +313,8 @@
                 {key: 'created_fonts', name: lang === 'ru' ? 'Шрифты' : 'Fonts', icon: 'fa-font'},
                 {key: 'created_ascii_arts', name: lang === 'ru' ? 'Символ-арты' : 'ASCII arts', icon: 'fa-keyboard'},
                 {key: 'created_qr_codes', name: 'QR-' + (lang === 'ru' ? 'коды' : 'codes'), icon: 'fa-qrcode'},
-                {key: 'created_musics', name: lang === 'ru' ? 'Музыка' : 'Music', icon: 'fa-music'}
+                {key: 'created_musics', name: lang === 'ru' ? 'Музыка' : 'Music', icon: 'fa-music'},
+                {key: 'created_mockups', name: lang === 'ru' ? 'Мокапы' : 'Mockups', icon: 'fa-desktop'}
             ];
             createdItems.forEach(i => i.count = parseInt(localStorage.getItem(i.key) || '0'));
             const totalGenerated = createdItems.reduce((s, i) => s + i.count, 0);
@@ -335,7 +336,8 @@
                 {key: 'shared_descriptions', name: lang === 'ru' ? 'Описания' : 'Descriptions', icon: 'fa-share'},
                 {key: 'shared_avatars', name: lang === 'ru' ? 'Аватарка' : 'Avatar', icon: 'fa-image'},
                 {key: 'shared_qr_codes', name: lang === 'ru' ? 'QR-кодов' : 'QR codes', icon: 'fa-qrcode'},
-                {key: 'shared_music', name: lang === 'ru' ? 'Музыка' : 'Music', icon: 'fa-music'}
+                {key: 'shared_music', name: lang === 'ru' ? 'Музыка' : 'Music', icon: 'fa-music'},
+                {key: 'shared_mockups', name: lang === 'ru' ? 'Мокапы' : 'Mockups', icon: 'fa-desktop'}
             ];
             sharedItems.forEach(i => i.count = parseInt(localStorage.getItem(i.key) || '0'));
             const totalShared = sharedItems.reduce((s, i) => s + i.count, 0);

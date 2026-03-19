@@ -6,7 +6,7 @@
       try{
         if (mode === 'fullscreen'){
           if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.requestFullscreen === 'function') {
-            window.Telegram.WebApp.requestFullscreen();
+            window.Telegram.WebApp.requestFullscreen();В 
           }
         } else {
           if (window.Telegram && window.Telegram.WebApp) {
@@ -16,6 +16,28 @@
         }
       }catch(e){}
     }
+
+    function applyFullscreenMargin() {
+        const rawMode = (localStorage.getItem('appViewMode') || '').toString().trim().toLowerCase();
+        const isFullscreen = ['fullscreen', 'full', 'полноэкранный'].includes(rawMode);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        document.body.classList.toggle('fullscreen-app', isFullscreen);
+        document.body.classList.toggle('ios', isIOS);
+
+        const margin = isFullscreen ? (isIOS ? '10%' : '6%') : '';
+        const mainEl = document.querySelector('.main');
+        const sideEl = document.querySelector('#sideMenu');
+
+        if (mainEl) mainEl.style.marginTop = margin;
+        if (sideEl) sideEl.style.marginTop = margin;
+    }
+
+    applyFullscreenMargin();
+
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'appViewMode') applyFullscreenMargin();
+    });
 
     // Bad-words enforcement (both RU and EN) for pages that load this helper
     const BAD_WORDS = JSON.parse(localStorage.getItem('badWords') || '[]');
