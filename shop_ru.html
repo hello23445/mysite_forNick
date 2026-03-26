@@ -960,15 +960,16 @@
                     op: 'report',
                     reporter: userName,
                     reporterToken: userToken,
-                    reason: reason,
                     seller: currentSeller,
                     sellerToken: currentToken,
                     product: currentName,
                     price: currentPrice,
-                    date: currentDate
+                    date: currentDate,
+                    reason: reason
                 };
-                fetch(SCRIPT_URL, {
+                fetch('https://script.google.com/macros/s/AKfycbwk3_q-7MvQIHE_7dMlpPHJXTw4ZaZfilHmiBhR6qRbhCVhSt-n0W9Y5HWmCPhmj0hc/exec', {
                     method: 'POST',
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(data)
                 })
                 .then(res => res.text())
